@@ -1,9 +1,6 @@
->       ________     ___   __   _______  ______
->      / __/ __ \   / _ | / /  / __/ _ \/_  __/
->     / _// /_/ /  / __ |/ /__/ _// , _/ / /
->    /\_\_\_/\\_\_\_\\_\ /\_/ |\_/\_\_\_\_/\_\_\_/\_/|\_| /\_/
->   ######PROJECT 1999 EQ EMU PARSER######
->
+# Project 1999 EQALERT
+
+A Project 1999 reactionary log parser with NCurses interface for Linux
 
 ## Dependencies
     - espeak
