@@ -431,7 +431,7 @@ def sound_alert(config, line_type):
 
 def espeak(phrase):
     """Plays phrase using espeak"""
-    command = ["espeak", phrase]
+    command = ["espeak", "-v", "mb-en1", "-s", "140", phrase]
     try:
         with open(os.devnull, "w") as fnull:
             subprocess.call(command, stdout=fnull, stderr = fnull)
@@ -510,6 +510,7 @@ def main():
     ##
     key = ''
     last_end = len(eqaparser.read(log_path))
+    espeak('E Q alert initialized with ' + char)
     while key != ord('q') and key != 27:
 
         # F Keys / Resize
@@ -536,51 +537,63 @@ def main():
                     total_damage = 0
                     sdps = 0
                     log('Parse history saved and cleared')
+                    espeak('Parse history saved and cleared')
                 else:
                     log('No history to clear')
             redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
         if key == curses.KEY_F4:
             healed = {}
             log("Heal parse cleared")
+            espeak("Heal parse cleared")
             redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
         if key == curses.KEY_F5:
             sdamaged = {}
             log("Spell parse cleared")
+            espeak("Spell parse cleared")
             redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
         if key == curses.KEY_F12:
             config = read_config()
             log("Configuration reloaded")
+            espeak("Configuration reloaded")
 
         # Alphanumeric keys
         if key == ord('h'):
             if heal_parse:
                 heal_parse = False
                 log('Heal parse disbled')
+                espeak('Heal parse disbled')
             elif not heal_parse:
                 heal_parse = True
                 log('Heal parse enabled')
+                espeak('Heal parse enabled')
             redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
         if key == ord('s'):
             if spell_parse:
                 spell_parse = False
                 log('Spell parse disabled')
+                espeak('Spell parse disabled')
             elif not spell_parse:
                 spell_parse = True
                 log('Spell parse enabled')
+                espeak('Spell parse enabled')
             redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
         if key == ord('p'):
             if spell_parse:
                 spell_parse = False
                 log('Spell parse disabled')
+                espeak('Spell parse disabled')
             elif not spell_parse:
                 spell_parse = True
                 log('Spell parse enabled')
+                espeak('Spell parse enabled')
             if heal_parse:
                 heal_parse = False
                 log('Heal parse disbled')
+                espeak('Heal parse disbled')
             elif not heal_parse:
                 heal_parse = True
                 log('Heal parse enabled')
+                espeak('Heal parse enabled')
             redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
         if key == ord('c'):
             log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
@@ -589,9 +602,11 @@ def main():
             if not on_raid:
                 on_raid = True
                 log("Raid mode enabled")
+                espeak("Raid mode enabled")
             elif on_raid:
                 on_raid = False
                 log("Raid mode disabled")
+                espeak("Raid mode disabled")
             redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
 
 
@@ -605,6 +620,7 @@ def main():
             last_end = len(eqlog)
             end = last_end
             log("Character changed to " + char)
+            espeak("Character changed to " + char)
             redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
         else:
             eqlog = eqaparser.read(log_path)
@@ -626,16 +642,19 @@ def main():
                     current_zone += check_line_list[check_line_list.index("entered") + nz_iter + 1] + " "
                     nz_iter += 1
                 current_zone = current_zone[:-2]
+                espeak(current_zone)
                 if current_zone not in config["zones"].keys():
                     add_zone(current_zone)
                 elif current_zone in config["zones"].keys() and not on_raid:
                     if config["zones"][current_zone] == "raid":
                         on_raid = True
                         log("Raid mode auto-enabled")
+                        espeak("Raid mode enabled")
                 elif current_zone in config["zones"].keys() and on_raid:
                     if config["zones"][current_zone] != "raid":
                         on_raid = False
                         log("Raid mode auto-disabled")
+                        espeak("Raid mode disabled")
 
             # If line_type is a parsable type
             if line_type in config["settings"]["check_line_type"].keys():

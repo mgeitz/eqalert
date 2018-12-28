@@ -99,6 +99,7 @@
     }, 
     "settings": {
         "sound_settings": {
+            "you_outfood": "0", 
             "all": "0", 
             "you_new_zone": "0", 
             "group_invite": "3", 
@@ -113,7 +114,6 @@
             "auction_wts": "2", 
             "emote_bow": "0", 
             "loc": "0", 
-            "shout": "1", 
             "group": "3", 
             "you_thirsty": "0", 
             "guild": "3", 
@@ -152,7 +152,7 @@
             "target": "3", 
             "spell_damage": "0", 
             "spell_interrupted": "2", 
-            "dot_damage": "0", 
+            "shout": "1", 
             "auction": "0", 
             "you_group": "0", 
             "spell_break": "4", 
@@ -160,7 +160,7 @@
             "emote_bonk": "0", 
             "who_top": "0", 
             "emote_wave": "0", 
-            "you_outfood": "0", 
+            "dot_damage": "0", 
             "you_lfg_on": "0", 
             "you_afk_off": "0", 
             "melee_hit": "2", 
@@ -169,11 +169,12 @@
         "sounds": {
             "1": "OOT_Navi_Hey1.wav", 
             "3": "OOT_Navi_Look1.wav", 
-            "2": "OOT_Navi_Listen2.wavi", 
+            "2": "OOT_Navi_Listen1.wav", 
             "5": "OOT_Navi_Hello1.wav", 
             "4": "OOT_Navi_WatchOut1.wav"
         }, 
         "check_line_type": {
+            "you_outfood": "false", 
             "all": "false", 
             "you_new_zone": "all", 
             "group_invite": "all", 
@@ -188,7 +189,6 @@
             "auction_wts": "true", 
             "emote_bow": "false", 
             "loc": "false", 
-            "shout": "false", 
             "group": "true", 
             "you_thirsty": "false", 
             "guild": "true", 
@@ -227,7 +227,7 @@
             "target": "false", 
             "spell_damage": "all", 
             "spell_interrupted": "false", 
-            "dot_damage": "all", 
+            "shout": "false", 
             "auction": "false", 
             "you_group": "true", 
             "spell_break": "false", 
@@ -235,18 +235,19 @@
             "emote_bonk": "false", 
             "who_top": "false", 
             "emote_wave": "false", 
-            "you_outfood": "false", 
+            "dot_damage": "all", 
             "you_lfg_on": "false", 
             "you_afk_off": "false", 
             "melee_hit": "false", 
             "faction_line": "false"
         }, 
         "paths": {
-            "sound": "/home/indefinite/scripts/python/eq/eqalert/sounds/", 
-            "log": "/home/indefinite/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
+            "sound": "/home/arch/project/eqalert/sounds/", 
+            "log": "/home/arch/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
         }
     }, 
     "alert": {
+        "you_outfood": {}, 
         "all": {}, 
         "you_new_zone": {}, 
         "group_invite": {}, 
@@ -263,15 +264,14 @@
         "you_tell": {}, 
         "you_afk_on": {}, 
         "auction_wts": {
-            "block of velium": "true", 
-            "shiny brass idol": "true", 
-            "crystalline silk": "true"
+            "block of velium": "false", 
+            "shiny brass idol": "false", 
+            "crystalline silk": "false"
         }, 
         "emote_bow": {}, 
         "loc": {}, 
-        "shout": {}, 
         "group": {
-            "invis": "true", 
+            "invis": "false", 
             "asyn": "true", 
             "indefinite": "true", 
             "asynchronous": "true", 
@@ -329,7 +329,7 @@
         "target": {}, 
         "spell_damage": {}, 
         "spell_interrupted": {}, 
-        "dot_damage": {}, 
+        "shout": {}, 
         "auction": {}, 
         "you_group": {}, 
         "spell_break": {}, 
@@ -337,28 +337,25 @@
         "emote_bonk": {}, 
         "who_top": {}, 
         "emote_wave": {}, 
-        "you_outfood": {}, 
+        "dot_damage": {}, 
         "you_lfg_on": {}, 
         "you_afk_off": {}, 
         "melee_hit": {}, 
         "faction_line": {}
     }, 
     "characters": {
-        "realshadows": "true", 
-        "trackin": "true", 
+        "gillroy": "true", 
         "default": "indefinite", 
-        "badek": "true", 
+        "gillyroy": "true", 
         "improper": "true", 
-        "kejekan": "true", 
         "asynchronous": "true", 
         "distributor": "true", 
-        "fulmination": "true", 
         "indefinite": "true"
     }, 
     "_HEADER": {
         "parser_version": "0.1.1", 
         "version": "0.2.2", 
-        "modified": "2017-03-10 17:22:36.830275", 
+        "modified": "2018-12-27 21:31:04.465529", 
         "author": "Michael Geitz"
     }
 }
