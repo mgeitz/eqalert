@@ -99,7 +99,6 @@
     }, 
     "settings": {
         "sound_settings": {
-            "you_outfood": "0", 
             "all": "0", 
             "you_new_zone": "0", 
             "group_invite": "3", 
@@ -114,6 +113,7 @@
             "auction_wts": "2", 
             "emote_bow": "0", 
             "loc": "0", 
+            "shout": "1", 
             "group": "3", 
             "you_thirsty": "0", 
             "guild": "3", 
@@ -152,7 +152,7 @@
             "target": "3", 
             "spell_damage": "0", 
             "spell_interrupted": "2", 
-            "shout": "1", 
+            "dot_damage": "0", 
             "auction": "0", 
             "you_group": "0", 
             "spell_break": "4", 
@@ -160,7 +160,7 @@
             "emote_bonk": "0", 
             "who_top": "0", 
             "emote_wave": "0", 
-            "dot_damage": "0", 
+            "you_outfood": "0", 
             "you_lfg_on": "0", 
             "you_afk_off": "0", 
             "melee_hit": "2", 
@@ -174,7 +174,6 @@
             "4": "OOT_Navi_WatchOut1.wav"
         }, 
         "check_line_type": {
-            "you_outfood": "false", 
             "all": "false", 
             "you_new_zone": "all", 
             "group_invite": "all", 
@@ -189,6 +188,7 @@
             "auction_wts": "true", 
             "emote_bow": "false", 
             "loc": "false", 
+            "shout": "false", 
             "group": "true", 
             "you_thirsty": "false", 
             "guild": "true", 
@@ -227,7 +227,7 @@
             "target": "false", 
             "spell_damage": "all", 
             "spell_interrupted": "false", 
-            "shout": "false", 
+            "dot_damage": "all", 
             "auction": "false", 
             "you_group": "true", 
             "spell_break": "false", 
@@ -235,7 +235,7 @@
             "emote_bonk": "false", 
             "who_top": "false", 
             "emote_wave": "false", 
-            "dot_damage": "all", 
+            "you_outfood": "false", 
             "you_lfg_on": "false", 
             "you_afk_off": "false", 
             "melee_hit": "false", 
@@ -247,7 +247,6 @@
         }
     }, 
     "alert": {
-        "you_outfood": {}, 
         "all": {}, 
         "you_new_zone": {}, 
         "group_invite": {}, 
@@ -270,6 +269,7 @@
         }, 
         "emote_bow": {}, 
         "loc": {}, 
+        "shout": {}, 
         "group": {
             "invis": "false", 
             "asyn": "true", 
@@ -329,7 +329,7 @@
         "target": {}, 
         "spell_damage": {}, 
         "spell_interrupted": {}, 
-        "shout": {}, 
+        "dot_damage": {}, 
         "auction": {}, 
         "you_group": {}, 
         "spell_break": {}, 
@@ -337,7 +337,7 @@
         "emote_bonk": {}, 
         "who_top": {}, 
         "emote_wave": {}, 
-        "dot_damage": {}, 
+        "you_outfood": {}, 
         "you_lfg_on": {}, 
         "you_afk_off": {}, 
         "melee_hit": {}, 
@@ -355,7 +355,7 @@
     "_HEADER": {
         "parser_version": "0.1.1", 
         "version": "0.2.2", 
-        "modified": "2018-12-27 21:31:04.465529", 
+        "modified": "2018-12-28 10:14:06.605827", 
         "author": "Michael Geitz"
     }
 }

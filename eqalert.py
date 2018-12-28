@@ -414,7 +414,7 @@ def raid_alert(key, line):
 
 def play_sound(sound):
     """Plays sound from path passed in"""
-    command = ["aplay", sound]
+    command = ["play", sound]
     try:
         with open(os.devnull, "w") as fnull:
             subprocess.call(command, stdout=fnull, stderr = fnull)
@@ -510,7 +510,7 @@ def main():
     ##
     key = ''
     last_end = len(eqaparser.read(log_path))
-    espeak('E Q alert initialized with ' + char)
+    espeak('initialized')
     while key != ord('q') and key != 27:
 
         # F Keys / Resize
