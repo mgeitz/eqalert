@@ -5,6 +5,14 @@ eqalert curses
 import curses
 import os
 
+import eqa_struct
+
+#def display(stop, screen, event):
+#    while not stop.is_set():
+#        if not event.empty():
+#            process event
+
+
 def init(char, healed, sdamaged, sdps, current_zone):
     """Create new screen in terminal"""
     main_screen = curses.initscr()

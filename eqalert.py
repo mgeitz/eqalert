@@ -9,6 +9,7 @@ import logging
 import datetime
 import time
 import threading
+import Queue
 import time
 import os
 
@@ -16,8 +17,9 @@ import lib.eqa_parser as eqa_parse
 import lib.eqa_config as eqa_config
 import lib.eqa_settings as eqa_settings
 import lib.eqa_curses as eqa_curses
-import lib.eqa_action as eqa_action
+import lib.eqa_sound as eqa_sound
 import lib.eqa_parser as eqa_parser
+import lib.eqa_struct as eqa_struct
 
 __author__ = "Michael Geitz"
 __version__ = "0.2.2"
@@ -81,6 +83,17 @@ def main():
     sdps = 0.0
     current_zone = "unavailable"
 
+    # Queues
+    keyboard = Queue.Queue()
+    action = Queue.Queue()
+    display = Queue.Queue()
+    sound = Queue.Queue()
+    message = Queue.Queue()
+
+    # Flags
+    raid = threading.Event()
+    stop = threading.Event()
+
     # Logs
     logging.basicConfig(filename='./logs/eqalert.log', level=logging.DEBUG)
     eqa_settings.log('Initializing... ' + str(datetime.datetime.now()))
@@ -103,31 +116,46 @@ def main():
             chars.remove(toon)
 
     # Screen
-    main_screen = eqa_curses.init(char, healed, sdamaged, sdps, current_zone)
+    screen = eqa_curses.init(char, healed, sdamaged, sdps, current_zone)
+
+    # Threads
+    #foothread = threading.Thread(target=function,
+    #        args = (this, that, thar))
+    read_keys = threading.Thread(target=eqa_curses.keys,
+            args = (keyboard, screen))
+
+
+    read_keys.daemon = True
+    read_keys.start()
+
 
     ##
     ##  Curses loop
     ##
     key = ''
     last_end = len(eqa_parser.read(log_path))
-    eqa_action.espeak('initialized')
+    eqa_sound.espeak('initialized')
     while key != ord('q') and key != 27:
+
+      if not keyboard.empty():
+        key = keyboard.get()
+        keyboard.task_done()
 
         # F Keys / Resize
         if key == curses.KEY_RESIZE:
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         if key == curses.KEY_F1:
-            help_menu(main_screen)
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+            help_menu(screen)
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         if key == curses.KEY_F2:
-            new_char = char_menu(main_screen, char, chars)
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+            new_char = char_menu(screen, char, chars)
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
             if new_char == char:
                 char_change = False
             else:
                 char = new_char
                 char_change = True
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         if key == curses.KEY_F3:
             if heal_parse or spell_parse:
                 if healed or sdamaged:
@@ -137,77 +165,77 @@ def main():
                     total_damage = 0
                     sdps = 0
                     eqa_settings.log('Parse history saved and cleared')
-                    eqa_action.espeak('Parse history saved and cleared')
+                    eqa_sound.espeak('Parse history saved and cleared')
                 else:
                     eqa_settings.log('No history to clear')
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         if key == curses.KEY_F4:
             healed = {}
             eqa_settings.log("Heal parse cleared")
-            eqa_action.espeak("Heal parse cleared")
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+            eqa_sound.espeak("Heal parse cleared")
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         if key == curses.KEY_F5:
             sdamaged = {}
             eqa_settings.log("Spell parse cleared")
-            eqa_action.espeak("Spell parse cleared")
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+            eqa_sound.espeak("Spell parse cleared")
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         if key == curses.KEY_F12:
             config = eqa_config.read()
             eqa_settings.log("Configuration reloaded")
-            eqa_action.espeak("Configuration reloaded")
+            eqa_sound.espeak("Configuration reloaded")
 
         # Alphanumeric keys
         if key == ord('h'):
             if heal_parse:
                 heal_parse = False
                 eqa_settings.log('Heal parse disbled')
-                eqa_action.espeak('Heal parse disbled')
+                eqa_sound.espeak('Heal parse disbled')
             elif not heal_parse:
                 heal_parse = True
                 eqa_settings.log('Heal parse enabled')
-                eqa_action.espeak('Heal parse enabled')
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+                eqa_sound.espeak('Heal parse enabled')
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         if key == ord('s'):
             if spell_parse:
                 spell_parse = False
                 eqa_settings.log('Spell parse disabled')
-                eqa_action.espeak('Spell parse disabled')
+                eqa_sound.espeak('Spell parse disabled')
             elif not spell_parse:
                 spell_parse = True
                 eqa_settings.log('Spell parse enabled')
-                eqa_action.espeak('Spell parse enabled')
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+                eqa_sound.espeak('Spell parse enabled')
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         if key == ord('p'):
             if spell_parse:
                 spell_parse = False
                 eqa_settings.log('Spell parse disabled')
-                eqa_action.espeak('Spell parse disabled')
+                eqa_sound.espeak('Spell parse disabled')
             elif not spell_parse:
                 spell_parse = True
                 eqa_settings.log('Spell parse enabled')
-                eqa_action.espeak('Spell parse enabled')
+                eqa_sound.espeak('Spell parse enabled')
             if heal_parse:
                 heal_parse = False
                 eqa_settings.log('Heal parse disbled')
-                eqa_action.espeak('Heal parse disbled')
+                eqa_sound.espeak('Heal parse disbled')
             elif not heal_parse:
                 heal_parse = True
                 eqa_settings.log('Heal parse enabled')
-                eqa_action.espeak('Heal parse enabled')
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+                eqa_sound.espeak('Heal parse enabled')
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         if key == ord('c'):
             eqa_settings.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         if key == ord('r'):
             if not on_raid:
                 on_raid = True
                 eqa_settings.log("Raid mode enabled")
-                eqa_action.espeak("Raid mode enabled")
+                eqa_sound.espeak("Raid mode enabled")
             elif on_raid:
                 on_raid = False
                 eqa_settings.log("Raid mode disabled")
-                eqa_action.espeak("Raid mode disabled")
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+                eqa_sound.espeak("Raid mode disabled")
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
 
 
         ##
@@ -220,8 +248,8 @@ def main():
             last_end = len(eqlog)
             end = last_end
             eqa_settings.log("Character changed to " + char)
-            eqa_action.espeak("Character changed to " + char)
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+            eqa_sound.espeak("Character changed to " + char)
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
         else:
             eqlog = eqa_parser.read(log_path)
             end = len(eqlog)
@@ -230,7 +258,7 @@ def main():
             check_line = eqlog[last_end + count][27:].strip().lower()
             check_line_list = check_line.split(' ')
             line_type = eqa_parser.determine(check_line, check_line_list)
-            eqa_curses.redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+            eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
 
             # Line specific checks
             if line_type == "undetermined":
@@ -242,19 +270,19 @@ def main():
                     current_zone += check_line_list[check_line_list.index("entered") + nz_iter + 1] + " "
                     nz_iter += 1
                 current_zone = current_zone[:-2]
-                eqa_action.espeak(current_zone)
+                eqa_sound.espeak(current_zone)
                 if current_zone not in config["zones"].keys():
                     eqa_config.add_zone(current_zone)
                 elif current_zone in config["zones"].keys() and not on_raid:
                     if config["zones"][current_zone] == "raid":
                         on_raid = True
                         eqa_settings.log("Raid mode auto-enabled")
-                        eqa_action.espeak("Raid mode enabled")
+                        eqa_sound.espeak("Raid mode enabled")
                 elif current_zone in config["zones"].keys() and on_raid:
                     if config["zones"][current_zone] != "raid":
                         on_raid = False
                         eqa_settings.log("Raid mode auto-disabled")
-                        eqa_action.espeak("Raid mode disabled")
+                        eqa_sound.espeak("Raid mode disabled")
 
             # If line_type is a parsable type
             if line_type in config["settings"]["check_line_type"].keys():
@@ -262,11 +290,11 @@ def main():
                 if config["settings"]["check_line_type"][line_type] == "true":
                     for keyphrase, value in config["alert"][line_type].iteritems():
                         if str(keyphrase).lower() in check_line and value == "true":
-                            eqa_action.sound_alert(config, line_type)
+                            eqa_sound.sound_alert(config, line_type)
                             log_alert(line_type, check_line)
                         elif str(keyphrase).lower() in check_line and value == "raid" and on_raid:
                             log_alert(line_type, check_line)
-                            eqa_action.raid_alert(keyphrase, check_line_list)
+                            eqa_sound.raid_alert(keyphrase, check_line_list)
 
                 # Or if line_type is parsed for as all
                 elif config["settings"]["check_line_type"][line_type] == "all":
@@ -334,17 +362,17 @@ def main():
 
                     # Notify on all other all alerts
                     else:
-                        eqa_action.sound_alert(config, line_type)
+                        eqa_sound.sound_alert(config, line_type)
                         log_alert(line_type, check_line)
                 # Or if line_type is parsed for as a spoken alert
                 elif config["settings"]["check_line_type"][line_type] == "speak":
                     eqa_settings.log("espeak: " + check_line)
-                    eqa_action.espeak(check_line)
+                    eqa_sound.espeak(check_line)
                 # For triggers requiring all line_types
                 if config["settings"]["check_line_type"]["all"] == "true":
                     for keyphrase, value in config["alert"]["all"].iteritems():
                         if keyphrase in check_line:
-                            eqa_action.sound_alert(config, line_type)
+                            eqa_sound.sound_alert(config, line_type)
                             log_alert(line_type, check_line)
 
             # If line_type is not a parsable type
@@ -355,10 +383,9 @@ def main():
                 count -= 1
             count += 1
         last_end = end
-        key = main_screen.getch()
 
-
-    eqa_curses.close_screens(main_screen)
+    read_keys.join()
+    eqa_curses.close_screens(screen)
     eqa_settings.log('Exiting...\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
 if __name__ == '__main__':
     main()

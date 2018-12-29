@@ -7,6 +7,8 @@ import json
 import os
 import time
 
+import eqa_struct
+
 def raid_alert(key, line):
     """Speak raid triggerable phrases"""
     if key == "assist" or key == "rampage":

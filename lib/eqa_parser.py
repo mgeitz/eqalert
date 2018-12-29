@@ -6,6 +6,8 @@ Returns the determined line type of a line in eq.log
 __author__ = "Michael Geitz"
 __version__ = "0.1.1"
 
+import eqa_struct
+
 def read(log_path):
     """Reads and returns the eqlog.txt file"""
 

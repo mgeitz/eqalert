@@ -29,5 +29,3 @@ def timestamp():
 def log(message):
   """Effectively just for timestamping all log messages"""
   logging.info('[' + timestamp() + ']: ' + str(message))
-
-
