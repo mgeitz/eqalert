@@ -21,6 +21,18 @@ def init():
     json_data.close()
 
 
+def add_char(name):
+  """Adds a new character to the config"""
+  json_data = open('config.json', 'r+')
+  data = json.load(json_data)
+  data["characters"].update({name.lower():"true"})
+  chars.append(name.lower())
+  data["_HEADER"]["modified"] = str(datetime.datetime.now())
+  json_data.seek(0)
+  json.dump(data, json_data, indent = 4)
+  json_data.close()
+
+
 def add_type(line_type):
     """Adds default setting values for new line_type"""
     json_data = open('config.json', 'r+')

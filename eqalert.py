@@ -101,14 +101,7 @@ def main():
         if "eqlog_" in logs and "_project1999.txt" in logs:
             first, name, end = logs.split("_")
             if name.lower() not in config["characters"].keys():
-                json_data = open('config.json', 'r+')
-                data = json.load(json_data)
-                data["characters"].update({name.lower():"true"})
-                chars.append(name.lower())
-                data["_HEADER"]["modified"] = str(datetime.datetime.now())
-                json_data.seek(0)
-                json.dump(data, json_data, indent = 4)
-                json_data.close()
+              eqa_config.add_char(name.lower())
     for toon in config["characters"].keys():
         if config["characters"][toon] == "false":
             chars.remove(toon)
