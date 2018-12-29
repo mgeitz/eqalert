@@ -8,13 +8,9 @@ import curses
 import logging
 import datetime
 import time
-import subprocess
 import threading
 import time
 import os
-from os import listdir
-from os.path import isfile, join
-import json
 
 import lib.eqa_parser as eqa_parse
 import lib.eqa_config as eqa_config
@@ -92,7 +88,7 @@ def main():
     config = eqa_config.read()
     char = config["characters"]["default"]
     log_path = config["settings"]["paths"]["log"] + "eqlog_" + char.title() + "_project1999.txt"
-    log_files = [ f for f in listdir(config["settings"]["paths"]["log"]) if isfile(join(config["settings"]["paths"]["log"],f)) ]
+    log_files = [ f for f in os.listdir(config["settings"]["paths"]["log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["log"],f)) ]
     chars = []
     for toon in config["characters"].keys():
         if toon != "default":

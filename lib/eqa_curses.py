@@ -22,6 +22,14 @@ def init(char, healed, sdamaged, sdps, current_zone):
     return main_screen
 
 
+def keys(key_queue, screen_obj):
+  """Check dem keys"""
+  key = ''
+  while key != ord('q') and key != 27:
+    key = screen_obj.getch()
+    key_queue.put(key)
+
+
 def close_screens(screen_obj):
   """Terminate screen_obj"""
   os.system('setterm -cursor on')
