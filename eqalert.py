@@ -101,7 +101,7 @@ def main():
         if "eqlog_" in logs and "_project1999.txt" in logs:
             first, name, end = logs.split("_")
             if name.lower() not in config["characters"].keys():
-                json_data = open('eqa_conf.json', 'r+')
+                json_data = open('config.json', 'r+')
                 data = json.load(json_data)
                 data["characters"].update({name.lower():"true"})
                 chars.append(name.lower())
