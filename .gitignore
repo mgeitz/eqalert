@@ -1,3 +1,5 @@
-eqa_logs/*
+logs/*
+!logs/.gitkeep
 sounds/*
+!sounds/.gitkeep
 *.pyc

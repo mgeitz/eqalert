@@ -35,14 +35,14 @@ def log_alert(line_type, check_line):
 
 def undetermined_line(line):
     """Temp function to log undetermined log lines"""
-    f = open('./eqa_logs/undetermined.txt', 'a')
+    f = open('./logs/undetermined.txt', 'a')
     f.write(line + '\n')
     f.close()
 
 
 def save_parse(healed, sdamaged, current_zone):
     """Save contents of healed and sdamaged to file"""
-    eqa_log = "./eqa_logs/eqa_" + current_zone + "_" + datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S') + ".log"
+    eqa_log = "./logs/eqa_" + current_zone + "_" + datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S') + ".log"
     with open(eqa_log, "a") as f:
         if healed:
             f.write("\n#\t#### HEALING ####\n#\n")
@@ -86,7 +86,7 @@ def main():
     current_zone = "unavailable"
 
     # Logs
-    logging.basicConfig(filename='./eqa_logs/eqalert.log', level=logging.DEBUG)
+    logging.basicConfig(filename='./logs/eqalert.log', level=logging.DEBUG)
     eqa_settings.log('Initializing... ' + str(datetime.datetime.now()))
     eqa_config.init()
     config = eqa_config.read()
