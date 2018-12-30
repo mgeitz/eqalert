@@ -6,45 +6,53 @@ Returns the determined line type of a line in eq.log
 __author__ = "Michael Geitz"
 __version__ = "0.1.1"
 
-import eqa_struct
+from collections import deque
 import pyinotify
 
-def parse(stop, character_log):
+import eqa_struct
+
+
+def parse(stop, character_log, message):
     """Consume the log and produce santized messages"""
-    log = read(character_log)
-        for line in log:
-            pass
+    line = read(character_log)
 
-    # Take timestamp
-    ### HERE ###
+    timestamp, payload = line[1:].split('] ', 1)
+    line_type = determine(payload.lower())
+    new_message = eqa_struct.message(line_type, timestamp, 'null', 'null', payload)
 
-    line_type = determine(line, line..strip().lower())
-    new_message = incoming(line_type, timestamp, tx, rx, payload)
+    message.put(new_message)
 
 
-def monitor(stop, characiter_log):
+def monitor(stop, character_log, message):
     """Parse on file changes"""
-    while not stop.is_set():
-        log_watch = pyinotify.WatchManager()
-        log_watch.add_watch(character_log, pyinotify.IN_MODIFY, parse(stop, character_log))
-        log_notifier = pyinotfy.Notifier(log_watch)
-        log_notifier.loop()
+    log_watch = pyinotify.WatchManager()
+    log_notifier = pyinotify.Notifier(log_watch)
 
+    def callback(event):
+        if event.mask == pyinotify.IN_CLOSE_WRITE:
+            parse(stop, character_log, message)
+
+    log_watch.add_watch(character_log, pyinotify.IN_CLOSE_WRITE, callback)
+
+    while not stop.is_set():
+        log_notifier.process_events()
+        if log_notifier.check_events():
+            log_notifier.read_events()
 
 
 def read(log_path):
     """Reads and returns the eqlog.txt file"""
 
-    with open(log_path) as f:
-        content = f.readlines()
-    return content
+    with open(log_path, 'r') as f:
+        content = deque(f, 1)
+    return content[0]
 
 
-def determine(line, line_list):
+def determine(line):
     """Determine type of line"""
 
     line_type = "undetermined"
-
+    line_list = line.split(' ')
 
    # chat your player initiates
     if line_list[0] == "you":
@@ -240,9 +248,7 @@ def determine(line, line_list):
         elif line_list[-1] == "camp.":
             line_type == "you_camping"
 
-    new_message = eqa_struct.incoming(line_type, 'null', 'null', line)
-    incoming.put(new_message)
-    #return line_type
+    return line_type
 
 if __name__ == '__main__':
     main()

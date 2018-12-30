@@ -118,23 +118,22 @@ def main():
     screen = eqa_curses.init(char, healed, sdamaged, sdps, current_zone)
 
     # Threads
-    #foothread = threading.Thread(target=function,
-    #        args = (this, that, thar))
     read_keys = threading.Thread(target=eqa_curses.keys,
             args = (keyboard, screen))
-    incoming = threading.Thread(target=eqa_parser.monitor,
-            args = (stop, character_log))
+    read_log = threading.Thread(target=eqa_parser.monitor,
+            args = (stop, log_path, message))
 
 
     read_keys.daemon = True
     read_keys.start()
+    read_log.daemon = True
+    read_log.start()
 
 
     ##
     ##  Curses loop
     ##
     key = ''
-    last_end = len(eqa_parser.read(log_path))
     eqa_sound.espeak('initialized')
     while key != ord('q') and key != 27:
 
@@ -257,11 +256,13 @@ def main():
         count = 0
 
 
+        if not message.empty():
+            new_message = message.get()
+            line_type = new_message.type
+            check_line = new_message.payload
+            check_line_list = new_message.payload.split(' ')
 
-        while count < end - last_end:
-            check_line = eqlog[last_end + count][27:].strip().lower()
-            check_line_list = check_line.split(' ')
-            line_type = eqa_parser.determine(check_line, check_line_list)
+            eqa_settings.log(line_type + ': ' + new_message.payload)
             eqa_curses.redraw_all(screen, char, healed, sdamaged, sdps, current_zone)
 
             # Line specific checks
@@ -384,11 +385,10 @@ def main():
                 eqa_config.add_type(line_type)
                 eqa_settings.log('Added: ' + line_type)
                 config = eqa_config.read()
-                count -= 1
-            count += 1
-        last_end = end
 
+    stop.set()
     read_keys.join()
+    read_log.join()
     eqa_curses.close_screens(screen)
     eqa_settings.log('Exiting...\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n')
 if __name__ == '__main__':
