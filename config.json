@@ -22,7 +22,6 @@
         "west freeport": "false", 
         "butcherblock mountains": "false", 
         "rathe mountains": "false", 
-        "the hole": "false", 
         "karnor's castle": "false", 
         "plane of hate": "raid", 
         "kithicor woods": "false", 
@@ -69,7 +68,8 @@
         "southern desert of ro": "false", 
         "crystal caverns": "false", 
         "an arena (pvp) area": "false", 
-        "qeynos hills": "false", 
+        "old sebilis": "false", 
+        "the hole": "false", 
         "south kaladim": "false", 
         "the emerald jungle": "false", 
         "greater faydark": "false", 
@@ -90,7 +90,7 @@
         "highpass hold": "false", 
         "temple of veeshan": "raid", 
         "veeshan's peak": "raid", 
-        "old sebilis": "false", 
+        "qeynos hills": "false", 
         "plane of mischief": "false", 
         "frontier mountains": "false", 
         "castle mistmoore": "false", 
@@ -100,7 +100,7 @@
     "_HEADER": {
         "parser_version": "0.1.1", 
         "version": "0.2.2", 
-        "modified": "2018-12-29 16:15:44.990102", 
+        "modified": "2018-12-29 19:38:48.855836", 
         "author": "Michael Geitz"
     }, 
     "alert": {
@@ -138,9 +138,9 @@
         "you_thirsty": {}, 
         "emote_bonk": {}, 
         "emote_thank": {}, 
-        "shout": {}, 
-        "you_outdrinklowfood": {}, 
         "you_outdrink": {}, 
+        "you_outdrinklowfood": {}, 
+        "shout": {}, 
         "you_auction_wts": {}, 
         "you_healed": {}, 
         "you_say": {}, 
@@ -211,10 +211,6 @@
         "indefinite": "true"
     }, 
     "settings": {
-        "paths": {
-            "sound": "/home/arch/project/eqalert/sounds/", 
-            "log": "/home/arch/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
-        }, 
         "sound_settings": {
             "mysterious_oner": "0", 
             "all": "0", 
@@ -236,9 +232,9 @@
             "you_thirsty": "0", 
             "emote_bonk": "0", 
             "emote_thank": "0", 
-            "shout": "1", 
-            "you_outdrinklowfood": "0", 
             "you_outdrink": "0", 
+            "you_outdrinklowfood": "0", 
+            "shout": "1", 
             "you_auction_wts": "0", 
             "you_healed": "0", 
             "you_say": "0", 
@@ -283,6 +279,10 @@
             "melee_hit": "2", 
             "faction_line": "0"
         }, 
+        "paths": {
+            "sound": "/home/arch/project/eqalert/sounds/", 
+            "log": "/home/arch/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
+        }, 
         "sounds": {
             "1": "OOT_Navi_Hey1.wav", 
             "3": "OOT_Navi_Look1.wav", 
@@ -311,9 +311,9 @@
             "you_thirsty": "false", 
             "emote_bonk": "false", 
             "emote_thank": "false", 
-            "shout": "false", 
-            "you_outdrinklowfood": "false", 
             "you_outdrink": "false", 
+            "you_outdrinklowfood": "false", 
+            "shout": "false", 
             "you_auction_wts": "false", 
             "you_healed": "all", 
             "you_say": "false", 
