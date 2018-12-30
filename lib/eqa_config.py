@@ -19,6 +19,7 @@ def init():
     json_data.seek(0)
     json.dump(data, json_data, indent = 4)
     json_data.close()
+    return read()
 
 
 def add_char(name):

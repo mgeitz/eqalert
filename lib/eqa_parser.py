@@ -7,6 +7,30 @@ __author__ = "Michael Geitz"
 __version__ = "0.1.1"
 
 import eqa_struct
+import pyinotify
+
+def parse(stop, character_log):
+    """Consume the log and produce santized messages"""
+    log = read(character_log)
+        for line in log:
+            pass
+
+    # Take timestamp
+    ### HERE ###
+
+    line_type = determine(line, line..strip().lower())
+    new_message = incoming(line_type, timestamp, tx, rx, payload)
+
+
+def monitor(stop, characiter_log):
+    """Parse on file changes"""
+    while not stop.is_set():
+        log_watch = pyinotify.WatchManager()
+        log_watch.add_watch(character_log, pyinotify.IN_MODIFY, parse(stop, character_log))
+        log_notifier = pyinotfy.Notifier(log_watch)
+        log_notifier.loop()
+
+
 
 def read(log_path):
     """Reads and returns the eqlog.txt file"""
@@ -216,7 +240,9 @@ def determine(line, line_list):
         elif line_list[-1] == "camp.":
             line_type == "you_camping"
 
-    return line_type
+    new_message = eqa_struct.incoming(line_type, 'null', 'null', line)
+    incoming.put(new_message)
+    #return line_type
 
 if __name__ == '__main__':
     main()

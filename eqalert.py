@@ -97,8 +97,7 @@ def main():
     # Logs
     logging.basicConfig(filename='./logs/eqalert.log', level=logging.DEBUG)
     eqa_settings.log('Initializing... ' + str(datetime.datetime.now()))
-    eqa_config.init()
-    config = eqa_config.read()
+    config = eqa_config.init()
     char = config["characters"]["default"]
     log_path = config["settings"]["paths"]["log"] + "eqlog_" + char.title() + "_project1999.txt"
     log_files = [ f for f in os.listdir(config["settings"]["paths"]["log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["log"],f)) ]
@@ -123,6 +122,8 @@ def main():
     #        args = (this, that, thar))
     read_keys = threading.Thread(target=eqa_curses.keys,
             args = (keyboard, screen))
+    incoming = threading.Thread(target=eqa_parser.monitor,
+            args = (stop, character_log))
 
 
     read_keys.daemon = True
@@ -254,6 +255,9 @@ def main():
             eqlog = eqa_parser.read(log_path)
             end = len(eqlog)
         count = 0
+
+
+
         while count < end - last_end:
             check_line = eqlog[last_end + count][27:].strip().lower()
             check_line_list = check_line.split(' ')
