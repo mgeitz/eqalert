@@ -3,11 +3,27 @@ eqalert action
 """
 
 import subprocess
-import json
 import os
-import time
 
 import eqa_struct
+import eqa_settings
+
+
+def process(config, sound_q, exit_flag):
+  """Process sound events"""
+  while not exit_flag.is_set():
+    if not sound_q.empty():
+      sound_event = sound_q.get()
+      sound_q.task_done()
+
+      if sound_event.sound == "espeak":
+        espeak(sound_event.payload)
+      elif sound_event.sound == "alert":
+        alert(config, sound_event.payload)
+      else:
+        espeak(sound_event.payload)
+        eqa_settings.log("[Malformed sound event] " + sound_event.sound)
+
 
 def raid_alert(key, line):
     """Speak raid triggerable phrases"""
@@ -15,23 +31,6 @@ def raid_alert(key, line):
         espeak(key + " on " + line[0])
     else:
         espeak(key)
-
-
-def play_sound(sound):
-    """Plays sound from path passed in"""
-    command = ["play", sound]
-    try:
-        with open(os.devnull, "w") as fnull:
-            subprocess.call(command, stdout=fnull, stderr = fnull)
-    except KeyboardInterrupt:
-        pass
-    time.sleep(0.2)
-
-
-def sound_alert(config, line_type):
-    if not config["settings"]["sound_settings"][line_type] == "0":
-        play_sound(config["settings"]["paths"]["sound"] + \
-        config["settings"]["sounds"][config["settings"]["sound_settings"][line_type]])
 
 
 def espeak(phrase):
@@ -42,4 +41,19 @@ def espeak(phrase):
             subprocess.call(command, stdout=fnull, stderr = fnull)
     except KeyboardInterrupt:
         pass
-    time.sleep(0.2)
+
+
+def alert(config, line_type):
+    if not config["settings"]["sound_settings"][line_type] == "0":
+        play_sound(config["settings"]["paths"]["sound"] + \
+        config["settings"]["sounds"][config["settings"]["sound_settings"][line_type]])
+
+
+def play_sound(sound):
+    """Plays sound from path passed in"""
+    command = ["play", sound]
+    try:
+        with open(os.devnull, "w") as fnull:
+            subprocess.call(command, stdout=fnull, stderr = fnull)
+    except KeyboardInterrupt:
+        pass

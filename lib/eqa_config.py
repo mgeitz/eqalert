@@ -4,6 +4,7 @@ eqalert config
 
 import json
 import datetime
+import os
 
 __author__ = "Michael Geitz"
 __version__ = "0.2.2"
@@ -19,7 +20,19 @@ def init():
     json_data.seek(0)
     json.dump(data, json_data, indent = 4)
     json_data.close()
-    return read()
+
+    # Read Config
+    config = read()
+
+    # Scan of New Characters
+    log_files = [ f for f in os.listdir(config["settings"]["paths"]["log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["log"],f)) ]
+    for logs in log_files:
+      if "eqlog_" in logs and "_project1999.txt" in logs:
+        first, name, end = logs.split("_")
+        if name.lower() not in config["characters"].keys():
+          add_char(name.lower())
+
+    return config
 
 
 def add_char(name):
@@ -62,5 +75,7 @@ def read():
     """Returns JSON objects in config file"""
     json_data = open('config.json', 'r')
     config = json.load(json_data)
+
+
     json_data.close()
     return config

@@ -9,7 +9,8 @@ global sound
 global message
 global action
 
-display = namedtuple('display', ['type', 'screen', 'payload'])
-sound = namedtuple('sound', ['type', 'payload'])
-message = namedtuple('incoming', ['type', 'timestamp', 'tx', 'rx', 'payload'])
-action = namedtuple('action', ['type', 'incoming'])
+display = namedtuple('data', ['type', 'screen', 'payload'])
+sound = namedtuple('data', ['sound', 'payload'])
+message = namedtuple('data', ['type', 'timestamp', 'tx', 'rx', 'payload'])
+heal = namedtuple('data', ['timestamp', 'type', 'tx', 'rx', 'amount'])
+damage = namedtuple('data', ['timestamp', 'type', 'tx', 'rx', 'amount'])

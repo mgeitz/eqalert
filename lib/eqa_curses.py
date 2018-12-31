@@ -4,16 +4,45 @@ eqalert curses
 
 import curses
 import os
+import time
 
 import eqa_struct
+import eqa_settings
 
-#def display(stop, screen, event):
-#    while not stop.is_set():
-#        if not event.empty():
-#            process event
+def display(screen, exit_flag, display_q, message_q):
+
+  current_zone = "unavailable"
+  char = "unavailable"
+
+  try:
+    while not exit_flag.is_set():
+      if not display_q.empty():
+        display_event = display_q.get()
+        display_q.task_done()
+
+        if display_event.type == "update":
+          if display_event.screen == "current_zone":
+            current_zone = display_event.payload
+          elif display_event.screen == "char":
+            char = display_event.payload
+
+        if display_event.type == "draw":
+          if display_event.screen == "all":
+            redraw_all(screen, char, current_zone)
+          elif display_event.screen == "help":
+            draw_help_menu(screen)
+            redraw_all(screen, char, current_zone)
+          elif display_event.screen == "char":
+            char = char_menu
+            message_q.put(eqa_struct.message('system', 'null', 'new_character', 'null', char))
+            redraw_all(screen, char, current_zone)
+
+  except Exception as e:
+    eqa_settings.log(e)
+    pass
 
 
-def init(char, healed, sdamaged, sdps, current_zone):
+def init(char, current_zone):
     """Create new screen in terminal"""
     main_screen = curses.initscr()
     os.system('setterm -cursor off')
@@ -26,16 +55,8 @@ def init(char, healed, sdamaged, sdps, current_zone):
     curses.init_pair(1, curses.COLOR_WHITE, -1)  # Title
     curses.init_pair(2, curses.COLOR_YELLOW, -1) # Header
     curses.init_pair(3, curses.COLOR_CYAN, -1)   # Subtext
-    redraw_all(main_screen, char, healed, sdamaged, sdps, current_zone)
+    redraw_all(main_screen, char, current_zone)
     return main_screen
-
-
-def keys(key_queue, screen_obj):
-  """Check dem keys"""
-  key = ''
-  while key != ord('q') and key != 27:
-    key = screen_obj.getch()
-    key_queue.put(key)
 
 
 def close_screens(screen_obj):
@@ -309,14 +330,14 @@ def char_menu(screen_obj, char, chars):
     return new_char
 
 
-def redraw_all(screen_obj, char, healed, sdamaged, sdps, current_zone):
+def redraw_all(screen_obj, char, current_zone):
     """Redraw entire screen."""
     y, x = screen_obj.getmaxyx()
     if x >= 80 and y >= 40:
         draw_screen(screen_obj, char, current_zone)
         draw_textbox(screen_obj)
-        draw_healparse(screen_obj, healed)
-        draw_spelldps(screen_obj, sdamaged, sdps)
+        #draw_healparse(screen_obj, healed)
+        #draw_spelldps(screen_obj, sdamaged, sdps)
     else:
         draw_toosmall(screen_obj)
 

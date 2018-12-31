@@ -12,9 +12,8 @@ import pyinotify
 import eqa_struct
 
 
-def parse(stop, character_log, message):
+def parse(line, message):
     """Consume the log and produce santized messages"""
-    line = read(character_log)
 
     timestamp, payload = line[1:].split('] ', 1)
     line_type = determine(payload.lower())
@@ -23,21 +22,28 @@ def parse(stop, character_log, message):
     message.put(new_message)
 
 
-def monitor(stop, character_log, message):
+def monitor(stop_watcher, character_log, message):
     """Parse on file changes"""
     log_watch = pyinotify.WatchManager()
     log_notifier = pyinotify.Notifier(log_watch)
 
     def callback(event):
         if event.mask == pyinotify.IN_CLOSE_WRITE:
-            parse(stop, character_log, message)
+            parse(read(character_log), message)
 
     log_watch.add_watch(character_log, pyinotify.IN_CLOSE_WRITE, callback)
 
-    while not stop.is_set():
-        log_notifier.process_events()
-        if log_notifier.check_events():
-            log_notifier.read_events()
+    try:
+        while not stop_watcher.is_set():
+            log_notifier.process_events()
+            if log_notifier.check_events():
+                log_notifier.read_events()
+            if stop_watcher.is_set():
+                log_notifier.stop()
+
+    except Exception as e:
+        stop_watcher.set()
+        log_notifier.stop()
 
 
 def read(log_path):
