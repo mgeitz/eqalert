@@ -33,7 +33,6 @@
         "ocean of tears": "false", 
         "trakanon's teeth": "false", 
         "sleepers tomb": "false", 
-        "Butcherblock Mountains.": "false", 
         "city of thurgadin": "false", 
         "oasis of marr": "false", 
         "iceclad ocean": "false", 
@@ -358,7 +357,7 @@
     "_HEADER": {
         "parser_version": "0.1.1", 
         "version": "0.2.2", 
-        "modified": "2018-12-31 12:33:42.549009", 
+        "modified": "2018-12-31 13:06:52.722729", 
         "author": "Michael Geitz"
     }
 }

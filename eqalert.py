@@ -123,7 +123,7 @@ def main():
             config = eqa_conifig.init()
             sound_q.put(eqa_struct.sound('espeak', 'Configuration reloaded'))
         else:
-          eqa_settings.log(new_message.type + ': ' + new_message.payload)
+          #eqa_settings.log(new_message.type + ': ' + new_message.payload)
           display_q.put(eqa_struct.display('draw', 'all', 'null'))
           action_q.put(new_message)
 

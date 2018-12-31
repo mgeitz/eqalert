@@ -8,6 +8,7 @@ import time
 import eqa_sound
 import eqa_struct
 import eqa_settings
+import eqa_config
 
 
 def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, exit_flag, heal_parse, spell_parse, raid):
@@ -35,6 +36,7 @@ def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, e
             current_zone += check_line_list[check_line_list.index("entered") + nz_iter + 1] + " "
             nz_iter += 1
           current_zone = current_zone[:-2]
+          current_zone = current_zone.rstrip('.')
           sound_q.put(eqa_struct.sound('espeak', current_zone))
           if current_zone not in config["zones"].keys():
             eqa_config.add_zone(current_zone)
