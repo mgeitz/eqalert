@@ -4,6 +4,7 @@ eqalert action
 
 import subprocess
 import os
+import time
 
 import eqa_struct
 import eqa_settings
@@ -12,6 +13,7 @@ import eqa_settings
 def process(config, sound_q, exit_flag):
   """Process sound events"""
   while not exit_flag.is_set():
+    time.sleep(0.1)
     if not sound_q.empty():
       sound_event = sound_q.get()
       sound_q.task_done()

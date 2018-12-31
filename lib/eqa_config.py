@@ -25,14 +25,22 @@ def init():
     config = read()
 
     # Scan of New Characters
-    log_files = [ f for f in os.listdir(config["settings"]["paths"]["log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["log"],f)) ]
+    log_files = [ f for f in os.listdir(config["settings"]["paths"]["char_log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["char_log"],f)) ]
     for logs in log_files:
       if "eqlog_" in logs and "_project1999.txt" in logs:
         first, name, end = logs.split("_")
         if name.lower() not in config["characters"].keys():
           add_char(name.lower())
 
-    return config
+    chars = []
+    for toon in config["characters"].keys():
+        if toon != "default":
+            chars.append(toon)
+    for toon in config["characters"].keys():
+        if config["characters"][toon] == "false":
+            chars.remove(toon)
+
+    return config, chars
 
 
 def add_char(name):

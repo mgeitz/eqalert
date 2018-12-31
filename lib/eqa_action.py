@@ -10,7 +10,7 @@ import eqa_struct
 import eqa_settings
 
 
-def process(config, exit_flag, spell_parse, heal_parse, raid, display_q, sound_q, heal_q, damage_q, action_q, message_q):
+def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, exit_flag, heal_parse, spell_parse, raid):
 
   try:
     while not exit_flag.is_set():
@@ -48,7 +48,8 @@ def process(config, exit_flag, spell_parse, heal_parse, raid, display_q, sound_q
               raid.clear()
               eqa_settings.log("Raid mode auto-disabled")
               sound_q.put(eqa_struct.sound('espeak', "Raid mode disabled"))
-          display_q.put(eqa_struct.display('update', 'current_zone', current_zone))
+          message_q.put(eqa_struct.message('system', 'null', 'zone', 'null', current_zone))
+          display_q.put(eqa_struct.display('update', 'zone', current_zone))
 
         # If line_type is a parsable type
         if line_type in config["settings"]["check_line_type"].keys():

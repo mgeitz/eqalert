@@ -9,33 +9,30 @@ import time
 import eqa_struct
 import eqa_settings
 
-def display(screen, exit_flag, display_q, message_q):
-
-  current_zone = "unavailable"
-  char = "unavailable"
+def display(screen, display_q, message_q, zone, char, chars, exit_flag):
 
   try:
     while not exit_flag.is_set():
+      time.sleep(0.1)
       if not display_q.empty():
         display_event = display_q.get()
         display_q.task_done()
 
         if display_event.type == "update":
-          if display_event.screen == "current_zone":
-            current_zone = display_event.payload
+          if display_event.screen == "zone":
+            zone = display_event.payload
+            redraw_all(screen, char, zone)
           elif display_event.screen == "char":
             char = display_event.payload
+            redraw_all(screen, char, zone)
 
         if display_event.type == "draw":
           if display_event.screen == "all":
-            redraw_all(screen, char, current_zone)
+            redraw_all(screen, char, zone)
           elif display_event.screen == "help":
             draw_help_menu(screen)
-            redraw_all(screen, char, current_zone)
           elif display_event.screen == "char":
-            char = char_menu
-            message_q.put(eqa_struct.message('system', 'null', 'new_character', 'null', char))
-            redraw_all(screen, char, current_zone)
+            draw_char_menu(screen, chars)
 
   except Exception as e:
     eqa_settings.log(e)
@@ -300,34 +297,26 @@ def draw_char_menu(screen_obj, chars):
         count = count + 1
 
 
-def help_menu(screen_obj):
-    """Controls help menu commands."""
-    key = ''
-    draw_help_menu(screen_obj)
-    while key != ord('q') and key != curses.KEY_F1 and key != 27:
-        key = screen_obj.getch()
-        if key == curses.KEY_RESIZE:
-            return
+def char_menu(screen_obj, chars):
+  """Controls char menu commands."""
+  key = ''
+  new_char = char
 
+  draw_char_menu(screen_obj, chars)
 
-def char_menu(screen_obj, char, chars):
-    """Controls char menu commands."""
-    key = ''
-    new_char = char
-    draw_char_menu(screen_obj, chars)
-    selected = False
-    while key != ord('q') and key != curses.KEY_F1 and key != 27 and not selected:
-        key = screen_obj.getch()
-        if key == curses.KEY_RESIZE:
-            return
-        count = 1
-        for toon in chars:
-            if key == ord(str(count)):
-                new_char = chars[count - 1]
-                selected = True
-                break
-            count = count + 1
-    return new_char
+  selected = False
+  while key != ord('q') and key != curses.KEY_F1 and key != 27 and not selected:
+    key = screen_obj.getch()
+    if key == curses.KEY_RESIZE:
+      return
+    count = 1
+    for toon in chars:
+      if key == ord(str(count)):
+        new_char = chars[count - 1]
+        selected = True
+        break
+      count = count + 1
+  return new_char
 
 
 def redraw_all(screen_obj, char, current_zone):
