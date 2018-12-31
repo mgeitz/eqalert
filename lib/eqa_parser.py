@@ -6,19 +6,59 @@ Returns the determined line type of a line in eq.log
 __author__ = "Michael Geitz"
 __version__ = "0.1.1"
 
+from collections import deque
+import pyinotify
+
+import eqa_struct
+
+
+def parse(line, message):
+    """Consume the log and produce santized messages"""
+
+    timestamp, payload = line[1:].split('] ', 1)
+    line_type = determine(payload.lower())
+    new_message = eqa_struct.message(line_type, timestamp, 'null', 'null', payload)
+
+    message.put(new_message)
+
+
+def monitor(stop_watcher, character_log, message):
+    """Parse on file changes"""
+    log_watch = pyinotify.WatchManager()
+    log_notifier = pyinotify.Notifier(log_watch)
+
+    def callback(event):
+        if event.mask == pyinotify.IN_CLOSE_WRITE:
+            parse(read(character_log), message)
+
+    log_watch.add_watch(character_log, pyinotify.IN_CLOSE_WRITE, callback)
+
+    try:
+        while not stop_watcher.is_set():
+            log_notifier.process_events()
+            if log_notifier.check_events():
+                log_notifier.read_events()
+            if stop_watcher.is_set():
+                log_notifier.stop()
+
+    except Exception as e:
+        stop_watcher.set()
+        log_notifier.stop()
+
+
 def read(log_path):
     """Reads and returns the eqlog.txt file"""
 
-    with open(log_path) as f:
-        content = f.readlines()
-    return content
+    with open(log_path, 'r') as f:
+        content = deque(f, 1)
+    return content[0]
 
 
-def determine(line, line_list):
+def determine(line):
     """Determine type of line"""
 
     line_type = "undetermined"
-
+    line_list = line.split(' ')
 
    # chat your player initiates
     if line_list[0] == "you":
