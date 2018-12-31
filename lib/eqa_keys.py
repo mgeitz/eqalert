@@ -18,7 +18,7 @@ def process(display_q, sound_q, keyboard_q, heal_q, damage_q, message_q, exit_fl
 
     try:
       # Get key
-      time.sleep(0.1)
+      time.sleep(0.001)
       if not keyboard_q.empty():
         key = keyboard_q.get()
         keyboard_q.task_done()

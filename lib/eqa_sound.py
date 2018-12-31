@@ -13,7 +13,7 @@ import eqa_settings
 def process(config, sound_q, exit_flag):
   """Process sound events"""
   while not exit_flag.is_set():
-    time.sleep(0.1)
+    time.sleep(0.001)
     if not sound_q.empty():
       sound_event = sound_q.get()
       sound_q.task_done()

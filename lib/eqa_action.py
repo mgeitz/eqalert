@@ -14,7 +14,7 @@ def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, e
 
   try:
     while not exit_flag.is_set():
-      time.sleep(0.1)
+      time.sleep(0.001)
       if not action_q.empty():
         new_message = action_q.get()
         action_q.task_done()

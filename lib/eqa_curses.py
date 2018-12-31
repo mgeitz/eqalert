@@ -13,7 +13,7 @@ def display(screen, display_q, message_q, zone, char, chars, exit_flag):
 
   try:
     while not exit_flag.is_set():
-      time.sleep(0.1)
+      time.sleep(0.001)
       if not display_q.empty():
         display_event = display_q.get()
         display_q.task_done()

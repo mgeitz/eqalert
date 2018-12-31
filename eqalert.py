@@ -10,7 +10,6 @@ import datetime
 import time
 import threading
 import Queue
-import time
 import os
 
 import lib.eqa_parser as eqa_parse
@@ -101,7 +100,7 @@ def main():
   ## Produce action_q
   try:
     while not exit_flag.is_set():
-      time.sleep(0.1)
+      time.sleep(0.001)
       if not message_q.empty():
         new_message = message_q.get()
         message_q.task_done()
