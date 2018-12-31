@@ -3,6 +3,7 @@
 A Project 1999 log parser with NCurses interface for Linux
 
 ## Dependencies
+    - pyinotify
     - espeak
     - mbrola
     - sox
