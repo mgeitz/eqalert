@@ -1,5 +1,5 @@
-logs/*
-!logs/.gitkeep
-sounds/*
-!sounds/.gitkeep
+log/*
+!log/.gitkeep
+sound/*
+!sound/.gitkeep
 *.pyc

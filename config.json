@@ -243,7 +243,7 @@
             "faction_line": "false"
         }, 
         "paths": {
-            "sound": "/home/arch/project/eqalert/sounds/", 
+            "sound": "/home/arch/project/eqalert/sound/", 
             "log": "/home/arch/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
         }
     }, 

@@ -112,7 +112,7 @@ def draw_textbox(screen_obj):
     screen_obj.addstr(offset_y, offset_x * 6 - 3, "Events",
         curses.color_pair(2))
 
-    with open('./logs/eqalert.log') as t:
+    with open('./log/eqalert.log') as t:
         content = t.readlines()
         end = len(content)
         count = 1

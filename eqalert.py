@@ -47,7 +47,7 @@ def main():
   exit_flag = threading.Event()
 
   # Logs
-  logging.basicConfig(filename='./logs/eqalert.log', level=logging.DEBUG)
+  logging.basicConfig(filename='./log/eqalert.log', level=logging.DEBUG)
   eqa_settings.log('Initializing... ' + str(datetime.datetime.now()))
   config = eqa_config.init()
   char = config["characters"]["default"]
