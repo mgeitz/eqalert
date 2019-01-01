@@ -16,6 +16,7 @@ def parse(line, message):
     """Consume the log and produce santized messages"""
 
     timestamp, payload = line[1:].split('] ', 1)
+    timestamp = timestamp.split(' ')[3] + '.00'
     line_type = determine(payload)
     new_message = eqa_struct.message(line_type, timestamp, 'null', 'null', payload)
 

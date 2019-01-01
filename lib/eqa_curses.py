@@ -11,6 +11,9 @@ import eqa_settings
 
 def display(screen, display_q, message_q, zone, char, chars, exit_flag):
 
+  events = []
+  page = 'events'
+
   try:
     while not exit_flag.is_set():
       time.sleep(0.001)
@@ -18,295 +21,434 @@ def display(screen, display_q, message_q, zone, char, chars, exit_flag):
         display_event = display_q.get()
         display_q.task_done()
 
-        if display_event.type == "update":
-          if display_event.screen == "zone":
+        # Display Var Update
+        if display_event.type == 'update':
+          if display_event.screen == 'zone':
             zone = display_event.payload
             redraw_all(screen, char, zone)
-          elif display_event.screen == "char":
+          elif display_event.screen == 'char':
             char = display_event.payload
             redraw_all(screen, char, zone)
 
-        if display_event.type == "draw":
-          if display_event.screen == "all":
-            redraw_all(screen, char, zone)
-          elif display_event.screen == "help":
-            draw_help_menu(screen)
-          elif display_event.screen == "char":
-            draw_char_menu(screen, chars)
+        # Display Draw
+        elif display_event.type == 'draw':
+          if display_event.screen == "events":
+            draw_events_frame(screen, char, zone, events)
+            page = 'events'
+          elif display_event.screen == 'state':
+            draw_state(screen)
+            page = 'state'
+          elif display_event.screen == 'settings':
+            draw_settings(screen)
+            page = 'settings'
+          elif display_event.screen == 'help':
+            draw_help(screen)
+            page = 'help'
+
+        # Draw Update
+        elif display_event.type == 'event':
+          if display_event.screen == 'events':
+            events.append(display_event.payload)
+            if page == 'events':
+              draw_events(screen, char, zone, events)
+          elif display_event.screen == 'clear':
+            events = []
+
+
 
   except Exception as e:
     eqa_settings.log(e)
     pass
 
 
-def init(char, current_zone):
-    """Create new screen in terminal"""
-    main_screen = curses.initscr()
-    os.system('setterm -cursor off')
-    curses.start_color()
-    curses.use_default_colors()
-    curses.noecho()
-    curses.cbreak()
-    main_screen.keypad(1)
-    main_screen.timeout(100)
-    curses.init_pair(1, curses.COLOR_WHITE, -1)  # Title
-    curses.init_pair(2, curses.COLOR_YELLOW, -1) # Header
-    curses.init_pair(3, curses.COLOR_CYAN, -1)   # Subtext
-    redraw_all(main_screen, char, current_zone)
-    return main_screen
+def init(char, zone):
+  """Create new screen in terminal"""
+  main_screen = curses.initscr()
+  os.system('setterm -cursor off')
+  curses.start_color()
+  curses.use_default_colors()
+  curses.noecho()
+  curses.cbreak()
+  main_screen.keypad(1)
+  main_screen.timeout(100)
+  curses.init_pair(1, curses.COLOR_WHITE, -1)     # Title
+  curses.init_pair(2, curses.COLOR_YELLOW, -1)    # Header
+  curses.init_pair(3, curses.COLOR_CYAN, -1)      # Subtext
+  curses.init_pair(4, curses.COLOR_MAGENTA, -1)   # Highlight
+  curses.init_pair(5, curses.COLOR_GREEN, -1)     # Dunno
+  redraw_all(main_screen, char, zone)
+  return main_screen
 
 
-def close_screens(screen_obj):
-  """Terminate screen_obj"""
+def close_screens(screen):
+  """Terminate screen"""
   os.system('setterm -cursor on')
   curses.nocbreak()
-  screen_obj.keypad(0)
+  screen.keypad(0)
   curses.echo()
   curses.endwin()
 
 
-def draw_screen(screen_obj, char, current_zone):
-    """Draws the main windows using curses"""
-    screen_obj.clear()
-    screen_obj.box()
-    y, x = screen_obj.getmaxyx()
-    center_y = y / 2
-    center_x = x / 2
+def draw_events_frame(screen, char, zone, events):
+  """Draws the main window and tabs using curses"""
+  y, x = screen.getmaxyx()
+  center_y = y / 2
+  center_x = x / 2
 
-    screen_obj.addstr(0, center_x - 5, "|          |",
-        curses.color_pair(1))
-    screen_obj.addstr(0, center_x - 3, "EQ ALERT",
-        curses.color_pair(2))
+  # Clear and box
+  screen.clear()
+  screen.box()
 
-    screen_obj.addstr(1, center_x - x / 2 + 1, "F1 :",
-        curses.color_pair(2))
-    screen_obj.addstr(1, center_x - x / 2 + 7, "Help Menu",
-        curses.color_pair(3))
+  # Events tab
+  screen.addstr(1, 2, "F1", curses.color_pair(3))
+  screen.addstr(1, 4, ":", curses.color_pair(1))
+  screen.addstr(1, 6, "events", curses.color_pair(4))
+  screen.addstr(1, 13, curses.ACS_VLINE, curses.color_pair(1))
 
-    screen_obj.addstr(1, x - (center_x - x / 2 + 1) - len(char) - 1, char,
-        curses.color_pair(3))
+  # State tab
+  screen.addstr(1, 15, "F2", curses.color_pair(3))
+  screen.addstr(1, 17, ":", curses.color_pair(1))
+  screen.addstr(1, 19, "state", curses.color_pair(2))
+  screen.addstr(1, 21, curses.ACS_VLINE, curses.color_pair(1))
 
-    screen_obj.addstr(2, center_x - x / 2 + 1, "F2 :",
-        curses.color_pair(2))
-    screen_obj.addstr(2, center_x - x / 2 + 7, "Char Menu",
-        curses.color_pair(3))
+  # Settings tab
+  screen.addstr(1, x - 23, "F3", curses.color_pair(3))
+  screen.addstr(1, x - 21, ":", curses.color_pair(1))
+  screen.addstr(1, x - 20, "settings", curses.color_pair(2))
+  screen.addstr(1, x - 25, curses.ACS_VLINE, curses.color_pair(1))
 
-    screen_obj.addstr(2, x - (center_x - x / 2 + 1) - len(current_zone) - 1, current_zone,
-        curses.color_pair(3))
+  # Help tab
+  screen.addstr(1, x - 9, "F4", curses.color_pair(3))
+  screen.addstr(1, x - 8, ":", curses.color_pair(1))
+  screen.addstr(1, x - 6, "help", curses.color_pair(2))
+  screen.addstr(1, x - 11, curses.ACS_VLINE, curses.color_pair(1))
+
+  # Center title
+  screen.addstr(1, center_x - 4, "EQ ALERT", curses.color_pair(2))
+
+  # Bottom of tabs
+  for c in range (x):
+    screen.addch(2, c, curses.ACS_HLINE)
+
+  # Bottom of events
+  for c in range (x):
+    screen.addch(center_y, c, curses.ACS_HLINE)
+
+  # Character
+  screen.addstr(center_y + 1, 1, char, curses.color_pair(2))
+
+  # Zone
+  screen.addstr(center_y + 1, x - len(zone) - 1, zone, curses.color_pair(2))
+
+  # Draw events
+  draw_events(screen, events)
 
 
-def draw_textbox(screen_obj):
-    """Draws the captured text box"""
-    by, bx = screen_obj.getmaxyx()
-    offset_y = 5
-    offset_x = bx / 12
-    textbox = screen_obj.derwin(offset_y + 14, offset_x * 10, offset_y, offset_x)
-    textbox.clear()
-    textbox.box()
+def draw_events(screen, events):
+  y, x = screen.getmaxyx()
+  center_y = y / 2
+  center_x = x / 2
+  bottom_y = center_y - 1
+  top_y = 3
 
-    screen_obj.addstr(offset_y, offset_x * 6 - 5, "|        |",
-        curses.color_pair(1))
-    screen_obj.addstr(offset_y, offset_x * 6 - 3, "Events",
-        curses.color_pair(2))
+  event_box = screen.derwin(center_y - 3, x - 4, 2, 2)
+  event_box.clear()
+  #event_box.box()
 
-    with open('./log/eqalert.log') as t:
-        content = t.readlines()
-        end = len(content)
-        count = 1
-        while count < end and count < 18:
-            screen_obj.addstr(offset_y - count + 18, offset_x + 1,
-                content[end - count][33:].strip(), curses.color_pair(2))
-            count = count + 1
-        t.close()
+  count = 0
+  while count < (bottom_y - top_y) or count < len(events):
+    c_y = bottom_y + count
+    event_num = len(events) - count - 1
+    event = events[(count + 1) * -1]
+    timestamp = event.timestamp
+    screen.addstr(c_y, 2, event.timestamp, curses.color_pair(1))
+    screen.addstr(c_y, 14, curses.ACS_VLINE, curses.color_pair(5))
+    screen.addstr(c_y, 16, event.payload, curses.color_pair(1))
 
 
-def draw_healparse(screen_obj, healed):
+def draw_state(screen):
+  """Draws the main window and tabs using curses"""
+  y, x = screen.getmaxyx()
+  center_y = y / 2
+  center_x = x / 2
+
+  # Clear and box
+  screen.clear()
+  screen.box()
+
+  # Events tab
+  screen.addstr(1, 2, "F1", curses.color_pair(3))
+  screen.addstr(1, 4, ":", curses.color_pair(1))
+  screen.addstr(1, 6, "events", curses.color_pair(2))
+  screen.addstr(1, 13, curses.ACS_VLINE, curses.color_pair(1))
+
+  # State tab
+  screen.addstr(1, 15, "F2", curses.color_pair(3))
+  screen.addstr(1, 17, ":", curses.color_pair(1))
+  screen.addstr(1, 19, "state", curses.color_pair(4))
+  screen.addstr(1, 21, curses.ACS_VLINE, curses.color_pair(1))
+
+  # Settings tab
+  screen.addstr(1, x - 23, "F3", curses.color_pair(3))
+  screen.addstr(1, x - 21, ":", curses.color_pair(1))
+  screen.addstr(1, x - 20, "settings", curses.color_pair(2))
+  screen.addstr(1, x - 25, curses.ACS_VLINE, curses.color_pair(1))
+
+  # Help tab
+  screen.addstr(1, x - 9, "F4", curses.color_pair(3))
+  screen.addstr(1, x - 8, ":", curses.color_pair(1))
+  screen.addstr(1, x - 6, "help", curses.color_pair(2))
+  screen.addstr(1, x - 11, curses.ACS_VLINE, curses.color_pair(1))
+
+  # Center title
+  screen.addstr(1, center_x - 4, "EQ ALERT", curses.color_pair(2))
+
+  # Bottom of tabs
+  for c in range (x):
+    screen.addch(2, c, curses.ACS_HLINE)
+
+
+def draw_settings_frame(screen):
+  """Draws the main window and tabs using curses"""
+  y, x = screen.getmaxyx()
+  center_y = y / 2
+  center_x = x / 2
+
+  # Clear and box
+  screen.clear()
+  screen.box()
+
+  # Events tab
+  screen.addstr(1, 2, "F1", curses.color_pair(3))
+  screen.addstr(1, 4, ":", curses.color_pair(1))
+  screen.addstr(1, 6, "events", curses.color_pair(2))
+  screen.addstr(1, 13, curses.ACS_VLINE, curses.color_pair(1))
+
+  # State tab
+  screen.addstr(1, 15, "F2", curses.color_pair(3))
+  screen.addstr(1, 17, ":", curses.color_pair(1))
+  screen.addstr(1, 19, "state", curses.color_pair(2))
+  screen.addstr(1, 21, curses.ACS_VLINE, curses.color_pair(1))
+
+  # Settings tab
+  screen.addstr(1, x - 23, "F3", curses.color_pair(3))
+  screen.addstr(1, x - 21, ":", curses.color_pair(1))
+  screen.addstr(1, x - 20, "settings", curses.color_pair(4))
+  screen.addstr(1, x - 25, curses.ACS_VLINE, curses.color_pair(1))
+
+  # Help tab
+  screen.addstr(1, x - 9, "F4", curses.color_pair(3))
+  screen.addstr(1, x - 8, ":", curses.color_pair(1))
+  screen.addstr(1, x - 6, "help", curses.color_pair(2))
+  screen.addstr(1, x - 11, curses.ACS_VLINE, curses.color_pair(1))
+
+  # Center title
+  screen.addstr(1, center_x - 4, "EQ ALERT", curses.color_pair(2))
+
+  # Bottom of tabs
+  for c in range (x):
+    screen.addch(2, c, curses.ACS_HLINE)
+
+
+def draw_healparse(screen, healed):
     """Draws the heal parse box"""
-    by, bx = screen_obj.getmaxyx()
+    by, bx = screen.getmaxyx()
     offset_y = 14
     offset_x = bx / 12
-    textbox = screen_obj.derwin(offset_y - 5, (bx / 3) + 3, offset_y + 10, offset_x)
+    textbox = screen.derwin(offset_y - 5, (bx / 3) + 3, offset_y + 10, offset_x)
     textbox.clear()
     textbox.box()
 
-    screen_obj.addstr(offset_y + 10, offset_x * 3 - 4, "|       |",
+    screen.addstr(offset_y + 10, offset_x * 3 - 4, "|       |",
         curses.color_pair(1))
-    screen_obj.addstr(offset_y + 10, offset_x * 3 - 2, "Heals",
+    screen.addstr(offset_y + 10, offset_x * 3 - 2, "Heals",
         curses.color_pair(2))
 
     count = 1
     for (key, value) in healed.iteritems():
-        screen_obj.addstr(offset_y + count + 10, offset_x + 1,
+        screen.addstr(offset_y + count + 10, offset_x + 1,
             key, curses.color_pair(2))
-        screen_obj.addstr(offset_y + count + 10, offset_x + 2 - len(str(value)) + offset_x * 4,
+        screen.addstr(offset_y + count + 10, offset_x + 2 - len(str(value)) + offset_x * 4,
             str(value), curses.color_pair(2))
         count = count + 1
 
 
-def draw_spelldps(screen_obj, sdamaged, sdps):
+def draw_spelldps(screen, sdamaged, sdps):
     """Draws the spell parse box"""
-    by, bx = screen_obj.getmaxyx()
+    by, bx = screen.getmaxyx()
     offset_y = 14
     offset_x = (bx / 2)
-    textbox = screen_obj.derwin(offset_y - 5, (bx / 3), offset_y + 10, offset_x)
+    textbox = screen.derwin(offset_y - 5, (bx / 3), offset_y + 10, offset_x)
     textbox.clear()
     textbox.box()
 
-    screen_obj.addstr(offset_y + 10, (bx / 2) + (bx / 6) - 7, "|            |",
+    screen.addstr(offset_y + 10, (bx / 2) + (bx / 6) - 7, "|            |",
         curses.color_pair(1))
-    screen_obj.addstr(offset_y + 10, (bx / 2) + (bx / 6) - 4, "Damage",
+    screen.addstr(offset_y + 10, (bx / 2) + (bx / 6) - 4, "Damage",
         curses.color_pair(2))
 
-    screen_obj.addstr(offset_y + 11, (bx / 2) + 1,
+    screen.addstr(offset_y + 11, (bx / 2) + 1,
         "DPS:", curses.color_pair(2))
-    screen_obj.addstr(offset_y + 11, (bx / 2) + (bx / 3) - 1 - len(str(sdps)),
+    screen.addstr(offset_y + 11, (bx / 2) + (bx / 3) - 1 - len(str(sdps)),
         str(sdps), curses.color_pair(2))
 
     count = 2
     for (key, value) in sdamaged.iteritems():
-        screen_obj.addstr(offset_y + count + 10, (bx / 2) + 1,
+        screen.addstr(offset_y + count + 10, (bx / 2) + 1,
             key, curses.color_pair(2))
-        screen_obj.addstr(offset_y + count + 10, (bx / 2) + (bx / 3) - 1 - len(str(value)),
+        screen.addstr(offset_y + count + 10, (bx / 2) + (bx / 3) - 1 - len(str(value)),
             str(value), curses.color_pair(2))
         count = count + 1
 
 
-def draw_help_menu(screen_obj):
-    """Draws help menu."""
-    screen_obj.clear()
-    screen_obj.box()
-    y, x = screen_obj.getmaxyx()
-    center_y = y / 2
-    center_x = x / 2
+def draw_help(screen):
+  """Draws help menu."""
+  y, x = screen.getmaxyx()
+  center_y = y / 2
+  center_x = x / 2
 
-    screen_obj.addstr(0, center_x - 6, "|           |",
-        curses.color_pair(1))
-    screen_obj.addstr(0, center_x - 4, "EQA Help",
-        curses.color_pair(2))
+  # Clear and box
+  screen.clear()
+  screen.box()
 
-    screen_obj.addstr(1, center_x - x / 2 + 1, "F1 :",
-        curses.color_pair(2))
-    screen_obj.addstr(1, 5 + center_x - x / 2, "  Console",
-        curses.color_pair(3))
+  # Events tab
+  screen.addstr(1, 2, "F1", curses.color_pair(3))
+  screen.addstr(1, 4, ":", curses.color_pair(1))
+  screen.addstr(1, 6, "events", curses.color_pair(2))
+  screen.addstr(1, 13, curses.ACS_VLINE, curses.color_pair(1))
 
-    screen_obj.addstr(5, center_x - x / 3, "Commands:",
-        curses.color_pair(1))
-    screen_obj.addstr(7, center_x - x / 3, "Key             :",
-        curses.color_pair(1))
-    screen_obj.addstr(7, center_x - x / 3 + 17, "  Command",
-        curses.color_pair(1))
+  # State tab
+  screen.addstr(1, 15, "F2", curses.color_pair(3))
+  screen.addstr(1, 17, ":", curses.color_pair(1))
+  screen.addstr(1, 19, "state", curses.color_pair(2))
+  screen.addstr(1, 21, curses.ACS_VLINE, curses.color_pair(1))
 
-    screen_obj.addstr(9, center_x - x / 3, "q:              :",
-        curses.color_pair(2))
-    screen_obj.addstr(9, center_x - x / 3 + 17, "  Quit/Back",
-        curses.color_pair(3))
+  # Settings tab
+  screen.addstr(1, x - 23, "F3", curses.color_pair(3))
+  screen.addstr(1, x - 21, ":", curses.color_pair(1))
+  screen.addstr(1, x - 20, "settings", curses.color_pair(2))
+  screen.addstr(1, x - 25, curses.ACS_VLINE, curses.color_pair(1))
 
-    screen_obj.addstr(10, center_x - x / 3, "h:              :",
-        curses.color_pair(2))
-    screen_obj.addstr(10, center_x - x / 3 + 17, "  Toggle heal parse",
-        curses.color_pair(3))
+  # Help tab
+  screen.addstr(1, x - 9, "F4", curses.color_pair(3))
+  screen.addstr(1, x - 8, ":", curses.color_pair(1))
+  screen.addstr(1, x - 6, "help", curses.color_pair(4))
+  screen.addstr(1, x - 11, curses.ACS_VLINE, curses.color_pair(1))
 
-    screen_obj.addstr(11, center_x - x / 3, "s:              :",
-        curses.color_pair(2))
-    screen_obj.addstr(11, center_x - x / 3 + 17, "  Toggle spell parse",
-        curses.color_pair(3))
+  # Center title
+  screen.addstr(1, center_x - 4, "EQ ALERT", curses.color_pair(2))
 
-    screen_obj.addstr(12, center_x - x / 3, "p:              :",
-        curses.color_pair(2))
-    screen_obj.addstr(12, center_x - x / 3 + 17, "  Toggle all parses",
-        curses.color_pair(3))
+  # Bottom of tabs
+  for c in range (x):
+    screen.addch(2, c, curses.ACS_HLINE)
 
-    screen_obj.addstr(13, center_x - x / 3, "c:              :",
-        curses.color_pair(2))
-    screen_obj.addstr(13, center_x - x / 3 + 17, "  Clear event box",
-        curses.color_pair(3))
+  screen.addstr(5, center_x - x / 3, "Commands:",
+    curses.color_pair(1))
+  screen.addstr(7, center_x - x / 3, "Key             :",
+    curses.color_pair(1))
+  screen.addstr(7, center_x - x / 3 + 17, "  state",
+    curses.color_pair(1))
 
-    screen_obj.addstr(14, center_x - x / 3, "r:              :",
-        curses.color_pair(2))
-    screen_obj.addstr(14, center_x - x / 3 + 17, "  Toggle raid mode",
-        curses.color_pair(3))
+  screen.addstr(9, center_x - x / 3, "q:              :",
+    curses.color_pair(2))
+  screen.addstr(9, center_x - x / 3 + 17, "  Quit",
+    curses.color_pair(3))
+
+  screen.addstr(10, center_x - x / 3, "h:              :",
+    curses.color_pair(2))
+  screen.addstr(10, center_x - x / 3 + 17, "  Toggle heal parse",
+    curses.color_pair(3))
+
+  screen.addstr(11, center_x - x / 3, "s:              :",
+    curses.color_pair(2))
+  screen.addstr(11, center_x - x / 3 + 17, "  Toggle spell parse",
+    curses.color_pair(3))
+
+  screen.addstr(12, center_x - x / 3, "p:              :",
+    curses.color_pair(2))
+  screen.addstr(12, center_x - x / 3 + 17, "  Toggle all parses",
+    curses.color_pair(3))
+
+  screen.addstr(13, center_x - x / 3, "c:              :",
+    curses.color_pair(2))
+  screen.addstr(13, center_x - x / 3 + 17, "  Clear event box",
+    curses.color_pair(3))
+
+  screen.addstr(14, center_x - x / 3, "r:              :",
+    curses.color_pair(2))
+  screen.addstr(14, center_x - x / 3 + 17, "  Toggle raid mode",
+    curses.color_pair(3))
+
+  screen.addstr(16, center_x - x / 3, "F1:             :",
+   curses.color_pair(2))
+  screen.addstr(16, center_x - x / 3 + 17, "  Events",
+    curses.color_pair(3))
+
+  screen.addstr(17, center_x - x / 3, "F2:             :",
+    curses.color_pair(2))
+  screen.addstr(17, center_x - x / 3 + 17, "  State",
+   curses.color_pair(3))
+
+  screen.addstr(18, center_x - x / 3, "F3:             :",
+    curses.color_pair(2))
+  screen.addstr(18, center_x - x / 3 + 17, "  Settings",
+    curses.color_pair(3))
+
+  screen.addstr(19, center_x - x / 3, "F4:             :",
+    curses.color_pair(2))
+  screen.addstr(19, center_x - x / 3 + 17, "  Help",
+    curses.color_pair(3))
 
 
-    screen_obj.addstr(16, center_x - x / 3, "F1:             :",
-        curses.color_pair(2))
-    screen_obj.addstr(16, center_x - x / 3 + 17, "  Display help menu",
-        curses.color_pair(3))
-
-    screen_obj.addstr(17, center_x - x / 3, "F2:             :",
-        curses.color_pair(2))
-    screen_obj.addstr(17, center_x - x / 3 + 17, "  Open char menu",
-        curses.color_pair(3))
-
-    screen_obj.addstr(18, center_x - x / 3, "F3:             :",
-        curses.color_pair(2))
-    screen_obj.addstr(18, center_x - x / 3 + 17, "  Save and reset parses",
-        curses.color_pair(3))
-
-    screen_obj.addstr(19, center_x - x / 3, "F4:             :",
-        curses.color_pair(2))
-    screen_obj.addstr(19, center_x - x / 3 + 17, "  Clear heal parse history",
-        curses.color_pair(3))
-
-    screen_obj.addstr(20, center_x - x / 3, "F5:             :",
-        curses.color_pair(2))
-    screen_obj.addstr(20, center_x - x / 3 + 17, "  Clear spell parse history",
-        curses.color_pair(3))
-
-    screen_obj.addstr(21, center_x - x / 3, "F12:            :",
-        curses.color_pair(2))
-    screen_obj.addstr(21, center_x - x / 3 + 17, "  Reload config file",
-        curses.color_pair(3))
-
-
-def draw_toosmall(screen_obj):
+def draw_toosmall(screen):
     """Draws screen when too small"""
-    screen_obj.clear()
-    screen_obj.box()
-    y, x = screen_obj.getmaxyx()
+    screen.clear()
+    screen.box()
+    y, x = screen.getmaxyx()
     center_y = y / 2
     center_x = x / 2
 
-    screen_obj.addstr(center_y, center_x - 10, "Terminal too small.",
+    screen.addstr(center_y, center_x - 10, "Terminal too small.",
         curses.color_pair(1))
 
 
-def draw_char_menu(screen_obj, chars):
+def draw_char_menu(screen, chars):
     """Draws char menu."""
-    screen_obj.clear()
-    screen_obj.box()
-    y, x = screen_obj.getmaxyx()
+    screen.clear()
+    screen.box()
+    y, x = screen.getmaxyx()
     center_y = y / 2
     center_x = x / 2
 
-    screen_obj.addstr(0, center_x - 6, "|           |",
+    screen.addstr(0, center_x - 6, "|           |",
         curses.color_pair(1))
-    screen_obj.addstr(0, center_x - 4, "Char Menu",
+    screen.addstr(0, center_x - 4, "Char Menu",
         curses.color_pair(2))
 
-    screen_obj.addstr(1, center_x - x / 2 + 1, "F1 :",
+    screen.addstr(1, center_x - x / 2 + 1, "F1 :",
         curses.color_pair(2))
-    screen_obj.addstr(1, 5 + center_x - x / 2, "  Console",
+    screen.addstr(1, 5 + center_x - x / 2, "  Console",
         curses.color_pair(3))
 
     count = 0
     for toon in chars:
-        screen_obj.addstr(6 + count + 1, center_x - x / 3, str(count + 1) + ":",
+        screen.addstr(6 + count + 1, center_x - x / 3, str(count + 1) + ":",
             curses.color_pair(1))
-        screen_obj.addstr(6 + count + 1, center_x - x / 3 + 17, str(toon).title(),
+        screen.addstr(6 + count + 1, center_x - x / 3 + 17, str(toon).title(),
             curses.color_pair(2))
         count = count + 1
 
 
-def char_menu(screen_obj, chars):
+def char_menu(screen, chars):
   """Controls char menu commands."""
   key = ''
   new_char = char
 
-  draw_char_menu(screen_obj, chars)
+  draw_char_menu(screen, chars)
 
   selected = False
   while key != ord('q') and key != curses.KEY_F1 and key != 27 and not selected:
-    key = screen_obj.getch()
+    key = screen.getch()
     if key == curses.KEY_RESIZE:
       return
     count = 1
@@ -319,16 +461,16 @@ def char_menu(screen_obj, chars):
   return new_char
 
 
-def redraw_all(screen_obj, char, current_zone):
+def redraw_all(screen, char, zone):
     """Redraw entire screen."""
-    y, x = screen_obj.getmaxyx()
+    y, x = screen.getmaxyx()
     if x >= 80 and y >= 40:
-        draw_screen(screen_obj, char, current_zone)
-        draw_textbox(screen_obj)
-        #draw_healparse(screen_obj, healed)
-        #draw_spelldps(screen_obj, sdamaged, sdps)
+        draw_events(screen, char, zone)
+        draw_textbox(screen)
+        #draw_healparse(screen, healed)
+        #draw_spelldps(screen, sdamaged, sdps)
     else:
-        draw_toosmall(screen_obj)
+        draw_toosmall(screen)
 
 
 

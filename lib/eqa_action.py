@@ -43,12 +43,18 @@ def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, e
           elif current_zone in config["zones"].keys() and not raid.is_set():
             if config["zones"][current_zone] == "raid":
               raid.set()
-              eqa_settings.log("Raid mode auto-enabled")
-              sound_q.put(eqa_struct.sound('espeak', "Raid mode enabled"))
+              display_q.put(eqa_struct.display('event', 'events',
+                  eqa_struct.message('display_event',
+                    datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
+                    'null', 'null', 'Raid mode auto-enabled'))
+              sound_q.put(eqa_struct.sound('espeak', 'Raid mode enabled'))
           elif current_zone in config["zones"].keys() and raid.is_set():
             if config["zones"][current_zone] != "raid":
               raid.clear()
-              eqa_settings.log("Raid mode auto-disabled")
+              display_q.put(eqa_struct.display('event', 'events',
+                  eqa_struct.message('display_event',
+                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
+                  'null', 'null', 'Raid mode auto-disabled'))
               sound_q.put(eqa_struct.sound('espeak', "Raid mode disabled"))
           message_q.put(eqa_struct.message('system', 'null', 'zone', 'null', current_zone))
           display_q.put(eqa_struct.display('update', 'zone', current_zone))
@@ -103,7 +109,10 @@ def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, e
 
           # Or if line_type is parsed for as a spoken alert
           elif config["settings"]["check_line_type"][line_type] == "speak":
-            eqa_settings.log("espeak: " + check_line)
+            display_q.put(eqa_struct.display('event', 'events',
+                eqa_struct.message('display_event',
+                datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
+                'null', 'null', 'espeak: ' + check_line))
             sound_q.put(eqa_struct.sound('espeak', check_line))
 
           # For triggers requiring all line_types
@@ -116,7 +125,10 @@ def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, e
         # If line_type is not a parsable type
         else:
           eqa_config.add_type(line_type)
-          eqa_settings.log('Added: ' + line_type)
+          display_q.put(eqa_struct.display('event', 'events',
+              eqa_struct.message('display_event',
+              datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
+              'null', 'null', 'added: ' + line_type))
           config = eqa_config.read()
 
   except Exception as e:
@@ -126,7 +138,10 @@ def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, e
 def log_alert(line_type, check_line):
   """Logs an alert and refreshs display"""
   ## Seperated to maybe log line types differently
-  eqa_settings.log(line_type + ": " + check_line[0:65])
+  display_q.put(eqa_struct.display('event', 'events',
+      eqa_struct.message('display_event',
+      datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
+      'null', 'null', line_type + ': ' + check_line[0:65]))
 
 
 def undetermined_line(line):

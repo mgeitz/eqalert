@@ -24,7 +24,7 @@ def process(config, sound_q, exit_flag):
         alert(config, sound_event.payload)
       else:
         espeak(sound_event.payload)
-        eqa_settings.log("[Malformed sound event] " + sound_event.sound)
+        display_q.put(eqa_struct.display('event', 'events', "[Malformed sound event] " + sound_event.sound))
 
 
 def raid_alert(key, line):
