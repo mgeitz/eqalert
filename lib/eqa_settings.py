@@ -26,6 +26,11 @@ def timestamp():
   return str(timestamp)
 
 
+def eqa_time():
+  """Returns message timestamp HH:MM:SS.ff"""
+  return datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4]
+
+
 def log(message):
   """Effectively just for timestamping all log messages"""
   logging.info('[' + timestamp() + ']: ' + str(message))

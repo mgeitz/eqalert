@@ -25,22 +25,22 @@ def process(display_q, sound_q, keyboard_q, heal_q, damage_q, message_q, exit_fl
 
         # Handle key
         if key == curses.KEY_RESIZE:
-          display_q.put(eqa_struct.display('draw', 'events', 'null'))
+          display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
         if key == curses.KEY_F1:
           if page != 'events':
-            display_q.put(eqa_struct.display('draw', 'events', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
             page = 'events'
         if key == curses.KEY_F2:
           if page != 'state':
-            display_q.put(eqa_struct.display('draw', 'state', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'state', 'null'))
             page = 'state'
         if key == curses.KEY_F3:
           if page != 'settings':
-            display_q.put(eqa_struct.display('draw', 'settings', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'settings', 'null'))
             page = 'settings'
         if key == curses.KEY_F3:
           if page != 'help':
-            display_q.put(eqa_struct.display('draw', 'help', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'help', 'null'))
             page = 'help'
         if key == curses.KEY_F3:
           if page == 'events':
@@ -49,126 +49,84 @@ def process(display_q, sound_q, keyboard_q, heal_q, damage_q, message_q, exit_fl
               damage_q.put(eqa_struct.heal('null', 'save', 'null', 'null', 'null'))
               heal_q.clear()
               damage_q.clear()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Parse history saved and cleared'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Parse history saved and cleared'))
               sound_q.put(eqa_struct.sound('espeak', 'Parse history saved and cleared'))
             else:
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'No history to clear'))
-            display_q.put(eqa_struct.display('draw', 'events', 'null'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'No history to clear'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
         if key == curses.KEY_F4:
           if page == 'events':
             heal_q.clear()
-            display_q.put(eqa_struct.display('event', 'events',
-                eqa_struct.message('display_event',
-                datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                'null', 'null', 'Heal parse cleared'))
-            sound_q.put(eqa_struct.sound('espeak', "Heal parse cleared"))
-            display_q.put(eqa_struct.display('draw', 'events', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Heal parse cleared'))
+            sound_q.put(eqa_struct.sound('espeak', 'Heal parse cleared'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
         if key == curses.KEY_F5:
           if page == 'events':
             damage_q.cleared()
-            display_q.put(eqa_struct.display('event', 'events',
-                eqa_struct.message('display_event',
-                datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                'null', 'null', 'Spell parse cleared'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Spell parse cleared'))
             sound_q.put(eqa_struct.sound('espeak', "Spell parse cleared"))
-            display_q.put(eqa_struct.display('draw', 'events', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
         if key == curses.KEY_F12:
           if page == 'events':
-            message_q.put(eqa_struct.message('system', eqa_settings.timestamp(), 'reload_config', 'null', 'null'))
-            display_q.put(eqa_struct.display('draw', 'events', 'null'))
+            message_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'reload_config', 'null', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
 
         # Alphanumeric keys
         if key == ord('h'):
           if page == 'events':
             if heal_parse.is_set():
               heal_parse.clear()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Heal parse disbled'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Heal parse disbled'))
               sound_q.put(eqa_struct.sound('espeak', 'Heal parse disbled'))
             elif not heal_parse.is_set():
               heal_parse.set()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Heal parse enabled'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Heal parse enabled'))
               sound_q.put(eqa_struct.sound('espeak', 'Heal parse enabled'))
-            display_q.put(eqa_struct.display('draw', 'events', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
         if key == ord('s'):
           if page == 'events':
             if spell_parse.is_set():
               spell_parse.clear()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Spell parse disabled'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Spell parse disabled'))
               sound_q.put(eqa_struct.sound('espeak', 'Spell parse disabled'))
             elif not spell_parse.is_set():
               spell_parse.set()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Spell parse enabled'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Spell parse enabled'))
               sound_q.put(eqa_struct.sound('espeak', 'Spell parse enabled'))
-            display_q.put(eqa_struct.display('draw', 'events', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
         if key == ord('p'):
           if page == 'events':
             if spell_parse.is_set():
               spell_parse.clear()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Spell parse disabled'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Spell parse disabled'))
               sound_q.put(eqa_struct.sound('espeak', 'Spell parse disabled'))
             elif not spell_parse.is_set():
               spell_parse.set()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Spell parse enabled'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Spell parse enabled'))
               sound_q.put(eqa_struct.sound('espeak', 'Spell parse enabled'))
             if heal_parse.is_set():
               heal_parse.clear()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Heal parse disabled'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Heal parse disabled'))
               sound_q.put(eqa_struct.sound('espeak', 'Heal parse disbled'))
             elif not heal_parse.is_set():
               heal_parse.set()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Heal parse enabled'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Heal parse enabled'))
               sound_q.put(eqa_struct.sound('espeak', 'Heal parse enabled'))
-            display_q.put(eqa_struct.display('draw', 'events', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
         if key == ord('c'):
           if page == 'events':
-            display_q.put(eqa_struct.display('event', 'clear', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'clear', 'null'))
         if key == ord('r'):
           if page == 'events':
             if not raid.is_set():
               raid.set()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Raid mode enabled'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Raid mode enabled'))
               sound_q.put(eqa_struct.sound('espeak', 'Raid mode enabled'))
             elif raid.is_set():
               raid.clear()
-              display_q.put(eqa_struct.display('event', 'events',
-                  eqa_struct.message('display_event',
-                  datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-                  'null', 'null', 'Raid mode disabled'))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Raid mode disabled'))
               sound_q.put(eqa_struct.sound('espeak', 'Raid mode disabled'))
-            display_q.put(eqa_struct.display('draw', 'events', 'null'))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
 
     except Exception as e:
       eqa_settings.log(e)

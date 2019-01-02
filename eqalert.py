@@ -93,9 +93,7 @@ def main():
   process_display.start()
 
   display_q.put(eqa_struct.display('draw', 'events', 'null'))
-  display_q.put(eqa_struct.display('event', 'events',
-    eqa_struct.message('display_event', datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-    'null', 'null', 'Initialized')))
+  display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Initialized'))
   sound_q.put(eqa_struct.sound('espeak', 'initialized'))
 
   ## Consume message_q
@@ -119,22 +117,20 @@ def main():
                 args = (stop_watcher, char_log, message))
             read_log.daemon = True
             read_log.start()
-            display_q.put(eqa_struct.display('event', 'events', "Character changed to " + char))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + char))
             sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + char))
           elif new_message.tx == "reload_config":
             config = eqa_conifig.init()
             sound_q.put(eqa_struct.sound('espeak', 'Configuration reloaded'))
         else:
-          #display_q.put(eqa_struct.display('event', 'events', new_message.type + ': ' + new_message.payload))
+          #display_q.put(eqa_struct.display(eqa_settings.eqa_time()'event', 'events', new_message.type + ': ' + new_message.payload))
           display_q.put(eqa_struct.display('draw', 'events', 'null'))
           action_q.put(new_message)
 
   except Exception as e:
     eqa_settings.log(e)
 
-  display_q.put(eqa_struct.display('event', 'events',
-    eqa_struct.message('display_event', datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4],
-    'null', 'null', 'Exiting')))
+  display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Exiting'))
   stop_watcher.set()
 
   process_keys.join()

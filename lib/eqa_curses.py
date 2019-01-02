@@ -25,30 +25,30 @@ def display(screen, display_q, message_q, zone, char, chars, exit_flag):
         if display_event.type == 'update':
           if display_event.screen == 'zone':
             zone = display_event.payload
-            redraw_all(screen, char, zone)
+            draw_page(screen, page, events, char, zone)
           elif display_event.screen == 'char':
             char = display_event.payload
-            redraw_all(screen, char, zone)
+            draw_page(screen, page, events, char, zone)
 
         # Display Draw
         elif display_event.type == 'draw':
           if display_event.screen == "events":
-            draw_events_frame(screen, char, zone, events)
             page = 'events'
+            draw_page(screen, page, events, char, zone)
           elif display_event.screen == 'state':
-            draw_state(screen)
             page = 'state'
+            draw_page(screen, page, events, char, zone)
           elif display_event.screen == 'settings':
-            draw_settings(screen)
             page = 'settings'
+            draw_page(screen, page, events, char, zone)
           elif display_event.screen == 'help':
-            draw_help(screen)
             page = 'help'
+            draw_page(screen, page, events, char, zone)
 
         # Draw Update
         elif display_event.type == 'event':
           if display_event.screen == 'events':
-            events.append(display_event.payload)
+            events.append([display_event])
             if page == 'events':
               draw_events(screen, char, zone, events)
           elif display_event.screen == 'clear':
@@ -61,23 +61,37 @@ def display(screen, display_q, message_q, zone, char, chars, exit_flag):
     pass
 
 
+def draw_page(screen, page, events, char, zone):
+  y, x = screen.getmaxyx()
+  if x >= 80 and y >= 40:
+    if page == 'events':
+      draw_events_frame(screen, char, zone, events)
+    elif page == 'state':
+      draw_state(screen)
+    elif page == 'settings':
+      draw_settings(screen)
+    elif page == 'help':
+      draw_help(screen)
+  else:
+    draw_toosmall(screen)
+
 def init(char, zone):
   """Create new screen in terminal"""
-  main_screen = curses.initscr()
+  screen = curses.initscr()
   os.system('setterm -cursor off')
   curses.start_color()
   curses.use_default_colors()
   curses.noecho()
   curses.cbreak()
-  main_screen.keypad(1)
-  main_screen.timeout(100)
+  screen.keypad(1)
+  screen.timeout(100)
   curses.init_pair(1, curses.COLOR_WHITE, -1)     # Title
   curses.init_pair(2, curses.COLOR_YELLOW, -1)    # Header
   curses.init_pair(3, curses.COLOR_CYAN, -1)      # Subtext
   curses.init_pair(4, curses.COLOR_MAGENTA, -1)   # Highlight
   curses.init_pair(5, curses.COLOR_GREEN, -1)     # Dunno
-  redraw_all(main_screen, char, zone)
-  return main_screen
+  draw_events_frame(screen, char, zone, [])
+  return screen
 
 
 def close_screens(screen):
@@ -164,6 +178,7 @@ def draw_events(screen, events):
     screen.addstr(c_y, 2, event.timestamp, curses.color_pair(1))
     screen.addstr(c_y, 14, curses.ACS_VLINE, curses.color_pair(5))
     screen.addstr(c_y, 16, event.payload, curses.color_pair(1))
+    count += 1
 
 
 def draw_state(screen):
@@ -461,12 +476,12 @@ def char_menu(screen, chars):
   return new_char
 
 
-def redraw_all(screen, char, zone):
+def redraw_all(screen, char, zone, events):
     """Redraw entire screen."""
     y, x = screen.getmaxyx()
     if x >= 80 and y >= 40:
-        draw_events(screen, char, zone)
-        draw_textbox(screen)
+        draw_events_frame(screen, char, zone)
+        draw_events(screen, events)
         #draw_healparse(screen, healed)
         #draw_spelldps(screen, sdamaged, sdps)
     else:
