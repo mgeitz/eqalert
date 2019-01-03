@@ -2,6 +2,9 @@
 
 A Project 1999 log parser with NCurses interface for Linux
 
+    ![img](https://i.imgur.com/4SoT7CO.png)
+    ![img](https://i.imgur.com/IuKT9FF.png)
+
 ## Dependencies
     - pyinotify
     - espeak
