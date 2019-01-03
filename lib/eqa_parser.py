@@ -10,26 +10,28 @@ from collections import deque
 import pyinotify
 
 import eqa_struct
+import eqa_settings
 
 
-def parse(line, message):
+def parse(line, message_q):
     """Consume the log and produce santized messages"""
 
     timestamp, payload = line[1:].split('] ', 1)
+    timestamp = timestamp.split(' ')[3] + '.00'
     line_type = determine(payload)
-    new_message = eqa_struct.message(line_type, timestamp, 'null', 'null', payload)
+    new_message = eqa_struct.message(timestamp, line_type, 'null', 'null', payload)
 
-    message.put(new_message)
+    message_q.put(new_message)
 
 
-def monitor(stop_watcher, character_log, message):
+def monitor(stop_watcher, character_log, message_q):
     """Parse on file changes"""
     log_watch = pyinotify.WatchManager()
     log_notifier = pyinotify.Notifier(log_watch)
 
     def callback(event):
         if event.mask == pyinotify.IN_CLOSE_WRITE:
-            parse(read(character_log), message)
+            parse(read(character_log), message_q)
 
     log_watch.add_watch(character_log, pyinotify.IN_CLOSE_WRITE, callback)
 
@@ -42,6 +44,7 @@ def monitor(stop_watcher, character_log, message):
                 log_notifier.stop()
 
     except Exception as e:
+        eqa_settings.log('monitor: ' + str(e))
         stop_watcher.set()
         log_notifier.stop()
 

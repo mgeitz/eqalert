@@ -45,7 +45,6 @@ def main():
   heal_parse = threading.Event()
   spell_parse = threading.Event()
   exit_flag = threading.Event()
-  eqa_settings.log('Initializing... ' + str(datetime.datetime.now()))
   config, chars = eqa_config.init()
   char = config["characters"]["default"]
   zone = "unavailable"
@@ -93,7 +92,8 @@ def main():
   process_display.daemon = True
   process_display.start()
 
-  display_q.put(eqa_struct.display('draw', 'all', 'null'))
+  display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
+  display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Initialized'))
   sound_q.put(eqa_struct.sound('espeak', 'initialized'))
 
   ## Consume message_q
@@ -117,19 +117,20 @@ def main():
                 args = (stop_watcher, char_log, message))
             read_log.daemon = True
             read_log.start()
-            eqa_settings.log("Character changed to " + char)
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + char))
             sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + char))
           elif new_message.tx == "reload_config":
             config = eqa_conifig.init()
             sound_q.put(eqa_struct.sound('espeak', 'Configuration reloaded'))
         else:
-          #eqa_settings.log(new_message.type + ': ' + new_message.payload)
-          display_q.put(eqa_struct.display('draw', 'all', 'null'))
+          #display_q.put(eqa_struct.display(eqa_settings.eqa_time()'event', 'events', new_message.type + ': ' + new_message.payload))
+          display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
           action_q.put(new_message)
 
   except Exception as e:
-    eqa_settings.log(e)
+    eqa_settings.log('main: ' + str(e))
 
+  display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Exiting'))
   stop_watcher.set()
 
   process_keys.join()

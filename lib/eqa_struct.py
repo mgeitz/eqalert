@@ -7,10 +7,7 @@ from collections import namedtuple
 global display
 global sound
 global message
-global action
 
-display = namedtuple('data', ['type', 'screen', 'payload'])
+display = namedtuple('data', ['timestamp', 'type', 'screen', 'payload'])
+message = namedtuple('data', ['timestamp', 'type', 'tx', 'rx', 'payload'])
 sound = namedtuple('data', ['sound', 'payload'])
-message = namedtuple('data', ['type', 'timestamp', 'tx', 'rx', 'payload'])
-heal = namedtuple('data', ['timestamp', 'type', 'tx', 'rx', 'amount'])
-damage = namedtuple('data', ['timestamp', 'type', 'tx', 'rx', 'amount'])
