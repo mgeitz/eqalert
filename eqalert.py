@@ -92,7 +92,7 @@ def main():
   process_display.daemon = True
   process_display.start()
 
-  display_q.put(eqa_struct.display('draw', 'events', 'null'))
+  display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Initialized'))
   sound_q.put(eqa_struct.sound('espeak', 'initialized'))
 
@@ -124,11 +124,11 @@ def main():
             sound_q.put(eqa_struct.sound('espeak', 'Configuration reloaded'))
         else:
           #display_q.put(eqa_struct.display(eqa_settings.eqa_time()'event', 'events', new_message.type + ': ' + new_message.payload))
-          display_q.put(eqa_struct.display('draw', 'events', 'null'))
+          display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
           action_q.put(new_message)
 
   except Exception as e:
-    eqa_settings.log(e)
+    eqa_settings.log('main: ' + str(e))
 
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Exiting'))
   stop_watcher.set()

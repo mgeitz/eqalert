@@ -25,7 +25,7 @@ def process(display_q, sound_q, keyboard_q, heal_q, damage_q, message_q, exit_fl
 
         # Handle key
         if key == curses.KEY_RESIZE:
-          display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
+          display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'redraw', 'null'))
         if key == curses.KEY_F1:
           if page != 'events':
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
@@ -38,38 +38,10 @@ def process(display_q, sound_q, keyboard_q, heal_q, damage_q, message_q, exit_fl
           if page != 'settings':
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'settings', 'null'))
             page = 'settings'
-        if key == curses.KEY_F3:
+        if key == curses.KEY_F4:
           if page != 'help':
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'help', 'null'))
             page = 'help'
-        if key == curses.KEY_F3:
-          if page == 'events':
-            if heal_parse.is_set() or spell_parse.is_set() :
-              heal_q.put(eqa_struct.heal('null', 'save', 'null', 'null', 'null'))
-              damage_q.put(eqa_struct.heal('null', 'save', 'null', 'null', 'null'))
-              heal_q.clear()
-              damage_q.clear()
-              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Parse history saved and cleared'))
-              sound_q.put(eqa_struct.sound('espeak', 'Parse history saved and cleared'))
-            else:
-              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'No history to clear'))
-            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
-        if key == curses.KEY_F4:
-          if page == 'events':
-            heal_q.clear()
-            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Heal parse cleared'))
-            sound_q.put(eqa_struct.sound('espeak', 'Heal parse cleared'))
-            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
-        if key == curses.KEY_F5:
-          if page == 'events':
-            damage_q.cleared()
-            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Spell parse cleared'))
-            sound_q.put(eqa_struct.sound('espeak', "Spell parse cleared"))
-            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
-        if key == curses.KEY_F12:
-          if page == 'events':
-            message_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'reload_config', 'null', 'null'))
-            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
 
         # Alphanumeric keys
         if key == ord('h'):
@@ -129,7 +101,7 @@ def process(display_q, sound_q, keyboard_q, heal_q, damage_q, message_q, exit_fl
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
 
     except Exception as e:
-      eqa_settings.log(e)
+      eqa_settings.log('process keys: ' + str(e))
       exit_flag.set()
       pass
 

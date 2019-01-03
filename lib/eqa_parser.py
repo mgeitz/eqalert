@@ -10,6 +10,7 @@ from collections import deque
 import pyinotify
 
 import eqa_struct
+import eqa_settings
 
 
 def parse(line, message_q):
@@ -18,7 +19,7 @@ def parse(line, message_q):
     timestamp, payload = line[1:].split('] ', 1)
     timestamp = timestamp.split(' ')[3] + '.00'
     line_type = determine(payload)
-    new_message = eqa_struct.message(line_type, timestamp, 'null', 'null', payload)
+    new_message = eqa_struct.message(timestamp, line_type, 'null', 'null', payload)
 
     message_q.put(new_message)
 
@@ -43,6 +44,7 @@ def monitor(stop_watcher, character_log, message_q):
                 log_notifier.stop()
 
     except Exception as e:
+        eqa_settings.log('monitor: ' + str(e))
         stop_watcher.set()
         log_notifier.stop()
 
