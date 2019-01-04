@@ -44,6 +44,7 @@ def display(stdscr, display_q, message_q, zone, char, chars, exit_flag):
               draw_page(stdscr, page, events, char, zone)
           elif display_event.screen == 'clear':
             events = []
+            draw_page(stdscr, page, events, char, zone)
 
 
 
@@ -99,14 +100,22 @@ def draw_tabs(stdscr, tab):
   center_y = y / 2
   center_x = x / 2
 
-  # Events tab
+  # Bottom of tabs
+  stdscr.addch(2, 0, curses.ACS_LTEE)
+  stdscr.addch(2, x - 1, curses.ACS_RTEE)
+  for c in range (x - 2):
+    stdscr.addch(2, c + 1, curses.ACS_HLINE)
+
+# Events tab
   stdscr.addstr(1, 2, "F1", curses.color_pair(3))
   stdscr.addstr(1, 4, ":", curses.color_pair(1))
   if tab == 'events':
     stdscr.addstr(1, 6, "events", curses.color_pair(4))
   else:
     stdscr.addstr(1, 6, "events", curses.color_pair(2))
+  stdscr.addch(0, 13, curses.ACS_TTEE)
   stdscr.addch(1, 13, curses.ACS_VLINE)
+  stdscr.addch(2, 13, curses.ACS_BTEE)
 
   # State tab
   stdscr.addstr(1, 15, "F2", curses.color_pair(3))
@@ -115,7 +124,9 @@ def draw_tabs(stdscr, tab):
     stdscr.addstr(1, 19, "state", curses.color_pair(4))
   else:
     stdscr.addstr(1, 19, "state", curses.color_pair(2))
+  stdscr.addch(0, 25, curses.ACS_TTEE)
   stdscr.addch(1, 25, curses.ACS_VLINE)
+  stdscr.addch(2, 25, curses.ACS_BTEE)
 
   # Settings tab
   stdscr.addstr(1, x - 25, "F3", curses.color_pair(3))
@@ -124,7 +135,9 @@ def draw_tabs(stdscr, tab):
     stdscr.addstr(1, x - 21, "settings", curses.color_pair(4))
   else:
     stdscr.addstr(1, x - 21, "settings", curses.color_pair(2))
+  stdscr.addch(0, x - 27, curses.ACS_TTEE)
   stdscr.addch(1, x - 27, curses.ACS_VLINE)
+  stdscr.addch(2, x - 27, curses.ACS_BTEE)
 
   # Help tab
   stdscr.addstr(1, x - 10, "F4", curses.color_pair(3))
@@ -133,16 +146,12 @@ def draw_tabs(stdscr, tab):
     stdscr.addstr(1, x - 6, "help", curses.color_pair(4))
   else:
     stdscr.addstr(1, x - 6, "help", curses.color_pair(2))
+  stdscr.addch(0, x - 12, curses.ACS_TTEE)
   stdscr.addch(1, x - 12, curses.ACS_VLINE)
+  stdscr.addch(2, x - 12, curses.ACS_BTEE)
 
   # Center title
   stdscr.addstr(1, center_x - 4, "EQ ALERT", curses.color_pair(2))
-
-  # Bottom of tabs
-  stdscr.addch(2, 0, curses.ACS_LTEE)
-  stdscr.addch(2, x - 1, curses.ACS_RTEE)
-  for c in range (x - 2):
-    stdscr.addch(2, c + 1, curses.ACS_HLINE)
 
 
 def draw_events_frame(stdscr, char, zone, events):
@@ -252,48 +261,49 @@ def draw_help(stdscr):
   # Draw tabs
   draw_tabs(stdscr, 'help')
 
-  stdscr.addstr(5, center_x - x / 3, "Commands:",
-    curses.color_pair(1))
-  stdscr.addstr(7, center_x - x / 3, "Key             :",
-    curses.color_pair(1))
-  stdscr.addstr(7, center_x - x / 3 + 17, "  state",
-    curses.color_pair(1))
+  # Commands
+  stdscr.addstr(5, 5, "Commands:",curses.color_pair(1))
 
-  stdscr.addstr(9, center_x - x / 3, "F1:             :",
-   curses.color_pair(2))
-  stdscr.addstr(9, center_x - x / 3 + 17, "  Events",
-    curses.color_pair(3))
+  # Global commands
+  stdscr.addstr(7, 7, "Global:",curses.color_pair(1))
 
-  stdscr.addstr(10, center_x - x / 3, "F2:             :",
-    curses.color_pair(2))
-  stdscr.addstr(10, center_x - x / 3 + 17, "  State",
-   curses.color_pair(3))
+  stdscr.addstr(8, 9, "F1", curses.color_pair(2))
+  stdscr.addstr(8, 11, ":", curses.color_pair(1))
+  stdscr.addstr(8, 13, "Events", curses.color_pair(3))
 
-  stdscr.addstr(11, center_x - x / 3, "F3:             :",
-    curses.color_pair(2))
-  stdscr.addstr(11, center_x - x / 3 + 17, "  Settings",
-    curses.color_pair(3))
+  stdscr.addstr(9, 9, "F2", curses.color_pair(2))
+  stdscr.addstr(9, 11, ":", curses.color_pair(1))
+  stdscr.addstr(9, 13, "State", curses.color_pair(3))
 
-  stdscr.addstr(12, center_x - x / 3, "F4:             :",
-    curses.color_pair(2))
-  stdscr.addstr(12, center_x - x / 3 + 17, "  Help",
-    curses.color_pair(3))
+  stdscr.addstr(10, 9, "F3", curses.color_pair(2))
+  stdscr.addstr(10, 11, ":", curses.color_pair(1))
+  stdscr.addstr(10, 13, "Settings", curses.color_pair(3))
 
-  stdscr.addstr(13, center_x - x / 3, "c:              :",
-    curses.color_pair(2))
-  stdscr.addstr(13, center_x - x / 3 + 17, "  Clear event box",
-    curses.color_pair(3))
+  stdscr.addstr(11, 9, "F4", curses.color_pair(2))
+  stdscr.addstr(11, 11, ":", curses.color_pair(1))
+  stdscr.addstr(11, 13, "Help", curses.color_pair(3))
 
-  stdscr.addstr(14, center_x - x / 3, "r:              :",
-    curses.color_pair(2))
-  stdscr.addstr(14, center_x - x / 3 + 17, "  Toggle raid mode",
-    curses.color_pair(3))
+  stdscr.addstr(12, 9, "q", curses.color_pair(2))
+  stdscr.addstr(12, 11, ":", curses.color_pair(1))
+  stdscr.addstr(12, 13, "Quit", curses.color_pair(3))
 
-  stdscr.addstr(15, center_x - x / 3, "q:              :",
-    curses.color_pair(2))
-  stdscr.addstr(15, center_x - x / 3 + 17, "  Quit",
-    curses.color_pair(3))
+  # Events commands
+  stdscr.addstr(14, 7, "Events:",curses.color_pair(1))
 
+  stdscr.addstr(15, 9, "c", curses.color_pair(2))
+  stdscr.addstr(15, 11, ":", curses.color_pair(1))
+  stdscr.addstr(15, 13, "Clear events", curses.color_pair(3))
+
+  stdscr.addstr(16, 9, "r", curses.color_pair(2))
+  stdscr.addstr(16, 11, ":", curses.color_pair(1))
+  stdscr.addstr(16, 13, "Toggle raid mode", curses.color_pair(3))
+
+  # Settings commands
+  stdscr.addstr(18, 7, "Settings:",curses.color_pair(1))
+
+  stdscr.addstr(19, 9, "r", curses.color_pair(2))
+  stdscr.addstr(19, 11, ":", curses.color_pair(1))
+  stdscr.addstr(19, 13, "Toggle raid mode", curses.color_pair(3))
 
 
 def draw_toosmall(stdscr):
