@@ -11,7 +11,7 @@ import eqa_settings
 import eqa_config
 
 
-def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, exit_flag, heal_parse, spell_parse, raid):
+def process(config, display_q, sound_q, heal_q, damage_q, action_q, system_q, exit_flag, heal_parse, spell_parse, raid):
 
   try:
     while not exit_flag.is_set():
@@ -38,6 +38,8 @@ def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, e
           current_zone = current_zone[:-2]
           current_zone = current_zone.rstrip('.')
           sound_q.put(eqa_struct.sound('espeak', current_zone))
+          display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'update', 'zone', current_zone))
+          system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'zone', 'null', current_zone))
           if current_zone not in config["zones"].keys():
             eqa_config.add_zone(current_zone)
           elif current_zone in config["zones"].keys() and not raid.is_set():
@@ -50,8 +52,6 @@ def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, e
               raid.clear()
               display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Raid mode auto-disabled'))
               sound_q.put(eqa_struct.sound('espeak', "Raid mode disabled"))
-          message_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'zone', 'null', current_zone))
-          display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'update', 'zone', current_zone))
 
         # If line_type is a parsable type
         if line_type in config["settings"]["check_line_type"].keys():

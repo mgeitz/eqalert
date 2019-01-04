@@ -34,7 +34,8 @@ def main():
   action_q = Queue.Queue()
   display_q = Queue.Queue()
   sound_q = Queue.Queue()
-  message_q = Queue.Queue()
+  system_q = Queue.Queue()
+  log_q = Queue.Queue()
   heal_q = Queue.Queue()
   damage_q = Queue.Queue()
 
@@ -58,25 +59,31 @@ def main():
   read_keys.daemon = True
   read_keys.start()
 
-  ## Produce message_q
-  read_log         = threading.Thread(target=eqa_parser.monitor,
-            args   = (stop_watcher, char_log, message_q))
+  ## Produce log_q
+  read_log         = threading.Thread(target=eqa_parser.watch,
+            args   = (stop_watcher, char_log, log_q))
   read_log.daemon = True
   read_log.start()
 
-  ## Consume keyboard_q
-  ## Produce display_q, message_q, keyboard_q
+  ## Process log_q
+  process_log      = threading.Thread(target=eqa_parser.process,
+            args   = (exit_flag, log_q, action_q))
+  process_log.daemon = True
+  process_log.start()
+
+  ## Process keyboard_q
+  ## Produce system_q, display_q, keyboard_q
   process_keys     = threading.Thread(target=eqa_keys.process,
             args   = (display_q, sound_q, keyboard_q, heal_q, damage_q,
-                      message_q, exit_flag, heal_parse, spell_parse, raid))
+                      system_q, exit_flag, heal_parse, spell_parse, raid))
   process_keys.daemon = True
   process_keys.start()
 
   ## Consume action_q
-  ## Produce display_q, sound_q, message_q, heal_q, damage_q
+  ## Produce display_q, sound_q, system_q, heal_q, damage_q
   process_action   = threading.Thread(target=eqa_action.process,
             args   = (config, display_q, sound_q, heal_q, damage_q, action_q,
-                      message_q, exit_flag, heal_parse, spell_parse, raid))
+                      system_q, exit_flag, heal_parse, spell_parse, raid))
   process_action.daemon = True
   process_action.start()
 
@@ -88,7 +95,7 @@ def main():
 
   ## Consume display_q
   process_display  = threading.Thread(target=eqa_curses.display,
-            args = (screen, display_q, message_q, zone, char, chars, exit_flag))
+            args = (screen, display_q, zone, char, chars, exit_flag))
   process_display.daemon = True
   process_display.start()
 
@@ -96,14 +103,14 @@ def main():
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Initialized'))
   sound_q.put(eqa_struct.sound('espeak', 'initialized'))
 
-  ## Consume message_q
+  ## Consume system_q
   ## Produce action_q
   try:
     while not exit_flag.is_set():
       time.sleep(0.001)
-      if not message_q.empty():
-        new_message = message_q.get()
-        message_q.task_done()
+      if not system_q.empty():
+        new_message = system_q.get()
+        system_q.task_done()
 
         if new_message.type == "system":
           if new_message.tx == "zone":
@@ -123,17 +130,17 @@ def main():
             config = eqa_conifig.init()
             sound_q.put(eqa_struct.sound('espeak', 'Configuration reloaded'))
         else:
-          #display_q.put(eqa_struct.display(eqa_settings.eqa_time()'event', 'events', new_message.type + ': ' + new_message.payload))
-          display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
-          action_q.put(new_message)
+          display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', new_message.type + ': ' + new_message.payload))
 
   except Exception as e:
     eqa_settings.log('main: ' + str(e))
+    pass
 
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Exiting'))
   stop_watcher.set()
 
   process_keys.join()
+  process_log.join()
   read_log.join()
   read_keys.join()
   process_action.join()

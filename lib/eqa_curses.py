@@ -9,7 +9,7 @@ import time
 import eqa_struct
 import eqa_settings
 
-def display(stdscr, display_q, message_q, zone, char, chars, exit_flag):
+def display(stdscr, display_q, zone, char, chars, exit_flag):
 
   events = []
   page = 'events'

@@ -12,19 +12,22 @@ import eqa_settings
 
 def process(config, sound_q, exit_flag):
   """Process sound events"""
-  while not exit_flag.is_set():
-    time.sleep(0.001)
-    if not sound_q.empty():
-      sound_event = sound_q.get()
-      sound_q.task_done()
+  try:
+    while not exit_flag.is_set():
+      time.sleep(0.001)
+      if not sound_q.empty():
+        sound_event = sound_q.get()
+        sound_q.task_done()
 
-      if sound_event.sound == "espeak":
-        espeak(sound_event.payload)
-      elif sound_event.sound == "alert":
-        alert(config, sound_event.payload)
-      else:
-        espeak(sound_event.payload)
-        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "[Malformed sound event] " + sound_event.sound))
+        if sound_event.sound == "espeak":
+          espeak(sound_event.payload)
+        elif sound_event.sound == "alert":
+          alert(config, sound_event.payload)
+        else:
+          espeak(sound_event.payload)
+          display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "[Malformed sound event] " + sound_event.sound))
+  except Exception as e:
+    eqa_settings.log('process_sound: ' + str(e))
 
 
 def raid_alert(key, line):

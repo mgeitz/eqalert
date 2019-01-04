@@ -11,50 +11,70 @@ import pyinotify
 
 import eqa_struct
 import eqa_settings
+import time
 
 
-def parse(line, message_q):
-    """Consume the log and produce santized messages"""
+def watch(stop_watcher, character_log, log_q):
+  """Watch character_log and produce log_q"""
+  log_watch = pyinotify.WatchManager()
+  log_notifier = pyinotify.Notifier(log_watch)
 
-    timestamp, payload = line[1:].split('] ', 1)
-    timestamp = timestamp.split(' ')[3] + '.00'
-    line_type = determine(payload)
-    new_message = eqa_struct.message(timestamp, line_type, 'null', 'null', payload)
-
-    message_q.put(new_message)
-
-
-def monitor(stop_watcher, character_log, message_q):
-    """Parse on file changes"""
-    log_watch = pyinotify.WatchManager()
-    log_notifier = pyinotify.Notifier(log_watch)
-
-    def callback(event):
-        if event.mask == pyinotify.IN_CLOSE_WRITE:
-            parse(read(character_log), message_q)
-
-    log_watch.add_watch(character_log, pyinotify.IN_CLOSE_WRITE, callback)
-
+  def callback(event):
     try:
-        while not stop_watcher.is_set():
-            log_notifier.process_events()
-            if log_notifier.check_events():
-                log_notifier.read_events()
-            if stop_watcher.is_set():
-                log_notifier.stop()
-
+      if event.mask == pyinotify.IN_CLOSE_WRITE:
+        log_q.put(last_line(character_log))
     except Exception as e:
-        eqa_settings.log('monitor: ' + str(e))
-        stop_watcher.set()
+      eqa_settings.log('watch callback: ' + str(e))
+
+  log_watch.add_watch(character_log, pyinotify.IN_CLOSE_WRITE, callback)
+
+  try:
+    while not stop_watcher.is_set():
+      log_notifier.process_events()
+      if log_notifier.check_events():
+        log_notifier.read_events()
+      if stop_watcher.is_set():
         log_notifier.stop()
 
+  except Exception as e:
+    eqa_settings.log('watch: ' + str(e))
+    stop_watcher.set()
+    log_notifier.stop()
 
-def read(log_path):
-    """Reads and returns the eqlog.txt file"""
 
-    with open(log_path, 'r') as f:
-        content = deque(f, 1)
-    return content[0].strip().lower()
+def last_line(character_log):
+  """Reads and returns last line"""
+  try:
+    with open(character_log, 'r') as f:
+      content = deque(f, 1)
+    return content[0]
+  except Exception as e:
+    eqa_settings.log('last_line: ' + str(e))
+
+
+def process(exit_flag, log_q, action_q):
+  """Process log_q and produce action_q"""
+  try:
+    while not exit_flag.is_set():
+      time.sleep(0.001)
+      if not log_q.empty():
+        # Read raw log line
+        log_line = log_q.get()
+        log_q.task_done()
+
+        # Strip line of trailing space and lowercase everything
+        line = log_line.strip().lower()
+        # Split timestamp and message payload
+        timestamp, payload = line[1:].split('] ', 1)
+        timestamp = timestamp.split(' ')[3] + '.00'
+        # Determine line type
+        line_type = determine(payload)
+        # Build and queue action
+        new_message = eqa_struct.message(timestamp, line_type, 'null', 'null', payload)
+        action_q.put(new_message)
+
+  except Exception as e:
+    eqa_settings.log('process_log: ' + str(e))
 
 
 def determine(line):
