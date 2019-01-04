@@ -103,7 +103,7 @@ def process(config, display_q, sound_q, heal_q, damage_q, action_q, message_q, e
 
           # Or if line_type is parsed for as a spoken alert
           elif config["settings"]["check_line_type"][line_type] == "speak":
-            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'espeak: ' + check_line))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', check_line))
             sound_q.put(eqa_struct.sound('espeak', check_line))
 
           # For triggers requiring all line_types

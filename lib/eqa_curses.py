@@ -250,9 +250,6 @@ def draw_settings(stdscr):
 
 def draw_help(stdscr):
   """Draws help menu."""
-  y, x = stdscr.getmaxyx()
-  center_y = y / 2
-  center_x = x / 2
 
   # Clear and box
   stdscr.clear()
