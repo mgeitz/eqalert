@@ -21,6 +21,7 @@
 import curses
 import os
 import time
+import sys
 
 import eqa_struct
 import eqa_settings
@@ -69,7 +70,8 @@ def display(stdscr, display_q, zone, char, chars, exit_flag):
 
   except Exception as e:
     eqa_settings.log('display: ' + str(e))
-    pass
+
+  sys.exit()
 
 
 def draw_page(stdscr, page, events, char, zone):
@@ -105,7 +107,7 @@ def init(char, zone):
   return stdscr
 
 
-def close_stdscrs(stdscr):
+def close_screens(stdscr):
   """Terminate stdscr"""
   os.system('setterm -cursor on')
   curses.nocbreak()

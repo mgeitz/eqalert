@@ -19,43 +19,11 @@
 """
 
 from collections import deque
-import pyinotify
+import sys
 
 import eqa_struct
 import eqa_settings
 import time
-
-
-def watch(stop_watcher, character_log, log_q):
-  """
-    Consume: character_log
-    Produce: log_q
-  """
-
-  log_watch = pyinotify.WatchManager()
-  log_notifier = pyinotify.Notifier(log_watch)
-
-  def callback(event):
-    try:
-      if event.mask == pyinotify.IN_CLOSE_WRITE:
-        log_q.put(last_line(character_log))
-    except Exception as e:
-      eqa_settings.log('watch callback: ' + str(e))
-
-  log_watch.add_watch(character_log, pyinotify.IN_CLOSE_WRITE, callback)
-
-  try:
-    while not stop_watcher.is_set():
-      log_notifier.process_events()
-      if log_notifier.check_events():
-        log_notifier.read_events()
-      if stop_watcher.is_set():
-        log_notifier.stop()
-
-  except Exception as e:
-    eqa_settings.log('watch: ' + str(e))
-    stop_watcher.set()
-    log_notifier.stop()
 
 
 def last_line(character_log):

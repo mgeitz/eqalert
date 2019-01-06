@@ -20,6 +20,7 @@
    Parse and react to eqemu logs
 """
 
+import pyinotify
 import curses
 import logging
 import datetime
@@ -55,7 +56,6 @@ def main():
   # Build initial state
   logging.basicConfig(filename='./log/eqalert.log', level=logging.DEBUG)
   raid = threading.Event()
-  stop_watcher = threading.Event()
   heal_parse = threading.Event()
   spell_parse = threading.Event()
   exit_flag = threading.Event()
@@ -73,13 +73,6 @@ def main():
             args   = (exit_flag, keyboard_q, screen))
   read_keys.daemon = True
   read_keys.start()
-
-  ## Consume char_log
-  ## Produce log_q
-  read_log         = threading.Thread(target=eqa_parser.watch,
-            args   = (stop_watcher, char_log, log_q))
-  read_log.daemon = True
-  read_log.start()
 
   ## Process log_q
   ## Produce action_q
@@ -116,6 +109,23 @@ def main():
   process_display.daemon = True
   process_display.start()
 
+  ## Consume char_log
+  ## Produce log_q
+
+  def callback(event):
+    try:
+      if event.mask == pyinotify.IN_CLOSE_WRITE:
+        log_q.put(eqa_parser.last_line(char_log))
+    except Exception as e:
+      eqa_settings.log('watch callback: ' + str(e))
+
+  log_watch = pyinotify.WatchManager()
+  log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
+  log_notifier = pyinotify.ThreadedNotifier(log_watch)
+  log_notifier.daemon = True
+  log_notifier.start()
+
+  # And we're on
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Initialized'))
   sound_q.put(eqa_struct.sound('espeak', 'initialized'))
@@ -132,14 +142,10 @@ def main():
           if new_message.tx == "zone":
             zone = new_message.payload
           elif new_message.tx == "new_character" and not new_message.payload == char:
+            log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
             char = new_message.payload
             char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
-            stop_watcher.set()
-            read_log.join()
-            read_log = threading.Thread(target=eqa_parser.monitor,
-                args = (stop_watcher, char_log, message))
-            read_log.daemon = True
-            read_log.start()
+            log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + char))
             sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + char))
           elif new_message.tx == "reload_config":
@@ -152,16 +158,17 @@ def main():
     eqa_settings.log('main: ' + str(e))
     pass
 
+  eqa_settings.log('Exiting')
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Exiting'))
-  stop_watcher.set()
 
-  read_log.join()
   read_keys.join()
   process_log.join()
   process_keys.join()
   process_action.join()
   process_sound.join()
   process_display.join()
+  log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
+  log_notifier.stop()
 
   eqa_curses.close_screens(screen)
 
