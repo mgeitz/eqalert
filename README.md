@@ -2,8 +2,8 @@
 
 A Project 1999 log parser with NCurses interface for Linux
 
-![img](https://i.imgur.com/4SoT7CO.png)
-![img](https://i.imgur.com/IuKT9FF.png)
+![img](https://i.imgur.com/fsv6aDH.png)
+![img](https://i.imgur.com/fq3kCeb.png)
 
 ## Dependencies
     - pyinotify
