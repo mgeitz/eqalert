@@ -20,6 +20,7 @@
 
 import datetime
 import time
+import sys
 
 import eqa_sound
 import eqa_struct
@@ -141,6 +142,8 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
 
   except Exception as e:
     eqa_settings.log('process action: ' +  str(e))
+
+  sys.exit()
 
 
 def log_alert(line_type, check_line, display_q):

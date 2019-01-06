@@ -21,6 +21,7 @@
 import subprocess
 import os
 import time
+import sys
 
 import eqa_struct
 import eqa_settings
@@ -31,6 +32,7 @@ def process(config, sound_q, exit_flag):
     Process: sound_q
     Produce: sound event
   """
+
   try:
     while not exit_flag.is_set():
       time.sleep(0.001)
@@ -47,6 +49,9 @@ def process(config, sound_q, exit_flag):
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "[Malformed sound event] " + sound_event.sound))
   except Exception as e:
     eqa_settings.log('process_sound: ' + str(e))
+    sys.exit()
+
+  sys.exit()
 
 
 def raid_alert(key, line):

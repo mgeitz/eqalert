@@ -20,6 +20,7 @@
 
 import curses
 import time
+import sys
 
 import eqa_settings
 import eqa_struct
@@ -33,8 +34,7 @@ def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spe
   key = ''
   page = 'events'
 
-  while key != ord('q') and key != 27 and not exit_flag.is_set():
-
+  while key != ord('q') and key != 27:
     try:
       # Get key
       time.sleep(0.001)
@@ -89,23 +89,29 @@ def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spe
 
     except Exception as e:
       eqa_settings.log('process keys: ' + str(e))
+      eqa_settings.log('setting exit_flag')
       exit_flag.set()
-      pass
+      sys.exit()
 
   exit_flag.set()
+  sys.exit()
 
 
-def read(exit_flag, keyboard_q, screen_obj):
+def read(exit_flag, keyboard_q, stdscr):
   """
     Consume: keyboard events
     Produce: keyboard_q
   """
 
   key = ''
-  while key != ord('q') and key != 27:
-    key = screen_obj.getch()
-    keyboard_q.put(key)
-  exit_flag.set()
+  try:
+    while not exit_flag.is_set():
+      key = stdscr.getch()
+      keyboard_q.put(key)
+    sys.exit()
+  except Exception as e:
+    eqa_settings.log('read keys: ' + str(e))
+    sys.exit()
 
 
 if __name__ == '__main__':
