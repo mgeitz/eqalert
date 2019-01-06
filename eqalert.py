@@ -22,9 +22,6 @@ import lib.eqa_struct as eqa_struct
 import lib.eqa_action as eqa_action
 import lib.eqa_keys as eqa_keys
 
-__author__ = "Michael Geitz"
-__version__ = "0.2.2"
-
 
 def main():
   """Main method, does the good stuff"""
@@ -46,19 +43,22 @@ def main():
   heal_parse = threading.Event()
   spell_parse = threading.Event()
   exit_flag = threading.Event()
-  config, chars = eqa_config.init()
+  config = eqa_config.init()
+  chars = eqa_config.get_chars(config)
   char = config["characters"]["default"]
   zone = "unavailable"
   char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
 
   screen = eqa_curses.init(char, zone)
 
+  ## Consume keyboard events
   ## Produce keyoard_q
   read_keys        = threading.Thread(target=eqa_keys.read,
             args   = (exit_flag, keyboard_q, screen))
   read_keys.daemon = True
   read_keys.start()
 
+  ## Consume char_log
   ## Produce log_q
   read_log         = threading.Thread(target=eqa_parser.watch,
             args   = (stop_watcher, char_log, log_q))
@@ -66,24 +66,25 @@ def main():
   read_log.start()
 
   ## Process log_q
+  ## Produce action_q
   process_log      = threading.Thread(target=eqa_parser.process,
             args   = (exit_flag, log_q, action_q))
   process_log.daemon = True
   process_log.start()
 
   ## Process keyboard_q
-  ## Produce system_q, display_q, keyboard_q
+  ## Produce display_q, sound_q, system_q
   process_keys     = threading.Thread(target=eqa_keys.process,
-            args   = (display_q, sound_q, keyboard_q, heal_q, damage_q,
-                      system_q, exit_flag, heal_parse, spell_parse, raid))
+            args   = (keyboard_q, system_q, display_q, sound_q,
+                      exit_flag, heal_parse, spell_parse, raid))
   process_keys.daemon = True
   process_keys.start()
 
   ## Consume action_q
   ## Produce display_q, sound_q, system_q, heal_q, damage_q
   process_action   = threading.Thread(target=eqa_action.process,
-            args   = (config, display_q, sound_q, heal_q, damage_q, action_q,
-                      system_q, exit_flag, heal_parse, spell_parse, raid))
+            args   = (action_q, system_q, display_q, sound_q, heal_q, damage_q,
+                      exit_flag, heal_parse, spell_parse, raid, config))
   process_action.daemon = True
   process_action.start()
 
@@ -104,7 +105,6 @@ def main():
   sound_q.put(eqa_struct.sound('espeak', 'initialized'))
 
   ## Consume system_q
-  ## Produce action_q
   try:
     while not exit_flag.is_set():
       time.sleep(0.001)
@@ -139,10 +139,10 @@ def main():
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Exiting'))
   stop_watcher.set()
 
-  process_keys.join()
-  process_log.join()
   read_log.join()
   read_keys.join()
+  process_log.join()
+  process_keys.join()
   process_action.join()
   process_sound.join()
   process_display.join()

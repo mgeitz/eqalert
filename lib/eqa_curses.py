@@ -10,7 +10,10 @@ import eqa_struct
 import eqa_settings
 
 def display(stdscr, display_q, zone, char, chars, exit_flag):
-
+  """
+    Process: display_q
+    Produce: display event
+  """
   events = []
   page = 'events'
 

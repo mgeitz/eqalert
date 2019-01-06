@@ -1,10 +1,8 @@
 #! /usr/bin/env python
 
 """
-Returns the determined line type of a line in eq.log
+Read the character log and determine it's type
 """
-__author__ = "Michael Geitz"
-__version__ = "0.1.1"
 
 from collections import deque
 import pyinotify
@@ -15,7 +13,11 @@ import time
 
 
 def watch(stop_watcher, character_log, log_q):
-  """Watch character_log and produce log_q"""
+  """
+    Consume: character_log
+    Produce: log_q
+  """
+
   log_watch = pyinotify.WatchManager()
   log_notifier = pyinotify.Notifier(log_watch)
 
@@ -53,7 +55,11 @@ def last_line(character_log):
 
 
 def process(exit_flag, log_q, action_q):
-  """Process log_q and produce action_q"""
+  """
+    Process: log_q
+    Produce action_q
+  """
+
   try:
     while not exit_flag.is_set():
       time.sleep(0.001)

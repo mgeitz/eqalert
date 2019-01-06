@@ -11,7 +11,11 @@ import eqa_settings
 import eqa_config
 
 
-def process(config, display_q, sound_q, heal_q, damage_q, action_q, system_q, exit_flag, heal_parse, spell_parse, raid):
+def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag, heal_parse, spell_parse, raid, config):
+  """
+    Process: action_q
+    Produce: sound_q, display_q, system_q, heal_q, damage_q
+  """
 
   try:
     while not exit_flag.is_set():

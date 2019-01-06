@@ -8,8 +8,11 @@ import time
 import eqa_settings
 import eqa_struct
 
-def process(display_q, sound_q, keyboard_q, heal_q, damage_q, system_q, exit_flag, heal_parse, spell_parse, raid):
-  """Process Key press events"""
+def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spell_parse, raid):
+  """
+    Process: keyboard_q
+    Produce: sound_q, display_q, system_q, heal_q, damage_q
+  """
 
   key = ''
   page = 'events'
@@ -77,7 +80,11 @@ def process(display_q, sound_q, keyboard_q, heal_q, damage_q, system_q, exit_fla
 
 
 def read(exit_flag, keyboard_q, screen_obj):
-  """Check dem keys"""
+  """
+    Consume: keyboard events
+    Produce: keyboard_q
+  """
+
   key = ''
   while key != ord('q') and key != 27:
     key = screen_obj.getch()
