@@ -48,10 +48,13 @@ $ rm -rf /tmp/tmp_mbrola/
 
 ## Controls
 
+Global:
   - F1 : Display events
   - F2 : Display state
   - F3 : Display settings
   - F4 : Display help
+
+Events:
   - q  : Quit/Back
   - c  : Clear event box
   - r  : Toggle raid mode
