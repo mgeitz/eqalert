@@ -28,14 +28,14 @@ import eqa_settings
 import eqa_config
 
 
-def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag, heal_parse, spell_parse, raid, config):
+def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag, heal_parse, spell_parse, raid, cfg_reload, config):
   """
     Process: action_q
     Produce: sound_q, display_q, system_q, heal_q, damage_q
   """
 
   try:
-    while not exit_flag.is_set():
+    while not exit_flag.is_set() and not cfg_reload.is_set():
       time.sleep(0.001)
       if not action_q.empty():
         new_message = action_q.get()
@@ -81,14 +81,14 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
             for keyphrase, value in config["alert"][line_type].iteritems():
               if str(keyphrase).lower() in check_line and value == "true":
                 sound_q.put(eqa_struct.sound('alert', line_type))
-                log_alert(line_type, check_line, display_q)
+                display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', line_type + ': ' + check_line[0:65]))
               elif str(keyphrase).lower() in check_line and value == "raid" and raid.is_set():
                 if keyphrase == 'assist' or keyphrase == 'rampage':
                   payload = keyphrase + ' on ' + check_line_list[0]
                 else:
                   payload = keyphrase
                 sound_q.put(eqa_struct.sound('espeak', payload))
-                log_alert(line_type, check_line, display_q)
+                display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', line_type + ': ' + check_line[0:65]))
 
           # Or if line_type is parsed for as all
           elif config["settings"]["check_line_type"][line_type] == "all":
@@ -120,7 +120,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
             # Notify on all other all alerts
             else:
               sound_q.put(eqa_struct.sound('alert', line_type))
-              log_alert(line_type, check_line, display_q)
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', line_type + ': ' + check_line[0:65]))
 
           # Or if line_type is parsed for as a spoken alert
           elif config["settings"]["check_line_type"][line_type] == "speak":
@@ -132,7 +132,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
             for keyphrase, value in config["alert"]["all"].iteritems():
               if keyphrase in check_line:
                 sound_q.put(eqa_struct.sound('alert', line_type))
-                log_alert(line_type, check_line, display_q)
+                display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', line_type + ': ' + check_line[0:65]))
 
         # If line_type is not a parsable type
         else:
@@ -146,40 +146,11 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
   sys.exit()
 
 
-def log_alert(line_type, check_line, display_q):
-  """Logs an alert and refreshs display"""
-  ## Seperated to maybe log line types differently
-  display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', line_type + ': ' + check_line[0:65]))
-
-
 def undetermined_line(line):
   """Temp function to log undetermined log lines"""
   f = open('./log/undetermined.txt', 'a')
   f.write(line + '\n')
   f.close()
-
-
-def save_parse(healed, sdamaged, current_zone):
-  """Save contents of healed and sdamaged to file"""
-  eqa_log = "./log/eqa_" + current_zone + "_" + datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S') + ".log"
-  with open(eqa_log, "a") as f:
-    if healed:
-      f.write("\n#\t#### HEALING ####\n#\n")
-      for (key, value) in healed.iteritems():
-        f.write("#\t")
-        f.write(str(key))
-        f.write("\t\t\t:\t")
-        f.write(str(value))
-        f.write("\n#\n")
-    if sdamaged:
-      f.write("\n#\t#### SPELL DAMAGE ####\n#\n")
-      for (key, value) in sdamaged.iteritems():
-        f.write("#\t")
-        f.write(str(key))
-        f.write("\t\t\t:\t")
-        f.write(str(value))
-        f.write("\n#\n")
-    f.close()
 
 
 if __name__ == '__main__':
