@@ -50,22 +50,22 @@ $ rm -rf /tmp/tmp_mbrola/
 ## Controls
 
 Global:
-  - F1 : Display events
-  - F2 : Display state
-  - F3 : Display settings
-  - F4 : Display help
-  - q  : Quit/Back
+  - F1    : Display events
+  - F2    : Display state
+  - F3    : Display settings
+  - F4    : Display help
+  - q     : Quit/Back
 
 Events:
-  - c  : Clear event box
-  - r  : Toggle raid mode
+  - c     : Clear event box
+  - r     : Toggle raid mode
 
 Settings:
-  - up : Cycle up in selection
-  - down: Cycle down in selection
-  - right: Toggle selection on
-  - left: Toggle selection off
-  - space: Cycle selection
+  - up    : Cycle up in selection
+  - down  : Cycle down in selection
+  - right : Toggle selection on
+  - left  : Toggle selection off
+  - space : Cycle selection
 
 
 ## Modes
