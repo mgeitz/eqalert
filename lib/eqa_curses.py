@@ -189,7 +189,7 @@ def draw_tabs(stdscr, tab):
 
 
 def draw_events_frame(stdscr, char, zone, events):
-  """Draws the main window and tabs using curses"""
+  """Draw events"""
   y, x = stdscr.getmaxyx()
   center_y = y / 2
   center_x = x / 2
@@ -208,30 +208,17 @@ def draw_events_frame(stdscr, char, zone, events):
     stdscr.addch(center_y, c + 1, curses.ACS_HLINE)
 
   # Character
-  stdscr.addstr(center_y + 1, 2, char, curses.color_pair(2))
+  stdscr.addstr(center_y + 1, 2, char.title(), curses.color_pair(2))
 
   # Zone
-  stdscr.addstr(center_y + 1, x - len(zone) - 2, zone, curses.color_pair(2))
+  stdscr.addstr(center_y + 1, x - len(zone) - 2, zone.title(), curses.color_pair(2))
 
   # Draw events
   draw_events(stdscr, events)
 
 
-def draw_ftime(stdscr, timestamp, y):
-  h, m, second = timestamp.split(":")
-  s, ms = second.split('.')
-
-  stdscr.addstr(y, 1, h, curses.color_pair(3))
-  stdscr.addstr(y, 3, ':', curses.color_pair(2))
-  stdscr.addstr(y, 4, m, curses.color_pair(3))
-  stdscr.addstr(y, 6, ':', curses.color_pair(2))
-  stdscr.addstr(y, 7, s, curses.color_pair(3))
-  stdscr.addstr(y, 9, '.', curses.color_pair(2))
-  stdscr.addstr(y, 10, ms, curses.color_pair(3))
-
-
 def draw_events(stdscr, events):
-  """Draw events"""
+  """Draw events window component of events"""
   y, x = stdscr.getmaxyx()
   center_y = y / 2
   bottom_y = center_y - 4
@@ -254,8 +241,22 @@ def draw_events(stdscr, events):
       eqa_settings.log('draw events: ' + str(e))
 
 
+def draw_ftime(stdscr, timestamp, y):
+  """Draw formatted time for events"""
+  h, m, second = timestamp.split(":")
+  s, ms = second.split('.')
+
+  stdscr.addstr(y, 1, h, curses.color_pair(3))
+  stdscr.addstr(y, 3, ':', curses.color_pair(2))
+  stdscr.addstr(y, 4, m, curses.color_pair(3))
+  stdscr.addstr(y, 6, ':', curses.color_pair(2))
+  stdscr.addstr(y, 7, s, curses.color_pair(3))
+  stdscr.addstr(y, 9, '.', curses.color_pair(2))
+  stdscr.addstr(y, 10, ms, curses.color_pair(3))
+
+
 def draw_state(stdscr):
-  """Draws the main window and tabs using curses"""
+  """Draw state"""
   y, x = stdscr.getmaxyx()
   center_y = y / 2
   center_x = x / 2
@@ -269,10 +270,8 @@ def draw_state(stdscr):
 
 
 def draw_settings(stdscr, chars, char, selected_setting, selected_char):
-  """Draws the main window and tabs using curses"""
+  """Draw settings"""
   y, x = stdscr.getmaxyx()
-  center_y = y / 2
-  center_x = x / 2
 
   # Clear and box
   stdscr.clear()
@@ -282,19 +281,19 @@ def draw_settings(stdscr, chars, char, selected_setting, selected_char):
   draw_tabs(stdscr, 'settings')
 
   # Draw chars
-  #if selected_setting == 'character':
-  #  stdscr.addstr(4, 3, 'Character Selection', curses.A_UNDERLINE | curses.color_pair(2))
-  #else:
-  stdscr.addstr(4, 5, 'Character Selection', curses.color_pair(3))
-  draw_chars(stdscr, chars, char, selected_char)
-
+  if selected_setting == 'character':
+    stdscr.addstr(4, 3, 'Character Selection', curses.A_UNDERLINE | curses.color_pair(2))
+  else:
+    stdscr.addstr(4, 5, 'Character Selection', curses.color_pair(3))
   stdscr.addstr(14, 5, 'Active Character', curses.color_pair(3))
   stdscr.addstr(14, 21, ':', curses.color_pair(1))
   stdscr.addstr(14, 23, char.title(), curses.color_pair(2))
 
+  draw_chars(stdscr, chars, char, selected_char)
+
 
 def draw_chars(stdscr, chars, char, selected):
-  """Draw character selection"""
+  """Draw character selection component for settings"""
   y, x = stdscr.getmaxyx()
 
   charscr = stdscr.derwin(9, x / 3, 5, 3)
@@ -326,7 +325,7 @@ def draw_chars(stdscr, chars, char, selected):
 
 
 def draw_help(stdscr):
-  """Draws help menu."""
+  """Draw help"""
 
   # Clear and box
   stdscr.clear()
@@ -397,7 +396,7 @@ def draw_help(stdscr):
 
 
 def draw_toosmall(stdscr):
-    """Draws stdscr when too small"""
+    """Draw too small warning"""
     stdscr.clear()
     stdscr.box()
     y, x = stdscr.getmaxyx()
