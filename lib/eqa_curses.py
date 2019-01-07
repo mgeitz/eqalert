@@ -33,6 +33,8 @@ def display(stdscr, display_q, zone, char, chars, exit_flag):
   """
   events = []
   page = 'events'
+  setting = 'character'
+  selected_char = 0
 
   try:
     while not exit_flag.is_set():
@@ -43,28 +45,38 @@ def display(stdscr, display_q, zone, char, chars, exit_flag):
 
         # Display Var Update
         if display_event.type == 'update':
-          if display_event.screen == 'zone':
+          if display_event.screen == 'setting':
+            setting = display_event.payload
+            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+          elif display_event.screen == 'selected_char':
+            selected_char = display_event.payload
+            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+          elif display_event.screen == 'select_char':
+            selected_char = display_event.payload
+            char = chars[selected_char]
+            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+          elif display_event.screen == 'zone':
             zone = display_event.payload
-            draw_page(stdscr, page, events, char, zone)
+            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
           elif display_event.screen == 'char':
             char = display_event.payload
-            draw_page(stdscr, page, events, char, zone)
+            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
 
         # Display Draw
         elif display_event.type == 'draw':
           if display_event.screen != 'redraw':
             page = display_event.screen
-          draw_page(stdscr, page, events, char, zone)
+          draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
 
         # Draw Update
         elif display_event.type == 'event':
           if display_event.screen == 'events':
             events.append(display_event)
             if page == 'events':
-              draw_page(stdscr, page, events, char, zone)
+              draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
           elif display_event.screen == 'clear':
             events = []
-            draw_page(stdscr, page, events, char, zone)
+            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
 
 
 
@@ -74,7 +86,7 @@ def display(stdscr, display_q, zone, char, chars, exit_flag):
   sys.exit()
 
 
-def draw_page(stdscr, page, events, char, zone):
+def draw_page(stdscr, page, events, chars, setting, selected_char, char, zone):
   y, x = stdscr.getmaxyx()
   if x >= 80 and y >= 40:
     if page == 'events':
@@ -82,11 +94,12 @@ def draw_page(stdscr, page, events, char, zone):
     elif page == 'state':
       draw_state(stdscr)
     elif page == 'settings':
-      draw_settings(stdscr)
+      draw_settings(stdscr, chars, char, setting, selected_char)
     elif page == 'help':
       draw_help(stdscr)
   else:
     draw_toosmall(stdscr)
+
 
 def init(char, zone):
   """Create new stdscr in terminal"""
@@ -255,7 +268,7 @@ def draw_state(stdscr):
   draw_tabs(stdscr, 'state')
 
 
-def draw_settings(stdscr):
+def draw_settings(stdscr, chars, char, selected_setting, selected_char):
   """Draws the main window and tabs using curses"""
   y, x = stdscr.getmaxyx()
   center_y = y / 2
@@ -267,6 +280,49 @@ def draw_settings(stdscr):
 
   # Draw tabs
   draw_tabs(stdscr, 'settings')
+
+  # Draw chars
+  #if selected_setting == 'character':
+  #  stdscr.addstr(4, 3, 'Character Selection', curses.A_UNDERLINE | curses.color_pair(2))
+  #else:
+  stdscr.addstr(4, 5, 'Character Selection', curses.color_pair(3))
+  draw_chars(stdscr, chars, char, selected_char)
+
+  stdscr.addstr(14, 5, 'Active Character', curses.color_pair(3))
+  stdscr.addstr(14, 21, ':', curses.color_pair(1))
+  stdscr.addstr(14, 23, char.title(), curses.color_pair(2))
+
+
+def draw_chars(stdscr, chars, char, selected):
+  """Draw character selection"""
+  y, x = stdscr.getmaxyx()
+
+  charscr = stdscr.derwin(9, x / 3, 5, 3)
+  charscr.clear()
+  charscr.box()
+
+  try:
+    if selected < 4:
+      char = 0
+    if len(chars) > 7:
+      if selected >= 4 and selected < len(chars) - 4:
+        char += 1
+      elif selected >= len(chars) - 4:
+        char = len(chars) - 7
+    else:
+      char = 0
+
+    count = 0
+    while count < len(chars) and count < 9:
+      char_name = chars[char]
+      if selected == count:
+        charscr.addstr(7 - count, 2, char_name.title(), curses.color_pair(1))
+      else:
+        charscr.addstr(7 - count, 2, char_name.title(), curses.color_pair(2))
+      count += 1
+      char += 1
+  except Exception as e:
+      eqa_settings.log('draw chars: ' + str(e))
 
 
 def draw_help(stdscr):
@@ -283,45 +339,61 @@ def draw_help(stdscr):
   stdscr.addstr(5, 5, "Commands:",curses.color_pair(1))
 
   # Global commands
-  stdscr.addstr(7, 7, "Global:",curses.color_pair(1))
+  stdscr.addstr(7, 7, "Global",curses.color_pair(1))
 
   stdscr.addstr(8, 9, "F1", curses.color_pair(2))
-  stdscr.addstr(8, 11, ":", curses.color_pair(1))
-  stdscr.addstr(8, 13, "Events", curses.color_pair(3))
+  stdscr.addstr(8, 15, ":", curses.color_pair(1))
+  stdscr.addstr(8, 17, "Events", curses.color_pair(3))
 
   stdscr.addstr(9, 9, "F2", curses.color_pair(2))
-  stdscr.addstr(9, 11, ":", curses.color_pair(1))
-  stdscr.addstr(9, 13, "State", curses.color_pair(3))
+  stdscr.addstr(9, 15, ":", curses.color_pair(1))
+  stdscr.addstr(9, 17, "State", curses.color_pair(3))
 
   stdscr.addstr(10, 9, "F3", curses.color_pair(2))
-  stdscr.addstr(10, 11, ":", curses.color_pair(1))
-  stdscr.addstr(10, 13, "Settings", curses.color_pair(3))
+  stdscr.addstr(10, 15, ":", curses.color_pair(1))
+  stdscr.addstr(10, 17, "Settings", curses.color_pair(3))
 
   stdscr.addstr(11, 9, "F4", curses.color_pair(2))
-  stdscr.addstr(11, 11, ":", curses.color_pair(1))
-  stdscr.addstr(11, 13, "Help", curses.color_pair(3))
+  stdscr.addstr(11, 15, ":", curses.color_pair(1))
+  stdscr.addstr(11, 17, "Help", curses.color_pair(3))
 
   stdscr.addstr(12, 9, "q", curses.color_pair(2))
-  stdscr.addstr(12, 11, ":", curses.color_pair(1))
-  stdscr.addstr(12, 13, "Quit", curses.color_pair(3))
+  stdscr.addstr(12, 15, ":", curses.color_pair(1))
+  stdscr.addstr(12, 17, "Quit", curses.color_pair(3))
 
   # Events commands
-  stdscr.addstr(14, 7, "Events:",curses.color_pair(1))
+  stdscr.addstr(14, 7, "Events",curses.color_pair(1))
 
   stdscr.addstr(15, 9, "c", curses.color_pair(2))
-  stdscr.addstr(15, 11, ":", curses.color_pair(1))
-  stdscr.addstr(15, 13, "Clear events", curses.color_pair(3))
+  stdscr.addstr(15, 15, ":", curses.color_pair(1))
+  stdscr.addstr(15, 17, "Clear events", curses.color_pair(3))
 
   stdscr.addstr(16, 9, "r", curses.color_pair(2))
-  stdscr.addstr(16, 11, ":", curses.color_pair(1))
-  stdscr.addstr(16, 13, "Toggle raid mode", curses.color_pair(3))
+  stdscr.addstr(16, 15, ":", curses.color_pair(1))
+  stdscr.addstr(16, 17, "Toggle raid mode", curses.color_pair(3))
 
   # Settings commands
-  stdscr.addstr(18, 7, "Settings:",curses.color_pair(1))
+  stdscr.addstr(18, 7, "Settings",curses.color_pair(1))
 
-  stdscr.addstr(19, 9, "r", curses.color_pair(2))
-  stdscr.addstr(19, 11, ":", curses.color_pair(1))
-  stdscr.addstr(19, 13, "Toggle raid mode", curses.color_pair(3))
+  stdscr.addstr(19, 9, "up", curses.color_pair(2))
+  stdscr.addstr(19, 15, ":", curses.color_pair(1))
+  stdscr.addstr(19, 17, "Cycle up in selection", curses.color_pair(3))
+
+  stdscr.addstr(20, 9, "down", curses.color_pair(2))
+  stdscr.addstr(20, 15, ":", curses.color_pair(1))
+  stdscr.addstr(20, 17, "Cycle down in selection", curses.color_pair(3))
+
+  stdscr.addstr(21, 9, "right", curses.color_pair(2))
+  stdscr.addstr(21, 15, ":", curses.color_pair(1))
+  stdscr.addstr(21, 17, "Toggle selection on", curses.color_pair(3))
+
+  stdscr.addstr(22, 9, "left", curses.color_pair(2))
+  stdscr.addstr(22, 15, ":", curses.color_pair(1))
+  stdscr.addstr(22, 17, "Toggle selection off", curses.color_pair(3))
+
+  stdscr.addstr(23, 9, "space", curses.color_pair(2))
+  stdscr.addstr(23, 15, ":", curses.color_pair(1))
+  stdscr.addstr(23, 17, "Cycle selection", curses.color_pair(3))
 
 
 def draw_toosmall(stdscr):
@@ -334,55 +406,6 @@ def draw_toosmall(stdscr):
 
     stdscr.addstr(center_y, center_x - 10, "Terminal too small.",
         curses.color_pair(1))
-
-
-def draw_char_menu(stdscr, chars):
-    """Draws char menu."""
-    stdscr.clear()
-    stdscr.box()
-    y, x = stdscr.getmaxyx()
-    center_y = y / 2
-    center_x = x / 2
-
-    stdscr.addstr(0, center_x - 6, "|           |",
-        curses.color_pair(1))
-    stdscr.addstr(0, center_x - 4, "Char Menu",
-        curses.color_pair(2))
-
-    stdscr.addstr(1, center_x - x / 2 + 1, "F1 :",
-        curses.color_pair(2))
-    stdscr.addstr(1, 5 + center_x - x / 2, "  Console",
-        curses.color_pair(3))
-
-    count = 0
-    for toon in chars:
-        stdscr.addstr(6 + count + 1, center_x - x / 3, str(count + 1) + ":",
-            curses.color_pair(1))
-        stdscr.addstr(6 + count + 1, center_x - x / 3 + 17, str(toon).title(),
-            curses.color_pair(2))
-        count = count + 1
-
-
-def char_menu(stdscr, chars):
-  """Controls char menu commands."""
-  key = ''
-  new_char = char
-
-  draw_char_menu(stdscr, chars)
-
-  selected = False
-  while key != ord('q') and key != curses.KEY_F1 and key != 27 and not selected:
-    key = stdscr.getch()
-    if key == curses.KEY_RESIZE:
-      return
-    count = 1
-    for toon in chars:
-      if key == ord(str(count)):
-        new_char = chars[count - 1]
-        selected = True
-        break
-      count = count + 1
-  return new_char
 
 
 if __name__ == '__main__':

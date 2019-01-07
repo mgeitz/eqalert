@@ -25,7 +25,7 @@ import sys
 import eqa_settings
 import eqa_struct
 
-def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spell_parse, raid):
+def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spell_parse, raid, chars):
   """
     Process: keyboard_q
     Produce: sound_q, display_q, system_q, heal_q, damage_q
@@ -33,6 +33,8 @@ def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spe
 
   key = ''
   page = 'events'
+  settings = 'character'
+  selected_char = 0
 
   while key != ord('q') and key != 27:
     try:
@@ -50,13 +52,13 @@ def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spe
         if key == curses.KEY_F1:
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
           page = 'events'
-        if key == curses.KEY_F2:
+        elif key == curses.KEY_F2:
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'state', 'null'))
           page = 'state'
-        if key == curses.KEY_F3:
+        elif key == curses.KEY_F3:
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'settings', 'null'))
           page = 'settings'
-        if key == curses.KEY_F4:
+        elif key == curses.KEY_F4:
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'help', 'null'))
           page = 'help'
 
@@ -64,7 +66,7 @@ def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spe
         if page == 'events':
           if key == ord('c'):
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'clear', 'null'))
-          if key == ord('r'):
+          elif key == ord('r'):
             if not raid.is_set():
               raid.set()
               display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Raid mode enabled'))
@@ -81,7 +83,21 @@ def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spe
 
         # Settings keys
         elif page == 'settings':
-          pass
+            if settings == 'character':
+              if key == curses.KEY_UP or key == ord('w'):
+                if selected_char < len(chars) - 1:
+                  selected_char += 1
+                  display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'update', 'selected_char', selected_char))
+              elif key == curses.KEY_DOWN or key == ord('s'):
+                if selected_char > 0:
+                  selected_char -= 1
+                  display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'update', 'selected_char', selected_char))
+              elif key == curses.KEY_RIGHT or key == ord('d'):
+                display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'update', 'select_char', selected_char))
+                system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'new_character', 'null', chars[selected_char]))
+              elif key == ord(' '):
+                pass
+                # cycle to next setting
 
         # Help keys
         elif page == 'help':

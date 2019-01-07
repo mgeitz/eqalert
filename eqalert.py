@@ -85,7 +85,7 @@ def main():
   ## Produce display_q, sound_q, system_q
   process_keys     = threading.Thread(target=eqa_keys.process,
             args   = (keyboard_q, system_q, display_q, sound_q,
-                      exit_flag, heal_parse, spell_parse, raid))
+                      exit_flag, heal_parse, spell_parse, raid, chars))
   process_keys.daemon = True
   process_keys.start()
 
@@ -158,7 +158,6 @@ def main():
     eqa_settings.log('main: ' + str(e))
     pass
 
-  eqa_settings.log('Exiting')
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Exiting'))
 
   read_keys.join()

@@ -53,11 +53,18 @@ Global:
   - F2 : Display state
   - F3 : Display settings
   - F4 : Display help
+  - q  : Quit/Back
 
 Events:
-  - q  : Quit/Back
   - c  : Clear event box
   - r  : Toggle raid mode
+
+Settings:
+  - up : Cycle up in selection
+  - down: Cycle down in selection
+  - right: Toggle selection on
+  - left: Toggle selection off
+  - space: Cycle selection
 
 
 ## Modes
