@@ -27,14 +27,14 @@ import eqa_struct
 import eqa_settings
 
 
-def process(config, sound_q, exit_flag):
+def process(config, sound_q, exit_flag, cfg_reload):
   """
     Process: sound_q
     Produce: sound event
   """
 
   try:
-    while not exit_flag.is_set():
+    while not exit_flag.is_set() and not cfg_reload.is_set():
       time.sleep(0.001)
       if not sound_q.empty():
         sound_event = sound_q.get()

@@ -61,6 +61,8 @@ def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spe
         elif key == curses.KEY_F4:
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'help', 'null'))
           page = 'help'
+        elif key == curses.KEY_F12:
+          system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'reload_config', 'null', 'null'))
 
         # Events keys
         if page == 'events':

@@ -56,6 +56,7 @@ def main():
   # Build initial state
   logging.basicConfig(filename='./log/eqalert.log', level=logging.DEBUG)
   raid = threading.Event()
+  cfg_reload = threading.Event()
   heal_parse = threading.Event()
   spell_parse = threading.Event()
   exit_flag = threading.Event()
@@ -69,43 +70,43 @@ def main():
 
   ## Consume keyboard events
   ## Produce keyoard_q
-  read_keys        = threading.Thread(target=eqa_keys.read,
-            args   = (exit_flag, keyboard_q, screen))
+  read_keys       = threading.Thread(target=eqa_keys.read,
+       args       = (exit_flag, keyboard_q, screen))
   read_keys.daemon = True
   read_keys.start()
 
   ## Process log_q
   ## Produce action_q
-  process_log      = threading.Thread(target=eqa_parser.process,
-            args   = (exit_flag, log_q, action_q))
+  process_log     = threading.Thread(target=eqa_parser.process,
+            args  = (exit_flag, log_q, action_q))
   process_log.daemon = True
   process_log.start()
 
   ## Process keyboard_q
   ## Produce display_q, sound_q, system_q
-  process_keys     = threading.Thread(target=eqa_keys.process,
-            args   = (keyboard_q, system_q, display_q, sound_q,
+  process_keys    = threading.Thread(target=eqa_keys.process,
+            args  = (keyboard_q, system_q, display_q, sound_q,
                       exit_flag, heal_parse, spell_parse, raid, chars))
   process_keys.daemon = True
   process_keys.start()
 
   ## Consume action_q
   ## Produce display_q, sound_q, system_q, heal_q, damage_q
-  process_action   = threading.Thread(target=eqa_action.process,
-            args   = (action_q, system_q, display_q, sound_q, heal_q, damage_q,
-                      exit_flag, heal_parse, spell_parse, raid, config))
+  process_action  = threading.Thread(target=eqa_action.process,
+            args  = (action_q, system_q, display_q, sound_q, heal_q, damage_q,
+                      exit_flag, heal_parse, spell_parse, raid, cfg_reload, config))
   process_action.daemon = True
   process_action.start()
 
   ## Consume sound_q
-  process_sound    = threading.Thread(target=eqa_sound.process,
-            args   = (config, sound_q, exit_flag))
+  process_sound   = threading.Thread(target=eqa_sound.process,
+            args  = (config, sound_q, exit_flag, cfg_reload))
   process_sound.daemon = True
   process_sound.start()
 
   ## Consume display_q
-  process_display  = threading.Thread(target=eqa_curses.display,
-            args = (screen, display_q, zone, char, chars, exit_flag))
+  process_display = threading.Thread(target=eqa_curses.display,
+            args  = (screen, display_q, zone, char, chars, exit_flag))
   process_display.daemon = True
   process_display.start()
 
@@ -139,17 +140,42 @@ def main():
         system_q.task_done()
 
         if new_message.type == "system":
+          # Update zone
           if new_message.tx == "zone":
             zone = new_message.payload
+          # Update character
           elif new_message.tx == "new_character" and not new_message.payload == char:
+            # Stop watch on previous character log
             log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
+            # Set new character
             char = new_message.payload
             char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
+            # Start new log watch
             log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + char))
             sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + char))
+          # Reload config
           elif new_message.tx == "reload_config":
-            config = eqa_conifig.init()
+            # Reload config
+            config = eqa_config.init()
+            # Reread characters
+            chars = eqa_config.get_chars(config)
+            # Stop process_action and process_sound
+            cfg_reload.set()
+            process_action.join()
+            process_sound.join()
+            cfg_reload.clear()
+            # Start process_action and process_sound
+            process_action = threading.Thread(target=eqa_action.process,
+                      args = (action_q, system_q, display_q, sound_q, heal_q, damage_q,
+                                exit_flag, heal_parse, spell_parse, raid, cfg_reload, config))
+            process_action.daemon = True
+            process_action.start()
+            process_sound  = threading.Thread(target=eqa_sound.process,
+                      args = (config, sound_q, exit_flag, cfg_reload))
+            process_sound.daemon = True
+            process_sound.start()
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Configuration reloaded'))
             sound_q.put(eqa_struct.sound('espeak', 'Configuration reloaded'))
         else:
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', new_message.type + ': ' + new_message.payload))
@@ -158,8 +184,8 @@ def main():
     eqa_settings.log('main: ' + str(e))
     pass
 
+  # Exit
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Exiting'))
-
   read_keys.join()
   process_log.join()
   process_keys.join()
@@ -168,7 +194,6 @@ def main():
   process_display.join()
   log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
   log_notifier.stop()
-
   eqa_curses.close_screens(screen)
 
 if __name__ == '__main__':
