@@ -3,386 +3,427 @@
 #
 # Test EQ Alert Parsing
 #
+#
+#    * Ensure EQ Alert is running against the default character before testing
+#    * Presently needs to be run from the same directory as `config.json`
+#
 
-# Set ctrl+c exit
-function stop_tests() {
-  echo -e "\n\033[0;36mStopping tests\033[0m ..."
-  exit 0
+
+# Functions
+
+## Default Test: Append Message To Character Log
+function run_test() {
+  echo -e "\n  ${PURPLE}Type${NC} ${BLUE}:${NC} ${CYAN}$1${NC}"
+  echo -e "  ${LIGHT_GRAY}»${NC} ${LIGHT_GRAY}$2${NC}"
+  echo $2 >> "$CHAR_LOG"
+  sleep 0.018
 }
-trap stop_tests SIGINT
 
-# Get default char log for testing
+## (Display) Skip Test
+function skip_test() {
+  echo -e "\n  ${PURPLE}Type${NC} ${BLUE}:${NC} ${CYAN}$1${NC}"
+  echo -e "  ${LIGHT_GRAY}»${NC} ${YELLOW}skip${NC}"
+}
+
+## Display Usage
+function test_usage() {
+  echo -e "\n${CYAN}Usage:${NC}"
+  echo -e "\n${WHITE}$ ${RED}Ensure EQ Alert is running${NC}"
+  echo -e "${WHITE}$ ${YELLOW}./parse_test.sh${NC}"
+}
+
+
+# Checks
+
+## Ensure EQ Alert is running
+ACTIVE=$(pgrep -f eqalert.py)
+if [ -z $ACTIVE ]; then
+  test_usage
+  exit 0
+fi
+
+
+# Settings
+
+## Things worth changing
 EQ_LOGS=$(jq '.settings.paths.char_log' config.json)
 DEFAULT_CHAR=$(jq '.characters.default' config.json | tr -d '"')
 CHAR_LOG="${EQ_LOGS//\"}eqlog_${DEFAULT_CHAR^}_project1999.txt"
 
-ACTIVE=$(pgrep -f eqalert.py)
 
-if [ -z $ACTIVE ]; then
-  echo -e "\n\033[0;36mUsage\033[0m"
-  echo -e "./parse_test.sh"
-  echo -e "\nEnsure EQ Alert is running"
+# Constants
+
+## Colors
+BLACK='\e[0;30m'
+BLUE='\e[0;34m'
+GREEN='\e[0;32m'
+CYAN='\e[0;36m'
+RED='\e[0;31m'
+PURPLE='\e[0;35m'
+BROWN='\e[0;33m'
+LIGHT_GRAY='\e[0;37m'
+DARK_GRAY='\e[1;30m'
+LIGHT_BLUE='\e[1;34m'
+LIGHT_GREEN='\e[1;32m'
+LIGHT_CYAN='\e[1;36m'
+LIGHT_RED='\e[1;31m'
+LIGHT_PURPLE='\e[1;35m'
+YELLOW='\e[1;33m'
+WHITE='\e[1;37m'
+NC='\e[0m'
+BOLD='\e[1m'
+
+
+# Ctrl+C Safety (Bash Trap)
+
+## Stop everything
+function stop_tests() {
+  echo -e "\n${CYAN}Stopping tests${NC} ${RED}.${WHITE}.${BLUE}.${NC}"
   exit 0
-fi
+}
+trap stop_tests SIGINT
 
+
+# Runtime Variables
+
+## Don't change these
 skip=0
 run=0
 
-# you_tell
-echo -e "\033[0;34m\033[0;34mType\033[0m\033[0m you_tell"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
 
-# you_say
-echo -e "\033[0;34mType\033[0m: you_say"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
 
-# you_shout
-echo -e "\033[0;34mType\033[0m: you_shout"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
+# Begin the Trials
 
-# you_group
-echo -e "\033[0;34mType\033[0m: you_group"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
+## You
 
-# you_ooc
-echo -e "\033[0;34mType\033[0m: you_ooc"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_guild
-echo -e "\033[0;34mType\033[0m: you_guild"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_auction
-echo -e "\033[0;34mType\033[0m: you_auction"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_auction_wts:wtb
-echo -e "\033[0;34mType\033[0m: you_auction_wts:wtb"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_auction_wts
-echo -e "\033[0;34mType\033[0m: you_auction_wts"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_auction_wtb
-echo -e "\033[0;34mType\033[0m: you_auction_wtb"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_new_zone
-echo -e "\033[0;34mType\033[0m: you_new_zone"
-echo "[Sat Dec 29 21:56:56 2018] You have entered The Wakening Lands." >> "$CHAR_LOG"
-sleep 0.02
-echo "[Sat Dec 29 21:58:18 2018] You have entered Kael Drakkel." >> "$CHAR_LOG"
-sleep 0.02
-echo "[Sun Dec 30 10:28:06 2018] You have entered Butcherblock Mountains." >> "$CHAR_LOG"
-sleep 0.02
-echo -e "  » \033[0;35mrun\033[0m"
+### you_tell
+msg="[Tue Jan 08 22:52:24 2019] You told Parser, 'Get off your merchant and raid!'"
+run_test "you_tell" "$msg"
 ((run++))
 
-# you_healed
-echo -e "\033[0;34mType\033[0m: you_healed"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_say
+skip_test "you_say"
 ((skip++))
 
-# you_hungry
-echo -e "\033[0;34mType\033[0m: you_hungry"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_shout
+skip_test "you_shout"
 ((skip++))
 
-# you_afk_on
-echo -e "\033[0;34mType\033[0m: you_afk_on"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_lfg_on
-echo -e "\033[0;34mType\033[0m: you_lfg_on"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_afk_off
-echo -e "\033[0;34mType\033[0m: you_afk_off"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_lfg_off
-echo -e "\033[0;34mType\033[0m: you_lfg_off"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_outfood
-echo -e "\033[0;34mType\033[0m: you_outfood"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_outdrink
-echo -e "\033[0;34mType\033[0m: you_outdrink"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_outfooddrink
-echo -e "\033[0;34mType\033[0m: you_outfooddrink"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_outfoodlowdrink
-echo -e "\033[0;34mType\033[0m: you_outfoodlowdrink"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_outdrinklowfood
-echo -e "\033[0;34mType\033[0m: you_outdrinklowfood"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_thirsty
-echo -e "\033[0;34mType\033[0m: you_thirsty"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_hungry
-echo -e "\033[0;34mType\033[0m: you_hungry"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# you_spell_forget
-echo -e "\033[0;34mType\033[0m: you_spell_forgot"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# spell_break_charm
-echo -e "\033[0;34mType\033[0m: spell_break_charm"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# spell_break_ensare
-echo -e "\033[0;34mType\033[0m: spell_break_ensare"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# spell_break
-echo -e "\033[0;34mType\033[0m: spell_break"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# faction_line
-echo -e "\033[0;34mType\033[0m: faction_line"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# target_cured
-echo -e "\033[0;34mType\033[0m: target_cured"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# who_line
-echo -e "\033[0;34mType\033[0m: who_line"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# mysterious_oner
-echo -e "\033[0;34mType\033[0m: mysterious_oner"
-echo -e "  » \033[0;36mskip\033[0m"
-((skip++))
-
-# tell
-echo -e "\033[0;34mType\033[0m: tell"
-echo "[Sat Dec 29 21:41:44 2018] Parser tells you, 'tell'" >> "$CHAR_LOG"
-sleep 0.01
-echo -e "  » \033[0;35mrun\033[0m"
+### you_group
+msg="[Tue Jan 08 22:58:40 2019] You tell your party, 'incoming'"
+run_test "you_group" "$msg"
 ((run++))
 
-# guild
-echo -e "\033[0;34mType\033[0m: guild"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_ooc
+skip_test "you_ooc"
 ((skip++))
 
-# group
-echo -e "\033[0;34mType\033[0m: group"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_guild
+skip_test "you_guild"
 ((skip++))
 
-# say
-echo -e "\033[0;34mType\033[0m: say"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_auction
+skip_test "you_auction"
 ((skip++))
 
-# shout
-echo -e "\033[0;34mType\033[0m: shout"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_auction_wts:wtb
+skip_test "you_auction_wts:wtb"
 ((skip++))
 
-# ooc
-echo -e "\033[0;34mType\033[0m: ooc"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_auction_wts
+skip_test "you_auction_wts"
 ((skip++))
 
-# auction
-echo -e "\033[0;34mType\033[0m: auction"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_auction_wtb
+skip_test "you_auction_wtb"
 ((skip++))
 
-# auction_wts
-echo -e "\033[0;34mType\033[0m: auction_wts"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_new_zone
+msg="[Sat Dec 29 21:56:56 2018] You have entered The Wakening Lands."
+run_test "you_new_zone" "$msg"
+msg="[Sat Dec 29 21:58:18 2018] You have entered Kael Drakkel."
+run_test "you_new_zone" "$msg"
+msg="[Sun Dec 30 10:28:06 2018] You have entered Butcherblock Mountains."
+run_test "you_new_zone" "$msg"
+((run++))
+
+### you_healed
+msg="[Sat Feb 02 15:39:26 2019] You have healed Parser for 470 points of damage."
+run_test "you_healed" "$msg"
+((run++))
+
+### you_afk_on
+skip_test "you_afk_on"
 ((skip++))
 
-# auction_wtb
-echo -e "\033[0;34mType\033[0m: auction_wtb"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_lfg_on
+msg="[Sun Jan 06 10:18:00 2019] You are now Looking For a Group."
+run_test "you_lfg_on" "$msg"
+((run++))
+
+### you_afk_off
+skip_test "you_afk_off"
 ((skip++))
 
-# spell_something
-echo -e "\033[0;34mType\033[0m: spell_something"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_lfg_off
+msg="[Thu Nov 01 10:07:49 2018] You are no longer Looking For a Group."
+run_test "you_lfg_off" "$msg"
+((run++))
+
+### you_outfood
+msg="[Tue Apr 19 20:54:46 2016] You are out of food."
+run_test "you_outfood" "$msg"
+((run++))
+
+### you_outdrink
+msg="[Tue May 17 17:23:10 2016] You are out of drink."
+run_test "you_outdrink" "$msg"
+((run++))
+
+### you_outfooddrink
+msg="[Thu Feb 08 20:59:13 2018] You are out of food and drink."
+run_test "you_outfooddrink" "$msg"
+((run++))
+
+### you_outfoodlowdrink
+msg="[Thu Mar 31 19:12:41 2016] You are out of food and low on drink."
+run_test "you_outfoodlowdrink" "$msg"
+((run++))
+
+### you_outdrinklowfood
+msg="[Thu Mar 31 19:12:41 2016] You are out of drink and low on food."
+run_test "you_outdrinklowfood" "$msg"
+((run++))
+
+### you_thirsty
+msg="[Thu Feb 08 19:00:19 2018] You are thirsty."
+run_test "you_thirsty" "$msg"
+((run++))
+
+### you_hungry
+msg="[Sat Apr 23 01:24:39 2016] You are hungry."
+run_test "you_hungry" "$msg"
+((run++))
+
+### you_spell_forget
+skip_test "you_spell_forgot"
 ((skip++))
 
-# spell_fizzle
-echo -e "\033[0;34mType\033[0m: spell_fizzle"
-echo -e "  » \033[0;36mskip\033[0m"
+
+## Spell
+
+### spell_something
+skip_test "spell_something"
 ((skip++))
 
-# spell_interrupted
-echo -e "\033[0;34mType\033[0m: spell_interrupted"
-echo -e "  » \033[0;36mskip\033[0m"
+### spell_fizzle
+skip_test "spell_fizzle"
 ((skip++))
 
-# dot_damage
-echo -e "\033[0;34mType\033[0m: dot_damage"
-echo -e "  » \033[0;36mskip\033[0m"
+### spell_interrupted
+skip_test "spell_interrupted"
 ((skip++))
 
-# spell_damage
-echo -e "\033[0;34mType\033[0m: spell_damage"
-echo -e "  » \033[0;36mskip\033[0m"
+### spell_damage
+skip_test "spell_damage"
 ((skip++))
 
-# engage
-echo -e "\033[0;34mType\033[0m: engage"
-echo -e "  » \033[0;36mskip\033[0m"
+### spell_break_charm
+skip_test "spell_break_charm"
 ((skip++))
 
-# zoning
-echo -e "\033[0;34mType\033[0m: zoning"
-echo -e "  » \033[0;36mskip\033[0m"
+### spell_break_ensare
+skip_test "spell_break_ensare"
 ((skip++))
 
-# random
-echo -e "\033[0;34mType\033[0m: random"
-echo -e "  » \033[0;36mskip\033[0m"
+### spell_break
+skip_test "spell_break"
 ((skip++))
 
-# loc
-echo -e "\033[0;34mType\033[0m: loc"
-echo -e "  » \033[0;36mskip\033[0m"
+### dot_damage
+skip_test "dot_damage"
 ((skip++))
 
-# group_invite
-echo -e "\033[0;34mType\033[0m: group_invite"
-echo -e "  » \033[0;36mskip\033[0m"
+
+## Auction
+
+### auction
+skip_test "auction"
 ((skip++))
 
-# who_total
-echo -e "\033[0;34mType\033[0m: who_total"
-echo -e "  » \033[0;36mskip\033[0m"
+### auction_wts
+skip_test "auction_wts"
 ((skip++))
 
-# who_player
-echo -e "\033[0;34mType\033[0m: who_player"
-echo -e "  » \033[0;36mskip\033[0m"
+### auction_wtb
+skip_test "auction_wtb"
 ((skip++))
 
-# who_player_afk
-echo -e "\033[0;34mType\033[0m: who_player_afk"
-echo -e "  » \033[0;36mskip\033[0m"
+
+## Emotes
+
+### emote_bow
+skip_test "emote_bow"
 ((skip++))
 
-# who_player_linkdead
-echo -e "\033[0;34mType\033[0m: who_player_linkdead"
-echo -e "  » \033[0;36mskip\033[0m"
+### emote_thank
+skip_test "emote_thank"
 ((skip++))
 
-# who_top
-echo -e "\033[0;34mType\033[0m: who_top"
-echo -e "  » \033[0;36mskip\033[0m"
+### emote_wave
+skip_test "emote_wave"
 ((skip++))
 
-# target
-echo -e "\033[0;34mType\033[0m: target"
-echo -e "  » \033[0;36mskip\033[0m"
+### emote_dance
+skip_test "emote_dance"
 ((skip++))
 
-# emote_bow
-echo -e "\033[0;34mType\033[0m: emote_bow"
-echo -e "  » \033[0;36mskip\033[0m"
+### emote_bonk
+skip_test "emote_bonk"
 ((skip++))
 
-# emote_thank
-echo -e "\033[0;34mType\033[0m: emote_thank"
-echo -e "  » \033[0;36mskip\033[0m"
+### emote_smile
+skip_test "emote_smile"
 ((skip++))
 
-# emote_wave
-echo -e "\033[0;34mType\033[0m: emote_wave"
-echo -e "  » \033[0;36mskip\033[0m"
+### emote_cheer
+skip_test "emote_cheer"
 ((skip++))
 
-# emote_dance
-echo -e "\033[0;34mType\033[0m: emote_dance"
-echo -e "  » \033[0;36mskip\033[0m"
+
+## Weather
+
+### weather_start_rain
+msg="[Sat Feb 10 20:31:41 2018] It begins to rain."
+run_test "weather_start_rain" "$msg"
+((run++))
+
+### weather_start_snow
+msg="[Sun Feb 11 14:42:56 2018] It begins to snow."
+run_test "weather_start_snow" "$msg"
+((run++))
+
+### weather_stop_rain
+skip_test "weather_stop_rain"
 ((skip++))
 
-# emote_bonk
-echo -e "\033[0;34mType\033[0m: emote_bonk"
-echo -e "  » \033[0;36mskip\033[0m"
+### weather_stop_snow
+skip_test "weather_stop_snow"
 ((skip++))
 
-# emote_smile
-echo -e "\033[0;34mType\033[0m: emote_smile"
-echo -e "  » \033[0;36mskip\033[0m"
+
+## Who
+
+### who_top
+msg="[Thu Feb 21 21:12:05 2019] Players in EverQuest:"
+run_test "who_top" "$msg"
+((run++))
+
+### who_line
+msg="[Sun Mar 03 09:05:21 2019] ---------------------------------"
+run_test "who_line" "$msg"
+((run++))
+
+### who_player
+msg="[Thu Feb 21 21:12:05 2019] [60 Hierophant] Indefinite (Wood Elf) <Tempest> ZONE: commons"
+run_test "who_player" "$msg"
+((run++))
+
+### who_player_afk
+msg="[Sun Nov 04 19:54:11 2018]  AFK [60 Hierophant] Phloem (Wood Elf) <Tempest>"
+run_test "who_player_afk" "$msg"
+((run++))
+
+### who_player_linkdead
+msg="[Sun Nov 04 19:48:03 2018]  <LINKDEAD>[60 Phantasmist] Dagner (Gnome) <Tempest>"
+run_test "who_player_linkdead" "$msg"
+((run++))
+
+### who_total
+msg="[Sun Mar 03 09:00:20 2019] There are no players in EverQuest that match those who filters."
+run_test "who_total" "$msg"
+msg="[Thu Feb 21 21:36:32 2019] There is 1 player in EverQuest."
+run_test "who_total" "$msg"
+msg="There are 4 players in EverQuest."
+run_test "who_total" "$msg"
+((run++))
+
+
+## Other
+
+skip_test "faction_line"
 ((skip++))
 
-# emote_cheer
-echo -e "\033[0;34mType\033[0m: emote_cheer"
-echo -e "  » \033[0;36mskip\033[0m"
+### target_cured
+skip_test "target_cured"
 ((skip++))
 
-# weather_start_rain
-echo -e "\033[0;34mType\033[0m: weather_start_rain"
-echo -e "  » \033[0;36mskip\033[0m"
+### you_camping
+msg="[Mon Nov 05 19:44:27 2018] It will take you about 30 seconds to prepare your camp."
+run_test "you_camping" "$msg"
+msg="[Fri Nov 09 18:17:05 2018] You abandon your preparations to camp."
+run_test "you_camping" "$msg"
+((run++))
+
+### tell
+msg="[Sat Dec 29 21:41:44 2018] Parser tells you, 'tell'"
+run_test "tell" "$msg"
+((run++))
+
+### guild
+msg="[Tue Jan 08 22:52:09 2019] Parser tells the guild, 'huzzah we are a guild'"
+run_test "guild" "$msg"
+((run++))
+
+### group
+msg="[Sat Dec 29 10:02:25 2018] Obbz tells the group, 'we have arrived'"
+run_test "group" "$msg"
+((run++))
+
+### say
+msg="Parser says, 'Incoming, here we go!'"
+run_test "say" "$msg"
+((run++))
+
+### shout
+msg="[Tue Nov 06 19:42:56 2018] Parser shouts, 'LF port to GD'"i
+run_test "shout" "$msg"
+((run++))
+
+### ooc
+msg="[Thu Feb 21 21:20:50 2019] Parser says out of character, 'Congratulations!'"
+run_test "ooc" "$msg"
+((run++))
+
+### engage
+msg="[Sat Dec 29 19:57:17 2018] a dracoliche engages Parser!"
+run_test "engage" "$msg"
+((run++))
+
+### zoning
+msg="[Sat Dec 29 21:55:59 2018] LOADING, PLEASE WAIT..."
+run_test "zoning" "$msg"
 ((skip++))
 
-# weather_start_snow
-echo -e "\033[0;34mType\033[0m: weather_start_snow"
-echo -e "  » \033[0;36mskip\033[0m"
+### random
+skip_test "random"
 ((skip++))
 
-# weather_stop_rain
-echo -e "\033[0;34mType\033[0m: weather_stop_rain"
-echo -e "  » \033[0;36mskip\033[0m"
+### loc
+skip_test "loc"
 ((skip++))
 
-# weather_stop_snow
-echo -e "\033[0;34mType\033[0m: weather_stop_snow"
-echo -e "  » \033[0;36mskip\033[0m"
+### group_invite
+skip_test "group_invite"
 ((skip++))
 
-# you_camping
-echo -e "\033[0;34mType\033[0m: you_camping"
-echo -e "  » \033[0;36mskip\033[0m"
+### target
+skip_test "target"
 ((skip++))
+
 
 
 # Tests completed
-echo -e " --- COMPLETED ---"
-echo -e "  » \033[0;36mSkipped: \033[0;35m$skip\033[0m"
-echo -e "  » \033[0;36mRun \033[0;35m$run\033[0m"
+echo -e "\n\n --- COMPLETED ---"
+echo -e "  ${LIGHT_GRAY}»${NC} ${CYAN}Skipped${NC} ${BLUE}:${NC} ${LIGHT_GRAY}$skip${NC}"
+echo -e "  ${LIGHT_GRAY}»${NC} ${CYAN}Run${NC} ${BLUE}:${NC} ${LIGHT_GRAY}$run${NC}"
