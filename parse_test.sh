@@ -102,12 +102,14 @@ run_test "you_tell" "$msg"
 ((run++))
 
 ### you_say
-skip_test "you_say"
-((skip++))
+msg="[Tue Oct 30 20:53:59 2018] You say, 'anyone want potg?'"
+run_test "you_say" "$msg"
+((run++))
 
 ### you_shout
-skip_test "you_shout"
-((skip++))
+msg="[Wed Jun 24 21:25:49 2015] You shout, 'train to ent'"
+run_test "you_shout" "$msg"
+((run++))
 
 ### you_group
 msg="[Tue Jan 08 22:58:40 2019] You tell your party, 'incoming'"
@@ -115,28 +117,37 @@ run_test "you_group" "$msg"
 ((run++))
 
 ### you_ooc
-skip_test "you_ooc"
-((skip++))
+msg="[Sun Oct 28 20:21:10 2018] You say out of character, 'Hail for druid buffs at cb lift'"
+run_test "you_ooc" "$msg"
+((run++))
 
 ### you_guild
-skip_test "you_guild"
-((skip++))
+msg="[Fri Nov 02 16:46:37 2018] You say to your guild, 'Day drinking does me well'"
+run_test "you_guild" "$msg"
+((run++))
 
 ### you_auction
-skip_test "you_auction"
-((skip++))
+msg="[Mon Feb 05 19:27:20 2018] You auction, 'WTB Spell: Bedlam PST!'"
+run_test "you_auction" "$msg"
+msg="[Fri May 06 22:23:05 2016] You auction, 'WTS Guardians Mace - Loam Encrusted Sleeves - Wu's Fighting Wristbands Small Wisdom Deity - Embroidered Black Cape - Kromzek Surveyor Scope - The Scent of Marr PST!'
+"
+run_test "you_auction" "$msg"
+((run++))
 
 ### you_auction_wts:wtb
-skip_test "you_auction_wts:wtb"
-((skip++))
+msg="[Mon Feb 21 13:49:05 2017] You auction, 'WTB Spell: Parser, WTS Kromzek Surveyor Scope'"
+run_test "you_auction_wts:wtb" "$msg"
+((run++))
 
 ### you_auction_wts
-skip_test "you_auction_wts"
-((skip++))
+msg="[Fri May 06 22:23:05 2016] You auction, 'WTS Guardians Mace - Loam Encrusted Sleeves - Wu's Fighting Wristbands Small Wisdom Deity - Embroidered Black Cape - Kromzek Surveyor Scope - The Scent of Marr PST!'"
+run_test "you_auction_wts" "$msg"
+((run++))
 
 ### you_auction_wtb
-skip_test "you_auction_wtb"
-((skip++))
+msg="[Mon Feb 05 19:27:20 2018] You auction, 'WTB Spell: Bedlam PST!'"
+run_test "you_auction_wtb" "$msg"
+((run++))
 
 ### you_new_zone
 msg="[Sat Dec 29 21:56:56 2018] You have entered The Wakening Lands."
@@ -153,8 +164,9 @@ run_test "you_healed" "$msg"
 ((run++))
 
 ### you_afk_on
-skip_test "you_afk_on"
-((skip++))
+msg="[Sat Dec 29 20:51:36 2018] You are now A.F.K. (Away From Keyboard)."
+skip_test "you_afk_on" "$msg"
+((run++))
 
 ### you_lfg_on
 msg="[Sun Jan 06 10:18:00 2019] You are now Looking For a Group."
@@ -162,8 +174,9 @@ run_test "you_lfg_on" "$msg"
 ((run++))
 
 ### you_afk_off
-skip_test "you_afk_off"
-((skip++))
+msg="[Sat Dec 29 20:51:38 2018] You are no longer A.F.K. (Away From Keyboard)."
+skip_test "you_afk_off" "$msg"
+((run++))
 
 ### you_lfg_off
 msg="[Thu Nov 01 10:07:49 2018] You are no longer Looking For a Group."
@@ -217,20 +230,25 @@ skip_test "spell_something"
 ((skip++))
 
 ### spell_fizzle
-skip_test "spell_fizzle"
-((skip++))
+msg="[Sat Dec 29 20:26:38 2018] Parser's spell fizzles!"
+run_test "spell_fizzle" "$msg"
+((run++))
 
 ### spell_interrupted
-skip_test "spell_interrupted"
-((skip++))
+msg="[Sat Dec 29 20:38:45 2018] Your spell is interrupted."
+run_test "spell_interrupted" "$msg"
+msg="[Sat Dec 29 20:36:22 2018] Parser's casting is interrupted!"
+run_test "spell_interrupted" "$msg"
+((run++))
 
 ### spell_damage
 skip_test "spell_damage"
 ((skip++))
 
 ### spell_break_charm
-skip_test "spell_break_charm"
-((skip++))
+msg="[Mon Feb 12 22:12:32 2018] Your charm spell has worn off."
+run_test "spell_break_charm" "$msg"
+((run++))
 
 ### spell_break_ensare
 skip_test "spell_break_ensare"
@@ -252,43 +270,52 @@ skip_test "auction"
 ((skip++))
 
 ### auction_wts
-skip_test "auction_wts"
-((skip++))
+msg="[Sun Mar 03 09:13:15 2019] Parser auctions, 'WTS Shrunken Goblin Skull Earring 2k'"
+run_test "auction_wts" "$msg"
+((run++))
 
 ### auction_wtb
-skip_test "auction_wtb"
-((skip++))
+msg="[Sun Mar 03 09:14:20 2019] Parser auctions, 'WTB mask of the hunter'"
+run_test "auction_wtb" "$msg"
+((run++))
 
 
 ## Emotes
 
 ### emote_bow
-skip_test "emote_bow"
-((skip++))
+msg="[Sat Apr 09 09:55:26 2016] Parser bows before Parsette."
+run_test "emote_bow" "$msg"
+((run++))
 
-### emote_thank
-skip_test "emote_thank"
-((skip++))
+### eimote_thank
+msg="[Sat Feb 10 22:43:15 2018] Parser thanks Parsette heartily."
+run_test "emote_thank" "$msg"
+((run++))
 
 ### emote_wave
-skip_test "emote_wave"
-((skip++))
+msg="[Sun Feb 11 02:35:46 2018] Parser waves at Parsette."
+run_test "emote_wave" "$msg"
+((run++))
 
 ### emote_dance
-skip_test "emote_dance"
-((skip++))
+msg="[Fri Jun 26 23:56:50 2015] Parser grabs hold of Parsette and begins to dance with her."
+run_test "emote_dance" "$msg"
+((run++))
 
 ### emote_bonk
-skip_test "emote_bonk"
-((skip++))
+msg="[Sat Apr 16 00:21:39 2016] Parsette bonks Parser on the head!"
+run_test "emote_bonk" "$msg"
+((run++))
 
 ### emote_smile
-skip_test "emote_smile"
-((skip++))
+msg="[Mon Feb 12 23:23:48 2018] Parsette beams a smile at a Parser"
+run_test "emote_smile" "$msg"
+((run++))
 
 ### emote_cheer
-skip_test "emote_cheer"
-((skip++))
+msg="[Sun Feb 11 03:47:25 2018] Parser cheers at Parsette."
+run_test "emote_cheer" "$msg"
+((run++))
 
 
 ## Weather
@@ -355,8 +382,9 @@ skip_test "faction_line"
 ((skip++))
 
 ### target_cured
-skip_test "target_cured"
-((skip++))
+msg="[Fri Nov 09 20:16:41 2018] Your target has been cured."
+run_test "target_cured" "$msg"
+((run++))
 
 ### you_camping
 msg="[Mon Nov 05 19:44:27 2018] It will take you about 30 seconds to prepare your camp."
@@ -376,7 +404,7 @@ run_test "guild" "$msg"
 ((run++))
 
 ### group
-msg="[Sat Dec 29 10:02:25 2018] Obbz tells the group, 'we have arrived'"
+msg="[Sat Dec 29 10:02:25 2018] Parser tells the group, 'we have arrived'"
 run_test "group" "$msg"
 ((run++))
 
@@ -406,20 +434,30 @@ run_test "zoning" "$msg"
 ((skip++))
 
 ### random
-skip_test "random"
-((skip++))
+msg="[Sat Feb 10 22:31:12 2018] **A Magic Die is rolled by Valreth."
+run_test "random" "$msg"
+msg="[Sun Jan 06 10:25:41 2019] **It could have been any number from 0 to 555, but this time it turned up a 528."
+run_test "random" "$msg"
+((run++))
 
 ### loc
-skip_test "loc"
-((skip++))
+msg="[Sun Feb 11 16:51:10 2018] Your Location is 2083.14, 3109.68, -154.26"
+run_test "loc" "$msg"
+((run++))
 
 ### group_invite
-skip_test "group_invite"
-((skip++))
+msg="[Mon Feb 12 23:40:36 2018] Parser invites you to join a group."
+run_test "group_invite" "$msg"
+((run++))
 
 ### target
-skip_test "target"
-((skip++))
+msg="[Sun Mar 03 08:39:42 2019] Targeted (NPC): Parser"
+run_test "target" "$msg"
+msg="[Sun Mar 03 08:40:13 2019] Targeted (Player): Parsette"
+run_test "target" "$msg"
+msg="[Sat Mar 02 10:07:37 2019] You no longer have a target."
+run_test "target" "$msg"
+((run++))
 
 
 
