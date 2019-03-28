@@ -5,49 +5,17 @@
 #
 #
 #    * Ensure EQ Alert is running against the default character before testing
-#    * Presently needs to be run from the same directory as `config.json`
 #
 
 
-# Functions
-
-## Default Test: Append Message To Character Log
-function run_test() {
-  echo -e "\n  ${PURPLE}Type${NC} ${BLUE}:${NC} ${CYAN}$1${NC}"
-  echo -e "  ${LIGHT_GRAY}»${NC} ${LIGHT_GRAY}$2${NC}"
-  echo $2 >> "$CHAR_LOG"
-  sleep 0.018
-}
-
-## (Display) Skip Test
-function skip_test() {
-  echo -e "\n  ${PURPLE}Type${NC} ${BLUE}:${NC} ${CYAN}$1${NC}"
-  echo -e "  ${LIGHT_GRAY}»${NC} ${YELLOW}skip${NC}"
-}
-
-## Display Usage
-function test_usage() {
-  echo -e "\n${CYAN}Usage:${NC}"
-  echo -e "\n${WHITE}$ ${RED}Ensure EQ Alert is running${NC}"
-  echo -e "${WHITE}$ ${YELLOW}./parse_test.sh${NC}"
-}
-
-
-# Checks
-
-## Ensure EQ Alert is running
-ACTIVE=$(pgrep -f eqalert.py)
-if [ -z $ACTIVE ]; then
-  test_usage
-  exit 0
-fi
-
-
-# Settings
+# Variables
 
 ## Things worth changing
-EQ_LOGS=$(jq '.settings.paths.char_log' config.json)
-DEFAULT_CHAR=$(jq '.characters.default' config.json | tr -d '"')
+CONFIG_PATH="$HOME/project/eqalert/config.json"
+
+## Paths
+EQ_LOGS=$(jq '.settings.paths.char_log' ${CONFIG_PATH})
+DEFAULT_CHAR=$(jq '.characters.default' ${CONFIG_PATH} | tr -d '"')
 CHAR_LOG="${EQ_LOGS//\"}eqlog_${DEFAULT_CHAR^}_project1999.txt"
 
 
@@ -74,6 +42,40 @@ NC='\e[0m'
 BOLD='\e[1m'
 
 
+# Functions
+
+## Default Test: Append Message To Character Log
+function run_test() {
+  echo -e "\n  ${PURPLE}Type${NC} ${BLUE}:${NC} ${CYAN}$1${NC}"
+  echo -e "  ${LIGHT_GRAY}»${NC} ${LIGHT_GRAY}$2${NC}"
+  echo $2 >> "$CHAR_LOG"
+  sleep 0.02
+}
+
+## (Display) Skip Test
+function skip_test() {
+  echo -e "\n  ${PURPLE}Type${NC} ${BLUE}:${NC} ${CYAN}$1${NC}"
+  echo -e "  ${LIGHT_GRAY}»${NC} ${YELLOW}skip${NC}"
+}
+
+## Display Usage
+function test_usage() {
+  echo -e "\n${CYAN}Usage:${NC}"
+  echo -e "\n${WHITE}$ ${RED}Ensure EQ Alert is running${NC}"
+  echo -e "${WHITE}$ ${YELLOW}./parse_test.sh${NC}"
+}
+
+
+# Checks
+
+## Ensure EQ Alert is running
+ACTIVE=$(pgrep -f eqalert.py)
+if [ -z $ACTIVE ]; then
+  test_usage
+  exit 0
+fi
+
+
 # Ctrl+C Safety (Bash Trap)
 
 ## Stop everything
@@ -89,7 +91,6 @@ trap stop_tests SIGINT
 ## Don't change these
 skip=0
 run=0
-
 
 
 # Begin the Trials
