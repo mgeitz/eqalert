@@ -35,14 +35,14 @@ def init():
 def get_chars(config):
   """Return known characters"""
 
+  chars = []
   log_files = [ f for f in os.listdir(config["settings"]["paths"]["char_log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["char_log"],f)) ]
   for logs in log_files:
     if "eqlog_" in logs and "_project1999.txt" in logs:
       first, name, end = logs.split("_")
       if name.lower() not in config["characters"].keys():
-        add_char(name.lower())
+        add_char(name.lower(), chars)
 
-  chars = []
   for toon in config["characters"].keys():
     if toon != "default":
       chars.append(toon)
@@ -53,7 +53,7 @@ def get_chars(config):
     return chars
 
 
-def add_char(name):
+def add_char(name, chars):
   """Adds a new character to the config"""
 
   json_data = open('config.json', 'r+')
