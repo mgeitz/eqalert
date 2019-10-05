@@ -23,8 +23,8 @@ import os
 import time
 import sys
 
-import eqa_struct
-import eqa_settings
+import lib.eqa_struct as eqa_struct
+import lib.eqa_settings as eqa_settings
 
 def display(stdscr, display_q, zone, char, chars, exit_flag):
   """
@@ -131,8 +131,8 @@ def close_screens(stdscr):
 def draw_tabs(stdscr, tab):
   """Draw the tabs, duh"""
   y, x = stdscr.getmaxyx()
-  center_y = y / 2
-  center_x = x / 2
+  center_y = int(y / 2)
+  center_x = int(x / 2)
 
   # Bottom of tabs
   stdscr.addch(2, 0, curses.ACS_LTEE)
@@ -191,8 +191,8 @@ def draw_tabs(stdscr, tab):
 def draw_events_frame(stdscr, char, zone, events):
   """Draw events"""
   y, x = stdscr.getmaxyx()
-  center_y = y / 2
-  center_x = x / 2
+  center_y = int(y / 2)
+  center_x = int(x / 2)
 
   # Clear and box
   stdscr.clear()
@@ -220,7 +220,7 @@ def draw_events_frame(stdscr, char, zone, events):
 def draw_events(stdscr, events):
   """Draw events window component of events"""
   y, x = stdscr.getmaxyx()
-  center_y = y / 2
+  center_y = int(y / 2)
   bottom_y = center_y - 4
   top_y = 2
 
@@ -258,8 +258,8 @@ def draw_ftime(stdscr, timestamp, y):
 def draw_state(stdscr):
   """Draw state"""
   y, x = stdscr.getmaxyx()
-  center_y = y / 2
-  center_x = x / 2
+  center_y = int(y / 2)
+  center_x = int(x / 2)
 
   # Clear and box
   stdscr.clear()
@@ -404,8 +404,8 @@ def draw_toosmall(stdscr):
     stdscr.clear()
     stdscr.box()
     y, x = stdscr.getmaxyx()
-    center_y = y / 2
-    center_x = x / 2
+    center_y = int(y / 2)
+    center_x = int(x / 2)
 
     stdscr.addstr(center_y, center_x - 10, "Terminal too small.",
         curses.color_pair(1))

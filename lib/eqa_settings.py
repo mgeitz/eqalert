@@ -30,7 +30,7 @@ from collections import namedtuple
 
 def usage():
   """Print some helpful things"""
-  print 'ya done goofed'
+  print('ya done goofed')
   sys.exit(2)
 
 

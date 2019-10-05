@@ -21,8 +21,8 @@
 from collections import deque
 import sys
 
-import eqa_struct
-import eqa_settings
+import lib.eqa_struct as eqa_struct
+import lib.eqa_settings as eqa_settings
 import time
 
 

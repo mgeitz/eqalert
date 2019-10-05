@@ -26,7 +26,7 @@ import logging
 import datetime
 import time
 import threading
-import Queue
+import queue
 import os
 
 import lib.eqa_parser as eqa_parse
@@ -44,14 +44,14 @@ def main():
   """Main method, does the good stuff"""
 
   # Queues
-  keyboard_q = Queue.Queue()
-  action_q = Queue.Queue()
-  display_q = Queue.Queue()
-  sound_q = Queue.Queue()
-  system_q = Queue.Queue()
-  log_q = Queue.Queue()
-  heal_q = Queue.Queue()
-  damage_q = Queue.Queue()
+  keyboard_q = queue.Queue()
+  action_q = queue.Queue()
+  display_q = queue.Queue()
+  sound_q = queue.Queue()
+  system_q = queue.Queue()
+  log_q = queue.Queue()
+  heal_q = queue.Queue()
+  damage_q = queue.Queue()
 
   # Build initial state
   logging.basicConfig(filename='./log/eqalert.log', level=logging.DEBUG)
