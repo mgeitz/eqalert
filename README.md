@@ -11,7 +11,7 @@ A Project 1999 log parser with NCurses interface for Linux
     - espeak
     - mbrola
     - sox
-    - python 2.7
+    - python 3.7
 
 ### Install dependencies
 
@@ -19,10 +19,10 @@ A Project 1999 log parser with NCurses interface for Linux
 ```
 $ sudo apt-get update && \
   sudo apt-get install \
-    python2.7 \
-    python-pip \
+    python3 \
+    python3-pip \
     espeak && \
-  sudo pip install pyinotify
+  sudo pip3 install pyinotify
 ```
 
 ### Install Mbrola
