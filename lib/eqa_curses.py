@@ -81,7 +81,8 @@ def display(stdscr, display_q, zone, char, chars, exit_flag):
 
 
   except Exception as e:
-    eqa_settings.log('display: Error on line ' + str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    eqa_settings.log('display: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
   sys.exit()
 
@@ -101,7 +102,8 @@ def draw_page(stdscr, page, events, chars, setting, selected_char, char, zone):
     else:
       draw_toosmall(stdscr)
   except Exception as e:
-    eqa_settings.log('draw_page: Error on line ' + str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    eqa_settings.log('draw_page: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def init(char, zone):
@@ -241,7 +243,8 @@ def draw_events(stdscr, events):
       eventscr.addstr(c_y, 16, str(event.payload), curses.color_pair(1))
       count += 1
   except Exception as e:
-      eqa_settings.log('draw events: Error on line ' + str(sys.exc_info()[-1].tb_lineno) + ': '  + str(e))
+      eqa_settings.log('draw events: Error on line ' +
+                        str(sys.exc_info()[-1].tb_lineno) + ': '  + str(e))
 
 
 def draw_ftime(stdscr, timestamp, y):
