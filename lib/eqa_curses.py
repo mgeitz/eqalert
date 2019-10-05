@@ -81,24 +81,29 @@ def display(stdscr, display_q, zone, char, chars, exit_flag):
 
 
   except Exception as e:
-    eqa_settings.log('display: ' + str(e))
+    eqa_settings.log('display: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
   sys.exit()
 
 
 def draw_page(stdscr, page, events, chars, setting, selected_char, char, zone):
   y, x = stdscr.getmaxyx()
-  if x >= 80 and y >= 40:
-    if page == 'events':
-      draw_events_frame(stdscr, char, zone, events)
-    elif page == 'state':
-      draw_state(stdscr)
-    elif page == 'settings':
-      draw_settings(stdscr, chars, char, setting, selected_char)
-    elif page == 'help':
-      draw_help(stdscr)
-  else:
-    draw_toosmall(stdscr)
+  try:
+    if x >= 80 and y >= 40:
+      if page == 'events':
+        draw_events_frame(stdscr, char, zone, events)
+      elif page == 'state':
+        draw_state(stdscr)
+      elif page == 'settings':
+        draw_settings(stdscr, chars, char, setting, selected_char)
+      elif page == 'help':
+        draw_help(stdscr)
+    else:
+      draw_toosmall(stdscr)
+  except Exception as e:
+    eqa_settings.log('draw_page: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def init(char, zone):
@@ -238,7 +243,8 @@ def draw_events(stdscr, events):
       eventscr.addstr(c_y, 16, str(event.payload), curses.color_pair(1))
       count += 1
   except Exception as e:
-      eqa_settings.log('draw events: ' + str(e))
+      eqa_settings.log('draw events: Error on line ' +
+                        str(sys.exc_info()[-1].tb_lineno) + ': '  + str(e))
 
 
 def draw_ftime(stdscr, timestamp, y):
@@ -271,8 +277,6 @@ def draw_state(stdscr):
 
 def draw_settings(stdscr, chars, char, selected_setting, selected_char):
   """Draw settings"""
-  y, x = stdscr.getmaxyx()
-
   # Clear and box
   stdscr.clear()
   stdscr.box()
@@ -294,34 +298,36 @@ def draw_settings(stdscr, chars, char, selected_setting, selected_char):
 
 def draw_chars(stdscr, chars, char, selected):
   """Draw character selection component for settings"""
-  y, x = stdscr.getmaxyx()
-
-  charscr = stdscr.derwin(9, x / 3, 5, 3)
-  charscr.clear()
-  charscr.box()
-
   try:
-    if selected < 4:
-      char = 0
-    if len(chars) > 7:
-      if selected >= 4 and selected < len(chars) - 4:
-        char += 1
-      elif selected >= len(chars) - 4:
-        char = len(chars) - 7
-    else:
-      char = 0
+    y, x = stdscr.getmaxyx()
+    charscr_width = int(x / 3)
+    charscr_height = 7
+
+    charscr = stdscr.derwin(charscr_height, charscr_width, 5, 3)
+    charscr.clear()
+    charscr.box()
 
     count = 0
-    while count < len(chars) and count < 9:
-      char_name = chars[char]
-      if selected == count:
-        charscr.addstr(7 - count, 2, char_name.title(), curses.color_pair(1))
-      else:
-        charscr.addstr(7 - count, 2, char_name.title(), curses.color_pair(2))
-      count += 1
-      char += 1
+    if len(chars) < 5:
+      while count < len(chars):
+        char_name = chars[count]
+        if selected == count:
+          charscr.addstr(6 - count, 2, char_name.title(), curses.color_pair(1))
+        else:
+          charscr.addstr(6 - count, 2, char_name.title(), curses.color_pair(2))
+        count += 1
+    else:
+      for count in range(0, 5):
+        char_name = chars[(selected - 2 + count) % len(chars)]
+        if count == 2:
+          charscr.addstr(5 - count, 2, char_name.title(), curses.color_pair(1))
+        elif (selected - 2 + count) < len(chars) and (selected - 2 + count) >= 0:
+          charscr.addstr(5 - count, 2, char_name.title(), curses.color_pair(2))
+        count += 1
+
   except Exception as e:
-      eqa_settings.log('draw chars: ' + str(e))
+      eqa_settings.log('draw chars: Error on line ' +
+                       str(sys.exc_info()[-1].tb_lineno) + ': '  + str(e))
 
 
 def draw_help(stdscr):
