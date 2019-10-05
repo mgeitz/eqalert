@@ -127,26 +127,30 @@ run_test "you_guild" "$msg"
 ((run++))
 
 ### you_auction
-msg="[Mon Feb 05 19:27:20 2018] You auction, 'WTB Spell: Bedlam PST!'"
+msg="[Mon Feb 05 19:27:20 2018] You auction, 'Spell: Bedlam PST!'"
 run_test "you_auction" "$msg"
-msg="[Fri May 06 22:23:05 2016] You auction, 'WTS Guardians Mace - Loam Encrusted Sleeves - Wu's Fighting Wristbands Small Wisdom Deity - Embroidered Black Cape - Kromzek Surveyor Scope - The Scent of Marr PST!'
-"
+msg="[Fri May 06 22:23:05 2016] You auction, 'parser'"
 run_test "you_auction" "$msg"
 ((run++))
 
 ### you_auction_wts:wtb
-msg="[Mon Feb 21 13:49:05 2017] You auction, 'WTB Spell: Parser, WTS Kromzek Surveyor Scope'"
+msg="[Mon Feb 21 13:49:05 2017] You auction, 'WTB Spell: Parser, WTS Super Powers'"
+run_test "you_auction_wts:wtb" "$msg"
+msg="[Mon Dec 16 09:52:27 2019] You auction, 'selling some shit, buying other shit'"
 run_test "you_auction_wts:wtb" "$msg"
 ((run++))
 
 ### you_auction_wts
 msg="[Fri May 06 22:23:05 2016] You auction, 'WTS Guardians Mace - Loam Encrusted Sleeves - Wu's Fighting Wristbands Small Wisdom Deity - Embroidered Black Cape - Kromzek Surveyor Scope - The Scent of Marr PST!'"
 run_test "you_auction_wts" "$msg"
+msg="[Fri Mar 12 04:43:26 2014] You auction, 'selling bags'"
+run_test "you_auction_wts" "$msg"
 ((run++))
 
 ### you_auction_wtb
 msg="[Mon Feb 05 19:27:20 2018] You auction, 'WTB Spell: Bedlam PST!'"
 run_test "you_auction_wtb" "$msg"
+msg="[Mon Feb 05 19:27:20 2018] You auction, 'buying novelty coins'"
 ((run++))
 
 ### you_new_zone
@@ -165,7 +169,7 @@ run_test "you_healed" "$msg"
 
 ### you_afk_on
 msg="[Sat Dec 29 20:51:36 2018] You are now A.F.K. (Away From Keyboard)."
-skip_test "you_afk_on" "$msg"
+run_test "you_afk_on" "$msg"
 ((run++))
 
 ### you_lfg_on
@@ -175,7 +179,7 @@ run_test "you_lfg_on" "$msg"
 
 ### you_afk_off
 msg="[Sat Dec 29 20:51:38 2018] You are no longer A.F.K. (Away From Keyboard)."
-skip_test "you_afk_off" "$msg"
+run_test "you_afk_off" "$msg"
 ((run++))
 
 ### you_lfg_off
@@ -219,13 +223,15 @@ run_test "you_hungry" "$msg"
 ((run++))
 
 ### you_spell_forget
-skip_test "you_spell_forgot"
-((skip++))
+msg="[Sun May 06 10:07:21 2018] You forget Ensnare."
+run_test "you_spell_forget" "$msg"
+((run++))
 
 
 ## Spell
 
 ### spell_something
+# wth is this
 skip_test "spell_something"
 ((skip++))
 
@@ -241,9 +247,24 @@ msg="[Sat Dec 29 20:36:22 2018] Parser's casting is interrupted!"
 run_test "spell_interrupted" "$msg"
 ((run++))
 
+### spell_resist
+msg="[Mon Oct 29 18:28:33 2018] Your target resisted the Ensnare spell."
+run_test "spell_resist" "$msg"
+((run++))
+
 ### spell_damage
-skip_test "spell_damage"
-((skip++))
+msg="[Sun Feb 11 00:29:35 2018] You were hit by non-melee for 17 damage."
+run_test "spell_damage" "$msg"
+msg="[Sat Feb 10 22:30:34 2018] Errkak Icepaw was hit by non-melee for 20 points of damage."
+run_test "spell_damage" "$msg"
+msg="[Sat Feb 10 21:46:05 2018] a crystalline watcher was hit by non-melee for 20 points of damage."
+run_test "spell_damage" "$msg"
+((run++))
+
+### spell_regen
+msg="[Sat Dec 29 22:26:46 2018] Slanging begins to regenerate."
+run_test "spell_regen" "$msg"
+((run++))
 
 ### spell_break_charm
 msg="[Mon Feb 12 22:12:32 2018] Your charm spell has worn off."
@@ -251,8 +272,9 @@ run_test "spell_break_charm" "$msg"
 ((run++))
 
 ### spell_break_ensare
-skip_test "spell_break_ensare"
-((skip++))
+msg="[Mon Oct 29 18:49:03 2018] Your Ensnare spell has worn off."
+run_test "spell_break_ensare" "$msg"
+((run++))
 
 ### spell_break
 skip_test "spell_break"
@@ -272,10 +294,14 @@ skip_test "auction"
 ### auction_wts
 msg="[Sun Mar 03 09:13:15 2019] Parser auctions, 'WTS Shrunken Goblin Skull Earring 2k'"
 run_test "auction_wts" "$msg"
+msg="[Sun Mar 03 09:13:15 2019] Parser auctions, 'selling a pretty flower 10k'"
+run_test "auction_wts" "$msg"
 ((run++))
 
 ### auction_wtb
 msg="[Sun Mar 03 09:14:20 2019] Parser auctions, 'WTB mask of the hunter'"
+run_test "auction_wtb" "$msg"
+msg="[Sun Mar 03 09:14:20 2019] Parser auctions, 'buying one half a parser'"
 run_test "auction_wtb" "$msg"
 ((run++))
 
@@ -376,8 +402,16 @@ run_test "who_total" "$msg"
 
 ## Other
 
-skip_test "faction_line"
-((skip++))
+### faction_line
+msg="[Mon Feb 12 23:29:49 2018] Your faction standing with MayongMistmoore could not possibly get any better."
+run_test "faction_line" "$msg"
+msg="[Thu Jan 25 22:56:58 2018] Your faction standing with VenrilSathir could not possibly get any worse."
+run_test "faction_line" "$msg"
+msg="[Sun Feb 11 02:28:57 2018] Your faction standing with Chetari got worse."
+run_test "faction_line" "$msg"
+msg="[Sun Feb 11 03:44:51 2018] Your faction standing with Kromzek got better."
+run_test "faction_line" "$msg"
+((run++))
 
 ### target_cured
 msg="[Fri Nov 09 20:16:41 2018] Your target has been cured."
@@ -429,7 +463,7 @@ run_test "engage" "$msg"
 ### zoning
 msg="[Sat Dec 29 21:55:59 2018] LOADING, PLEASE WAIT..."
 run_test "zoning" "$msg"
-((skip++))
+((run++))
 
 ### random
 msg="[Sat Feb 10 22:31:12 2018] **A Magic Die is rolled by Valreth."

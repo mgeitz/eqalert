@@ -131,6 +131,9 @@ def determine(line):
             line_type == "you_spell_forget"
 
     elif line_list[0] == "your":
+        if line_list[1] == "spell":
+            if line_list[3] == "interrupted":
+                line_type = "spell_interrupted"
         if line_list[2] == "spell":
             if line_list[1] == "charm":
                 line_type = "spell_break_charm"
@@ -141,6 +144,8 @@ def determine(line):
         elif line_list[1] ==  "faction":
             line_type = "faction_line"
         elif line_list[1] == "target":
+            if line_list[2] == "resisted":
+                line_type = "spell_resist"
             if line_list[4] == "cured.":
                 line_type = "target_cured"
     elif line_list[0].startswith("-"):
@@ -183,7 +188,7 @@ def determine(line):
     elif line_list[1] == "begins":  # assumes only spell messages have [player] begins...
         if len(line_list) > 3:
             if line_list[3] == "regenerate.":
-                line_list = "spell_regen"
+                line_type = "spell_regen"
 
     # spell damage (has/was)
     elif "has" in line_list:
