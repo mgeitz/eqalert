@@ -49,7 +49,7 @@ function run_test() {
   echo -e "\n  ${PURPLE}Type${NC} ${BLUE}:${NC} ${CYAN}$1${NC}"
   echo -e "  ${LIGHT_GRAY}»${NC} ${LIGHT_GRAY}$2${NC}"
   echo $2 >> "$CHAR_LOG"
-  sleep 0.02
+  sleep 0.01
 }
 
 ## (Display) Skip Test
@@ -412,7 +412,7 @@ run_test "say" "$msg"
 ((run++))
 
 ### shout
-msg="[Tue Nov 06 19:42:56 2018] Parser shouts, 'LF port to GD'"i
+msg="[Tue Nov 06 19:42:56 2018] Parser shouts, 'LF port to GD'"
 run_test "shout" "$msg"
 ((run++))
 
