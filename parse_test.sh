@@ -371,8 +371,6 @@ msg="[Sun Mar 03 09:00:20 2019] There are no players in EverQuest that match tho
 run_test "who_total" "$msg"
 msg="[Thu Feb 21 21:36:32 2019] There is 1 player in EverQuest."
 run_test "who_total" "$msg"
-msg="There are 4 players in EverQuest."
-run_test "who_total" "$msg"
 ((run++))
 
 
@@ -409,7 +407,7 @@ run_test "group" "$msg"
 ((run++))
 
 ### say
-msg="Parser says, 'Incoming, here we go!'"
+msg="[Tue Jan 28 21:02:19 2018] Parser says, 'Incoming, here we go!'"
 run_test "say" "$msg"
 ((run++))
 
