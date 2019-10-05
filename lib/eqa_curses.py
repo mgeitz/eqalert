@@ -26,7 +26,7 @@ import sys
 import lib.eqa_struct as eqa_struct
 import lib.eqa_settings as eqa_settings
 
-def display(stdscr, display_q, zone, char, chars, exit_flag):
+def display(stdscr, display_q, zone, state, exit_flag):
   """
     Process: display_q
     Produce: display event
@@ -47,36 +47,36 @@ def display(stdscr, display_q, zone, char, chars, exit_flag):
         if display_event.type == 'update':
           if display_event.screen == 'setting':
             setting = display_event.payload
-            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+            draw_page(stdscr, page, events, state.chars, setting, selected_char, state.char, zone)
           elif display_event.screen == 'selected_char':
             selected_char = display_event.payload
-            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+            draw_page(stdscr, page, events, state.chars, setting, selected_char, state.char, zone)
           elif display_event.screen == 'select_char':
             selected_char = display_event.payload
-            char = chars[selected_char]
-            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+            state.char = state.chars[selected_char]
+            draw_page(stdscr, page, events, chars, setting, selected_char, state.char, zone)
           elif display_event.screen == 'zone':
             zone = display_event.payload
-            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+            draw_page(stdscr, page, events, state.chars, setting, selected_char, state.char, zone)
           elif display_event.screen == 'char':
-            char = display_event.payload
-            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+            state.char = display_event.payload
+            draw_page(stdscr, page, events, state.chars, setting, selected_char, state.char, zone)
 
         # Display Draw
         elif display_event.type == 'draw':
           if display_event.screen != 'redraw':
             page = display_event.screen
-          draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+          draw_page(stdscr, page, events, state.chars, setting, selected_char, state.char, zone)
 
         # Draw Update
         elif display_event.type == 'event':
           if display_event.screen == 'events':
             events.append(display_event)
             if page == 'events':
-              draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+              draw_page(stdscr, page, events, state.chars, setting, selected_char, state.char, zone)
           elif display_event.screen == 'clear':
             events = []
-            draw_page(stdscr, page, events, chars, setting, selected_char, char, zone)
+            draw_page(stdscr, page, events, state.chars, setting, selected_char, state.char, zone)
 
 
 
@@ -261,7 +261,7 @@ def draw_ftime(stdscr, timestamp, y):
   stdscr.addstr(y, 10, ms, curses.color_pair(3))
 
 
-def draw_state(stdscr):
+def draw_state(stdscr, state):
   """Draw state"""
   y, x = stdscr.getmaxyx()
   center_y = int(y / 2)
@@ -273,6 +273,21 @@ def draw_state(stdscr):
 
   # Draw tabs
   draw_tabs(stdscr, 'state')
+
+  # Show some state
+  try:
+    # char
+    stdscr.addstr(5, 5, '', curses.color_pair(2))
+    stdscr.addstr(5, 5, '', curses.color_pair(2))
+    # zone
+    stdscr.addstr(5, 7, '', curses.color_pair(2))
+    stdscr.addstr(5, 7, '', curses.color_pair(2))
+    # raid state
+    stdscr.addstr(5, 9, '', curses.color_pair(2))
+    stdscr.addstr(5, 9, '', curses.color_pair(2))
+  except Exception as e:
+      eqa_settings.log('draw state: Error on line ' +
+                        str(sys.exc_info()[-1].tb_lineno) + ': '  + str(e))
 
 
 def draw_settings(stdscr, chars, char, selected_setting, selected_char):

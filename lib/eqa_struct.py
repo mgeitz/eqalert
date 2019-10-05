@@ -23,7 +23,9 @@ from collections import namedtuple
 global display
 global sound
 global message
+global state
 
 message = namedtuple('data', ['timestamp', 'type', 'tx', 'rx', 'payload'])
 display = namedtuple('data', ['timestamp', 'type', 'screen', 'payload'])
 sound = namedtuple('data', ['sound', 'payload'])
+state = namedtuple('data', ['char', 'chars', 'raid', 'afk'])

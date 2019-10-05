@@ -2,6 +2,8 @@
 
 A Project 1999 log parser with NCurses interface for Linux
 
+> Best used with the [Linux EQ Launch Manager](https://gist.github.com/mgeitz/aa295061c51b26d53dd818d0ebb3e37a)
+
 ![img](https://i.imgur.com/RDhSgdx.png)
 ![img](https://i.imgur.com/J9iqSuR.png)
 ![img](https://i.imgur.com/sZ2p9OI.png)

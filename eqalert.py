@@ -130,6 +130,7 @@ def main():
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Initialized'))
   sound_q.put(eqa_struct.sound('espeak', 'initialized'))
+  state = eqa_struct.state(char, chars, raid, 'false')
 
   ## Consume system_q
   try:
@@ -144,22 +145,22 @@ def main():
           if new_message.tx == "zone":
             zone = new_message.payload
           # Update character
-          elif new_message.tx == "new_character" and not new_message.payload == char:
+          elif new_message.tx == "new_character" and not new_message.payload == state.char:
             # Stop watch on previous character log
             log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
             # Set new character
-            char = new_message.payload
-            char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
+            state.char = new_message.payload
+            char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + state.char.title() + "_project1999.txt"
             # Start new log watch
             log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
-            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + char))
-            sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + char))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + state.char))
+            sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + state.char))
           # Reload config
           elif new_message.tx == "reload_config":
             # Reload config
             config = eqa_config.init()
             # Reread characters
-            chars = eqa_config.get_chars(config)
+            state.chars = eqa_config.get_chars(config)
             # Stop process_action and process_sound
             cfg_reload.set()
             process_action.join()
