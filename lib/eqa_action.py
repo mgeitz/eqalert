@@ -141,7 +141,8 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
           config = eqa_config.read()
 
   except Exception as e:
-    eqa_settings.log('process action: ' +  str(e))
+    eqa_settings.log('process action: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' +  str(e))
 
   sys.exit()
 
