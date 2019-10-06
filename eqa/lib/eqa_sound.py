@@ -80,7 +80,6 @@ def alert(config, line_type):
 
 def play_sound(sound):
     """Play the sound given"""
-    command = ["play", sound]
     try:
       playsound(sound)
     except KeyboardInterrupt:
