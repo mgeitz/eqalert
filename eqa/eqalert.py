@@ -70,7 +70,7 @@ def main():
       shutil.copy('../sound/listen.wav', base_path + 'sound/')
       shutil.copy('../sound/look.wav', base_path + 'sound/')
       shutil.copy('../sound/watchout.wav', base_path + 'sound/')
-  logging.basicConfig(filename=base_path + 'log/eqalert.log', level=logging.DEBUG)
+  logging.basicConfig(filename=base_path + 'log/eqalert.log', level=logging.INFO)
   raid = threading.Event()
   cfg_reload = threading.Event()
   heal_parse = threading.Event()

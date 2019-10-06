@@ -5,7 +5,11 @@ setup(
     version='1.1.0',
     author='Michael Geitz',
     author_email='git@geitz.xyz',
-    install_requires=['pyinotify'],
+    install_requires=[
+        'pyinotify',
+        'playsound',
+        'gtts',
+    ],
     python_requires='>3',
     packages=['eqa', 'eqa.lib'],
     license='LICENSE.txt',

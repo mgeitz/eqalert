@@ -18,10 +18,11 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-import subprocess
 import os
 import time
 import sys
+import gtts
+from playsound import playsound
 
 import lib.eqa_struct as eqa_struct
 import lib.eqa_settings as eqa_settings
@@ -33,6 +34,11 @@ def process(config, sound_q, exit_flag, cfg_reload):
     Produce: sound event
   """
 
+  tmp_sound_file_path='/tmp/eqa/sound/'
+
+  if not os.path.exists(tmp_sound_file_path):
+    os.makedirs(tmp_sound_file_path)
+
   try:
     while not exit_flag.is_set() and not cfg_reload.is_set():
       time.sleep(0.001)
@@ -41,11 +47,11 @@ def process(config, sound_q, exit_flag, cfg_reload):
         sound_q.task_done()
 
         if sound_event.sound == "espeak":
-          espeak(sound_event.payload)
+          espeak(sound_event.payload, tmp_sound_file_path)
         elif sound_event.sound == "alert":
           alert(config, sound_event.payload)
         else:
-          espeak(sound_event.payload)
+          espeak(sound_event.payload, tmp_sound_file_path)
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "[Malformed sound event] " + sound_event.sound))
   except Exception as e:
     eqa_settings.log('process_sound: ' + str(e))
@@ -54,22 +60,16 @@ def process(config, sound_q, exit_flag, cfg_reload):
   sys.exit()
 
 
-def raid_alert(key, line):
-    """Speak raid triggerable phrases"""
-    if key == "assist" or key == "rampage":
-        espeak(key + " on " + line[0])
-    else:
-        espeak(key)
-
-
-def espeak(phrase):
-    """Plays phrase using espeak"""
-    command = ["espeak", "-v", "mb-en1", "-s", "140", phrase]
+def espeak(phrase, tmp_sound_file_path):
+    """Playa spoken phrase"""
     try:
-        with open(os.devnull, "w") as fnull:
-            subprocess.call(command, stdout=fnull, stderr = fnull)
-    except KeyboardInterrupt:
-        pass
+      if not os.path.exists(tmp_sound_file_path + phrase):
+        tts = gtts.gTTS(text=phrase, lang='en')
+        tts.save(tmp_sound_file_path + phrase)
+      play_sound(tmp_sound_file_path + phrase)
+    except Exception as e:
+      eqa_settings.log('process_sound: Error on line ' +
+                        str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def alert(config, line_type):
@@ -79,11 +79,10 @@ def alert(config, line_type):
 
 
 def play_sound(sound):
-    """Plays sound from path passed in"""
+    """Play the sound given"""
     command = ["play", sound]
     try:
-        with open(os.devnull, "w") as fnull:
-            subprocess.call(command, stdout=fnull, stderr = fnull)
+      playsound(sound)
     except KeyboardInterrupt:
         pass
 
