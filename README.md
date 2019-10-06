@@ -2,9 +2,14 @@
 
 A Project 1999 log parser with NCurses interface for Linux
 
-![img](https://i.imgur.com/RDhSgdx.png)
-![img](https://i.imgur.com/J9iqSuR.png)
-![img](https://i.imgur.com/sZ2p9OI.png)
+![img](https://i.imgur.com/Pgo1eMk.png)
+![img](https://i.imgur.com/oj9Nv25.png)
+![img](https://i.imgur.com/TCLJ7v4.png)
+![img](https://i.imgur.com/a9GNMV3.png)
+
+> Best used with the [Linux EQ Launch Manager](https://gist.github.com/mgeitz/aa295061c51b26d53dd818d0ebb3e37a) to maintain reasonable log file size
+![img](https://i.imgur.com/rGL2sY7.png)
+
 
 ## Dependencies
     - pyinotify

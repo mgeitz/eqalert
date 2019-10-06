@@ -28,6 +28,7 @@ import time
 import threading
 import queue
 import os
+import sys
 
 import lib.eqa_parser as eqa_parse
 import lib.eqa_config as eqa_config
@@ -38,6 +39,7 @@ import lib.eqa_parser as eqa_parser
 import lib.eqa_struct as eqa_struct
 import lib.eqa_action as eqa_action
 import lib.eqa_keys as eqa_keys
+import lib.eqa_state as eqa_state
 
 
 def main():
@@ -65,8 +67,9 @@ def main():
   char = config["characters"]["default"]
   zone = "unavailable"
   char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
+  state = eqa_state.EQA_State(char, chars, zone, 'unavailable', 'false')
 
-  screen = eqa_curses.init(char, zone)
+  screen = eqa_curses.init(state)
 
   ## Consume keyboard events
   ## Produce keyoard_q
@@ -106,7 +109,7 @@ def main():
 
   ## Consume display_q
   process_display = threading.Thread(target=eqa_curses.display,
-            args  = (screen, display_q, zone, char, chars, exit_flag))
+            args  = (screen, display_q, state, raid, exit_flag))
   process_display.daemon = True
   process_display.start()
 
@@ -142,24 +145,26 @@ def main():
         if new_message.type == "system":
           # Update zone
           if new_message.tx == "zone":
-            zone = new_message.payload
+            state.set_zone(new_message.payload)
+          elif new_message.tx == "afk":
+            state.set_afk(new_message.payload)
           # Update character
-          elif new_message.tx == "new_character" and not new_message.payload == char:
+          elif new_message.tx == "new_character" and not new_message.payload == state.char:
             # Stop watch on previous character log
             log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
             # Set new character
-            char = new_message.payload
-            char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
+            state.set_char(new_message.payload)
+            char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + state.char.title() + "_project1999.txt"
             # Start new log watch
             log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
-            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + char))
-            sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + char))
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + state.char))
+            sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + state.char))
           # Reload config
           elif new_message.tx == "reload_config":
             # Reload config
             config = eqa_config.init()
             # Reread characters
-            chars = eqa_config.get_chars(config)
+            state.set_chars(eqa_config.get_chars(config))
             # Stop process_action and process_sound
             cfg_reload.set()
             process_action.join()
@@ -181,7 +186,8 @@ def main():
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', new_message.type + ': ' + new_message.payload))
 
   except Exception as e:
-    eqa_settings.log('main: ' + str(e))
+    eqa_settings.log('main: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
     pass
 
   # Exit
