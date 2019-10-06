@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: eqa_struct.py
+   File Name: eqa_state.py
    Copyright (C) 2019 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
@@ -16,14 +16,29 @@
    You should have received a copy of the GNU General Public License along
    with this program; if not, write to the Free Software Foundation, Inc.,
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+   Parse and react to eqemu logs
 """
 
-from collections import namedtuple
+class EQA_State:
+  def __init__(self, char, chars, zone, loc, afk):
+    self.char = char
+    self.chars = chars
+    self.zone = zone
+    self.loc = loc
+    self.afk = afk
 
-global display
-global sound
-global message
+  def set_char(self, char):
+    self.char = char
 
-message = namedtuple('data', ['timestamp', 'type', 'tx', 'rx', 'payload'])
-display = namedtuple('data', ['timestamp', 'type', 'screen', 'payload'])
-sound = namedtuple('data', ['sound', 'payload'])
+  def set_chars(self, chars):
+    self.chars = chars
+
+  def set_zone(self, zone):
+    self.zone = zone
+
+  def set_loc(self, loc):
+    self.loc = loc
+
+  def set_afk(self, afk):
+    self.afk = afk

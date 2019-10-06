@@ -50,6 +50,13 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
         # Line specific checks
         if line_type == "undetermined":
           undetermined_line(check_line)
+        if line_type.startswith("you_afk"):
+          if line_type == "you_afk_on":
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'You are now AFK'))
+            system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'afk', 'null', 'true'))
+          elif line_type == "you_afk_off":
+            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'You are no longer AFK'))
+            system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'afk', 'null', 'false'))
         if line_type == "you_new_zone":
           nz_iter = 0
           current_zone = ""
