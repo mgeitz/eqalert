@@ -15,7 +15,7 @@ setup(
     license='LICENSE.txt',
     entry_points={
         "console_scripts": [
-            "eqa = eqalert.__main__:main",
+            "eqalert = eqa.eqalert:main",
         ],
     },
     description='Parse and react to eqemu logs',
