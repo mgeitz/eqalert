@@ -22,8 +22,8 @@ import curses
 import time
 import sys
 
-import lib.eqa_settings as eqa_settings
-import lib.eqa_struct as eqa_struct
+import eqa.lib.eqa_settings as eqa_settings
+import eqa.lib.eqa_struct as eqa_struct
 
 def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spell_parse, raid, chars):
   """

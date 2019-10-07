@@ -22,13 +22,14 @@ import datetime
 import time
 import sys
 
-import lib.eqa_sound as eqa_sound
-import lib.eqa_struct as eqa_struct
-import lib.eqa_settings as eqa_settings
-import lib.eqa_config as eqa_config
+import eqa.lib.eqa_sound as eqa_sound
+import eqa.lib.eqa_struct as eqa_struct
+import eqa.lib.eqa_settings as eqa_settings
+import eqa.lib.eqa_config as eqa_config
 
 
-def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag, heal_parse, spell_parse, raid, cfg_reload, config):
+def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
+            heal_parse, spell_parse, raid, cfg_reload, config, base_path):
   """
     Process: action_q
     Produce: sound_q, display_q, system_q, heal_q, damage_q
@@ -49,7 +50,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
 
         # Line specific checks
         if line_type == "undetermined":
-          undetermined_line(check_line)
+          undetermined_line(check_line, base_path)
         if line_type.startswith("you_afk"):
           if line_type == "you_afk_on":
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'You are now AFK'))
@@ -69,7 +70,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'update', 'zone', current_zone))
           system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'zone', 'null', current_zone))
           if current_zone not in config["zones"].keys():
-            eqa_config.add_zone(current_zone)
+            eqa_config.add_zone(current_zone, base_path)
           elif current_zone in config["zones"].keys() and not raid.is_set():
             if config["zones"][current_zone] == "raid":
               raid.set()
@@ -143,7 +144,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
 
         # If line_type is not a parsable type
         else:
-          eqa_config.add_type(line_type)
+          eqa_config.add_type(line_type, base_path)
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'added: ' + line_type))
           config = eqa_config.read()
 
@@ -154,9 +155,9 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
   sys.exit()
 
 
-def undetermined_line(line):
+def undetermined_line(line, base_path):
   """Temp function to log undetermined log lines"""
-  f = open('./log/undetermined.txt', 'a')
+  f = open(base_path + 'log/undetermined.txt', 'a')
   f.write(line + '\n')
   f.close()
 
