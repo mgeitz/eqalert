@@ -24,19 +24,54 @@ $ cd eqalert
 $ pip3 setup.py install
 ```
 
+
 ## Getting Started
 
-At the moment, the only thing you _must_ do after first start is manually update your default log character in ~/.eqa/config
+Start things up
+```sh
+$ eqalert
+```
+
+You should now see `~/.eqa/` with the following structure
+```
+$HOME/.eqa
+        ⎿ config.json
+        ⎿ log/
+         ⎸  ⎿ eqalert.log
+        ⎿ sound/
+```
+
+Update your default character in `config.json`
+```
+    "characters": {
+        "default": "indefinite",
+        "indefinite": "true",
+        "indef": "true"
+    },
+```
+
+Spot check these paths in `config.json`
+```
+    "settings": {
+        "paths": {
+            "sound": "%ssound/",
+            "alert_log": "%slog/",
+            "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
+        },
+```
+
+Press `F12` to reload your config or restart the program, you're good to go!
+
 
 ## Controls
 
 Global:
-  - F1    : Display events
-  - F2    : Display state
-  - F3    : Display settings
-  - F4    : Display help
-  - q     : Quit
-  - esc   : Quit
+  - F1      : Events
+  - F2      : State
+  - F3      : Settings
+  - F4      : Help
+  - F12     : Reload config
+  - q / esc : Quit
 
 Events:
   - c     : Clear event box
@@ -48,17 +83,3 @@ Settings:
   - right : Toggle selection on
   - left  : Toggle selection off
   - space : Cycle selection
-
-
-## Modes
-
-  - Raid Mode
-    > speak all raid values in alert/guild in config
-    > toggle with 'r'
-    > auto-enables when zoning into 'raid' zone
-
-
-## Adding new sounds, triggers
-
-  - Add new sounds to `~/.eqa/sound/`
-  - Update `~/.eqa/config.json` with the new sound filename and any new triggers
