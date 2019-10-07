@@ -23,9 +23,9 @@ import os
 import time
 import sys
 
-import eqa.lib.eqa_struct as eqa_struct
-import eqa.lib.eqa_state as eqa_state
-import eqa.lib.eqa_settings as eqa_settings
+import lib.eqa_struct as eqa_struct
+import lib.eqa_state as eqa_state
+import lib.eqa_settings as eqa_settings
 
 def display(stdscr, display_q, state, raid, exit_flag):
   """

@@ -20,10 +20,10 @@
 
 from collections import deque
 import sys
-import time
 
-import eqa.lib.eqa_struct as eqa_struct
-import eqa.lib.eqa_settings as eqa_settings
+import lib.eqa_struct as eqa_struct
+import lib.eqa_settings as eqa_settings
+import time
 
 
 def last_line(character_log):
@@ -62,8 +62,7 @@ def process(exit_flag, log_q, action_q):
         action_q.put(new_message)
 
   except Exception as e:
-      eqa_settings.log('process_log: Error on line ' +
-                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+      eqa_settings.log('process_log: Error on line ' + str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def determine(line):
