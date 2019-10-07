@@ -69,7 +69,7 @@ function test_usage() {
 # Checks
 
 ## Ensure EQ Alert is running
-if [ -z $(pgrep -f eqalert.py) ]; then
+if [ -z $(pgrep -f eqalert) ]; then
   test_usage
   exit 0
 fi
