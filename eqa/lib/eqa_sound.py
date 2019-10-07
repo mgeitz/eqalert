@@ -24,8 +24,8 @@ import sys
 import gtts
 from playsound import playsound
 
-import lib.eqa_struct as eqa_struct
-import lib.eqa_settings as eqa_settings
+import eqa.lib.eqa_struct as eqa_struct
+import eqa.lib.eqa_settings as eqa_settings
 
 
 def process(config, sound_q, exit_flag, cfg_reload):

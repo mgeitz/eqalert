@@ -22,10 +22,10 @@ import datetime
 import time
 import sys
 
-import lib.eqa_sound as eqa_sound
-import lib.eqa_struct as eqa_struct
-import lib.eqa_settings as eqa_settings
-import lib.eqa_config as eqa_config
+import eqa.lib.eqa_sound as eqa_sound
+import eqa.lib.eqa_struct as eqa_struct
+import eqa.lib.eqa_settings as eqa_settings
+import eqa.lib.eqa_config as eqa_config
 
 
 def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,

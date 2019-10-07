@@ -31,16 +31,16 @@ import os
 import sys
 import shutil
 
-import lib.eqa_parser as eqa_parse
-import lib.eqa_config as eqa_config
-import lib.eqa_settings as eqa_settings
-import lib.eqa_curses as eqa_curses
-import lib.eqa_sound as eqa_sound
-import lib.eqa_parser as eqa_parser
-import lib.eqa_struct as eqa_struct
-import lib.eqa_action as eqa_action
-import lib.eqa_keys as eqa_keys
-import lib.eqa_state as eqa_state
+import eqa.lib.eqa_parser as eqa_parse
+import eqa.lib.eqa_config as eqa_config
+import eqa.lib.eqa_settings as eqa_settings
+import eqa.lib.eqa_curses as eqa_curses
+import eqa.lib.eqa_sound as eqa_sound
+import eqa.lib.eqa_parser as eqa_parser
+import eqa.lib.eqa_struct as eqa_struct
+import eqa.lib.eqa_action as eqa_action
+import eqa.lib.eqa_keys as eqa_keys
+import eqa.lib.eqa_state as eqa_state
 
 
 def main():
