@@ -22,19 +22,19 @@ import datetime
 import os
 
 
-def init(base_path):
+def init():
   """Read in config.json"""
 
-  if not os.path.isfile(base_path + 'config.json'):
-    build_config(base_path)
-  json_data = open(base_path + 'config.json', 'r')
+  if not os.path.isfile('config.json'):
+    build_config()
+  json_data = open('config.json', 'r')
   config = json.load(json_data)
 
   json_data.close()
   return config
 
 
-def get_chars(config, base_path):
+def get_chars(config):
   """Return known characters"""
 
   chars = []
@@ -43,7 +43,7 @@ def get_chars(config, base_path):
     if "eqlog_" in logs and "_project1999.txt" in logs:
       first, name, end = logs.split("_")
       if name.lower() not in config["characters"].keys():
-        add_char(name.lower(), chars, base_path)
+        add_char(name.lower(), chars)
 
   for toon in config["characters"].keys():
     if toon != "default":
@@ -55,10 +55,10 @@ def get_chars(config, base_path):
     return chars
 
 
-def add_char(name, chars, base_path):
+def add_char(name, chars):
   """Adds a new character to the config"""
 
-  json_data = open(base_path + 'config.json', 'r+')
+  json_data = open('config.json', 'r+')
   data = json.load(json_data)
   data["characters"].update({name.lower():"true"})
   chars.append(name.lower())
@@ -67,10 +67,10 @@ def add_char(name, chars, base_path):
   json_data.close()
 
 
-def add_type(line_type, base_path):
+def add_type(line_type):
   """Adds default setting values for new line_type"""
 
-  json_data = open(base_path + 'config.json', 'r+')
+  json_data = open('config.json', 'r+')
   data = json.load(json_data)
   data["settings"]["sound_settings"].update({line_type:"0"})
   data["settings"]["check_line_type"].update({line_type:"true"})
@@ -80,10 +80,10 @@ def add_type(line_type, base_path):
   json_data.close()
 
 
-def add_zone(zone, base_path):
+def add_zone(zone):
   """Adds default setting values for new zones"""
 
-  json_data = open(base_path + 'config.json', 'r+')
+  json_data = open('config.json', 'r+')
   data = json.load(json_data)
   data["zones"].update({zone:"false"})
   json_data.seek(0)
@@ -91,9 +91,10 @@ def add_zone(zone, base_path):
   json_data.close()
 
 
-def build_config(base_path):
+def build_config():
   """Build a default config"""
 
+  cwd = os.getcwd()
   home = os.path.expanduser("~")
 
   new_config = """
@@ -287,8 +288,8 @@ def build_config(base_path):
     },
     "settings": {
         "paths": {
-            "sound": "%ssound/",
-            "alert_log": "%slog/",
+            "sound": "%s/sound/",
+            "alert_log": "%s/log/",
             "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
         },
         "sound_settings": {
@@ -362,11 +363,11 @@ def build_config(base_path):
             "spell_regen": "0"
         },
         "sounds": {
-            "1": "hey.wav",
-            "3": "look.wav",
-            "2": "listen.wav",
-            "5": "hello.wav",
-            "4": "watchout.wav"
+            "1": "OOT_Navi_Hey1.wav",
+            "3": "OOT_Navi_Look1.wav",
+            "2": "OOT_Navi_Listen1.wav",
+            "5": "OOT_Navi_Hello1.wav",
+            "4": "OOT_Navi_WatchOut1.wav"
         },
         "check_line_type": {
             "mysterious_oner": "false",
@@ -442,7 +443,7 @@ def build_config(base_path):
 }
 """
 
-  print(new_config % (base_path, base_path, home), file=open(base_path + 'config.json', 'a'))
+  print(new_config % (cwd, cwd, home), file=open("config.json", "a"))
 
 if __name__ == '__main__':
   main()
