@@ -42,6 +42,21 @@ import eqa.lib.eqa_action as eqa_action
 import eqa.lib.eqa_keys as eqa_keys
 import eqa.lib.eqa_state as eqa_state
 
+def bootstrap(base_path):
+  """Bootstrap first run"""
+  os.makedirs(base_path)
+  if not os.path.exists(base_path + 'log/'):
+    os.makedirs(base_path + 'log/')
+  if not os.path.exists(base_path + 'sound/'):
+    os.makedirs(base_path + 'sound/')
+    shutil.copy('../sound/hello.wav', base_path + 'sound/')
+    shutil.copy('../sound/hey.wav', base_path + 'sound/')
+    shutil.copy('../sound/listen.wav', base_path + 'sound/')
+    shutil.copy('../sound/look.wav', base_path + 'sound/')
+    shutil.copy('../sound/watchout.wav', base_path + 'sound/')
+    tmp_config = eqa_config.init(base_path)
+    tmp_chars = eqa_config.get_chars(tmp_config, base_path)
+    eqa_config.set_default_char = tmp_chars[0]
 
 def main():
   """Main method, does the good stuff"""
@@ -60,16 +75,7 @@ def main():
   home = os.path.expanduser("~")
   base_path = home + '/.eqa/'
   if not os.path.exists(base_path):
-    os.makedirs(base_path)
-    if not os.path.exists(base_path + 'log/'):
-      os.makedirs(base_path + 'log/')
-    if not os.path.exists(base_path + 'sound/'):
-      os.makedirs(base_path + 'sound/')
-      shutil.copy('../sound/hello.wav', base_path + 'sound/')
-      shutil.copy('../sound/hey.wav', base_path + 'sound/')
-      shutil.copy('../sound/listen.wav', base_path + 'sound/')
-      shutil.copy('../sound/look.wav', base_path + 'sound/')
-      shutil.copy('../sound/watchout.wav', base_path + 'sound/')
+    bootstrap(base_path)
   logging.basicConfig(filename=base_path + 'log/eqalert.log', level=logging.INFO)
   raid = threading.Event()
   cfg_reload = threading.Event()

@@ -7,7 +7,7 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='eqalert',
-    version='1.2.0',
+    version='1.2.1',
     author='Michael Geitz',
     author_email='git@geitz.xyz',
     install_requires=[

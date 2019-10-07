@@ -67,6 +67,17 @@ def add_char(name, chars, base_path):
   json_data.close()
 
 
+def set_default_char(name, base_path):
+  """Set a new default character"""
+
+  json_data = open(base_path + 'config.json', 'r+')
+  data = json.load(json_data)
+  data["characters"]["default"].update({name.lower():"true"})
+  json_data.seek(0)
+  json.dump(data, json_data, indent = 4)
+  json_data.close()
+
+
 def add_type(line_type, base_path):
   """Adds default setting values for new line_type"""
 
@@ -282,8 +293,7 @@ def build_config(base_path):
         "spell_regen": {}
     },
     "characters": {
-        "default": "change",
-        "change": "true"
+        "default": "foobar"
     },
     "settings": {
         "paths": {
