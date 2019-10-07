@@ -11,7 +11,7 @@
 # Variables
 
 ## Things worth changing
-CONFIG_PATH="$HOME/.eqa/config.json"
+CONFIG_PATH="$HOME/project/eqalert/config.json"
 
 ## Paths
 EQ_LOGS=$(jq '.settings.paths.char_log' ${CONFIG_PATH})

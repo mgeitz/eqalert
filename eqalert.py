@@ -29,18 +29,17 @@ import threading
 import queue
 import os
 import sys
-import shutil
 
-import eqa.lib.eqa_parser as eqa_parse
-import eqa.lib.eqa_config as eqa_config
-import eqa.lib.eqa_settings as eqa_settings
-import eqa.lib.eqa_curses as eqa_curses
-import eqa.lib.eqa_sound as eqa_sound
-import eqa.lib.eqa_parser as eqa_parser
-import eqa.lib.eqa_struct as eqa_struct
-import eqa.lib.eqa_action as eqa_action
-import eqa.lib.eqa_keys as eqa_keys
-import eqa.lib.eqa_state as eqa_state
+import lib.eqa_parser as eqa_parse
+import lib.eqa_config as eqa_config
+import lib.eqa_settings as eqa_settings
+import lib.eqa_curses as eqa_curses
+import lib.eqa_sound as eqa_sound
+import lib.eqa_parser as eqa_parser
+import lib.eqa_struct as eqa_struct
+import lib.eqa_action as eqa_action
+import lib.eqa_keys as eqa_keys
+import lib.eqa_state as eqa_state
 
 
 def main():
@@ -57,27 +56,14 @@ def main():
   damage_q = queue.Queue()
 
   # Build initial state
-  home = os.path.expanduser("~")
-  base_path = home + '/.eqa/'
-  if not os.path.exists(base_path):
-    os.makedirs(base_path)
-    if not os.path.exists(base_path + 'log/'):
-      os.makedirs(base_path + 'log/')
-    if not os.path.exists(base_path + 'sound/'):
-      os.makedirs(base_path + 'sound/')
-      shutil.copy('../sound/hello.wav', base_path + 'sound/')
-      shutil.copy('../sound/hey.wav', base_path + 'sound/')
-      shutil.copy('../sound/listen.wav', base_path + 'sound/')
-      shutil.copy('../sound/look.wav', base_path + 'sound/')
-      shutil.copy('../sound/watchout.wav', base_path + 'sound/')
-  logging.basicConfig(filename=base_path + 'log/eqalert.log', level=logging.INFO)
+  logging.basicConfig(filename='./log/eqalert.log', level=logging.DEBUG)
   raid = threading.Event()
   cfg_reload = threading.Event()
   heal_parse = threading.Event()
   spell_parse = threading.Event()
   exit_flag = threading.Event()
-  config = eqa_config.init(base_path)
-  chars = eqa_config.get_chars(config, base_path)
+  config = eqa_config.init()
+  chars = eqa_config.get_chars(config)
   char = config["characters"]["default"]
   zone = "unavailable"
   char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
@@ -111,8 +97,7 @@ def main():
   ## Produce display_q, sound_q, system_q, heal_q, damage_q
   process_action  = threading.Thread(target=eqa_action.process,
             args  = (action_q, system_q, display_q, sound_q, heal_q, damage_q,
-                      exit_flag, heal_parse, spell_parse, raid, cfg_reload,
-                      config, base_path))
+                      exit_flag, heal_parse, spell_parse, raid, cfg_reload, config))
   process_action.daemon = True
   process_action.start()
 
@@ -179,7 +164,7 @@ def main():
             # Reload config
             config = eqa_config.init()
             # Reread characters
-            state.set_chars(eqa_config.get_chars(config, base_path))
+            state.set_chars(eqa_config.get_chars(config))
             # Stop process_action and process_sound
             cfg_reload.set()
             process_action.join()

@@ -1,4 +1,6 @@
-dist/*
-MANIFEST
-build/*
+log/*
+!log/.gitkeep
+sound/*
+!sound/.gitkeep
 *.pyc
+config.json

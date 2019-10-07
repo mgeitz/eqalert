@@ -11,23 +11,46 @@ A Project 1999 log parser with NCurses interface for Linux
 ![img](https://i.imgur.com/rGL2sY7.png)
 
 
-## Install
+## Dependencies
+    - pyinotify
+    - espeak
+    - mbrola
+    - sox
+    - python 3.7
 
-```sh
-$ pip install eqalert
+### Install dependencies
+
+#### Debian
+```
+$ sudo apt-get update && \
+  sudo apt-get install \
+    python3 \
+    python3-pip \
+    espeak && \
+  sudo pip3 install pyinotify
 ```
 
-## Manual Install
+### Install Mbrola
 
-```sh
-$ git clone git@github.com:mgeitz/eqalert.git
-$ cd eqalert
-$ pip3 setup.py install
+```
+$ mkdir /tmp/tmp_mbrola
+$ cd /tmp/tmp_mbrola
+$ wget http://www.tcts.fpms.ac.be/synthesis/mbrola/bin/pclinux/mbr301h.zip
+$ unzip mbr301h.zip
+$ sudo cp mbrola-linux-i386 /usr/bin/mbrola
+$ wget http://www.tcts.fpms.ac.be/synthesis/mbrola/dba/en1/en1-980910.zip
+$ unzip en1-980910.zip
+$ sudo mkdir /usr/share/mbrola
+$ sudo cp en1/en1 /usr/share/mbrola/en1
+$ cd ..
+$ rm -rf /tmp/tmp_mbrola/
 ```
 
 ## Getting Started
 
-At the moment, the only thing you _must_ do after first start is manually update your default log character in ~/.eqa/config
+  - Populate settings/paths, settings/sounds, characters/default
+  - Add sounds added in settings/sounds to sounds directory
+
 
 ## Controls
 
