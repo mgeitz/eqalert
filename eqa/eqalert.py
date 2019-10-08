@@ -44,27 +44,32 @@ import eqa.lib.eqa_state as eqa_state
 def bootstrap(base_path):
   """Bootstrap first run"""
 
-  # This might take a few seconds..
-  print("Bootstrapping . . .")
+  try:
+    # This might take a few seconds..
+    print("Bootstrapping for first run . . .")
 
-  # Make the main folder
-  os.makedirs(base_path)
+    # Make the main folder
+    os.makedirs(base_path)
 
-  # Make the log folder
-  if not os.path.exists(base_path + 'log/'):
-    os.makedirs(base_path + 'log/')
+    # Make the log folder
+    if not os.path.exists(base_path + 'log/'):
+      os.makedirs(base_path + 'log/')
 
-  # Make some sounds
-  if not os.path.exists(base_path + 'sound/'):
-    os.makedirs(base_path + 'sound/')
-    eqa_sound.pre_speak('hello', base_path + 'sound/')
-    eqa_sound.pre_speak('hey', base_path + 'sound/')
-    eqa_sound.pre_speak('listen', base_path + 'sound/')
-    eqa_sound.pre_speak('look', base_path + 'sound/')
-    eqa_sound.pre_speak('watch out', base_path + 'sound/')
-    tmp_config = eqa_config.init(base_path)
-    tmp_chars = eqa_config.get_chars(tmp_config, base_path)
-    eqa_config.set_default_char = tmp_chars[0]
+    # Make some sounds
+    if not os.path.exists(base_path + 'sound/'):
+      os.makedirs(base_path + 'sound/')
+      eqa_sound.pre_speak('hello', base_path + 'sound/')
+      eqa_sound.pre_speak('hey', base_path + 'sound/')
+      eqa_sound.pre_speak('listen', base_path + 'sound/')
+      eqa_sound.pre_speak('look', base_path + 'sound/')
+      eqa_sound.pre_speak('watch out', base_path + 'sound/')
+      tmp_config = eqa_config.init(base_path)
+      tmp_chars = eqa_config.get_chars(tmp_config, base_path)
+      eqa_config.set_default_char = tmp_chars[1]
+
+  except Exception as e:
+    print('Unfortunately, the bootstrap step failed with ' + str(e))
+
 
 def main():
   """Main method, does the good stuff"""

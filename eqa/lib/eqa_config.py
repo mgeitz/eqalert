@@ -91,7 +91,7 @@ def set_default_char(name, base_path):
   try:
     json_data = open(base_path + 'config.json', 'r+')
     data = json.load(json_data)
-    data["characters"]["default"].update({name.lower()})
+    data["characters"].update({"default":name.lower()})
     json_data.seek(0)
     json.dump(data, json_data, indent = 4)
     json_data.close()
