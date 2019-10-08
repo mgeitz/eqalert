@@ -29,7 +29,6 @@ import threading
 import queue
 import os
 import sys
-import shutil
 
 import eqa.lib.eqa_parser as eqa_parse
 import eqa.lib.eqa_config as eqa_config
@@ -44,16 +43,22 @@ import eqa.lib.eqa_state as eqa_state
 
 def bootstrap(base_path):
   """Bootstrap first run"""
+
+  # Make the main folder
   os.makedirs(base_path)
+
+  # Make the log folder
   if not os.path.exists(base_path + 'log/'):
     os.makedirs(base_path + 'log/')
+
+  # Make some sounds
   if not os.path.exists(base_path + 'sound/'):
     os.makedirs(base_path + 'sound/')
-    shutil.copy('../sound/hello.wav', base_path + 'sound/')
-    shutil.copy('../sound/hey.wav', base_path + 'sound/')
-    shutil.copy('../sound/listen.wav', base_path + 'sound/')
-    shutil.copy('../sound/look.wav', base_path + 'sound/')
-    shutil.copy('../sound/watchout.wav', base_path + 'sound/')
+    eqa_sound.pre_speak('hello', base_path + 'sound/')
+    eqa_sound.pre_speak('hey', base_path + 'sound/')
+    eqa_sound.pre_speak('listen', base_path + 'sound/')
+    eqa_sound.pre_speak('look', base_path + 'sound/')
+    eqa_sound.pre_speak('watch out', base_path + 'sound/')
     tmp_config = eqa_config.init(base_path)
     tmp_chars = eqa_config.get_chars(tmp_config, base_path)
     eqa_config.set_default_char = tmp_chars[0]

@@ -376,7 +376,7 @@ def build_config(base_path):
             "3": "look.wav",
             "2": "listen.wav",
             "5": "hello.wav",
-            "4": "watchout.wav"
+            "4": "watch out.wav"
         },
         "check_line_type": {
             "mysterious_oner": "false",
