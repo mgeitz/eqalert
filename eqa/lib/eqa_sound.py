@@ -54,7 +54,8 @@ def process(config, sound_q, exit_flag, cfg_reload):
           speak(sound_event.payload, tmp_sound_file_path)
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "[Malformed sound event] " + sound_event.sound))
   except Exception as e:
-    eqa_settings.log('process_sound: ' + str(e))
+    eqa_settings.log('process_sound: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
     sys.exit()
 
   sys.exit()
@@ -74,10 +75,10 @@ def pre_speak(phrase, sound_file_path):
 def speak(phrase, tmp_sound_file_path):
   """Playa spoken phrase"""
   try:
-    if not os.path.exists(tmp_sound_file_path + phrase):
+    if not os.path.exists(tmp_sound_file_path + phrase + '.wav'):
       tts = gtts.gTTS(text=phrase, lang='en')
-      tts.save(tmp_sound_file_path + phrase)
-      play_sound(tmp_sound_file_path + phrase)
+      tts.save(tmp_sound_file_path + phrase + '.wav')
+    play_sound(tmp_sound_file_path + phrase + '.wav')
   except Exception as e:
     eqa_settings.log('speak: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))

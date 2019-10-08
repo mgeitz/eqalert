@@ -44,6 +44,9 @@ import eqa.lib.eqa_state as eqa_state
 def bootstrap(base_path):
   """Bootstrap first run"""
 
+  # This might take a few seconds..
+  print("Bootstrapping . . .")
+
   # Make the main folder
   os.makedirs(base_path)
 
@@ -147,7 +150,8 @@ def main():
       if event.mask == pyinotify.IN_CLOSE_WRITE:
         log_q.put(eqa_parser.last_line(char_log))
     except Exception as e:
-      eqa_settings.log('watch callback: ' + str(e))
+      eqa_settings.log('log watch callback: Error on line ' +
+                        str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
   log_watch = pyinotify.WatchManager()
   log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)

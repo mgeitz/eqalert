@@ -97,7 +97,7 @@ def draw_page(stdscr, page, events, state, setting, selected_char, raid):
       elif page == 'state':
         draw_state(stdscr, state, raid)
       elif page == 'settings':
-        draw_settings(stdscr, state.chars, state.char, setting, selected_char)
+        draw_settings(stdscr, state, setting, selected_char)
       elif page == 'help':
         draw_help(stdscr)
     else:
