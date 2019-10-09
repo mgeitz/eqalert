@@ -52,12 +52,12 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
         if line_type == "undetermined":
           undetermined_line(check_line, base_path)
         if line_type == "location":
-          loc = [float(check_line[3].replace(',', '')),
-                 float(check_line[4].replace(',', '')),
-                 float(check_line[5].replace(',', ''))]
+          loc = [float(check_line_list[3].replace(',', '')),
+                 float(check_line_list[4].replace(',', '')),
+                 float(check_line_list[5].replace(',', ''))]
           system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'loc', 'null', loc))
         elif line_type == "direction":
-          direction = check_line_list{-1:}.replace('.', ''))
+          direction = check_line_list[-1].replace('.', '')
           system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'direction', 'null', direction))
         elif line_type.startswith("you_afk"):
           if line_type == "you_afk_on":
@@ -154,7 +154,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
         else:
           eqa_config.add_type(line_type, base_path)
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'added: ' + line_type))
-          config = eqa_config.read()
+          system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'reload_config', 'null', 'null'))
 
   except Exception as e:
     eqa_settings.log('process action: Error on line ' +

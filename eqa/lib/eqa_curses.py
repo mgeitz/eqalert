@@ -290,11 +290,11 @@ def draw_state(stdscr, state, raid):
     # loc
     stdscr.addstr(9, 5, 'Location', curses.color_pair(2))
     stdscr.addstr(9, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(9, 18, state.loc[0], curses.color_pair(3))
+    stdscr.addstr(9, 18, str(state.loc[0]), curses.color_pair(3))
     stdscr.addstr(9, 24, ' : ', curses.color_pair(2))
-    stdscr.addstr(9, 26, state.loc[1], curses.color_pair(3))
+    stdscr.addstr(9, 26, str(state.loc[1]), curses.color_pair(3))
     stdscr.addstr(9, 32, ' : ', curses.color_pair(2))
-    stdscr.addstr(9, 34, state.loc[2], curses.color_pair(3))
+    stdscr.addstr(9, 34, str(state.loc[2]), curses.color_pair(3))
 
     # direction
     stdscr.addstr(11, 5, 'AFK', curses.color_pair(2))

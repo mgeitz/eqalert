@@ -323,7 +323,10 @@ def build_config(base_path):
         "melee_hit": {},
         "faction_line": {},
         "spell_resist": {},
-        "spell_regen": {}
+        "spell_regen": {},
+        "location": {},
+        "direction": {},
+        "direction_miss": {}
     },
     "characters": {
         "default": "foobar"
@@ -402,7 +405,10 @@ def build_config(base_path):
             "melee_hit": "2",
             "faction_line": "0",
             "spell_resist": "0",
-            "spell_regen": "0"
+            "spell_regen": "0",
+            "location": "0",
+            "direction": "0",
+            "direction_miss": "0"
         },
         "sounds": {
             "1": "hey.wav",
@@ -479,7 +485,10 @@ def build_config(base_path):
             "melee_hit": "false",
             "faction_line": "false",
             "spell_resist": "true",
-            "spell_regen": "true"
+            "spell_regen": "true",
+            "location": "true",
+            "direction": "true",
+            "direction_miss": "true"
         }
     }
 }

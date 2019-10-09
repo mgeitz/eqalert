@@ -45,7 +45,6 @@ def bootstrap(base_path):
   """Bootstrap first run"""
 
   try:
-    # This might take a few seconds..
     print("Bootstrapping for first run . . .")
 
     # Make the main folder
@@ -63,9 +62,11 @@ def bootstrap(base_path):
       eqa_sound.pre_speak('listen', base_path + 'sound/')
       eqa_sound.pre_speak('look', base_path + 'sound/')
       eqa_sound.pre_speak('watch out', base_path + 'sound/')
-      tmp_config = eqa_config.init(base_path)
-      tmp_chars = eqa_config.get_chars(tmp_config, base_path)
-      eqa_config.set_default_char = tmp_chars[1]
+
+    # Set default character
+    tmp_config = eqa_config.init(base_path)
+    tmp_chars = eqa_config.get_chars(tmp_config, base_path)
+    eqa_config.set_default_char(tmp_chars[0], base_path)
 
   except Exception as e:
     print('Unfortunately, the bootstrap step failed with ' + str(e))
@@ -84,25 +85,26 @@ def main():
   heal_q = queue.Queue()
   damage_q = queue.Queue()
 
-  # Build initial state
+  # Bootstraps bootstraps
   home = os.path.expanduser("~")
   base_path = home + '/.eqa/'
   if not os.path.exists(base_path):
     bootstrap(base_path)
-  logging.basicConfig(filename=base_path + 'log/eqalert.log', level=logging.INFO)
+
+  # Thread Events
   raid = threading.Event()
   cfg_reload = threading.Event()
   heal_parse = threading.Event()
   spell_parse = threading.Event()
   exit_flag = threading.Event()
+
+  # Build initial state
+  logging.basicConfig(filename=base_path + 'log/eqalert.log', level=logging.INFO)
   config = eqa_config.init(base_path)
   chars = eqa_config.get_chars(config, base_path)
   char = config["characters"]["default"]
-  char_log = config["settings"]["paths"]["char_log"] +
-               "eqlog_" + char.title() + "_project1999.txt"
-  state = eqa_state.EQA_State(char, chars, 'unavailable', [0.00, 0.00, 0.00],
-                              'unavailable', 'false')
-
+  char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
+  state = eqa_state.EQA_State(char, chars, 'unavailable', [0.00, 0.00, 0.00], 'unavailable', 'false')
   screen = eqa_curses.init(state)
 
   ## Consume keyboard events
@@ -159,11 +161,15 @@ def main():
       eqa_settings.log('log watch callback: Error on line ' +
                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
-  log_watch = pyinotify.WatchManager()
-  log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
-  log_notifier = pyinotify.ThreadedNotifier(log_watch)
-  log_notifier.daemon = True
-  log_notifier.start()
+  try:
+    log_watch = pyinotify.WatchManager()
+    log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
+    log_notifier = pyinotify.ThreadedNotifier(log_watch)
+    log_notifier.daemon = True
+    log_notifier.start()
+  except Exception as e:
+    eqa_settings.log('log watch callback: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
   # And we're on
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
