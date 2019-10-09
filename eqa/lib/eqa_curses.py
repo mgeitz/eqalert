@@ -290,12 +290,16 @@ def draw_state(stdscr, state, raid):
     # loc
     stdscr.addstr(9, 5, 'Location', curses.color_pair(2))
     stdscr.addstr(9, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(9, 18, state.loc, curses.color_pair(3))
+    stdscr.addstr(9, 18, state.loc[0], curses.color_pair(3))
+    stdscr.addstr(9, 24, ' : ', curses.color_pair(2))
+    stdscr.addstr(9, 26, state.loc[1], curses.color_pair(3))
+    stdscr.addstr(9, 32, ' : ', curses.color_pair(2))
+    stdscr.addstr(9, 34, state.loc[2], curses.color_pair(3))
 
-    # afk state
+    # direction
     stdscr.addstr(11, 5, 'AFK', curses.color_pair(2))
     stdscr.addstr(11, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(11, 18, state.afk.title(), curses.color_pair(3))
+    stdscr.addstr(11, 18, state.direction.title(), curses.color_pair(3))
 
     # raid state
     stdscr.addstr(13, 5, 'Raid', curses.color_pair(2))
@@ -304,6 +308,12 @@ def draw_state(stdscr, state, raid):
       stdscr.addstr(13, 18, 'False', curses.color_pair(3))
     else:
       stdscr.addstr(13, 18, 'True', curses.color_pair(3))
+
+    # afk state
+    stdscr.addstr(15, 5, 'AFK', curses.color_pair(2))
+    stdscr.addstr(15, 16, ': ', curses.color_pair(1))
+    stdscr.addstr(15, 18, state.afk.title(), curses.color_pair(3))
+
   except Exception as e:
       eqa_settings.log('draw state: Error on line ' +
                         str(sys.exc_info()[-1].tb_lineno) + ': '  + str(e))

@@ -98,9 +98,10 @@ def main():
   config = eqa_config.init(base_path)
   chars = eqa_config.get_chars(config, base_path)
   char = config["characters"]["default"]
-  zone = "unavailable"
-  char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
-  state = eqa_state.EQA_State(char, chars, zone, 'unavailable', 'false')
+  char_log = config["settings"]["paths"]["char_log"] +
+               "eqlog_" + char.title() + "_project1999.txt"
+  state = eqa_state.EQA_State(char, chars, 'unavailable', [0.00, 0.00, 0.00],
+                              'unavailable', 'false')
 
   screen = eqa_curses.init(state)
 
@@ -181,8 +182,15 @@ def main():
           # Update zone
           if new_message.tx == "zone":
             state.set_zone(new_message.payload)
+          # Update afk status
           elif new_message.tx == "afk":
             state.set_afk(new_message.payload)
+          # Update location
+          elif new_message.tx == "loc":
+            state.set_loc(new_message.payload)
+          # Update direction
+          elif new_message.tx == "direction":
+            state.set_direction(new_message.payload)
           # Update character
           elif new_message.tx == "new_character" and not new_message.payload == state.char:
             # Stop watch on previous character log
