@@ -48,14 +48,17 @@ def bootstrap(base_path):
     print("Bootstrapping for first run . . .")
 
     # Make the main folder
+    print("    - putting this stuff in " + base_path)
     os.makedirs(base_path)
 
     # Make the log folder
     if not os.path.exists(base_path + 'log/'):
+      print("    - making a place for logs")
       os.makedirs(base_path + 'log/')
 
     # Make some sounds
     if not os.path.exists(base_path + 'sound/'):
+      print("    - making sound sounds")
       os.makedirs(base_path + 'sound/')
       eqa_sound.pre_speak('hello', base_path + 'sound/')
       eqa_sound.pre_speak('hey', base_path + 'sound/')
@@ -64,6 +67,7 @@ def bootstrap(base_path):
       eqa_sound.pre_speak('watch out', base_path + 'sound/')
 
     # Set default character
+      print("    - setting a default character")
     tmp_config = eqa_config.init(base_path)
     tmp_chars = eqa_config.get_chars(tmp_config, base_path)
     eqa_config.set_default_char(tmp_chars[0], base_path)
@@ -74,6 +78,10 @@ def bootstrap(base_path):
 
 def main():
   """Main method, does the good stuff"""
+
+  # Paths
+  home = os.path.expanduser("~")
+  base_path = home + '/.eqa/'
 
   # Queues
   keyboard_q = queue.Queue()
@@ -86,8 +94,6 @@ def main():
   damage_q = queue.Queue()
 
   # Bootstraps bootstraps
-  home = os.path.expanduser("~")
-  base_path = home + '/.eqa/'
   if not os.path.exists(base_path):
     bootstrap(base_path)
 
@@ -105,6 +111,13 @@ def main():
   char = config["characters"]["default"]
   char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
   state = eqa_state.EQA_State(char, chars, 'unavailable', [0.00, 0.00, 0.00], 'unavailable', 'false')
+
+  # Sanity check
+  if not os.path.exists(char_log):
+    print('Please review your `settings > paths` settings in config.json')
+    exit(1)
+
+  # Turn on the lights
   screen = eqa_curses.init(state)
 
   ## Consume keyboard events
