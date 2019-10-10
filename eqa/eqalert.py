@@ -29,7 +29,6 @@ import threading
 import queue
 import os
 import sys
-import shutil
 
 import eqa.lib.eqa_parser as eqa_parse
 import eqa.lib.eqa_config as eqa_config
@@ -41,6 +40,36 @@ import eqa.lib.eqa_struct as eqa_struct
 import eqa.lib.eqa_action as eqa_action
 import eqa.lib.eqa_keys as eqa_keys
 import eqa.lib.eqa_state as eqa_state
+
+def bootstrap(base_path):
+  """Bootstrap first run"""
+
+  try:
+    print("Bootstrapping for first run . . .")
+
+    # Make the main folder
+    os.makedirs(base_path)
+
+    # Make the log folder
+    if not os.path.exists(base_path + 'log/'):
+      os.makedirs(base_path + 'log/')
+
+    # Make some sounds
+    if not os.path.exists(base_path + 'sound/'):
+      os.makedirs(base_path + 'sound/')
+      eqa_sound.pre_speak('hello', base_path + 'sound/')
+      eqa_sound.pre_speak('hey', base_path + 'sound/')
+      eqa_sound.pre_speak('listen', base_path + 'sound/')
+      eqa_sound.pre_speak('look', base_path + 'sound/')
+      eqa_sound.pre_speak('watch out', base_path + 'sound/')
+
+    # Set default character
+    tmp_config = eqa_config.init(base_path)
+    tmp_chars = eqa_config.get_chars(tmp_config, base_path)
+    eqa_config.set_default_char(tmp_chars[0], base_path)
+
+  except Exception as e:
+    print('Unfortunately, the bootstrap step failed with ' + str(e))
 
 
 def main():
@@ -56,33 +85,26 @@ def main():
   heal_q = queue.Queue()
   damage_q = queue.Queue()
 
-  # Build initial state
+  # Bootstraps bootstraps
   home = os.path.expanduser("~")
   base_path = home + '/.eqa/'
   if not os.path.exists(base_path):
-    os.makedirs(base_path)
-    if not os.path.exists(base_path + 'log/'):
-      os.makedirs(base_path + 'log/')
-    if not os.path.exists(base_path + 'sound/'):
-      os.makedirs(base_path + 'sound/')
-      shutil.copy('../sound/hello.wav', base_path + 'sound/')
-      shutil.copy('../sound/hey.wav', base_path + 'sound/')
-      shutil.copy('../sound/listen.wav', base_path + 'sound/')
-      shutil.copy('../sound/look.wav', base_path + 'sound/')
-      shutil.copy('../sound/watchout.wav', base_path + 'sound/')
-  logging.basicConfig(filename=base_path + 'log/eqalert.log', level=logging.INFO)
+    bootstrap(base_path)
+
+  # Thread Events
   raid = threading.Event()
   cfg_reload = threading.Event()
   heal_parse = threading.Event()
   spell_parse = threading.Event()
   exit_flag = threading.Event()
+
+  # Build initial state
+  logging.basicConfig(filename=base_path + 'log/eqalert.log', level=logging.INFO)
   config = eqa_config.init(base_path)
   chars = eqa_config.get_chars(config, base_path)
   char = config["characters"]["default"]
-  zone = "unavailable"
   char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
-  state = eqa_state.EQA_State(char, chars, zone, 'unavailable', 'false')
-
+  state = eqa_state.EQA_State(char, chars, 'unavailable', [0.00, 0.00, 0.00], 'unavailable', 'false')
   screen = eqa_curses.init(state)
 
   ## Consume keyboard events
@@ -136,13 +158,18 @@ def main():
       if event.mask == pyinotify.IN_CLOSE_WRITE:
         log_q.put(eqa_parser.last_line(char_log))
     except Exception as e:
-      eqa_settings.log('watch callback: ' + str(e))
+      eqa_settings.log('log watch callback: Error on line ' +
+                        str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
-  log_watch = pyinotify.WatchManager()
-  log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
-  log_notifier = pyinotify.ThreadedNotifier(log_watch)
-  log_notifier.daemon = True
-  log_notifier.start()
+  try:
+    log_watch = pyinotify.WatchManager()
+    log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
+    log_notifier = pyinotify.ThreadedNotifier(log_watch)
+    log_notifier.daemon = True
+    log_notifier.start()
+  except Exception as e:
+    eqa_settings.log('log watch callback: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
   # And we're on
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
@@ -161,8 +188,15 @@ def main():
           # Update zone
           if new_message.tx == "zone":
             state.set_zone(new_message.payload)
+          # Update afk status
           elif new_message.tx == "afk":
             state.set_afk(new_message.payload)
+          # Update location
+          elif new_message.tx == "loc":
+            state.set_loc(new_message.payload)
+          # Update direction
+          elif new_message.tx == "direction":
+            state.set_direction(new_message.payload)
           # Update character
           elif new_message.tx == "new_character" and not new_message.payload == state.char:
             # Stop watch on previous character log

@@ -97,7 +97,7 @@ def draw_page(stdscr, page, events, state, setting, selected_char, raid):
       elif page == 'state':
         draw_state(stdscr, state, raid)
       elif page == 'settings':
-        draw_settings(stdscr, state.chars, state.char, setting, selected_char)
+        draw_settings(stdscr, state, setting, selected_char)
       elif page == 'help':
         draw_help(stdscr)
     else:
@@ -280,32 +280,46 @@ def draw_state(stdscr, state, raid):
     # char
     stdscr.addstr(5, 5, 'Character', curses.color_pair(2))
     stdscr.addstr(5, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(5, 18, state.char, curses.color_pair(3))
+    stdscr.addstr(5, 18, state.char.title(), curses.color_pair(3))
+
     # zone
     stdscr.addstr(7, 5, 'Zone', curses.color_pair(2))
     stdscr.addstr(7, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(7, 18, state.zone, curses.color_pair(3))
+    stdscr.addstr(7, 18, state.zone.title(), curses.color_pair(3))
+
     # loc
     stdscr.addstr(9, 5, 'Location', curses.color_pair(2))
     stdscr.addstr(9, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(9, 18, state.loc, curses.color_pair(3))
-    # afk state
+    stdscr.addstr(9, 18, str(state.loc[0]), curses.color_pair(3))
+    stdscr.addstr(9, 24, ' : ', curses.color_pair(2))
+    stdscr.addstr(9, 26, str(state.loc[1]), curses.color_pair(3))
+    stdscr.addstr(9, 32, ' : ', curses.color_pair(2))
+    stdscr.addstr(9, 34, str(state.loc[2]), curses.color_pair(3))
+
+    # direction
     stdscr.addstr(11, 5, 'AFK', curses.color_pair(2))
     stdscr.addstr(11, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(11, 18, state.afk, curses.color_pair(3))
+    stdscr.addstr(11, 18, state.direction.title(), curses.color_pair(3))
+
     # raid state
     stdscr.addstr(13, 5, 'Raid', curses.color_pair(2))
     stdscr.addstr(13, 16, ': ', curses.color_pair(1))
     if not raid.is_set():
-      stdscr.addstr(13, 18, 'false', curses.color_pair(3))
+      stdscr.addstr(13, 18, 'False', curses.color_pair(3))
     else:
-      stdscr.addstr(13, 18, 'true', curses.color_pair(3))
+      stdscr.addstr(13, 18, 'True', curses.color_pair(3))
+
+    # afk state
+    stdscr.addstr(15, 5, 'AFK', curses.color_pair(2))
+    stdscr.addstr(15, 16, ': ', curses.color_pair(1))
+    stdscr.addstr(15, 18, state.afk.title(), curses.color_pair(3))
+
   except Exception as e:
       eqa_settings.log('draw state: Error on line ' +
                         str(sys.exc_info()[-1].tb_lineno) + ': '  + str(e))
 
 
-def draw_settings(stdscr, chars, char, selected_setting, selected_char):
+def draw_settings(stdscr, state, selected_setting, selected_char):
   """Draw settings"""
   # Clear and box
   stdscr.clear()
@@ -319,11 +333,11 @@ def draw_settings(stdscr, chars, char, selected_setting, selected_char):
     stdscr.addstr(4, 3, 'Character Selection', curses.A_UNDERLINE | curses.color_pair(2))
   else:
     stdscr.addstr(4, 5, 'Character Selection', curses.color_pair(3))
-  stdscr.addstr(14, 5, 'Active Character', curses.color_pair(3))
-  stdscr.addstr(14, 21, ':', curses.color_pair(1))
-  stdscr.addstr(14, 23, char.title(), curses.color_pair(2))
+  stdscr.addstr(12, 5, 'Active Character', curses.color_pair(3))
+  stdscr.addstr(12, 21, ':', curses.color_pair(1))
+  stdscr.addstr(12, 23, state.char.title(), curses.color_pair(2))
 
-  draw_chars(stdscr, chars, char, selected_char)
+  draw_chars(stdscr, state.chars, state.char, selected_char)
 
 
 def draw_chars(stdscr, chars, char, selected):

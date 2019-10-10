@@ -18,7 +18,6 @@ EQ_LOGS=$(jq '.settings.paths.char_log' ${CONFIG_PATH})
 DEFAULT_CHAR=$(jq '.characters.default' ${CONFIG_PATH} | tr -d '"')
 CHAR_LOG="${EQ_LOGS//\"}eqlog_${DEFAULT_CHAR^}_project1999.txt"
 
-
 # Constants
 
 ## Colors
@@ -119,6 +118,25 @@ run_test "you_group" "$msg"
 ### you_ooc
 msg="[Sun Oct 28 20:21:10 2018] You say out of character, 'Hail for druid buffs at cb lift'"
 run_test "you_ooc" "$msg"
+((run++))
+
+### location
+msg="[Thu Oct 03 22:28:18 2019] Your Location is 1098.00, -1022.00, 29.88"
+run_test "location" "$msg"
+((run++))
+
+### direction
+msg="[Thu Oct 03 22:34:07 2019] You think you are heading NorthEast."
+run_test "direction" "$msg"
+msg="[Thu Oct 03 22:34:09 2019] You think you are heading East."
+run_test "direction" "$msg"
+msg="[Thu Oct 03 22:34:15 2019] You think you are heading South."
+run_test "direction" "$msg"
+((run++))
+
+### direction_miss
+msg="[Thu Oct 03 22:34:13 2019] You have no idea what direction you are facing."
+run_test "direction_miss" "$msg"
 ((run++))
 
 ### you_guild

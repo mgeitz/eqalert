@@ -20,75 +20,119 @@
 import json
 import datetime
 import os
+import sys
 
+import eqa.lib.eqa_settings as eqa_settings
 
 def init(base_path):
   """Read in config.json"""
 
-  if not os.path.isfile(base_path + 'config.json'):
-    build_config(base_path)
-  json_data = open(base_path + 'config.json', 'r')
-  config = json.load(json_data)
+  try:
+    if not os.path.isfile(base_path + 'config.json'):
+      build_config(base_path)
+    json_data = open(base_path + 'config.json', 'r')
+    config = json.load(json_data)
 
-  json_data.close()
-  return config
+    json_data.close()
+
+    return config
+
+  except Exception as e:
+    eqa_settings.log('config init: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def get_chars(config, base_path):
   """Return known characters"""
 
-  chars = []
-  log_files = [ f for f in os.listdir(config["settings"]["paths"]["char_log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["char_log"],f)) ]
-  for logs in log_files:
-    if "eqlog_" in logs and "_project1999.txt" in logs:
-      first, name, end = logs.split("_")
-      if name.lower() not in config["characters"].keys():
-        add_char(name.lower(), chars, base_path)
+  try:
+    chars = []
+    log_files = [ f for f in os.listdir(config["settings"]["paths"]["char_log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["char_log"],f)) ]
+    for logs in log_files:
+      if "eqlog_" in logs and "_project1999.txt" in logs:
+        first, name, end = logs.split("_")
+        if name.lower() not in config["characters"].keys():
+          add_char(name.lower(), chars, base_path)
 
-  for toon in config["characters"].keys():
-    if toon != "default":
-      chars.append(toon)
-  for toon in config["characters"].keys():
-    if config["characters"][toon] == "false":
-      chars.remove(toon)
+    for toon in config["characters"].keys():
+      if toon != "default":
+        chars.append(toon)
+    for toon in config["characters"].keys():
+      if config["characters"][toon] == "false":
+        chars.remove(toon)
 
-    return chars
+      return chars
+
+  except Exception as e:
+    eqa_settings.log('config init: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def add_char(name, chars, base_path):
   """Adds a new character to the config"""
 
-  json_data = open(base_path + 'config.json', 'r+')
-  data = json.load(json_data)
-  data["characters"].update({name.lower():"true"})
-  chars.append(name.lower())
-  json_data.seek(0)
-  json.dump(data, json_data, indent = 4)
-  json_data.close()
+  try:
+    json_data = open(base_path + 'config.json', 'r+')
+    data = json.load(json_data)
+    data["characters"].update({name.lower():"true"})
+    chars.append(name.lower())
+    json_data.seek(0)
+    json.dump(data, json_data, indent = 4)
+    json_data.close()
+
+  except Exception as e:
+    eqa_settings.log('add char: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+
+
+def set_default_char(name, base_path):
+  """Set a new default character"""
+
+  try:
+    json_data = open(base_path + 'config.json', 'r+')
+    data = json.load(json_data)
+    data["characters"].update({"default":name.lower()})
+    json_data.seek(0)
+    json.dump(data, json_data, indent = 4)
+    json_data.close()
+
+  except Exception as e:
+    eqa_settings.log('set default char: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def add_type(line_type, base_path):
   """Adds default setting values for new line_type"""
 
-  json_data = open(base_path + 'config.json', 'r+')
-  data = json.load(json_data)
-  data["settings"]["sound_settings"].update({line_type:"0"})
-  data["settings"]["check_line_type"].update({line_type:"true"})
-  data["alert"].update({line_type:dict()})
-  json_data.seek(0)
-  json.dump(data, json_data, indent = 4)
-  json_data.close()
+  try:
+    json_data = open(base_path + 'config.json', 'r+')
+    data = json.load(json_data)
+    data["settings"]["sound_settings"].update({line_type:"0"})
+    data["settings"]["check_line_type"].update({line_type:"true"})
+    data["alert"].update({line_type:dict()})
+    json_data.seek(0)
+    json.dump(data, json_data, indent = 4)
+    json_data.close()
+
+  except Exception as e:
+    eqa_settings.log('add type: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def add_zone(zone, base_path):
   """Adds default setting values for new zones"""
 
-  json_data = open(base_path + 'config.json', 'r+')
-  data = json.load(json_data)
-  data["zones"].update({zone:"false"})
-  json_data.seek(0)
-  json.dump(data, json_data, indent = 4)
-  json_data.close()
+  try:
+    json_data = open(base_path + 'config.json', 'r+')
+    data = json.load(json_data)
+    data["zones"].update({zone:"false"})
+    json_data.seek(0)
+    json.dump(data, json_data, indent = 4)
+    json_data.close()
+
+  except Exception as e:
+    eqa_settings.log('add zone: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def build_config(base_path):
@@ -279,11 +323,13 @@ def build_config(base_path):
         "melee_hit": {},
         "faction_line": {},
         "spell_resist": {},
-        "spell_regen": {}
+        "spell_regen": {},
+        "location": {},
+        "direction": {},
+        "direction_miss": {}
     },
     "characters": {
-        "default": "change",
-        "change": "true"
+        "default": "foobar"
     },
     "settings": {
         "paths": {
@@ -359,14 +405,17 @@ def build_config(base_path):
             "melee_hit": "2",
             "faction_line": "0",
             "spell_resist": "0",
-            "spell_regen": "0"
+            "spell_regen": "0",
+            "location": "0",
+            "direction": "0",
+            "direction_miss": "0"
         },
         "sounds": {
             "1": "hey.wav",
             "3": "look.wav",
             "2": "listen.wav",
             "5": "hello.wav",
-            "4": "watchout.wav"
+            "4": "watch out.wav"
         },
         "check_line_type": {
             "mysterious_oner": "false",
@@ -436,13 +485,21 @@ def build_config(base_path):
             "melee_hit": "false",
             "faction_line": "false",
             "spell_resist": "true",
-            "spell_regen": "true"
+            "spell_regen": "true",
+            "location": "true",
+            "direction": "true",
+            "direction_miss": "true"
         }
     }
 }
 """
 
-  print(new_config % (base_path, base_path, home), file=open(base_path + 'config.json', 'a'))
+  try:
+    print(new_config % (base_path, base_path, home), file=open(base_path + 'config.json', 'a'))
+
+  except Exception as e:
+    eqa_settings.log('build config: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 if __name__ == '__main__':
   main()

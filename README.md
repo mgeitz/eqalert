@@ -14,6 +14,10 @@ A Project 1999 log parser with NCurses interface for Linux
 
 Install from pypi
 ```sh
+$ # Install Stable
+$ pip3 install eqalert=1.2.0
+$
+$ # Install whatever I just pushed to pypi
 $ pip3 install eqalert
 ```
 

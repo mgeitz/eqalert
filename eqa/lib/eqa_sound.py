@@ -47,43 +47,55 @@ def process(config, sound_q, exit_flag, cfg_reload):
         sound_q.task_done()
 
         if sound_event.sound == "espeak":
-          espeak(sound_event.payload, tmp_sound_file_path)
+          speak(sound_event.payload, tmp_sound_file_path)
         elif sound_event.sound == "alert":
           alert(config, sound_event.payload)
         else:
-          espeak(sound_event.payload, tmp_sound_file_path)
+          speak(sound_event.payload, tmp_sound_file_path)
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "[Malformed sound event] " + sound_event.sound))
   except Exception as e:
-    eqa_settings.log('process_sound: ' + str(e))
+    eqa_settings.log('process_sound: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
     sys.exit()
 
   sys.exit()
 
 
-def espeak(phrase, tmp_sound_file_path):
-    """Playa spoken phrase"""
-    try:
-      if not os.path.exists(tmp_sound_file_path + phrase):
-        tts = gtts.gTTS(text=phrase, lang='en')
-        tts.save(tmp_sound_file_path + phrase)
-      play_sound(tmp_sound_file_path + phrase)
-    except Exception as e:
-      eqa_settings.log('process_sound: Error on line ' +
-                        str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+def pre_speak(phrase, sound_file_path):
+  """Save spoken phrase"""
+  try:
+    if not os.path.exists(sound_file_path + phrase):
+      tts = gtts.gTTS(text=phrase, lang='en')
+      tts.save(sound_file_path + phrase + '.wav')
+  except Exception as e:
+    eqa_settings.log('pre_speak: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+
+
+def speak(phrase, tmp_sound_file_path):
+  """Playa spoken phrase"""
+  try:
+    if not os.path.exists(tmp_sound_file_path + phrase + '.wav'):
+      tts = gtts.gTTS(text=phrase, lang='en')
+      tts.save(tmp_sound_file_path + phrase + '.wav')
+    play_sound(tmp_sound_file_path + phrase + '.wav')
+  except Exception as e:
+    eqa_settings.log('speak: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def alert(config, line_type):
-    if not config["settings"]["sound_settings"][line_type] == "0":
-        play_sound(config["settings"]["paths"]["sound"] + \
-        config["settings"]["sounds"][config["settings"]["sound_settings"][line_type]])
+  if not config["settings"]["sound_settings"][line_type] == "0":
+    play_sound(config["settings"]["paths"]["sound"] + \
+    config["settings"]["sounds"][config["settings"]["sound_settings"][line_type]])
 
 
 def play_sound(sound):
-    """Play the sound given"""
-    try:
-      playsound(sound)
-    except KeyboardInterrupt:
-        pass
+  """Play the sound given"""
+  try:
+    playsound(sound)
+  except KeyboardInterrupt:
+    pass
 
 
 if __name__ == '__main__':

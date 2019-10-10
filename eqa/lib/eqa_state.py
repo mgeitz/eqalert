@@ -21,11 +21,12 @@
 """
 
 class EQA_State:
-  def __init__(self, char, chars, zone, loc, afk):
+  def __init__(self, char, chars, zone, loc, direction, afk):
     self.char = char
     self.chars = chars
     self.zone = zone
     self.loc = loc
+    self.direction = direction
     self.afk = afk
 
   def set_char(self, char):
@@ -39,6 +40,9 @@ class EQA_State:
 
   def set_loc(self, loc):
     self.loc = loc
+
+  def set_direction(self, direction):
+    self.direction = direction
 
   def set_afk(self, afk):
     self.afk = afk

@@ -98,8 +98,13 @@ def determine(line):
         elif line_list[1] == "have":
             if line_list[2] == "entered":
                 line_type = "you_new_zone"
+            elif line_list[5] == "direction":
+                line_type = "direction_miss"
             elif line_list[2] == "healed":
                 line_type = "you_healed"
+        elif line_list[1] == "think":
+            if line_list[4] == "heading":
+                line_type = "direction"
         elif "hungry." in line_list:
             line_type = "you_hungry"
         elif line_list[1] == "are":
@@ -132,10 +137,13 @@ def determine(line):
             line_type == "you_spell_forget"
 
     elif line_list[0] == "your":
-        if line_list[1] == "spell":
+        if line_list[1] == "location":
+            if line_list[2] == "is":
+                line_type = "location"
+        elif line_list[1] == "spell":
             if line_list[3] == "interrupted":
                 line_type = "spell_interrupted"
-        if line_list[2] == "spell":
+        elif line_list[2] == "spell":
             if line_list[1] == "charm":
                 line_type = "spell_break_charm"
             elif line_list[1] == "ensnare":
@@ -147,7 +155,7 @@ def determine(line):
         elif line_list[1] == "target":
             if line_list[2] == "resisted":
                 line_type = "spell_resist"
-            if line_list[4] == "cured.":
+            elif line_list[4] == "cured.":
                 line_type = "target_cured"
     elif line_list[0].startswith("-"):
         line_type = "who_line"
