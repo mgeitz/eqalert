@@ -41,16 +41,23 @@ You should now see `~/.eqa/` with the following structure
 $HOME/.eqa
         ⎿ config.json
         ⎿ log/
-         ⎸  ⎿ eqalert.log
         ⎿ sound/
 ```
 
-Update your default character in `config.json`
+Update your default character in `config.json` if needed
 ```
     "characters": {
         "default": "indefinite",
         "indefinite": "true",
         "indef": "true"
+    },
+```
+
+Update your default server in `config.json` if needed
+```
+    "servers": {
+        "default": "project1999",
+        "project1999": "true"
     },
 ```
 
@@ -65,6 +72,11 @@ Spot check these paths in `config.json`
 ```
 
 Press `F12` to reload your config or restart the program, you're good to go!
+
+
+## Upgrading Versions
+
+When using pip to upgrade versions, you may - on occasion - need to regenerte you config by removing or deleting it before starting.
 
 
 ## Controls
