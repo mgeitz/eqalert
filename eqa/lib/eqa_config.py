@@ -502,7 +502,6 @@ def build_config(base_path):
             "you_afk_on": "false",
             "auction_wts": "true",
             "emote_bow": "false",
-            "loc": "false",
             "group": "true",
             "you_thirsty": "false",
             "emote_bonk": "false",
