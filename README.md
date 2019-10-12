@@ -1,6 +1,6 @@
-# Project 1999 EQALERT
+# EQEmu EQAlert
 
-A Project 1999 log parser with NCurses interface for Linux
+An everquest eqmulator log parser with NCurses interface for Linux
 
 ![img](https://i.imgur.com/Pgo1eMk.png)
 ![img](https://i.imgur.com/SkPvD9j.png)
