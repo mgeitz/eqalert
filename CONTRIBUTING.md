@@ -20,7 +20,7 @@ Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com
 #### Pull Requests
 * **Fork** the repo
 * **Clone** the repo locally
-* **Checkout** the `develop` branch
+* **Checkout** a new branch - `feature/my-branch-name`
 * **Commit** your change [accordingly](https://github.com/torvalds/subsurface-for-dirk/blob/master/README#L92)
 * **Push** your change to your remote fork
-* Submit a **Pull request** against the develop branch
+* Submit a **Pull request** against the master branch
