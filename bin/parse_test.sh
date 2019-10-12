@@ -10,15 +10,12 @@
 
 # Variables
 
-## Things worth changing
-CONFIG_PATH="$HOME/.eqa/config.json"
-
 ## Paths
+CONFIG_PATH="$HOME/.eqa/config.json"
 EQ_LOGS=$(jq '.settings.paths.char_log' ${CONFIG_PATH})
 DEFAULT_CHAR=$(jq '.characters.default' ${CONFIG_PATH} | tr -d '"')
-CHAR_LOG="${EQ_LOGS//\"}eqlog_${DEFAULT_CHAR^}_project1999.txt"
-
-# Constants
+DEFAULT_SERVER=$(jq '.servers.default' ${CONFIG_PATH} | tr -d '"')
+CHAR_LOG="${EQ_LOGS//\"}eqlog_${DEFAULT_CHAR^}_${DEFAULT_SERVER}.txt"
 
 ## Colors
 BLACK='\e[0;30m'

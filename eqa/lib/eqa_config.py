@@ -25,63 +25,112 @@ import sys
 import eqa.lib.eqa_settings as eqa_settings
 
 def init(base_path):
-  """Read in config.json"""
-
+  """If there is no config, make a config"""
   try:
     if not os.path.isfile(base_path + 'config.json'):
       build_config(base_path)
+
+  except Exception as e:
+    eqa_settings.log('config init: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+
+
+def read_config(base_path):
+  """read the config"""
+  try:
     json_data = open(base_path + 'config.json', 'r')
     config = json.load(json_data)
-
     json_data.close()
 
     return config
 
   except Exception as e:
-    eqa_settings.log('config init: Error on line' +
+    eqa_settings.log('config read: Error on line' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
-def get_chars(config, base_path):
-  """Return known characters"""
-
+def update_logs(base_path):
+  """Add characters and servers of eqemu_ prefixed files in the log path"""
   try:
-    chars = []
+    json_data = open(base_path + 'config.json', 'r')
+    config = json.load(json_data)
     log_files = [ f for f in os.listdir(config["settings"]["paths"]["char_log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["char_log"],f)) ]
+
     for logs in log_files:
-      if "eqlog_" in logs and "_project1999.txt" in logs:
-        first, name, end = logs.split("_")
-        if name.lower() not in config["characters"].keys():
-          add_char(name.lower(), chars, base_path)
+      if "eqlog_" in logs:
+        emu, char_name, end = logs.split("_")
+        server_name = end.lower().split('.')[0]
+        if char_name.lower() not in config["characters"].keys():
+          add_char(char_name.lower(), base_path)
+        if server_name not in config["servers"].keys():
+          add_server(server_name.lower(), base_path)
 
-    for toon in config["characters"].keys():
-      if toon != "default":
-        chars.append(toon)
-    for toon in config["characters"].keys():
-      if config["characters"][toon] == "false":
-        chars.remove(toon)
-
-      return chars
+    json_data.close()
 
   except Exception as e:
-    eqa_settings.log('config init: Error on line' +
+    eqa_settings.log('set config chars: Error on line' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
-def add_char(name, chars, base_path):
+def add_char(name, base_path):
   """Adds a new character to the config"""
-
   try:
     json_data = open(base_path + 'config.json', 'r+')
     data = json.load(json_data)
     data["characters"].update({name.lower():"true"})
-    chars.append(name.lower())
     json_data.seek(0)
     json.dump(data, json_data, indent = 4)
     json_data.close()
 
   except Exception as e:
     eqa_settings.log('add char: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+
+
+def add_server(server, base_path):
+  """Adds a new server to the config"""
+
+  try:
+    json_data = open(base_path + 'config.json', 'r+')
+    data = json.load(json_data)
+    data["servers"].update({server.lower():"true"})
+    json_data.seek(0)
+    json.dump(data, json_data, indent = 4)
+    json_data.close()
+
+  except Exception as e:
+    eqa_settings.log('add server: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+
+
+def get_config_chars(config):
+  """Return characters in the config"""
+  try:
+    chars = []
+    for char in config["characters"].keys():
+      if char != "default" and not config["characters"][char] == "false":
+        chars.append(char)
+
+    return chars
+
+  except Exception as e:
+    eqa_settings.log('get chars: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+
+
+def get_config_servers(config):
+  """Return servers from the config"""
+
+  try:
+    servers = []
+    for server in config["servers"].keys():
+      if server != "default" and not config["servers"][server] == "false":
+        servers.append(server)
+
+    return servers
+
+  except Exception as e:
+    eqa_settings.log('get servers: Error on line' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
@@ -98,6 +147,22 @@ def set_default_char(name, base_path):
 
   except Exception as e:
     eqa_settings.log('set default char: Error on line' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+
+
+def set_default_server(name, base_path):
+  """Set a new default server"""
+
+  try:
+    json_data = open(base_path + 'config.json', 'r+')
+    data = json.load(json_data)
+    data["servers"].update({"default":name.lower()})
+    json_data.seek(0)
+    json.dump(data, json_data, indent = 4)
+    json_data.close()
+
+  except Exception as e:
+    eqa_settings.log('set default server: Error on line' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
@@ -331,6 +396,10 @@ def build_config(base_path):
     "characters": {
         "default": "foobar"
     },
+    "servers": {
+        "default": "project1999",
+        "project1999": "true"
+    },
     "settings": {
         "paths": {
             "sound": "%ssound/",
@@ -495,7 +564,9 @@ def build_config(base_path):
 """
 
   try:
-    print(new_config % (base_path, base_path, home), file=open(base_path + 'config.json', 'a'))
+    f = open(base_path + 'config.json', 'a+')
+    f.write(new_config % (base_path, base_path, home))
+    f.close()
 
   except Exception as e:
     eqa_settings.log('build config: Error on line' +

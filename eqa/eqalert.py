@@ -58,7 +58,7 @@ def bootstrap(base_path):
 
     # Make some sounds
     if not os.path.exists(base_path + 'sound/'):
-      print("    - making sound sounds")
+      print("    - making some sounds")
       os.makedirs(base_path + 'sound/')
       eqa_sound.pre_speak('hello', base_path + 'sound/')
       eqa_sound.pre_speak('hey', base_path + 'sound/')
@@ -68,12 +68,17 @@ def bootstrap(base_path):
 
     # Set default character
       print("    - setting a default character")
-    tmp_config = eqa_config.init(base_path)
-    tmp_chars = eqa_config.get_chars(tmp_config, base_path)
+    eqa_config.init(base_path)
+    eqa_config.update_logs(base_path)
+    tmp_config = eqa_config.read_config(base_path)
+    tmp_server = tmp_config["servers"]["default"]
+    tmp_chars = eqa_config.get_config_chars(tmp_config)
     eqa_config.set_default_char(tmp_chars[0], base_path)
 
   except Exception as e:
-    print('Unfortunately, the bootstrap step failed with ' + str(e))
+    print('Unfortunately, the bootstrap step failed with: ' +
+          str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    exit(1)
 
 
 def main():
@@ -106,15 +111,17 @@ def main():
 
   # Build initial state
   logging.basicConfig(filename=base_path + 'log/eqalert.log', level=logging.INFO)
-  config = eqa_config.init(base_path)
-  chars = eqa_config.get_chars(config, base_path)
+  eqa_config.update_logs(base_path)
+  config = eqa_config.read_config(base_path)
+  server = config["servers"]["default"]
+  chars = eqa_config.get_config_chars(config)
   char = config["characters"]["default"]
-  char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + "_project1999.txt"
-  state = eqa_state.EQA_State(char, chars, 'unavailable', [0.00, 0.00, 0.00], 'unavailable', 'false')
+  char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + '_' + server + ".txt"
+  state = eqa_state.EQA_State(char, chars, 'unavailable', [0.00, 0.00, 0.00], 'unavailable', 'false', server)
 
   # Sanity check
   if not os.path.exists(char_log):
-    print('Please review your `settings > paths` settings in config.json')
+    print('Please review `settings > paths` in config.json, a log with that default server and character cannot be found.')
     exit(1)
 
   # Turn on the lights
@@ -210,23 +217,33 @@ def main():
           # Update direction
           elif new_message.tx == "direction":
             state.set_direction(new_message.payload)
+          # Update server
+          elif new_message.tx == "server":
+            state.set_server(new_message.payload)
           # Update character
           elif new_message.tx == "new_character" and not new_message.payload == state.char:
-            # Stop watch on previous character log
-            log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
-            # Set new character
-            state.set_char(new_message.payload)
-            char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + state.char.title() + "_project1999.txt"
-            # Start new log watch
-            log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
-            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + state.char))
-            sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + state.char))
+            new_char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + new_message.payload.title() + '_' + state.server + ".txt"
+            # Ensure char/server combo exists as file
+            if os.path.exists(new_char_log):
+              # Stop watch on current log
+              log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
+              # Set new character
+              state.set_char(new_message.payload)
+              char_log = new_char_log
+              # Start new log watch
+              log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + state.char))
+              sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + state.char))
+            else:
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Unable to change characters, please review logs"))
+              eqa_settings.log('Could not find file: ' + new_char_log)
           # Reload config
           elif new_message.tx == "reload_config":
             # Reload config
-            config = eqa_config.init()
+            eqa_config.update_logs(base_path)
+            config = eqa_config.read_config(base_path)
             # Reread characters
-            state.set_chars(eqa_config.get_chars(config, base_path))
+            state.set_chars(eqa_config.get_config_chars(config))
             # Stop process_action and process_sound
             cfg_reload.set()
             process_action.join()
@@ -263,6 +280,7 @@ def main():
   log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
   log_notifier.stop()
   eqa_curses.close_screens(screen)
+
 
 if __name__ == '__main__':
   main()

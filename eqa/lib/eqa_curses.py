@@ -277,42 +277,47 @@ def draw_state(stdscr, state, raid):
 
   # Show some state
   try:
-    # char
-    stdscr.addstr(5, 5, 'Character', curses.color_pair(2))
+    # server state
+    stdscr.addstr(5, 5, 'Server', curses.color_pair(2))
     stdscr.addstr(5, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(5, 18, state.char.title(), curses.color_pair(3))
+    stdscr.addstr(5, 18, state.server.title(), curses.color_pair(3))
+
+    # char
+    stdscr.addstr(7, 5, 'Character', curses.color_pair(2))
+    stdscr.addstr(7, 16, ': ', curses.color_pair(1))
+    stdscr.addstr(7, 18, state.char.title(), curses.color_pair(3))
 
     # zone
-    stdscr.addstr(7, 5, 'Zone', curses.color_pair(2))
-    stdscr.addstr(7, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(7, 18, state.zone.title(), curses.color_pair(3))
+    stdscr.addstr(9, 5, 'Zone', curses.color_pair(2))
+    stdscr.addstr(9, 16, ': ', curses.color_pair(1))
+    stdscr.addstr(9, 18, state.zone.title(), curses.color_pair(3))
 
     # loc
-    stdscr.addstr(9, 5, 'Location', curses.color_pair(2))
-    stdscr.addstr(9, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(9, 18, str(state.loc[0]), curses.color_pair(3))
-    stdscr.addstr(9, 24, ' : ', curses.color_pair(2))
-    stdscr.addstr(9, 26, str(state.loc[1]), curses.color_pair(3))
-    stdscr.addstr(9, 32, ' : ', curses.color_pair(2))
-    stdscr.addstr(9, 34, str(state.loc[2]), curses.color_pair(3))
+    stdscr.addstr(11, 5, 'Location', curses.color_pair(2))
+    stdscr.addstr(11, 16, ': ', curses.color_pair(1))
+    stdscr.addstr(11, 18, str(state.loc[0]), curses.color_pair(3))
+    stdscr.addstr(11, 24, ' : ', curses.color_pair(2))
+    stdscr.addstr(11, 26, str(state.loc[1]), curses.color_pair(3))
+    stdscr.addstr(11, 32, ' : ', curses.color_pair(2))
+    stdscr.addstr(11, 34, str(state.loc[2]), curses.color_pair(3))
 
     # direction
-    stdscr.addstr(11, 5, 'Direction', curses.color_pair(2))
-    stdscr.addstr(11, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(11, 18, state.direction.title(), curses.color_pair(3))
+    stdscr.addstr(13, 5, 'Direction', curses.color_pair(2))
+    stdscr.addstr(13, 16, ': ', curses.color_pair(1))
+    stdscr.addstr(13, 18, state.direction.title(), curses.color_pair(3))
 
     # raid state
-    stdscr.addstr(13, 5, 'Raid', curses.color_pair(2))
-    stdscr.addstr(13, 16, ': ', curses.color_pair(1))
+    stdscr.addstr(15, 5, 'Raid', curses.color_pair(2))
+    stdscr.addstr(15, 16, ': ', curses.color_pair(1))
     if not raid.is_set():
-      stdscr.addstr(13, 18, 'False', curses.color_pair(3))
+      stdscr.addstr(15, 18, 'False', curses.color_pair(3))
     else:
-      stdscr.addstr(13, 18, 'True', curses.color_pair(3))
+      stdscr.addstr(15, 18, 'True', curses.color_pair(3))
 
     # afk state
-    stdscr.addstr(15, 5, 'AFK', curses.color_pair(2))
-    stdscr.addstr(15, 16, ': ', curses.color_pair(1))
-    stdscr.addstr(15, 18, state.afk.title(), curses.color_pair(3))
+    stdscr.addstr(17, 5, 'AFK', curses.color_pair(2))
+    stdscr.addstr(17, 16, ': ', curses.color_pair(1))
+    stdscr.addstr(17, 18, state.afk.title(), curses.color_pair(3))
 
   except Exception as e:
       eqa_settings.log('draw state: Error on line ' +
