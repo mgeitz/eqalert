@@ -1,4 +1,4 @@
-# EQEmu EQAlert
+# EQAlert
 
 An everquest eqmulator log parser with NCurses interface for Linux
 
