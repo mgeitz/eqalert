@@ -3,7 +3,7 @@
 A Project 1999 log parser with NCurses interface for Linux
 
 ![img](https://i.imgur.com/Pgo1eMk.png)
-![img](https://i.imgur.com/Yuoosxm.png)
+![img](https://i.imgur.com/SkPvD9j.png)
 ![img](https://i.imgur.com/TCLJ7v4.png)
 ![img](https://i.imgur.com/a9GNMV3.png)
 
