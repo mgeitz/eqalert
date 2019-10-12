@@ -76,7 +76,8 @@ Press `F12` to reload your config or restart the program, you're good to go!
 
 ## Upgrading Versions
 
-When using pip to upgrade versions, you may - on occasion - need to regenerte you config by removing or deleting it before starting.
+- Upgrades via pip may require you regenerte your config by removing or deleting ~/.eqa/ before starting.
+- This is only 10% due to laziness and 90% not knowing how to migrate old configs over yet
 
 
 ## Controls
