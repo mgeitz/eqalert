@@ -320,7 +320,7 @@ def build_config(base_path):
             "alert": {}
         },
         "group_invite": {
-            "sound": "3",
+            "sound": "0",
             "reaction": "speak",
             "alert": {}
         },
@@ -351,7 +351,7 @@ def build_config(base_path):
         },
         "say": {
             "sound": "0",
-            "reaction": "speak",
+            "reaction": "true",
             "alert": {
                 "help": "true"
             }
@@ -372,10 +372,10 @@ def build_config(base_path):
             "alert": {}
         },
         "auction_wts": {
-            "sound": "0",
-            "reaction": "speak",
+            "sound": "3",
+            "reaction": "true",
             "alert": {
-                "block of velium": "true"
+                "spiderling silk": "true"
             }
         },
         "emote_bow": {
@@ -384,15 +384,17 @@ def build_config(base_path):
             "alert": {}
         },
         "group": {
-            "sound": "0",
-            "reaction": "speak",
+            "sound": "4",
+            "reaction": "true",
             "alert": {
-                "invis": "true"
+                "help": "true",
+                "inc": "true",
+                "incoming": "true"
             }
         },
         "you_thirsty": {
             "sound": "0",
-            "reaction": "false",
+            "reaction": "speak",
             "alert": {}
         },
         "emote_bonk": {
@@ -406,18 +408,18 @@ def build_config(base_path):
             "alert": {}
         },
         "shout": {
-            "sound": "1",
+            "sound": "0",
             "reaction": "false",
             "alert": {}
         },
         "you_outdrinklowfood": {
             "sound": "0",
-            "reaction": "false",
+            "reaction": "speak",
             "alert": {}
         },
         "you_outdrink": {
             "sound": "0",
-            "reaction": "false",
+            "reaction": "speak",
             "alert": {}
         },
         "you_auction_wts": {
@@ -436,8 +438,8 @@ def build_config(base_path):
             "alert": {}
         },
         "spell_fizzle": {
-            "sound": "0",
-            "reaction": "false",
+            "sound": "5",
+            "reaction": "true",
             "alert": {}
         },
         "tell": {
@@ -457,7 +459,7 @@ def build_config(base_path):
         },
         "spell_interrupted": {
             "sound": "2",
-            "reaction": "false",
+            "reaction": "true",
             "alert": {}
         },
         "ooc": {
@@ -573,7 +575,7 @@ def build_config(base_path):
         },
         "spell_damage": {
             "sound": "0",
-            "reaction": "all",
+            "reaction": "false",
             "alert": {}
         },
         "you_hungry": {
@@ -583,7 +585,7 @@ def build_config(base_path):
         },
         "dot_damage": {
             "sound": "0",
-            "reaction": "all",
+            "reaction": "false",
             "alert": {}
         },
         "auction": {
