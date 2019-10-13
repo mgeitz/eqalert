@@ -231,8 +231,6 @@ def determine(line):
     elif line_list[0][0] == "*":
         line_type = "random"
     # chat from in game prompts or commands
-    elif line_list[1] == "Location" and line_list[0] == "Your":
-        line_type = "loc"
     elif line_list[0] == "To" and line_list[1] == "join":
         line_type = "group_invite"
     elif line_list[0] == "there" and line_list[1] == "are":

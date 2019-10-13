@@ -85,9 +85,9 @@ def speak(phrase, tmp_sound_file_path):
 
 
 def alert(config, line_type):
-  if not config["settings"]["sound_settings"][line_type] == "0":
+  if not config["line"][line_type]["sound"] == "0":
     play_sound(config["settings"]["paths"]["sound"] + \
-    config["settings"]["sounds"][config["settings"]["sound_settings"][line_type]])
+    config["settings"]["sounds"][config["line"][line_type]["sound"]])
 
 
 def play_sound(sound):

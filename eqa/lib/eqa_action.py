@@ -91,10 +91,10 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
               sound_q.put(eqa_struct.sound('espeak', "Raid mode disabled"))
 
         # If line_type is a parsable type
-        if line_type in config["settings"]["check_line_type"].keys():
+        if line_type in config["line"].keys():
           # If line_type is parsed for as true
-          if config["settings"]["check_line_type"][line_type] == "true":
-            for keyphrase, value in config["alert"][line_type].items():
+          if config["line"][line_type]["reaction"] == "true":
+            for keyphrase, value in config["line"][line_type]["alert"].items():
               if str(keyphrase).lower() in check_line and value == "true":
                 sound_q.put(eqa_struct.sound('alert', line_type))
                 display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', line_type + ': ' + check_line[0:65]))
@@ -107,7 +107,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
                 display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', line_type + ': ' + check_line[0:65]))
 
           # Or if line_type is parsed for as all
-          elif config["settings"]["check_line_type"][line_type] == "all":
+          elif config["line"][line_type]["reaction"] == "all":
             # Heal parse
             if heal_parse.is_set() and line_type == "you_healed":
               heal_q.put(eqa_struct.heal(datetime.datetime.now(), 'heal', 'you', check_line_list[3], check_line_list[5]))
@@ -139,12 +139,12 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
               display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', line_type + ': ' + check_line[0:65]))
 
           # Or if line_type is parsed for as a spoken alert
-          elif config["settings"]["check_line_type"][line_type] == "speak":
+          elif config["line"][line_type]["reaction"] == "speak":
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', check_line))
             sound_q.put(eqa_struct.sound('espeak', check_line))
 
           # For triggers requiring all line_types
-          if config["settings"]["check_line_type"]["all"] == "true":
+          if config["line"]["all"]["reaction"] == "true":
             for keyphrase, value in config["alert"]["all"].items():
               if keyphrase in check_line:
                 sound_q.put(eqa_struct.sound('alert', line_type))

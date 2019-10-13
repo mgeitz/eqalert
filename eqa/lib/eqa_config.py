@@ -172,9 +172,7 @@ def add_type(line_type, base_path):
   try:
     json_data = open(base_path + 'config.json', 'r+')
     data = json.load(json_data)
-    data["settings"]["sound_settings"].update({line_type:"0"})
-    data["settings"]["check_line_type"].update({line_type:"true"})
-    data["alert"].update({line_type:dict()})
+    data["line"].update({line_type:{'sound': '0', 'reaction': 'false', 'alert': {}}})
     json_data.seek(0)
     json.dump(data, json_data, indent = 4)
     json_data.close()
@@ -305,93 +303,376 @@ def build_config(base_path):
         "northern desert of ro": "false",
         "lake rathetear": "false"
     },
-    "alert": {
-        "mysterious_oner": {},
-        "all": {},
-        "you_new_zone": {},
-        "group_invite": {},
-        "emote_cheer": {},
-        "you_ooc": {},
-        "random": {},
-        "auction_wtb": {},
-        "melee_miss": {},
-        "say": {},
-        "spell_break_charm": {},
-        "you_tell": {},
-        "you_afk_on": {},
+    "line": {
+        "mysterious_oner": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "all": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_new_zone": {
+            "sound": "0",
+            "reaction": "all",
+            "alert": {}
+        },
+        "group_invite": {
+            "sound": "0",
+            "reaction": "speak",
+            "alert": {}
+        },
+        "emote_cheer": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_ooc": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "random": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "auction_wtb": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "melee_miss": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "say": {
+            "sound": "0",
+            "reaction": "true",
+            "alert": {
+                "help": "true"
+            }
+        },
+        "spell_break_charm": {
+            "sound": "0",
+            "reaction": "speak",
+            "alert": {}
+        },
+        "you_tell": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_afk_on": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
         "auction_wts": {
-            "block of velium": "true"
+            "sound": "3",
+            "reaction": "true",
+            "alert": {
+                "spiderling silk": "true"
+            }
         },
-        "emote_bow": {},
-        "loc": {},
+        "emote_bow": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
         "group": {
-            "invis": "true"
+            "sound": "4",
+            "reaction": "true",
+            "alert": {
+                "help": "true",
+                "inc": "true",
+                "incoming": "true"
+            }
         },
-        "you_thirsty": {},
-        "emote_bonk": {},
-        "emote_thank": {},
-        "shout": {},
-        "you_outdrinklowfood": {},
-        "you_outdrink": {},
-        "you_auction_wts": {},
-        "you_healed": {},
-        "you_say": {},
-        "spell_fizzle": {},
-        "tell": {},
-        "emote_smile": {},
-        "spell_something": {},
-        "spell_interrupted": {},
-        "ooc": {},
-        "who_player": {},
-        "you_outfoodlowdrink": {},
-        "spell_begin_casting": {},
-        "zoning": {},
-        "you_outfooddrink": {},
-        "who_player_afk": {},
-        "who_line": {},
-        "who_total": {},
-        "target_cured": {},
-        "you_auction_wtb": {},
-        "emote_dance": {},
-        "you_lfg_off": {},
-        "spell_invis": {},
-        "undetermined": {},
-        "you_guild": {},
-        "you_shout": {},
-        "engage": {},
+        "you_thirsty": {
+            "sound": "0",
+            "reaction": "speak",
+            "alert": {}
+        },
+        "emote_bonk": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "emote_thank": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "shout": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_outdrinklowfood": {
+            "sound": "0",
+            "reaction": "speak",
+            "alert": {}
+        },
+        "you_outdrink": {
+            "sound": "0",
+            "reaction": "speak",
+            "alert": {}
+        },
+        "you_auction_wts": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_healed": {
+            "sound": "0",
+            "reaction": "all",
+            "alert": {}
+        },
+        "you_say": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "spell_fizzle": {
+            "sound": "5",
+            "reaction": "true",
+            "alert": {}
+        },
+        "tell": {
+            "sound": "0",
+            "reaction": "speak",
+            "alert": {}
+        },
+        "emote_smile": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "spell_something": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "spell_interrupted": {
+            "sound": "2",
+            "reaction": "true",
+            "alert": {}
+        },
+        "ooc": {
+            "sound": "1",
+            "reaction": "false",
+            "alert": {}
+        },
+        "who_player": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_outfoodlowdrink": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "spell_begin_casting": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "zoning": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_outfooddrink": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "who_player_afk": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "who_line": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "who_total": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "target_cured": {
+            "sound": "0",
+            "reaction": "speak",
+            "alert": {}
+        },
+        "you_auction_wtb": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "emote_dance": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_lfg_off": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "spell_invis": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "undetermined": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_guild": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_shout": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "engage": {
+            "sound": "0",
+            "reaction": "speak",
+            "alert": {}
+        },
         "guild": {
-            "tash": "raid",
-            "fixated": "raid",
-            "slow": "raid",
-            "rampage": "raid",
-            "malo": "raid",
-            "fixation": "raid",
-            "occlusion": "raid",
-            "assist": "raid",
-            "sunder": "raid",
-            "malosini": "raid"
+            "sound": "3",
+            "reaction": "true",
+            "alert": {
+                "tash": "raid",
+                "fixated": "raid",
+                "slow": "raid",
+                "rampage": "raid",
+                "malo": "raid",
+                "fixation": "raid",
+                "occlusion": "raid",
+                "assist": "raid",
+                "sunder": "raid",
+                "malosini": "raid"
+            }
         },
-        "target": {},
-        "spell_damage": {},
-        "you_hungry": {},
-        "dot_damage": {},
-        "auction": {},
-        "you_afk_off": {},
-        "you_group": {},
-        "you_auction": {},
-        "spell_break_ensare": {},
-        "who_top": {},
-        "emote_wave": {},
-        "you_outfood": {},
-        "you_lfg_on": {},
-        "spell_break": {},
-        "melee_hit": {},
-        "faction_line": {},
-        "spell_resist": {},
-        "spell_regen": {},
-        "location": {},
-        "direction": {},
-        "direction_miss": {}
+        "target": {
+            "sound": "3",
+            "reaction": "false",
+            "alert": {}
+        },
+        "spell_damage": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_hungry": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "dot_damage": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "auction": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_afk_off": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_group": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_auction": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "spell_break_ensare": {
+            "sound": "0",
+            "reaction": "speak",
+            "alert": {}
+        },
+        "who_top": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "emote_wave": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_outfood": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "you_lfg_on": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "spell_break": {
+            "sound": "4",
+            "reaction": "false",
+            "alert": {}
+        },
+        "melee_hit": {
+            "sound": "2",
+            "reaction": "false",
+            "alert": {}
+        },
+        "faction_line": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "spell_resist": {
+            "sound": "0",
+            "reaction": "speak",
+            "alert": {}
+        },
+        "spell_regen": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "location": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "direction": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        },
+        "direction_miss": {
+            "sound": "0",
+            "reaction": "false",
+            "alert": {}
+        }
     },
     "characters": {
         "default": "foobar"
@@ -406,158 +687,12 @@ def build_config(base_path):
             "alert_log": "%slog/",
             "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
         },
-        "sound_settings": {
-            "mysterious_oner": "0",
-            "all": "0",
-            "you_new_zone": "0",
-            "group_invite": "3",
-            "emote_cheer": "0",
-            "you_ooc": "0",
-            "random": "0",
-            "auction_wtb": "0",
-            "melee_miss": "0",
-            "say": "1",
-            "spell_break_charm": "4",
-            "you_tell": "0",
-            "you_afk_on": "0",
-            "auction_wts": "2",
-            "emote_bow": "0",
-            "loc": "0",
-            "group": "3",
-            "you_thirsty": "0",
-            "emote_bonk": "0",
-            "emote_thank": "0",
-            "shout": "1",
-            "you_outdrinklowfood": "0",
-            "you_outdrink": "0",
-            "you_auction_wts": "0",
-            "you_healed": "0",
-            "you_say": "0",
-            "spell_fizzle": "0",
-            "tell": "1",
-            "emote_smile": "0",
-            "spell_something": "0",
-            "spell_interrupted": "2",
-            "ooc": "1",
-            "who_player": "0",
-            "you_outfoodlowdrink": "0",
-            "spell_begin_casting": "0",
-            "zoning": "0",
-            "you_outfooddrink": "0",
-            "who_player_afk": "0",
-            "who_line": "0",
-            "who_total": "0",
-            "target_cured": "5",
-            "you_auction_wtb": "0",
-            "emote_dance": "0",
-            "you_lfg_off": "0",
-            "spell_invis": "0",
-            "undetermined": "0",
-            "you_guild": "0",
-            "you_shout": "0",
-            "engage": "0",
-            "guild": "3",
-            "target": "3",
-            "spell_damage": "0",
-            "you_hungry": "0",
-            "dot_damage": "0",
-            "auction": "0",
-            "you_afk_off": "0",
-            "you_group": "0",
-            "you_auction": "0",
-            "spell_break_ensare": "3",
-            "who_top": "0",
-            "emote_wave": "0",
-            "you_outfood": "0",
-            "you_lfg_on": "0",
-            "spell_break": "4",
-            "melee_hit": "2",
-            "faction_line": "0",
-            "spell_resist": "0",
-            "spell_regen": "0",
-            "location": "0",
-            "direction": "0",
-            "direction_miss": "0"
-        },
         "sounds": {
             "1": "hey.wav",
             "3": "look.wav",
             "2": "listen.wav",
             "5": "hello.wav",
             "4": "watch out.wav"
-        },
-        "check_line_type": {
-            "mysterious_oner": "false",
-            "all": "false",
-            "you_new_zone": "all",
-            "group_invite": "speak",
-            "emote_cheer": "false",
-            "you_ooc": "false",
-            "random": "false",
-            "auction_wtb": "false",
-            "melee_miss": "false",
-            "say": "true",
-            "spell_break_charm": "speak",
-            "you_tell": "false",
-            "you_afk_on": "false",
-            "auction_wts": "true",
-            "emote_bow": "false",
-            "loc": "false",
-            "group": "true",
-            "you_thirsty": "false",
-            "emote_bonk": "false",
-            "emote_thank": "false",
-            "shout": "false",
-            "you_outdrinklowfood": "false",
-            "you_outdrink": "false",
-            "you_auction_wts": "false",
-            "you_healed": "all",
-            "you_say": "false",
-            "spell_fizzle": "false",
-            "tell": "speak",
-            "emote_smile": "false",
-            "spell_something": "false",
-            "spell_interrupted": "false",
-            "ooc": "false",
-            "who_player": "false",
-            "you_outfoodlowdrink": "false",
-            "spell_begin_casting": "false",
-            "zoning": "false",
-            "you_outfooddrink": "false",
-            "who_player_afk": "false",
-            "who_line": "false",
-            "who_total": "false",
-            "target_cured": "all",
-            "you_auction_wtb": "false",
-            "emote_dance": "true",
-            "you_lfg_off": "false",
-            "spell_invis": "false",
-            "undetermined": "false",
-            "you_guild": "false",
-            "you_shout": "false",
-            "engage": "speak",
-            "guild": "true",
-            "target": "false",
-            "spell_damage": "all",
-            "you_hungry": "false",
-            "dot_damage": "all",
-            "auction": "false",
-            "you_afk_off": "false",
-            "you_group": "true",
-            "you_auction": "false",
-            "spell_break_ensare": "all",
-            "who_top": "false",
-            "emote_wave": "false",
-            "you_outfood": "false",
-            "you_lfg_on": "false",
-            "spell_break": "false",
-            "melee_hit": "false",
-            "faction_line": "false",
-            "spell_resist": "true",
-            "spell_regen": "true",
-            "location": "true",
-            "direction": "true",
-            "direction_miss": "true"
         }
     }
 }

@@ -250,9 +250,10 @@ def main():
             process_sound.join()
             cfg_reload.clear()
             # Start process_action and process_sound
-            process_action = threading.Thread(target=eqa_action.process,
-                      args = (action_q, system_q, display_q, sound_q, heal_q, damage_q,
-                                exit_flag, heal_parse, spell_parse, raid, cfg_reload, config))
+            process_action  = threading.Thread(target=eqa_action.process,
+                      args  = (action_q, system_q, display_q, sound_q, heal_q, damage_q,
+                                exit_flag, heal_parse, spell_parse, raid, cfg_reload,
+                                config, base_path))
             process_action.daemon = True
             process_action.start()
             process_sound  = threading.Thread(target=eqa_sound.process,
