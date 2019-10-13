@@ -72,11 +72,11 @@ def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spe
             if not raid.is_set():
               raid.set()
               display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Raid mode enabled'))
-              sound_q.put(eqa_struct.sound('espeak', 'Raid mode enabled'))
+              sound_q.put(eqa_struct.sound('speak', 'Raid mode enabled'))
             elif raid.is_set():
               raid.clear()
               display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Raid mode disabled'))
-              sound_q.put(eqa_struct.sound('espeak', 'Raid mode disabled'))
+              sound_q.put(eqa_struct.sound('speak', 'Raid mode disabled'))
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
 
         # State keys

@@ -74,7 +74,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
             nz_iter += 1
           current_zone = current_zone[:-2]
           current_zone = current_zone.rstrip('.')
-          sound_q.put(eqa_struct.sound('espeak', current_zone))
+          sound_q.put(eqa_struct.sound('speak', current_zone))
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'update', 'zone', current_zone))
           system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'zone', 'null', current_zone))
           if current_zone not in config["zones"].keys():
@@ -83,12 +83,12 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
             if config["zones"][current_zone] == "raid":
               raid.set()
               display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Raid mode auto-enabled'))
-              sound_q.put(eqa_struct.sound('espeak', 'Raid mode enabled'))
+              sound_q.put(eqa_struct.sound('speak', 'Raid mode enabled'))
           elif current_zone in config["zones"].keys() and raid.is_set():
             if config["zones"][current_zone] != "raid":
               raid.clear()
               display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Raid mode auto-disabled'))
-              sound_q.put(eqa_struct.sound('espeak', "Raid mode disabled"))
+              sound_q.put(eqa_struct.sound('speak', "Raid mode disabled"))
 
         # If line_type is a parsable type
         if line_type in config["line"].keys():
@@ -103,7 +103,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
                   payload = keyphrase + ' on ' + check_line_list[0]
                 else:
                   payload = keyphrase
-                sound_q.put(eqa_struct.sound('espeak', payload))
+                sound_q.put(eqa_struct.sound('speak', payload))
                 display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', line_type + ': ' + check_line[0:65]))
 
           # Or if line_type is parsed for as all
@@ -141,7 +141,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
           # Or if line_type is parsed for as a spoken alert
           elif config["line"][line_type]["reaction"] == "speak":
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', check_line))
-            sound_q.put(eqa_struct.sound('espeak', check_line))
+            sound_q.put(eqa_struct.sound('speak', check_line))
 
           # For triggers requiring all line_types
           if config["line"]["all"]["reaction"] == "true":

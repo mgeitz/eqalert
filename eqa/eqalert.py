@@ -48,8 +48,9 @@ def bootstrap(base_path):
     print("Bootstrapping for first run . . .")
 
     # Make the main folder
-    print("    - putting this stuff in " + base_path)
-    os.makedirs(base_path)
+    if not os.path.exists(base_path):
+      print("    - putting this stuff in " + base_path)
+      os.makedirs(base_path)
 
     # Make the log folder
     if not os.path.exists(base_path + 'log/'):
@@ -57,23 +58,20 @@ def bootstrap(base_path):
       os.makedirs(base_path + 'log/')
 
     # Make some sounds
-    if not os.path.exists(base_path + 'sound/'):
+    sound_directory = base_path + 'sound/'
+    if not os.path.exists(sound_directory):
       print("    - making some sounds")
       os.makedirs(base_path + 'sound/')
-      eqa_sound.pre_speak('hello', base_path + 'sound/')
-      eqa_sound.pre_speak('hey', base_path + 'sound/')
-      eqa_sound.pre_speak('listen', base_path + 'sound/')
-      eqa_sound.pre_speak('look', base_path + 'sound/')
-      eqa_sound.pre_speak('watch out', base_path + 'sound/')
+      eqa_sound.speak('hello', 'false', sound_directory)
+      eqa_sound.speak('hey', 'false', sound_directory)
+      eqa_sound.speak('listen', 'false', sound_directory)
+      eqa_sound.speak('look', 'false', sound_directory)
+      eqa_sound.speak('watch out', 'false', sound_directory)
 
-    # Set default character
-      print("    - setting a default character")
+    # Generating a config file
+    print("    - generating json config")
     eqa_config.init(base_path)
     eqa_config.update_logs(base_path)
-    tmp_config = eqa_config.read_config(base_path)
-    tmp_server = tmp_config["servers"]["default"]
-    tmp_chars = eqa_config.get_config_chars(tmp_config)
-    eqa_config.set_default_char(tmp_chars[0], base_path)
 
   except Exception as e:
     print('Unfortunately, the bootstrap step failed with: ' +
@@ -99,7 +97,7 @@ def main():
   damage_q = queue.Queue()
 
   # Bootstraps bootstraps
-  if not os.path.exists(base_path):
+  if not os.path.exists(base_path + 'config.json'):
     bootstrap(base_path)
 
   # Thread Events
@@ -113,11 +111,10 @@ def main():
   logging.basicConfig(filename=base_path + 'log/eqalert.log', level=logging.INFO)
   eqa_config.update_logs(base_path)
   config = eqa_config.read_config(base_path)
-  server = config["servers"]["default"]
-  chars = eqa_config.get_config_chars(config)
-  char = config["characters"]["default"]
-  char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + char.title() + '_' + server + ".txt"
-  state = eqa_state.EQA_State(char, chars, 'unavailable', [0.00, 0.00, 0.00], 'unavailable', 'false', server)
+  server = config["last_state"]["server"]
+  char = config["last_state"]["character"]
+  char_log = config["settings"]["paths"]["char_log"] + config["char_logs"][char + '_' + server]["file_name"]
+  state = eqa_config.get_last_state(base_path)
 
   # Sanity check
   if not os.path.exists(char_log):
@@ -145,7 +142,7 @@ def main():
   ## Produce display_q, sound_q, system_q
   process_keys    = threading.Thread(target=eqa_keys.process,
             args  = (keyboard_q, system_q, display_q, sound_q,
-                      exit_flag, heal_parse, spell_parse, raid, chars))
+                      exit_flag, heal_parse, spell_parse, raid, state.chars))
   process_keys.daemon = True
   process_keys.start()
 
@@ -194,7 +191,7 @@ def main():
   # And we're on
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'draw', 'events', 'null'))
   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Initialized'))
-  sound_q.put(eqa_struct.sound('espeak', 'initialized'))
+  sound_q.put(eqa_struct.sound('speak', 'initialized'))
 
   ## Consume system_q
   try:
@@ -208,32 +205,38 @@ def main():
           # Update zone
           if new_message.tx == "zone":
             state.set_zone(new_message.payload)
+            eqa_config.set_last_state(state, base_path)
           # Update afk status
           elif new_message.tx == "afk":
             state.set_afk(new_message.payload)
+            eqa_config.set_last_state(state, base_path)
           # Update location
           elif new_message.tx == "loc":
             state.set_loc(new_message.payload)
+            eqa_config.set_last_state(state, base_path)
           # Update direction
           elif new_message.tx == "direction":
             state.set_direction(new_message.payload)
+            eqa_config.set_last_state(state, base_path)
           # Update server
           elif new_message.tx == "server":
             state.set_server(new_message.payload)
+            eqa_config.set_last_state(state, base_path)
           # Update character
           elif new_message.tx == "new_character" and not new_message.payload == state.char:
-            new_char_log = config["settings"]["paths"]["char_log"] + "eqlog_" + new_message.payload.title() + '_' + state.server + ".txt"
+            new_char_log = config["settings"]["paths"]["char_log"] + config["char_logs"][new_message.payload + '_' + state.server]["file_name"]
             # Ensure char/server combo exists as file
             if os.path.exists(new_char_log):
               # Stop watch on current log
               log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
               # Set new character
               state.set_char(new_message.payload)
+              eqa_config.set_last_state(state, base_path)
               char_log = new_char_log
               # Start new log watch
               log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
               display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + state.char))
-              sound_q.put(eqa_struct.sound('espeak', 'Character changed to ' + state.char))
+              sound_q.put(eqa_struct.sound('speak', 'Character changed to ' + state.char))
             else:
               display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Unable to change characters, please review logs"))
               eqa_settings.log('Could not find file: ' + new_char_log)
@@ -261,7 +264,7 @@ def main():
             process_sound.daemon = True
             process_sound.start()
             display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', 'Configuration reloaded'))
-            sound_q.put(eqa_struct.sound('espeak', 'Configuration reloaded'))
+            sound_q.put(eqa_struct.sound('speak', 'Configuration reloaded'))
         else:
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', new_message.type + ': ' + new_message.payload))
 

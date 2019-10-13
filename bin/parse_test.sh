@@ -13,8 +13,8 @@
 ## Paths
 CONFIG_PATH="$HOME/.eqa/config.json"
 EQ_LOGS=$(jq '.settings.paths.char_log' ${CONFIG_PATH})
-DEFAULT_CHAR=$(jq '.characters.default' ${CONFIG_PATH} | tr -d '"')
-DEFAULT_SERVER=$(jq '.servers.default' ${CONFIG_PATH} | tr -d '"')
+DEFAULT_CHAR=$(jq '.last_state.character' ${CONFIG_PATH} | tr -d '"')
+DEFAULT_SERVER=$(jq '.last_state.server' ${CONFIG_PATH} | tr -d '"')
 CHAR_LOG="${EQ_LOGS//\"}eqlog_${DEFAULT_CHAR^}_${DEFAULT_SERVER}.txt"
 
 ## Colors
