@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='eqalert',
-    version='1.4.7',
+    version='1.5.0',
     author='Michael Geitz',
     author_email='git@geitz.xyz',
     install_requires=[
