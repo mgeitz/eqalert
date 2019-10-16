@@ -1,6 +1,6 @@
 # EQAlert
 
-An everquest eqmulator log parser with NCurses interface for Linux
+An Everquest Emulator Log Parser with NCurses Interface for Linux
 
 ![img](https://i.imgur.com/Pgo1eMk.png)
 ![img](https://i.imgur.com/SkPvD9j.png)
@@ -44,40 +44,20 @@ $HOME/.eqa
         ⎿ sound/
 ```
 
-Update your default character in `config.json` if needed
-```
-    "characters": {
-        "default": "indefinite",
-        "indefinite": "true",
-        "indef": "true"
-    },
-```
-
-Update your default server in `config.json` if needed
-```
-    "servers": {
-        "default": "project1999",
-        "project1999": "true"
-    },
-```
-
-Spot check these paths in `config.json`
+Spot check these default paths generated in `config.json`
 ```
     "settings": {
         "paths": {
-            "sound": "%ssound/",
-            "alert_log": "%slog/",
-            "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
+            "sound": "[$HOME/.eqa/]sound/",
+            "alert_log": "[$HOME/.eqa/]log/",
+            "char_log": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
         },
 ```
-
-Press `F12` to reload your config or restart the program, you're good to go!
-
+> Press `F12` to reload your config or restart the program if any changes were made to the config
 
 ## Upgrading Versions
 
-- Upgrades via pip may require you regenerate your config by removing or deleting ~/.eqa/ before starting.
-- This is only 10% due to laziness and 90% due not knowing how to migrate old configs over to new ones yet
+Upgrading versions may require replacing your `config.json`, please make a backup of this file and remove the current copy before updating
 
 
 ## Controls
