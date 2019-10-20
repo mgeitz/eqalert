@@ -46,12 +46,12 @@ def process(config, sound_q, exit_flag, cfg_reload):
         sound_event = sound_q.get()
         sound_q.task_done()
 
-        if sound_event.sound == "espeak":
-          speak(sound_event.payload, tmp_sound_file_path)
+        if sound_event.sound == "speak":
+          speak(sound_event.payload, 'true', tmp_sound_file_path)
         elif sound_event.sound == "alert":
           alert(config, sound_event.payload)
         else:
-          speak(sound_event.payload, tmp_sound_file_path)
+          speak(sound_event.payload, 'true', tmp_sound_file_path)
           display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "[Malformed sound event] " + sound_event.sound))
   except Exception as e:
     eqa_settings.log('process_sound: Error on line ' +
@@ -61,24 +61,15 @@ def process(config, sound_q, exit_flag, cfg_reload):
   sys.exit()
 
 
-def pre_speak(phrase, sound_file_path):
-  """Save spoken phrase"""
+def speak(phrase, play, sound_file_path):
+  """Play a spoken phrase"""
   try:
-    if not os.path.exists(sound_file_path + phrase):
+    if not os.path.exists(sound_file_path + phrase + '.wav'):
       tts = gtts.gTTS(text=phrase, lang='en')
       tts.save(sound_file_path + phrase + '.wav')
-  except Exception as e:
-    eqa_settings.log('pre_speak: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    if play == 'true':
+      play_sound(sound_file_path + phrase + '.wav')
 
-
-def speak(phrase, tmp_sound_file_path):
-  """Playa spoken phrase"""
-  try:
-    if not os.path.exists(tmp_sound_file_path + phrase + '.wav'):
-      tts = gtts.gTTS(text=phrase, lang='en')
-      tts.save(tmp_sound_file_path + phrase + '.wav')
-    play_sound(tmp_sound_file_path + phrase + '.wav')
   except Exception as e:
     eqa_settings.log('speak: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
@@ -94,8 +85,9 @@ def play_sound(sound):
   """Play the sound given"""
   try:
     playsound(sound)
-  except KeyboardInterrupt:
-    pass
+  except Exception as e:
+    eqa_settings.log('play sound: Error on line ' +
+                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 if __name__ == '__main__':

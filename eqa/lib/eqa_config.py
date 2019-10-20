@@ -23,6 +23,7 @@ import os
 import sys
 
 import eqa.lib.eqa_settings as eqa_settings
+import eqa.lib.eqa_state as eqa_state
 
 def init(base_path):
   """If there is no config, make a config"""
@@ -31,138 +32,160 @@ def init(base_path):
       build_config(base_path)
 
   except Exception as e:
-    eqa_settings.log('config init: Error on line' +
+    eqa_settings.log('config init: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def read_config(base_path):
   """read the config"""
   try:
-    json_data = open(base_path + 'config.json', 'r')
+    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
     config = json.load(json_data)
     json_data.close()
 
     return config
 
   except Exception as e:
-    eqa_settings.log('config read: Error on line' +
+    eqa_settings.log('config read: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def update_logs(base_path):
   """Add characters and servers of eqemu_ prefixed files in the log path"""
   try:
-    json_data = open(base_path + 'config.json', 'r')
+    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
     config = json.load(json_data)
+    json_data.close()
     log_files = [ f for f in os.listdir(config["settings"]["paths"]["char_log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["char_log"],f)) ]
 
     for logs in log_files:
       if "eqlog_" in logs:
-        emu, char_name, end = logs.split("_")
+        emu, middle, end = logs.split("_")
         server_name = end.lower().split('.')[0]
-        if char_name.lower() not in config["characters"].keys():
-          add_char(char_name.lower(), base_path)
-        if server_name not in config["servers"].keys():
-          add_server(server_name.lower(), base_path)
+        char_name = middle.lower()
+        char_server = char_name + '_' + server_name
+        if char_server not in config["char_logs"].keys():
+          add_char_log(char_name, server_name, base_path)
 
-    json_data.close()
 
   except Exception as e:
-    eqa_settings.log('set config chars: Error on line' +
+    eqa_settings.log('set config chars: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
-def add_char(name, base_path):
+def add_char_log(char, server, base_path):
   """Adds a new character to the config"""
   try:
-    json_data = open(base_path + 'config.json', 'r+')
+    char_server = char + '_' + server
+    char_log = 'eqlog_' + char.title() + '_' + server + '.txt'
+    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
     data = json.load(json_data)
-    data["characters"].update({name.lower():"true"})
-    json_data.seek(0)
-    json.dump(data, json_data, indent = 4)
+    json_data.close()
+    if not data["char_logs"]:
+      bootstrap_state(base_path, char, server)
+
+    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
+    data = json.load(json_data)
+    json_data.close()
+    data["char_logs"].update({char_server:{'char': char, 'server': server, 'file_name': char_log, 'disabled': 'false'}})
+    json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
+    json.dump(data, json_data, sort_keys=True, indent = 2)
     json_data.close()
 
   except Exception as e:
-    eqa_settings.log('add char: Error on line' +
+    eqa_settings.log('add char: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
-def add_server(server, base_path):
-  """Adds a new server to the config"""
+def bootstrap_state(base_path, char, server):
+  """Generate and save state to config"""
 
   try:
-    json_data = open(base_path + 'config.json', 'r+')
+    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
     data = json.load(json_data)
-    data["servers"].update({server.lower():"true"})
-    json_data.seek(0)
-    json.dump(data, json_data, indent = 4)
+    json_data.close()
+    data["last_state"].update({'server': server, 'character': char, 'zone': 'unavailable', 'location': {'x': '0.00', 'y': '0.00', 'z': '0.00'}, 'direction': 'unavailable', 'afk': 'false'})
+    json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
+    json.dump(data, json_data, sort_keys=True, indent = 2)
     json_data.close()
 
   except Exception as e:
-    eqa_settings.log('add server: Error on line' +
+    eqa_settings.log('bootstrap state: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
-def get_config_chars(config):
-  """Return characters in the config"""
+def get_config_chars(config, server):
+  """Return characters in the config of given server"""
   try:
     chars = []
-    for char in config["characters"].keys():
-      if char != "default" and not config["characters"][char] == "false":
-        chars.append(char)
+    for char_server in config["char_logs"].keys():
+      if config["char_logs"][char_server]["server"] == server and config["char_logs"][char_server]["disabled"] == 'false':
+        chars.append(config["char_logs"][char_server]["char"])
 
     return chars
 
   except Exception as e:
-    eqa_settings.log('get chars: Error on line' +
+    eqa_settings.log('get config chars: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def get_config_servers(config):
-  """Return servers from the config"""
+  """Return all servers from the config"""
 
   try:
     servers = []
-    for server in config["servers"].keys():
-      if server != "default" and not config["servers"][server] == "false":
+    for char_server in config["char_logs"].keys():
+      if config["char_logs"][char_server]["server"] not in servers and config["char_log"][char_server]["disabled"] == 'false':
         servers.append(server)
 
     return servers
 
   except Exception as e:
-    eqa_settings.log('get servers: Error on line' +
+    eqa_settings.log('get config servers: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
-def set_default_char(name, base_path):
-  """Set a new default character"""
+def set_last_state(state, base_path):
+  """Save state to config"""
 
   try:
-    json_data = open(base_path + 'config.json', 'r+')
+    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
     data = json.load(json_data)
-    data["characters"].update({"default":name.lower()})
-    json_data.seek(0)
-    json.dump(data, json_data, indent = 4)
+    json_data.close()
+    data["last_state"].update({'server': state.server, 'character': state.char, 'zone': str(state.zone), 'location': {'x': str(state.loc[1]), 'y': str(state.loc[0]), 'z': str(state.loc[2])}, 'direction': state.direction, 'afk': state.afk})
+    json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
+    json.dump(data, json_data, sort_keys=True, ensure_ascii=False, indent=2)
     json_data.close()
 
   except Exception as e:
-    eqa_settings.log('set default char: Error on line' +
+    eqa_settings.log('set last state: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
-def set_default_server(name, base_path):
-  """Set a new default server"""
+def get_last_state(base_path):
+  """Load state from config"""
 
   try:
-    json_data = open(base_path + 'config.json', 'r+')
+    # Read config
+    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
     data = json.load(json_data)
-    data["servers"].update({"default":name.lower()})
-    json_data.seek(0)
-    json.dump(data, json_data, indent = 4)
     json_data.close()
 
+    # Populate State
+    server = data["last_state"]["server"]
+    chars = get_config_chars(data, server)
+    char = data["last_state"]["character"]
+    zone = data["last_state"]["zone"]
+    location = [float(data["last_state"]["location"]["y"]), float(data["last_state"]["location"]["x"]), float(data["last_state"]["location"]["z"])]
+    direction = data["last_state"]["direction"]
+    afk = data["last_state"]["afk"]
+
+    state = eqa_state.EQA_State(char, chars, zone, location, direction, afk, server)
+
+    return state
+
   except Exception as e:
-    eqa_settings.log('set default server: Error on line' +
+    eqa_settings.log('get last state: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
@@ -170,15 +193,16 @@ def add_type(line_type, base_path):
   """Adds default setting values for new line_type"""
 
   try:
-    json_data = open(base_path + 'config.json', 'r+')
+    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
     data = json.load(json_data)
+    json_data.close()
     data["line"].update({line_type:{'sound': '0', 'reaction': 'false', 'alert': {}}})
-    json_data.seek(0)
-    json.dump(data, json_data, indent = 4)
+    json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
+    json.dump(data, json_data, sort_keys=True, indent = 2)
     json_data.close()
 
   except Exception as e:
-    eqa_settings.log('add type: Error on line' +
+    eqa_settings.log('add type: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
@@ -186,15 +210,16 @@ def add_zone(zone, base_path):
   """Adds default setting values for new zones"""
 
   try:
-    json_data = open(base_path + 'config.json', 'r+')
+    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
     data = json.load(json_data)
+    json_data.close()
     data["zones"].update({zone:"false"})
-    json_data.seek(0)
-    json.dump(data, json_data, indent = 4)
+    json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
+    json.dump(data, json_data, sort_keys=True, indent = 2)
     json_data.close()
 
   except Exception as e:
-    eqa_settings.log('add zone: Error on line' +
+    eqa_settings.log('add zone: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
@@ -205,502 +230,497 @@ def build_config(base_path):
 
   new_config = """
 {
-    "zones": {
-        "rivervale": "false",
-        "the feerrott": "false",
-        "mines of nurga": "false",
-        "crushbone": "false",
-        "lake of ill omen": "false",
-        "befallen": "false",
-        "everfrost": "false",
-        "infected paw": "false",
-        "dragon necropolis": "false",
-        "high keep": "false",
-        "east freeport": "false",
-        "lavastorm mountains": "false",
-        "east commonlands": "false",
-        "great divide": "false",
-        "the city of mist": "false",
-        "surefall glade": "false",
-        "guk": "false",
-        "kedge keep": "false",
-        "field of bone": "false",
-        "west freeport": "false",
-        "butcherblock mountains": "false",
-        "rathe mountains": "false",
-        "the hole": "false",
-        "karnor's castle": "false",
-        "plane of hate": "raid",
-        "kithicor woods": "false",
-        "southern felwithe": "false",
-        "steamfont mountains": "false",
-        "eastern plains of karana": "false",
-        "temple of droga": "false",
-        "permafrost caverns": "false",
-        "paineel": "false",
-        "firiona vie": "false",
-        "ocean of tears": "false",
-        "trakanon's teeth": "false",
-        "sleepers tomb": "false",
-        "city of thurgadin": "false",
-        "oasis of marr": "false",
-        "iceclad ocean": "false",
-        "north freeport": "false",
-        "nagafen's lair": "false",
-        "the burning wood": "false",
-        "estate of unrest": "false",
-        "velketor's labyrinth": "false",
-        "warrens": "false",
-        "dagnor's cauldron": "false",
-        "howling stones": "false",
-        "the wakening lands": "false",
-        "lesser faydark": "false",
-        "the arena": "false",
-        "ruins of old guk": "false",
-        "the overthere": "false",
-        "toxxulia forest": "false",
-        "chardok": "false",
-        "skyshrine": "false",
-        "lost temple of cazic-thule": "false",
-        "northern plains of karana": "false",
-        "innothule swamp": "false",
-        "sirens grotto": "false",
-        "plane of fear": "raid",
-        "northern felwithe": "false",
-        "plane of growth": "false",
-        "kael drakkel": "false",
-        "western wastelands": "false",
-        "skyfire mountains": "false",
-        "the nektulos forest": "false",
-        "southern desert of ro": "false",
-        "crystal caverns": "false",
-        "an arena (pvp) area": "false",
-        "qeynos hills": "false",
-        "south kaladim": "false",
-        "the emerald jungle": "false",
-        "greater faydark": "false",
-        "timorous deep": "false",
-        "kurn's tower": "false",
-        "icewell keep": "raid",
-        "west commonlands": "false",
-        "eastern wastelands": "false",
-        "cobalt scar": "false",
-        "misty thicket": "false",
-        "blackburrow": "false",
-        "southern plains of karana": "false",
-        "erudin": "false",
-        "western plains of karana": "false",
-        "erudin palace": "false",
-        "plane of air": "false",
-        "dreadlands": "false",
-        "highpass hold": "false",
-        "temple of veeshan": "raid",
-        "veeshan's peak": "raid",
-        "old sebilis": "false",
-        "plane of mischief": "false",
-        "frontier mountains": "false",
-        "castle mistmoore": "false",
-        "northern desert of ro": "false",
-        "lake rathetear": "false"
+  "char_logs": {},
+  "last_state": {},
+  "line": {
+    "all": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
     },
-    "line": {
-        "mysterious_oner": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "all": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_new_zone": {
-            "sound": "0",
-            "reaction": "all",
-            "alert": {}
-        },
-        "group_invite": {
-            "sound": "0",
-            "reaction": "speak",
-            "alert": {}
-        },
-        "emote_cheer": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_ooc": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "random": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "auction_wtb": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "melee_miss": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "say": {
-            "sound": "0",
-            "reaction": "true",
-            "alert": {
-                "help": "true"
-            }
-        },
-        "spell_break_charm": {
-            "sound": "0",
-            "reaction": "speak",
-            "alert": {}
-        },
-        "you_tell": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_afk_on": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "auction_wts": {
-            "sound": "3",
-            "reaction": "true",
-            "alert": {
-                "spiderling silk": "true"
-            }
-        },
-        "emote_bow": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "group": {
-            "sound": "4",
-            "reaction": "true",
-            "alert": {
-                "help": "true",
-                "inc": "true",
-                "incoming": "true"
-            }
-        },
-        "you_thirsty": {
-            "sound": "0",
-            "reaction": "speak",
-            "alert": {}
-        },
-        "emote_bonk": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "emote_thank": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "shout": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_outdrinklowfood": {
-            "sound": "0",
-            "reaction": "speak",
-            "alert": {}
-        },
-        "you_outdrink": {
-            "sound": "0",
-            "reaction": "speak",
-            "alert": {}
-        },
-        "you_auction_wts": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_healed": {
-            "sound": "0",
-            "reaction": "all",
-            "alert": {}
-        },
-        "you_say": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "spell_fizzle": {
-            "sound": "5",
-            "reaction": "true",
-            "alert": {}
-        },
-        "tell": {
-            "sound": "0",
-            "reaction": "speak",
-            "alert": {}
-        },
-        "emote_smile": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "spell_something": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "spell_interrupted": {
-            "sound": "2",
-            "reaction": "true",
-            "alert": {}
-        },
-        "ooc": {
-            "sound": "1",
-            "reaction": "false",
-            "alert": {}
-        },
-        "who_player": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_outfoodlowdrink": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "spell_begin_casting": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "zoning": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_outfooddrink": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "who_player_afk": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "who_line": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "who_total": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "target_cured": {
-            "sound": "0",
-            "reaction": "speak",
-            "alert": {}
-        },
-        "you_auction_wtb": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "emote_dance": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_lfg_off": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "spell_invis": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "undetermined": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_guild": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_shout": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "engage": {
-            "sound": "0",
-            "reaction": "speak",
-            "alert": {}
-        },
-        "guild": {
-            "sound": "3",
-            "reaction": "true",
-            "alert": {
-                "tash": "raid",
-                "fixated": "raid",
-                "slow": "raid",
-                "rampage": "raid",
-                "malo": "raid",
-                "fixation": "raid",
-                "occlusion": "raid",
-                "assist": "raid",
-                "sunder": "raid",
-                "malosini": "raid"
-            }
-        },
-        "target": {
-            "sound": "3",
-            "reaction": "false",
-            "alert": {}
-        },
-        "spell_damage": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_hungry": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "dot_damage": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "auction": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_afk_off": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_group": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_auction": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "spell_break_ensare": {
-            "sound": "0",
-            "reaction": "speak",
-            "alert": {}
-        },
-        "who_top": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "emote_wave": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_outfood": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "you_lfg_on": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "spell_break": {
-            "sound": "4",
-            "reaction": "false",
-            "alert": {}
-        },
-        "melee_hit": {
-            "sound": "2",
-            "reaction": "false",
-            "alert": {}
-        },
-        "faction_line": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "spell_resist": {
-            "sound": "0",
-            "reaction": "speak",
-            "alert": {}
-        },
-        "spell_regen": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "location": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "direction": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        },
-        "direction_miss": {
-            "sound": "0",
-            "reaction": "false",
-            "alert": {}
-        }
+    "auction": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
     },
-    "characters": {
-        "default": "foobar"
+    "auction_wtb": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
     },
-    "servers": {
-        "default": "project1999",
-        "project1999": "true"
+    "auction_wts": {
+      "alert": {
+        "spiderling silk": "true"
+      },
+      "reaction": "true",
+      "sound": "3"
     },
-    "settings": {
-        "paths": {
-            "sound": "%ssound/",
-            "alert_log": "%slog/",
-            "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
-        },
-        "sounds": {
-            "1": "hey.wav",
-            "3": "look.wav",
-            "2": "listen.wav",
-            "5": "hello.wav",
-            "4": "watch out.wav"
-        }
+    "direction": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "direction_miss": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "dot_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "emote_bonk": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "emote_bow": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "emote_cheer": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "emote_dance": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "emote_smile": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "emote_thank": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "emote_wave": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "engage": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "faction_line": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "group": {
+      "alert": {
+        "help": "true",
+        "inc": "true",
+        "incoming": "true"
+      },
+      "reaction": "true",
+      "sound": "4"
+    },
+    "group_invite": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "guild": {
+      "alert": {
+        "assist": "raid",
+        "fixated": "raid",
+        "fixation": "raid",
+        "malo": "raid",
+        "malosini": "raid",
+        "occlusion": "raid",
+        "rampage": "raid",
+        "slow": "raid",
+        "sunder": "raid",
+        "tash": "raid"
+      },
+      "reaction": "true",
+      "sound": "3"
+    },
+    "location": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "melee_hit": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "2"
+    },
+    "melee_miss": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "mysterious_oner": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "ooc": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "1"
+    },
+    "random": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "say": {
+      "alert": {
+        "help": "true"
+      },
+      "reaction": "true",
+      "sound": "0"
+    },
+    "shout": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_begin_casting": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_break": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "4"
+    },
+    "spell_break_charm": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "spell_break_ensare": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "spell_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_fizzle": {
+      "alert": {},
+      "reaction": "true",
+      "sound": "5"
+    },
+    "spell_interrupted": {
+      "alert": {},
+      "reaction": "true",
+      "sound": "2"
+    },
+    "spell_invis": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_regen": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_resist": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "spell_something": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "3"
+    },
+    "target_cured": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "tell": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "undetermined": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "who_line": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "who_player": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "who_player_afk": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "who_top": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "who_total": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_afk_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_afk_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_auction": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_auction_wtb": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_auction_wts": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_group": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_guild": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_healed": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "0"
+    },
+    "you_hungry": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_lfg_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_lfg_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_new_zone": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "0"
+    },
+    "you_ooc": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_outdrink": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "you_outdrinklowfood": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "you_outfood": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_outfooddrink": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_outfoodlowdrink": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_say": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_shout": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_tell": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_thirsty": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "zoning": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
     }
+  },
+  "settings": {
+    "paths": {
+      "alert_log": "%slog/",
+      "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
+      "sound": "%ssound/"
+    },
+    "sounds": {
+      "1": "hey.wav",
+      "2": "listen.wav",
+      "3": "look.wav",
+      "4": "watch out.wav",
+      "5": "hello.wav"
+    }
+  },
+  "zones": {
+    "an arena (pvp) area": "false",
+    "befallen": "false",
+    "blackburrow": "false",
+    "butcherblock mountains": "false",
+    "castle mistmoore": "false",
+    "chardok": "false",
+    "city of thurgadin": "false",
+    "cobalt scar": "false",
+    "crushbone": "false",
+    "crystal caverns": "false",
+    "dagnor's cauldron": "false",
+    "dragon necropolis": "false",
+    "dreadlands": "false",
+    "east commonlands": "false",
+    "east freeport": "false",
+    "eastern plains of karana": "false",
+    "eastern wastelands": "false",
+    "erudin": "false",
+    "erudin palace": "false",
+    "estate of unrest": "false",
+    "everfrost": "false",
+    "field of bone": "false",
+    "firiona vie": "false",
+    "frontier mountains": "false",
+    "great divide": "false",
+    "greater faydark": "false",
+    "guk": "false",
+    "high keep": "false",
+    "highpass hold": "false",
+    "howling stones": "false",
+    "iceclad ocean": "false",
+    "icewell keep": "raid",
+    "infected paw": "false",
+    "innothule swamp": "false",
+    "kael drakkel": "false",
+    "karnor's castle": "false",
+    "kedge keep": "false",
+    "kithicor woods": "false",
+    "kurn's tower": "false",
+    "lake of ill omen": "false",
+    "lake rathetear": "false",
+    "lavastorm mountains": "false",
+    "lesser faydark": "false",
+    "lost temple of cazic-thule": "false",
+    "mines of nurga": "false",
+    "misty thicket": "false",
+    "nagafen's lair": "false",
+    "north freeport": "false",
+    "northern desert of ro": "false",
+    "northern felwithe": "false",
+    "northern plains of karana": "false",
+    "oasis of marr": "false",
+    "ocean of tears": "false",
+    "old sebilis": "false",
+    "paineel": "false",
+    "permafrost caverns": "false",
+    "plane of air": "false",
+    "plane of fear": "raid",
+    "plane of growth": "false",
+    "plane of hate": "raid",
+    "plane of mischief": "false",
+    "qeynos hills": "false",
+    "rathe mountains": "false",
+    "rivervale": "false",
+    "ruins of old guk": "false",
+    "sirens grotto": "false",
+    "skyfire mountains": "false",
+    "skyshrine": "false",
+    "sleepers tomb": "false",
+    "south kaladim": "false",
+    "southern desert of ro": "false",
+    "southern felwithe": "false",
+    "southern plains of karana": "false",
+    "steamfont mountains": "false",
+    "surefall glade": "false",
+    "temple of droga": "false",
+    "temple of veeshan": "raid",
+    "the arena": "false",
+    "the burning wood": "false",
+    "the city of mist": "false",
+    "the emerald jungle": "false",
+    "the feerrott": "false",
+    "the hole": "false",
+    "the nektulos forest": "false",
+    "the overthere": "false",
+    "the wakening lands": "false",
+    "timorous deep": "false",
+    "toxxulia forest": "false",
+    "trakanon's teeth": "false",
+    "veeshan's peak": "raid",
+    "velketor's labyrinth": "false",
+    "warrens": "false",
+    "west commonlands": "false",
+    "west freeport": "false",
+    "western plains of karana": "false",
+    "western wastelands": "false"
+  }
 }
 """
 
   try:
-    f = open(base_path + 'config.json', 'a+')
-    f.write(new_config % (base_path, base_path, home))
+    f = open(base_path + 'config.json', 'w', encoding='utf-8')
+    f.write(new_config % (base_path, home, base_path))
     f.close()
 
   except Exception as e:
