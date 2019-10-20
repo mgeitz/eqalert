@@ -15,7 +15,7 @@ An Everquest Emulator Log Parser with NCurses Interface for Linux
 Install from pypi
 ```sh
 $ # Install Stable
-$ pip3 install eqalert=1.5.0
+$ pip3 install eqalert=1.6.0
 $
 $ # Install whatever I just pushed to pypi
 $ pip3 install eqalert
@@ -48,9 +48,9 @@ Spot check these default paths generated in `config.json`
 ```
     "settings": {
         "paths": {
-            "sound": "[$HOME/.eqa/]sound/",
             "alert_log": "[$HOME/.eqa/]log/",
-            "char_log": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/"
+            "char_log": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
+            "sound": "[$HOME/.eqa/]sound/"
         },
 ```
 > Press `F12` to reload your config or restart the program if any changes were made to the config
