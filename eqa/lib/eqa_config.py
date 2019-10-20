@@ -615,7 +615,8 @@ def build_config(base_path):
       "3": "look.wav",
       "4": "watch out.wav",
       "5": "hello.wav"
-    }
+    },
+    "version": "1.6.3"
   },
   "zones": {
     "an arena (pvp) area": "false",
