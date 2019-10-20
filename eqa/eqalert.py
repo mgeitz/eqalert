@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: eqalert.py
+   File Name: eqa/eqalert.py
    Copyright (C) 2019 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
@@ -20,8 +20,6 @@
    Parse and react to eqemu logs
 """
 
-import curses
-import datetime
 import logging
 import os
 import pkg_resources
@@ -31,15 +29,15 @@ import threading
 import time
 import queue
 
-import eqa.lib.eqa_action as eqa_action
-import eqa.lib.eqa_config as eqa_config
-import eqa.lib.eqa_curses as eqa_curses
-import eqa.lib.eqa_keys as eqa_keys
-import eqa.lib.eqa_parser as eqa_parser
-import eqa.lib.eqa_settings as eqa_settings
-import eqa.lib.eqa_sound as eqa_sound
-import eqa.lib.eqa_state as eqa_state
-import eqa.lib.eqa_struct as eqa_struct
+import eqa.lib.action as eqa_action
+import eqa.lib.config as eqa_config
+import eqa.lib.curses as eqa_curses
+import eqa.lib.keys as eqa_keys
+import eqa.lib.parser as eqa_parser
+import eqa.lib.settings as eqa_settings
+import eqa.lib.sound as eqa_sound
+import eqa.lib.state as eqa_state
+import eqa.lib.struct as eqa_struct
 
 
 def bootstrap(base_path):

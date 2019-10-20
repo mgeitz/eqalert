@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: eqa_parser.py
+   File Name: eqa/lib/parser.py
    Copyright (C) 2019 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
@@ -22,8 +22,8 @@ from collections import deque
 import sys
 import time
 
-import eqa.lib.eqa_struct as eqa_struct
-import eqa.lib.eqa_settings as eqa_settings
+import eqa.lib.struct as eqa_struct
+import eqa.lib.settings as eqa_settings
 
 
 def last_line(character_log):

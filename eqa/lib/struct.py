@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: eqa_struct.py
+   File Name: eqa/lib/struct.py
    Copyright (C) 2019 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
@@ -19,6 +19,7 @@
 """
 
 from collections import namedtuple
+
 
 global display
 global sound
