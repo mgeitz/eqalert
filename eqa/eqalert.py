@@ -20,26 +20,27 @@
    Parse and react to eqemu logs
 """
 
-import pyinotify
 import curses
-import logging
 import datetime
-import time
-import threading
-import queue
+import logging
 import os
+import pkg_resources
+import pyinotify
 import sys
+import threading
+import time
+import queue
 
-import eqa.lib.eqa_parser as eqa_parse
-import eqa.lib.eqa_config as eqa_config
-import eqa.lib.eqa_settings as eqa_settings
-import eqa.lib.eqa_curses as eqa_curses
-import eqa.lib.eqa_sound as eqa_sound
-import eqa.lib.eqa_parser as eqa_parser
-import eqa.lib.eqa_struct as eqa_struct
 import eqa.lib.eqa_action as eqa_action
+import eqa.lib.eqa_config as eqa_config
+import eqa.lib.eqa_curses as eqa_curses
 import eqa.lib.eqa_keys as eqa_keys
+import eqa.lib.eqa_parser as eqa_parser
+import eqa.lib.eqa_settings as eqa_settings
+import eqa.lib.eqa_sound as eqa_sound
 import eqa.lib.eqa_state as eqa_state
+import eqa.lib.eqa_struct as eqa_struct
+
 
 def bootstrap(base_path):
   """Bootstrap first run"""
@@ -116,12 +117,20 @@ def main():
   char_log = config["settings"]["paths"]["char_log"] + config["char_logs"][char + '_' + server]["file_name"]
   state = eqa_config.get_last_state(base_path)
 
-  # Sanity check
+  # Ensure the character log file exists
   if not os.path.exists(char_log):
     print('Please review `settings > paths` in config.json, a log with that default server and character cannot be found.')
     exit(1)
 
-  # Turn on the lights
+  # Ensure the configuration is up-to-date
+  if 'version' not in config["settings"]:
+    print('Please move or delete your current configuration. A new config.json file must be generated.')
+    exit(1)
+  elif not config["settings"]["version"] == str(pkg_resources.get_distribution('eqalert').version):
+    print('Please move or delete your current configuration. A new config.json file must be generated.')
+    exit(1)
+
+  # Initialize curses
   screen = eqa_curses.init(state)
 
   ## Consume keyboard events
