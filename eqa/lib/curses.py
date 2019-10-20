@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: eqa_curses.py
+   File Name: eqa/lib/curses.py
    Copyright (C) 2019 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
@@ -20,12 +20,13 @@
 
 import curses
 import os
-import time
 import sys
+import time
 
-import eqa.lib.eqa_struct as eqa_struct
-import eqa.lib.eqa_state as eqa_state
-import eqa.lib.eqa_settings as eqa_settings
+import eqa.lib.struct as eqa_struct
+import eqa.lib.state as eqa_state
+import eqa.lib.settings as eqa_settings
+
 
 def display(stdscr, display_q, state, raid, exit_flag):
   """

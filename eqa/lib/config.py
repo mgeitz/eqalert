@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: eqa_config.py
+   File Name: eqa/lib/config.py
    Copyright (C) 2019 Michael Geitz
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,12 +18,12 @@
 """
 
 import json
-import datetime
 import os
 import sys
 
-import eqa.lib.eqa_settings as eqa_settings
-import eqa.lib.eqa_state as eqa_state
+import eqa.lib.settings as eqa_settings
+import eqa.lib.state as eqa_state
+
 
 def init(base_path):
   """If there is no config, make a config"""
@@ -616,7 +616,7 @@ def build_config(base_path):
       "4": "watch out.wav",
       "5": "hello.wav"
     },
-    "version": "1.6.3"
+    "version": "1.6.4"
   },
   "zones": {
     "an arena (pvp) area": "false",

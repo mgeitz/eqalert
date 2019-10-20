@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: eqa_keys.py
+   File Name: eqa/lib/keys.py
    Copyright (C) 2019 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
@@ -19,11 +19,11 @@
 """
 
 import curses
-import time
 import sys
+import time
 
-import eqa.lib.eqa_settings as eqa_settings
-import eqa.lib.eqa_struct as eqa_struct
+import eqa.lib.settings as eqa_settings
+import eqa.lib.struct as eqa_struct
 
 def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spell_parse, raid, chars):
   """

@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: eqa_sound.py
+   File Name: eqa/lib/sound.py
    Copyright (C) 2019 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
@@ -24,8 +24,8 @@ import sys
 import gtts
 from playsound import playsound
 
-import eqa.lib.eqa_struct as eqa_struct
-import eqa.lib.eqa_settings as eqa_settings
+import eqa.lib.struct as eqa_struct
+import eqa.lib.settings as eqa_settings
 
 
 def process(config, sound_q, exit_flag, cfg_reload):

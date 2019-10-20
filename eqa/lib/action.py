@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: eqa_action.py
+   File Name: eqa/lib/action.py
    Copyright (C) 2019 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
@@ -19,13 +19,13 @@
 """
 
 import datetime
-import time
 import sys
+import time
 
-import eqa.lib.eqa_sound as eqa_sound
-import eqa.lib.eqa_struct as eqa_struct
-import eqa.lib.eqa_settings as eqa_settings
-import eqa.lib.eqa_config as eqa_config
+import eqa.lib.config as eqa_config
+import eqa.lib.settings as eqa_settings
+import eqa.lib.sound as eqa_sound
+import eqa.lib.struct as eqa_struct
 
 
 def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
@@ -160,7 +160,7 @@ def process(action_q, system_q, display_q, sound_q, heal_q, damage_q, exit_flag,
     eqa_settings.log('process action: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' +  str(e))
 
-  sys.exit()
+  sys.exit(0)
 
 
 def undetermined_line(line, base_path):
