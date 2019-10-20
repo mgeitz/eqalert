@@ -332,6 +332,11 @@ def build_config(base_path):
       "reaction": "true",
       "sound": "3"
     },
+    "hit_you_non_melee": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
     "location": {
       "alert": {},
       "reaction": "false",
@@ -603,7 +608,7 @@ def build_config(base_path):
       "4": "watch out.wav",
       "5": "hello.wav"
     },
-    "version": "1.7.2"
+    "version": "1.7.3"
   },
   "zones": {
     "an arena (pvp) area": "false",

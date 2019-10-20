@@ -72,21 +72,24 @@ def determine(line):
     line_type = "undetermined"
     line_list = line.split(' ')
 
-   # chat your player initiates
+   # You
     if line_list[0] == "you":
+        # You told
         if line_list[1] == "told":
             line_type = "you_tell"
+        # You say
         elif line_list[1] == "say,":
             line_type = "you_say"
+        # You shout
         elif line_list[1] == "shout,":
             line_type = "you_shout"
-        elif "party," in line:
-            line_type = "you_group"
+        # You say to ...
         elif line_list[1] == "say":
             if line_list[4] == "character,":
                 line_type = "you_ooc"
             if line_list[4] == "guild,":
                 line_type = "you_guild"
+        # You auction
         elif line_list[1] == "auction,":
             line_type = "you_auction"
             if "wts" in line or "selling" in line and "wtb" in line or "buying" in line:
@@ -95,6 +98,7 @@ def determine(line):
                 line_type = "you_auction_wts"
             if "wtb" in line or "buying" in line:
                 line_type = "you_auction_wtb"
+        # You have
         elif line_list[1] == "have":
             if line_list[2] == "entered":
                 line_type = "you_new_zone"
@@ -102,11 +106,16 @@ def determine(line):
                 line_type = "direction_miss"
             elif line_list[2] == "healed":
                 line_type = "you_healed"
+        # You think
         elif line_list[1] == "think":
             if line_list[4] == "heading":
                 line_type = "direction"
-        elif "hungry." in line_list:
-            line_type = "you_hungry"
+        # You were
+        elif line_list[1] == "were":
+            if line_list[2] == "hit":
+                if line_list[4] == "non-melee":
+                    line_type = "hit_you_non_melee"
+        # You are
         elif line_list[1] == "are":
             if line_list[2] == "now":
                 if "a.f.k." in line:
@@ -133,16 +142,27 @@ def determine(line):
                 line_type = "you_thirsty"
             elif line_list[-1] == "hungry.":
                 line_type = "you_hungry"
+        # You forget
         elif line_list[1] == "forget":
             line_type == "you_spell_forget"
+        # You ... hungry
+        elif "hungry." in line_list:
+            line_type = "you_hungry"
+        # You ... party,
+        elif "party," in line:
+            line_type = "you_group"
 
+    # Your
     elif line_list[0] == "your":
+        # Your location
         if line_list[1] == "location":
             if line_list[2] == "is":
                 line_type = "location"
+        # Your spell
         elif line_list[1] == "spell":
-            if line_list[3] == "interrupted":
+            if line_list[3] == "interrupted.":
                 line_type = "spell_interrupted"
+        # Your ... spell
         elif line_list[2] == "spell":
             if line_list[1] == "charm":
                 line_type = "spell_break_charm"
@@ -150,8 +170,10 @@ def determine(line):
                 line_type = "spell_break_ensare"
             else:
                 line_type = "spell_break"
+        # Your faction
         elif line_list[1] ==  "faction":
             line_type = "faction_line"
+        # Your target
         elif line_list[1] == "target":
             if line_list[2] == "resisted":
                 line_type = "spell_resist"
