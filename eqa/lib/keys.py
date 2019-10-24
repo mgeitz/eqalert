@@ -95,7 +95,6 @@ def process(keyboard_q, system_q, display_q, sound_q, exit_flag, heal_parse, spe
                   selected_char -= 1
                   display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'update', 'selected_char', selected_char))
               elif key == curses.KEY_RIGHT or key == ord('d'):
-                display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'update', 'select_char', selected_char))
                 display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'update', 'zone', 'unavailable'))
                 system_q.put(eqa_struct.message(eqa_settings.eqa_time(), 'system', 'new_character', 'null', chars[selected_char]))
               elif key == ord(' '):
