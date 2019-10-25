@@ -2,10 +2,10 @@
 
 An Everquest Emulator Log Parser with NCurses Interface for Linux
 
-![img](https://i.imgur.com/Pgo1eMk.png)
-![img](https://i.imgur.com/SkPvD9j.png)
+![img](https://i.imgur.com/wMs0RcV.png)
+![img](https://i.imgur.com/NK3bzx2.png)
 ![img](https://i.imgur.com/TCLJ7v4.png)
-![img](https://i.imgur.com/a9GNMV3.png)
+![img](https://i.imgur.com/uXVXSr8.png)
 
 > Best used with the [Linux EQ Launch Manager](https://gist.github.com/mgeitz/aa295061c51b26d53dd818d0ebb3e37a) to maintain reasonable log file size
 
@@ -54,10 +54,6 @@ Spot check these default paths generated in `config.json`
         },
 ```
 > Press `F12` to reload your config or restart the program if any changes were made to the config
-
-## Upgrading Versions
-
-Upgrading versions may require replacing your `config.json`, please make a backup of this file and remove the current copy before updating
 
 
 ## Controls
