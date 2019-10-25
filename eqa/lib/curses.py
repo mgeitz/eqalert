@@ -339,9 +339,9 @@ def draw_settings(stdscr, state, selected_setting, selected_char):
     stdscr.addstr(4, 3, 'Character Selection', curses.A_UNDERLINE | curses.color_pair(2))
   else:
     stdscr.addstr(4, 5, 'Character Selection', curses.color_pair(3))
-  stdscr.addstr(12, 5, 'Active Character', curses.color_pair(3))
-  stdscr.addstr(12, 21, ':', curses.color_pair(1))
-  stdscr.addstr(12, 23, state.char + state.server, curses.color_pair(2))
+  stdscr.addstr(7 + len(state.chars), 5, 'Active Character', curses.color_pair(3))
+  stdscr.addstr(7 + len(state.chars), 21, ':', curses.color_pair(1))
+  stdscr.addstr(7 + len(state.chars), 23, state.char + ' on ' + state.server, curses.color_pair(2))
 
   draw_chars(stdscr, state.chars, state.char, selected_char)
 
