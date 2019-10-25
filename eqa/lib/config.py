@@ -61,8 +61,8 @@ def update_logs(base_path):
     for logs in log_files:
       if "eqlog_" in logs:
         emu, middle, end = logs.split("_")
-        server_name = end.lower().split('.')[0]
-        char_name = middle.lower()
+        server_name = end.split('.')[0]
+        char_name = middle
         char_server = char_name + '_' + server_name
         if char_server not in config["char_logs"].keys():
           add_char_log(char_name, server_name, base_path)
@@ -114,34 +114,18 @@ def bootstrap_state(base_path, char, server):
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
-def get_config_chars(config, server):
-  """Return characters in the config of given server"""
+def get_config_chars(config):
+  """Return each unique character log"""
   try:
     chars = []
     for char_server in config["char_logs"].keys():
-      if config["char_logs"][char_server]["server"] == server and config["char_logs"][char_server]["disabled"] == 'false':
-        chars.append(config["char_logs"][char_server]["char"])
+      if config["char_logs"][char_server]["disabled"] == 'false':
+        chars.append(char_server)
 
     return chars
 
   except Exception as e:
     eqa_settings.log('get config chars: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
-
-
-def get_config_servers(config):
-  """Return all servers from the config"""
-
-  try:
-    servers = []
-    for char_server in config["char_logs"].keys():
-      if config["char_logs"][char_server]["server"] not in servers and config["char_log"][char_server]["disabled"] == 'false':
-        servers.append(server)
-
-    return servers
-
-  except Exception as e:
-    eqa_settings.log('get config servers: Error on line ' +
                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
@@ -173,13 +157,16 @@ def get_last_state(base_path):
 
     # Populate State
     server = data["last_state"]["server"]
-    chars = get_config_chars(data, server)
     char = data["last_state"]["character"]
     zone = data["last_state"]["zone"]
     location = [float(data["last_state"]["location"]["y"]), float(data["last_state"]["location"]["x"]), float(data["last_state"]["location"]["z"])]
     direction = data["last_state"]["direction"]
     afk = data["last_state"]["afk"]
 
+    # Get chars
+    chars = get_config_chars(data)
+
+    # Populate and return a new state
     state = eqa_state.EQA_State(char, chars, zone, location, direction, afk, server)
 
     return state
@@ -616,7 +603,7 @@ def build_config(base_path):
       "4": "watch out.wav",
       "5": "hello.wav"
     },
-    "version": "1.6.4"
+    "version": "1.7.0"
   },
   "zones": {
     "an arena (pvp) area": "false",

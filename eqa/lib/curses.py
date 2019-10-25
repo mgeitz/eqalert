@@ -341,7 +341,7 @@ def draw_settings(stdscr, state, selected_setting, selected_char):
     stdscr.addstr(4, 5, 'Character Selection', curses.color_pair(3))
   stdscr.addstr(12, 5, 'Active Character', curses.color_pair(3))
   stdscr.addstr(12, 21, ':', curses.color_pair(1))
-  stdscr.addstr(12, 23, state.char.title(), curses.color_pair(2))
+  stdscr.addstr(12, 23, state.char + state.server, curses.color_pair(2))
 
   draw_chars(stdscr, state.chars, state.char, selected_char)
 
@@ -351,29 +351,21 @@ def draw_chars(stdscr, chars, char, selected):
   try:
     y, x = stdscr.getmaxyx()
     charscr_width = int(x / 3)
-    charscr_height = 7
+    # Pending general scrolling method
+    charscr_height = len(chars) + 2
 
     charscr = stdscr.derwin(charscr_height, charscr_width, 5, 3)
     charscr.clear()
     charscr.box()
 
     count = 0
-    if len(chars) < 5:
-      while count < len(chars):
-        char_name = chars[count]
-        if selected == count:
-          charscr.addstr(6 - count, 2, char_name.title(), curses.color_pair(1))
-        else:
-          charscr.addstr(6 - count, 2, char_name.title(), curses.color_pair(2))
-        count += 1
-    else:
-      for count in range(0, 5):
-        char_name = chars[(selected - 2 + count) % len(chars)]
-        if count == 2:
-          charscr.addstr(5 - count, 2, char_name.title(), curses.color_pair(1))
-        elif (selected - 2 + count) < len(chars) and (selected - 2 + count) >= 0:
-          charscr.addstr(5 - count, 2, char_name.title(), curses.color_pair(2))
-        count += 1
+    while count < len(chars):
+      char_name, char_server = chars[count].split('_')
+      if selected == count:
+        charscr.addstr(len(chars) - count, 2, char_name + ' ' + char_server, curses.color_pair(1))
+      else:
+        charscr.addstr(len(chars) - count, 2, char_name + ' ' + char_server, curses.color_pair(2))
+      count += 1
 
   except Exception as e:
       eqa_settings.log('draw chars: Error on line ' +

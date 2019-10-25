@@ -225,25 +225,23 @@ def main():
           elif new_message.tx == "direction":
             state.set_direction(new_message.payload)
             eqa_config.set_last_state(state, base_path)
-          # Update server
-          elif new_message.tx == "server":
-            state.set_server(new_message.payload)
-            eqa_config.set_last_state(state, base_path)
           # Update character
-          elif new_message.tx == "new_character" and not new_message.payload == state.char:
-            new_char_log = config["settings"]["paths"]["char_log"] + config["char_logs"][new_message.payload + '_' + state.server]["file_name"]
+          elif new_message.tx == "new_character":
+            new_char_log = config["settings"]["paths"]["char_log"] + config["char_logs"][new_message.payload]["file_name"]
             # Ensure char/server combo exists as file
             if os.path.exists(new_char_log):
               # Stop watch on current log
               log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
               # Set new character
-              state.set_char(new_message.payload)
+              char_name, char_server = new_message.payload.split('_')
+              state.set_char(char_name)
+              state.set_server(char_server)
               eqa_config.set_last_state(state, base_path)
               char_log = new_char_log
               # Start new log watch
               log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
-              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + state.char))
-              sound_q.put(eqa_struct.sound('speak', 'Character changed to ' + state.char))
+              display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Character changed to " + state.char + ' on ' + state.server))
+              sound_q.put(eqa_struct.sound('speak', 'Character changed to ' + state.char + ' on ' + state.server))
             else:
               display_q.put(eqa_struct.display(eqa_settings.eqa_time(), 'event', 'events', "Unable to change characters, please review logs"))
               eqa_settings.log('Could not find file: ' + new_char_log)
