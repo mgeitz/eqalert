@@ -4,8 +4,8 @@ An Everquest Emulator Log Parser with NCurses Interface for Linux
 
 ![img](https://i.imgur.com/wMs0RcV.png)
 ![img](https://i.imgur.com/NK3bzx2.png)
-![img](https://i.imgur.com/TCLJ7v4.png)
 ![img](https://i.imgur.com/uXVXSr8.png)
+![img](https://i.imgur.com/a9GNMV3.png)
 
 > Best used with the [Linux EQ Launch Manager](https://gist.github.com/mgeitz/aa295061c51b26d53dd818d0ebb3e37a) to maintain reasonable log file size
 
