@@ -152,7 +152,7 @@ def determine(line):
             # You ... party,
             elif "party," in line:
                 line_type = "you_group"
-  
+
         # Your
         elif line_list[0] == "your":
             # Your location
@@ -184,7 +184,7 @@ def determine(line):
             line_type = "who_line"
         elif len(line_list) == 1:
             line_type = "mysterious_oner"
-  
+
         # chat from other players
         elif line_list[1] == "tells":
             if line_list[2] == "you,":
@@ -208,7 +208,7 @@ def determine(line):
                 line_type = "auction_wts"
             elif "wtb" in line or "buying" in line:
                 line_type = "auction_wtb"
-  
+
         # spells / casting
         elif line_list[1] == "spell":
             line_type = "spell_something"
@@ -221,7 +221,7 @@ def determine(line):
             if len(line_list) > 3:
                 if line_list[3] == "regenerate.":
                     line_type = "spell_regen"
-  
+
         # spell damage (has/was)
         elif "has" in line_list:
             if line_list[line_list.index("has") + 1] == "taken" and line_list[line_list.index("has") + 3] == "damage":
@@ -229,11 +229,11 @@ def determine(line):
         elif "was" in line_list:
             if line_list[line_list.index("was") + 1] == "hit" and line_list[line_list.index("was") + 3] == "non-melee":
                 line_type = "spell_damage"
-  
+
         # engage messages
         elif "engages" in line_list and line_list[-1].endswith("!"):
             line_type = "engage"
-  
+
         # combat
         #elif line_list[-2] == "but" and line_list[-1] == "misses!":
         #    line_type = "melee_miss"
@@ -241,14 +241,14 @@ def determine(line):
         #    if len(line_list) > 2:
         #        if line_list[-3] == "points":
         #            line_type = "melee_hit"
-  
+
         # other
         # Damn falling messages causing a problem
         #elif "injured" in line:
         #    if line_list[2] == "injured":
         #        if line_list[-1] == "falling.":
         #            line_type == "fall_damage"
-  
+
         elif line_list[0] == "loading,":
             line_type = "zoning"
         elif line_list[0][0] == "*":
@@ -268,7 +268,7 @@ def determine(line):
             line_type = "who_top"
         elif line_list[0] == "targeted" :
             line_type = "target"
-  
+
         # possible emotes
         elif line_list[1] == "bows" :
             line_type = "emote_bow"
@@ -284,7 +284,7 @@ def determine(line):
             line_type = "emote_smile"
         elif line_list[1] == "cheers." or line_list[1] == "cheers":
             line_type = "emote_cheer"
-  
+
         # other
         elif line_list[0] == "it":
             if line_list[1] == "begins":
@@ -299,11 +299,13 @@ def determine(line):
                     line_type = "weather_stop_snow"
             elif line_list[-1] == "camp.":
                 line_type == "you_camping"
+
+        return line_type
+
     except Exception as e:
         eqa_settings.log('determine: Error on line ' +
                          str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e)
 
-    return line_type
 
 if __name__ == '__main__':
     main()
