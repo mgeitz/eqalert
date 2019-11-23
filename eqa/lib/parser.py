@@ -304,7 +304,7 @@ def determine(line):
 
     except Exception as e:
         eqa_settings.log('determine: Error on line ' +
-                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e)
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 if __name__ == '__main__':
