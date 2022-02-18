@@ -305,8 +305,7 @@ def build_config(base_path):
     "group": {
       "alert": {
         "help": "true",
-        "inc": "true",
-        "incoming": "true"
+        "inc": "true"
       },
       "reaction": "true",
       "sound": "4"
@@ -603,7 +602,7 @@ def build_config(base_path):
       "4": "watch out.wav",
       "5": "hello.wav"
     },
-    "version": "1.7.2"
+    "version": "1.9.0"
   },
   "zones": {
     "an arena (pvp) area": "false",

@@ -21,261 +21,215 @@
 from collections import deque
 import sys
 import time
+import re
 
 import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
 
 
 def last_line(character_log):
-  """Reads and returns last line"""
-  try:
-    with open(character_log, 'r') as f:
-      content = deque(f, 1)
-    return content[0]
-  except Exception as e:
-    eqa_settings.log('last_line: ' + str(e))
+    """Reads and returns last line"""
+    try:
+        with open(character_log, 'r') as f:
+          content = deque(f, 1)
+        return content[0]
+    except Exception as e:
+        eqa_settings.log('last_line: ' + str(e))
 
 
 def process(exit_flag, log_q, action_q):
-  """
-    Process: log_q
-    Produce action_q
-  """
+    """
+      Process: log_q
+      Produce action_q
+    """
 
-  try:
-    while not exit_flag.is_set():
-      time.sleep(0.001)
-      if not log_q.empty():
-        # Read raw log line
-        log_line = log_q.get()
-        log_q.task_done()
+    try:
+        while not exit_flag.is_set():
+            time.sleep(0.001)
+            if not log_q.empty():
+                # Read raw log line
+                log_line = log_q.get()
+                log_q.task_done()
 
-        # Strip line of trailing space and lowercase everything
-        line = log_line.strip().lower()
-        # Split timestamp and message payload
-        timestamp, payload = line[1:].split('] ', 1)
-        timestamp = timestamp.split(' ')[3] + '.00'
-        # Determine line type
-        line_type = determine(payload)
-        # Build and queue action
-        new_message = eqa_struct.message(timestamp, line_type, 'null', 'null', payload)
-        action_q.put(new_message)
+                # Strip line of trailing space and lowercase everything
+                line = log_line.strip()
+                # Split timestamp and message payload
+                timestamp, payload = line[1:].split('] ', 1)
+                timestamp = timestamp.split(' ')[3] + '.00'
+                # Determine line type
+                line_type = determine(payload)
+                # Build and queue action
+                new_message = eqa_struct.message(timestamp, line_type, 'null', 'null', payload.lower())
+                action_q.put(new_message)
 
-  except Exception as e:
-      eqa_settings.log('process_log: Error on line ' +
-                       str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('process_log: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def determine(line):
     """Determine type of line"""
 
-    line_type = "undetermined"
-    line_list = line.split(' ')
+    try:
+        # Melee Combat
+        if re.fullmatch(r'^[a-zA-Z\s]+ (hits|crushes|slashes|pierces|bashes|backstabs|bites|kicks|claws|gores|punches|strikes|slices) [a-zA-Z\s]+ for \d+ points of damage\.', line) is not None:
+            line_type = "combat_other_melee"
+        elif re.fullmatch(r'^[a-zA-Z\s]+ tries to (hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but misses\!', line) is not None:
+            line_type = "combat_other_melee_miss"
+        elif re.fullmatch(r'^[a-zA-Z\s]+ (hits|crushes|slashes|pierces|bashes|backstabs|bites|kicks|claws|gores|punches|strikes|slices) you for \d+ points of damage\.', line) is not None:
+            line_type = "combat_you_receive_melee"
+        elif re.fullmatch(r'^You (hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+ for \d+ points of damage\.', line) is not None:
+            line_type = "combat_you_melee"
+        elif re.fullmatch(r'^You try to (hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but miss\!', line) is not None:
+            line_type = "combat_you_melee_miss"
 
-   # chat your player initiates
-    if line_list[0] == "you":
-        if line_list[1] == "told":
-            line_type = "you_tell"
-        elif line_list[1] == "say,":
-            line_type = "you_say"
-        elif line_list[1] == "shout,":
-            line_type = "you_shout"
-        elif "party," in line:
-            line_type = "you_group"
-        elif line_list[1] == "say":
-            if line_list[4] == "character,":
-                line_type = "you_ooc"
-            if line_list[4] == "guild,":
-                line_type = "you_guild"
-        elif line_list[1] == "auction,":
-            line_type = "you_auction"
-            if "wts" in line or "selling" in line and "wtb" in line or "buying" in line:
-                line_type = "you_auction_wts:wtb"
-            if "wts" in line or "selling" in line:
-                line_type = "you_auction_wts"
-            if "wtb" in line or "buying" in line:
-                line_type = "you_auction_wtb"
-        elif line_list[1] == "have":
-            if line_list[2] == "entered":
-                line_type = "you_new_zone"
-            elif line_list[5] == "direction":
-                line_type = "direction_miss"
-            elif line_list[2] == "healed":
-                line_type = "you_healed"
-        elif line_list[1] == "think":
-            if line_list[4] == "heading":
-                line_type = "direction"
-        elif "hungry." in line_list:
-            line_type = "you_hungry"
-        elif line_list[1] == "are":
-            if line_list[2] == "now":
-                if "a.f.k." in line:
-                    line_type = "you_afk_on"
-                elif line.endswith("looking for a group."):
-                    line_type = "you_lfg_on"
-            elif line_list[2] == "no":
-                if "a.f.k." in line:
-                    line_type = "you_afk_off"
-                elif line.endswith("looking for a group."):
-                    line_type = "you_lfg_off"
-            elif line_list[2] == "out":
-                if line_list[-1] == "food." and "drink" not in line and "drink." not in line:
-                    line_type = "you_outfood"
-                elif line_list[-1] == "drink." and "food" not in line and "food." not in line:
-                    line_type = "you_outdrink"
-                elif line.endswith("food and drink."):
-                    line_type = "you_outfooddrink"
-                elif line.endswith("drink and low on food."):
-                    line_type = "you_outdrinklowfood"
-                elif line.endswith("food and low on drink."):
-                    line_type = "you_outfoodlowdrink"
-            elif line_list[-1] == "thirsty.":
-                line_type = "you_thirsty"
-            elif line_list[-1] == "hungry.":
-                line_type = "you_hungry"
-        elif line_list[1] == "forget":
-            line_type == "you_spell_forget"
-
-    elif line_list[0] == "your":
-        if line_list[1] == "location":
-            if line_list[2] == "is":
-                line_type = "location"
-        elif line_list[1] == "spell":
-            if line_list[3] == "interrupted":
-                line_type = "spell_interrupted"
-        elif line_list[2] == "spell":
-            if line_list[1] == "charm":
-                line_type = "spell_break_charm"
-            elif line_list[1] == "ensnare":
-                line_type = "spell_break_ensare"
-            else:
-                line_type = "spell_break"
-        elif line_list[1] ==  "faction":
-            line_type = "faction_line"
-        elif line_list[1] == "target":
-            if line_list[2] == "resisted":
-                line_type = "spell_resist"
-            elif line_list[4] == "cured.":
-                line_type = "target_cured"
-    elif line_list[0].startswith("-"):
-        line_type = "who_line"
-    elif len(line_list) == 1:
-        line_type = "mysterious_oner"
-
-    # chat from other players
-    elif line_list[1] == "tells":
-        if line_list[2] == "you,":
-            line_type = "tell" # or emote
-        if line_list[3] == "guild,":
-            line_type = "guild" # or emote
-        if line_list[3] == "group,":
-            line_type = "group" # or emote
-    elif line_list[1] == "says,":
-        line_type = "say" # or emote
-    elif line_list[1] == "shouts,":
-        line_type = "shout" # or emote
-    elif line_list[1] == "says":
-        if line_list[4] == "character,":
-            line_type = "ooc" # or emote
-    elif line_list[1] == "auctions,":
-        line_type = "auction" # or emote
-        #if "wts" in line or "selling" in line and "wtb" in line or "buying" in line:
-        #    line_type = "auction_wts:wtb"
-        if "wts" in line or "selling" in line:
+        # Player Messages
+        elif re.fullmatch(r'^\w+ tells you, \'.+\'$', line) is not None:
+            line_type = "tell"
+        elif re.fullmatch(r'^\w+ says, \'.+\'$', line) is not None:
+            line_type = "say"
+        elif re.fullmatch(r'^\w+ shouts, \'.+\'$', line) is not None:
+            line_type = "shout"
+        elif re.fullmatch(r'^\w+ tells the guild, \'.+\'$', line) is not None:
+            line_type = "guild"
+        elif re.fullmatch(r'^\w+ tells the group, \'.+\'$', line) is not None:
+            line_type = "group"
+        elif re.fullmatch(r'^\w+ says out of character, \'.+\'$', line) is not None:
+            line_type = "ooc"
+        elif re.fullmatch(r'^\w+ auctions, \'(.+|)(WTS|selling|Selling)(.+|)\'$', line) is not None:
             line_type = "auction_wts"
-        elif "wtb" in line or "buying" in line:
+        elif re.fullmatch(r'^\w+ auctions, \'(.+|)(WTB|buying|Buying)(.+|)\'$', line) is not None:
             line_type = "auction_wtb"
+        elif re.fullmatch(r'^\w+ auctions, \'.+\'$', line) is not None:
+            line_type = "auction"
+        elif re.fullmatch(r'^You told \w+, \'.+\'$', line) is not None:
+            line_type = "you_tell"
+        elif re.fullmatch(r'^You say, \'.+\'$', line) is not None:
+            line_type = "you_say"
+        elif re.fullmatch(r'^You shout, \'.+\'$', line) is not None:
+            line_type = "you_shout"
+        elif re.fullmatch(r'^You say to your guild, \'.+\'$', line) is not None:
+            line_type = "you_guild"
+        elif re.fullmatch(r'^You tell your party, \'.+\'$', line) is not None:
+            line_type = "you_group"
+        elif re.fullmatch(r'^You say out of character, \'.+\'$', line) is not None:
+            line_type = "you_ooc"
+        elif re.fullmatch(r'^You auction, \'.+\'$', line) is not None:
+            line_type = "you_auction"
 
-    # spells / casting
-    elif line_list[1] == "spell":
-        line_type = "spell_something"
-        if line_list[2] == "fizzles!":
+        # Player Status
+        elif re.fullmatch(r'^Your Location is [-]?(?:\d*\.)?\d+\,\ [-]?(?:\d*\.)?\d+\,\ [-]?(?:\d*\.)?\d+$', line) is not None:
+            line_type = "location"
+        elif re.fullmatch(r'^You think you are heading (?:North(?:East|West)?|South(?:East|West)?|(?:Ea|We)st)\.$', line) is not None:
+            line_type = "direction"
+        elif re.fullmatch(r'^You have no idea what direction you are facing\.$', line) is not None:
+            line_type = "direction_miss"
+        elif re.fullmatch(r'^You have entered .+\.$', line) is not None:
+            line_type = "you_new_zone"
+        elif re.fullmatch(r'^You have healed .+ for \d+ points of damage\.$', line) is not None:
+            line_type = "you_healed"
+        elif re.fullmatch(r'^You are now A\.F\.K\. \(Away From Keyboard\)\.', line) is not None:
+            line_type = "you_afk_on"
+        elif re.fullmatch(r'^You are now Looking For a Group\.', line) is not None:
+            line_type = "you_lfg_on"
+        elif re.fullmatch(r'^You are no longer A\.F\.K\. \(Away From Keyboard\)\.', line) is not None:
+            line_type = "you_afk_off"
+        elif re.fullmatch(r'^You are no longer Looking For a Group\.', line) is not None:
+            line_type = "you_lfg_off"
+        elif re.fullmatch(r'^You are out of food\.', line) is not None:
+            line_type = "you_outfood"
+        elif re.fullmatch(r'^You are out of drink\.', line) is not None:
+            line_type = "you_outdrink"
+        elif re.fullmatch(r'^You are out of food and drink\.', line) is not None:
+            line_type = "you_outfooddrink"
+        elif re.fullmatch(r'^You are out of food and low on drink\.', line) is not None:
+            line_type = "you_outfoodlowdrink"
+        elif re.fullmatch(r'^You are out of drink and low on food\.', line) is not None:
+            line_type = "you_outdrinklowfood"
+        elif re.fullmatch(r'^You are thirsty\.', line) is not None:
+            line_type = "you_thirsty"
+        elif re.fullmatch(r'^You are hungry\.', line) is not None:
+            line_type = "you_hungry"
+
+        # Spells
+        elif re.fullmatch(r'^You forget .+\.', line) is not None:
+            line_type = "you_spell_forget"
+        elif re.fullmatch(r'^\w+\'s spell fizzles\!$', line) is not None:
             line_type = "spell_fizzle"
-    elif line_list[1] == "casting":
-        if line_list[3] == "interrupted!":
-           line_type = "spell_interrupted"
-    elif line_list[1] == "begins":  # assumes only spell messages have [player] begins...
-        if len(line_list) > 3:
-            if line_list[3] == "regenerate.":
-                line_type = "spell_regen"
-
-    # spell damage (has/was)
-    elif "has" in line_list:
-        if line_list[line_list.index("has") + 1] == "taken" and line_list[line_list.index("has") + 3] == "damage":
-            line_type = "dot_damage"
-    elif "was" in line_list:
-        if line_list[line_list.index("was") + 1] == "hit" and line_list[line_list.index("was") + 3] == "non-melee":
+        elif re.fullmatch(r'^Your spell is interrupted\.', line) is not None:
+            line_type = "you_spell_fizzle"
+        elif re.fullmatch(r'^\w+\'s casting is interrupted\!\.', line) is not None:
+            line_type = "spell_fizzle"
+        elif re.fullmatch(r'^Your target resisted the .+ spell\.$', line) is not None:
+            line_type = "spell_resist"
+        elif re.fullmatch(r'^.+ w(?:ere|as) hit by non-melee for \d+ ?(points of) damage\.$', line) is not None:
             line_type = "spell_damage"
+        elif re.fullmatch(r'^\w+ begins to regenerate\.$', line)  is not None:
+            line_type = "spell_regen"
+        elif re.fullmatch(r'^Your charm spell has worn off\.$', line) is not None:
+            line_type = "spell_break_charm"
+        elif re.fullmatch(r'^Your Ensnare spell has worn off\.$', line) is not None:
+            line_type = "spell_break_ensnare"
 
-    # engage messages
-    elif "engages" in line_list and line_list[-1].endswith("!"):
-        line_type = "engage"
+        # Emotes
+        elif re.fullmatch(r'^\w+ bows before \w+\.$', line) is not None:
+            line_type = "emote_bow"
+        elif re.fullmatch(r'^\w+ thanks \w+ heartily\.$', line) is not None:
+            line_type = "emote_thank"
+        elif re.fullmatch(r'^\w+ waves at \w+\.$', line) is not None:
+            line_type = "emote_wave"
+        elif re.fullmatch(r'^\w+ grabs hold of \w+ and begins to dance with (?:h(?:er|im)|it)\.$', line) is not None:
+            line_type = "emote_dance"
+        elif re.fullmatch(r'^\w+ bonks \w+ on the head\!$', line) is not None:
+            line_type = "emote_bonk"
+        elif re.fullmatch(r'^\w+ beams a smile at (a|) \w+$', line) is not None:
+            line_type = "emote_smile"
+        elif re.fullmatch(r'^\w+ cheers at \w+$', line) is not None:
+            line_type = "emote_cheer"
 
-    # combat
-    #elif line_list[-2] == "but" and line_list[-1] == "misses!":
-    #    line_type = "melee_miss"
-    #elif line_list[-1] == "damage.":
-    #    if len(line_list) > 2:
-    #        if line_list[-3] == "points":
-    #            line_type = "melee_hit"
+        # World Status
+        elif re.fullmatch(r'^It begins to rain\.$', line) is not None:
+            line_type = "weather_start_rain"
+        elif re.fullmatch(r'^It begins to snow\.$', line) is not None:
+            line_type = "weather_start_snow"
+        elif re.fullmatch(r'^Players in EverQuest\:$', line) is not None:
+            line_type = "who_top"
+        elif re.fullmatch(r'^---------------------------------$', line) is not None:
+            line_type = "who_line"
+        elif re.fullmatch(r'^\[\d+ (?:(?:(?:Shadow )?Knigh|Hierophan|Revenan)t|(?:Elemental|Phantasm)ist|High Priest|Illusionist|(?:Grandmast|P(?:athfind|reserv)|C(?:hannel|avali)|(?:Enchan|Mas)t|(?:Begu|Def)il|Conjur|Sorcer|Wa(?:nder|rd)|(?:Crusa|Outri)d|Rang|Evok|Reav)er|Necromancer|(?:B(?:lackgu)?|Wiz)ard|Grave Lord|(?:T(?:roubadou|empla)|Warrio|Vica)r|A(?:rch Mage|ssassin)|Minstrel|Virtuoso|(?:(?:Myrmid|Champi)o|Magicia|Shama)n|(?:Discipl|Oracl|R(?:ogu|ak))e|Luminary|Warlock|Heretic|Paladin|(?:Warlor|Drui)d|Cleric|Mystic|Monk)\] \w+ \((?:Barbarian|Halfling|Half\-Elf|(?:Dark|High) Elf|Wood Elf|Skeleton|Erudite|Iksar|Troll|(?:Gnom|Ogr)e|Dwarf|Human)\)(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|))$', line) is not None:
+            line_type = "who_player"
+        elif re.fullmatch(r'^AFK \[\d+ (?:(?:(?:Shadow )?Knigh|Hierophan|Revenan)t|(?:Elemental|Phantasm)ist|High Priest|Illusionist|(?:Grandmast|P(?:athfind|reserv)|C(?:hannel|avali)|(?:Enchan|Mas)t|(?:Begu|Def)il|Conjur|Sorcer|Wa(?:nder|rd)|(?:Crusa|Outri)d|Rang|Evok|Reav)er|Necromancer|(?:B(?:lackgu)?|Wiz)ard|Grave Lord|(?:T(?:roubadou|empla)|Warrio|Vica)r|A(?:rch Mage|ssassin)|Minstrel|Virtuoso|(?:(?:Myrmid|Champi)o|Magicia|Shama)n|(?:Discipl|Oracl|R(?:ogu|ak))e|Luminary|Warlock|Heretic|Paladin|(?:Warlor|Drui)d|Cleric|Mystic|Monk)\] \w+ \((?:Barbarian|Halfling|Half\-Elf|(?:Dark|High) Elf|Wood Elf|Skeleton|Erudite|Iksar|Troll|(?:Gnom|Ogr)e|Dwarf|Human)\)(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|))$', line) is not None:
+            line_type = "who_player_afk"
+        elif re.fullmatch(r'^\<LINKDEAD\>\[\d+ (?:(?:(?:Shadow )?Knigh|Hierophan|Revenan)t|(?:Elemental|Phantasm)ist|High Priest|Illusionist|(?:Grandmast|P(?:athfind|reserv)|C(?:hannel|avali)|(?:Enchan|Mas)t|(?:Begu|Def)il|Conjur|Sorcer|Wa(?:nder|rd)|(?:Crusa|Outri)d|Rang|Evok|Reav)er|Necromancer|(?:B(?:lackgu)?|Wiz)ard|Grave Lord|(?:T(?:roubadou|empla)|Warrio|Vica)r|A(?:rch Mage|ssassin)|Minstrel|Virtuoso|(?:(?:Myrmid|Champi)o|Magicia|Shama)n|(?:Discipl|Oracl|R(?:ogu|ak))e|Luminary|Warlock|Heretic|Paladin|(?:Warlor|Drui)d|Cleric|Mystic|Monk)\] \w+ \((?:Barbarian|Halfling|Half\-Elf|(?:Dark|High) Elf|Wood Elf|Skeleton|Erudite|Iksar|Troll|(?:Gnom|Ogr)e|Dwarf|Human)\)(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|))$', line) is not None:
+            line_type = "who_player_linkdead"
+        elif re.fullmatch(r'^There (is|are) \d+ (player|players) in [a-zA-Z\s]+\.$', line) is not None:
+            line_type = "who_total"
+        elif re.fullmatch(r'^There are no players in EverQuest that match those who filters\.$', line) is not None:
+            line_type = "who_total"
+        elif re.fullmatch(r'^Your faction standing with \w+ (?:could not possibly get any|got) (?:better|worse)\.$', line) is not None:
+            line_type = "faction_line"
+        elif re.fullmatch(r'^Your target has been cured\.$', line) is not None:
+            line_type = "target_cured"
+        elif re.fullmatch(r'^It will take you about (30|25|20|15|10|5) seconds to prepare your camp\.$', line) is not None:
+            line_type = "you_camping"
+        elif re.fullmatch(r'^You abandon your preparations to camp\.$', line) is not None:
+            line_type = "you_camping_abandoned"
+        elif re.fullmatch(r'^[a-zA-Z\s]+ engages \w+\!$', line) is not None:
+            line_type = "engage"
+        elif re.fullmatch(r'^LOADING, PLEASE WAIT\.\.\.$', line) is not None:
+            line_type = "zoning"
+        elif re.fullmatch(r'^\*\*.+', line) is not None:
+            line_type = "random"
+        elif re.fullmatch(r'^\w+ invites you to join a group\.$', line) is not None:
+            line_type = "group_invite"
+        elif re.fullmatch(r'^(Targeted \((NPC|Player)\)\: [a-zA-Z\s]+|You no longer have a target\.)', line) is not None:
+            line_type = "target"
+        else:
+            line_type = "undetermined"
 
-    # other
-    # Damn falling messages causing a problem
-    #elif "injured" in line:
-    #    if line_list[2] == "injured":
-    #        if line_list[-1] == "falling.":
-    #            line_type == "fall_damage"
-
-    elif line_list[0] == "loading,":
-        line_type = "zoning"
-    elif line_list[0][0] == "*":
-        line_type = "random"
-    # chat from in game prompts or commands
-    elif line_list[0] == "To" and line_list[1] == "join":
-        line_type = "group_invite"
-    elif line_list[0] == "there" and line_list[1] == "are":
-        line_type = "who_total"
-    elif line_list[0].startswith("["):
-        line_type = "who_player"
-    elif line_list[0] == "afk":
-        line_type = "who_player_afk"
-    elif line_list[0].startswith("<linedead>"):
-        line_type = "who_player_linkdead"
-    elif line_list[0] ==  "players" or line_list[0] == "Friends":
-        line_type = "who_top"
-    elif line_list[0] == "targeted" :
-        line_type = "target"
-
-    # possible emotes
-    elif line_list[1] == "bows" :
-        line_type = "emote_bow"
-    elif line_list[1] == "thanks" :
-        line_type = "emote_thank"
-    elif line_list[1] == "waves" :
-        line_type = "emote_wave"
-    elif line_list[1] == "dances" :
-        line_type = "emote_dance"
-    elif line_list[1] == "bonks" :
-        line_type = "emote_bonk"
-    elif line_list[1] == "beams" :
-        line_type = "emote_smile"
-    elif line_list[1] == "cheers." or line_list[1] == "cheers":
-        line_type = "emote_cheer"
-
-    # other
-    elif line_list[0] == "it":
-        if line_list[1] == "begins":
-            if "rain." in line:
-                line_type = "weather_start_rain"
-            if "snow." in line:
-                line_type = "weather_start_snow"
-        elif line_list[1] == "stops":
-            if "raining." in line:
-                line_type = "weather_stop_rain" # the sky clears as the rain ceases to fall.
-            if "snowing." in line:
-                line_type = "weather_stop_snow"
-        elif line_list[-1] == "camp.":
-            line_type == "you_camping"
+    except Exception as e:
+        eqa_settings.log('process_log (determine): Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
     return line_type
 
