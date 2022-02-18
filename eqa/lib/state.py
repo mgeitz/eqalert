@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/state.py
-   Copyright (C) 2019 Michael Geitz
+   Copyright (C) 2022 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -22,32 +22,41 @@
 
 
 class EQA_State:
-  def __init__(self, char, chars, zone, loc, direction, afk, server):
-    self.char = char
-    self.chars = chars
-    self.zone = zone
-    self.loc = loc
-    self.direction = direction
-    self.afk = afk
-    self.server = server
+    """EQA Objects"""
+    def __init__(self, char, chars, zone, loc, direction, afk, server):
+        """EQAlert State"""
+        self.char = char
+        self.chars = chars
+        self.zone = zone
+        self.loc = loc
+        self.direction = direction
+        self.afk = afk
+        self.server = server
 
-  def set_char(self, char):
-    self.char = char
+    def set_char(self, char):
+        """Update Character"""
+        self.char = char
 
-  def set_chars(self, chars):
-    self.chars = chars
+    def set_chars(self, chars):
+        """Update Characters"""
+        self.chars = chars
 
-  def set_zone(self, zone):
-    self.zone = zone
+    def set_zone(self, zone):
+        """Update Zone"""
+        self.zone = zone
 
-  def set_loc(self, loc):
-    self.loc = loc
+    def set_loc(self, loc):
+        """Update Location"""
+        self.loc = loc
 
-  def set_direction(self, direction):
-    self.direction = direction
+    def set_direction(self, direction):
+        """Update Direction"""
+        self.direction = direction
 
-  def set_afk(self, afk):
-    self.afk = afk
+    def set_afk(self, afk):
+        """Update AFK State"""
+        self.afk = afk
 
-  def set_server(self, server):
-    self.server = server
+    def set_server(self, server):
+        """Update Server"""
+        self.server = server

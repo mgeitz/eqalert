@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/config.py
-   Copyright (C) 2019 Michael Geitz
+   Copyright (C) 2022 Michael Geitz
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -26,196 +26,196 @@ import eqa.lib.state as eqa_state
 
 
 def init(base_path):
-  """If there is no config, make a config"""
-  try:
-    if not os.path.isfile(base_path + 'config.json'):
-      build_config(base_path)
+    """If there is no config, make a config"""
+    try:
+        if not os.path.isfile(base_path + 'config.json'):
+            build_config(base_path)
 
-  except Exception as e:
-    eqa_settings.log('config init: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('config init: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def read_config(base_path):
-  """read the config"""
-  try:
-    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
-    config = json.load(json_data)
-    json_data.close()
+    """read the config"""
+    try:
+        json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
+        config = json.load(json_data)
+        json_data.close()
 
-    return config
+        return config
 
-  except Exception as e:
-    eqa_settings.log('config read: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('config read: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def update_logs(base_path):
-  """Add characters and servers of eqemu_ prefixed files in the log path"""
-  try:
-    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
-    config = json.load(json_data)
-    json_data.close()
-    log_files = [ f for f in os.listdir(config["settings"]["paths"]["char_log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["char_log"],f)) ]
+    """Add characters and servers of eqemu_ prefixed files in the log path"""
+    try:
+        json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
+        config = json.load(json_data)
+        json_data.close()
+        log_files = [f for f in os.listdir(config["settings"]["paths"]["char_log"]) if os.path.isfile(os.path.join(config["settings"]["paths"]["char_log"], f))]
 
-    for logs in log_files:
-      if "eqlog_" in logs:
-        emu, middle, end = logs.split("_")
-        server_name = end.split('.')[0]
-        char_name = middle
-        char_server = char_name + '_' + server_name
-        if char_server not in config["char_logs"].keys():
-          add_char_log(char_name, server_name, base_path)
+        for logs in log_files:
+            if "eqlog_" in logs:
+                emu, middle, end = logs.split("_")
+                server_name = end.split('.')[0]
+                char_name = middle
+                char_server = char_name + '_' + server_name
+                if char_server not in config["char_logs"].keys():
+                    add_char_log(char_name, server_name, base_path)
 
 
-  except Exception as e:
-    eqa_settings.log('set config chars: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('set config chars: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def add_char_log(char, server, base_path):
-  """Adds a new character to the config"""
-  try:
-    char_server = char + '_' + server
-    char_log = 'eqlog_' + char.title() + '_' + server + '.txt'
-    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
-    data = json.load(json_data)
-    json_data.close()
-    if not data["char_logs"]:
-      bootstrap_state(base_path, char, server)
+    """Adds a new character to the config"""
+    try:
+        char_server = char + '_' + server
+        char_log = 'eqlog_' + char.title() + '_' + server + '.txt'
+        json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
+        data = json.load(json_data)
+        json_data.close()
+        if not data["char_logs"]:
+            bootstrap_state(base_path, char, server)
 
-    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
-    data = json.load(json_data)
-    json_data.close()
-    data["char_logs"].update({char_server:{'char': char, 'server': server, 'file_name': char_log, 'disabled': 'false'}})
-    json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
-    json.dump(data, json_data, sort_keys=True, indent = 2)
-    json_data.close()
+        json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
+        data = json.load(json_data)
+        json_data.close()
+        data["char_logs"].update({char_server:{'char': char, 'server': server, 'file_name': char_log, 'disabled': 'false'}})
+        json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
+        json.dump(data, json_data, sort_keys=True, indent=2)
+        json_data.close()
 
-  except Exception as e:
-    eqa_settings.log('add char: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('add char: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def bootstrap_state(base_path, char, server):
-  """Generate and save state to config"""
+    """Generate and save state to config"""
 
-  try:
-    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
-    data = json.load(json_data)
-    json_data.close()
-    data["last_state"].update({'server': server, 'character': char, 'zone': 'unavailable', 'location': {'x': '0.00', 'y': '0.00', 'z': '0.00'}, 'direction': 'unavailable', 'afk': 'false'})
-    json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
-    json.dump(data, json_data, sort_keys=True, indent = 2)
-    json_data.close()
+    try:
+        json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
+        data = json.load(json_data)
+        json_data.close()
+        data["last_state"].update({'server': server, 'character': char, 'zone': 'unavailable', 'location': {'x': '0.00', 'y': '0.00', 'z': '0.00'}, 'direction': 'unavailable', 'afk': 'false'})
+        json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
+        json.dump(data, json_data, sort_keys=True, indent = 2)
+        json_data.close()
 
-  except Exception as e:
-    eqa_settings.log('bootstrap state: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('bootstrap state: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def get_config_chars(config):
-  """Return each unique character log"""
-  try:
-    chars = []
-    for char_server in config["char_logs"].keys():
-      if config["char_logs"][char_server]["disabled"] == 'false':
-        chars.append(char_server)
+    """Return each unique character log"""
+    try:
+        chars = []
+        for char_server in config["char_logs"].keys():
+            if config["char_logs"][char_server]["disabled"] == 'false':
+                chars.append(char_server)
 
-    return chars
+        return chars
 
-  except Exception as e:
-    eqa_settings.log('get config chars: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('get config chars: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def set_last_state(state, base_path):
-  """Save state to config"""
+    """Save state to config"""
 
-  try:
-    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
-    data = json.load(json_data)
-    json_data.close()
-    data["last_state"].update({'server': state.server, 'character': state.char, 'zone': str(state.zone), 'location': {'x': str(state.loc[1]), 'y': str(state.loc[0]), 'z': str(state.loc[2])}, 'direction': state.direction, 'afk': state.afk})
-    json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
-    json.dump(data, json_data, sort_keys=True, ensure_ascii=False, indent=2)
-    json_data.close()
+    try:
+        json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
+        data = json.load(json_data)
+        json_data.close()
+        data["last_state"].update({'server': state.server, 'character': state.char, 'zone': str(state.zone), 'location': {'x': str(state.loc[1]), 'y': str(state.loc[0]), 'z': str(state.loc[2])}, 'direction': state.direction, 'afk': state.afk})
+        json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
+        json.dump(data, json_data, sort_keys=True, ensure_ascii=False, indent=2)
+        json_data.close()
 
-  except Exception as e:
-    eqa_settings.log('set last state: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('set last state: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def get_last_state(base_path):
-  """Load state from config"""
+    """Load state from config"""
 
-  try:
-    # Read config
-    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
-    data = json.load(json_data)
-    json_data.close()
+    try:
+        # Read config
+        json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
+        data = json.load(json_data)
+        json_data.close()
 
-    # Populate State
-    server = data["last_state"]["server"]
-    char = data["last_state"]["character"]
-    zone = data["last_state"]["zone"]
-    location = [float(data["last_state"]["location"]["y"]), float(data["last_state"]["location"]["x"]), float(data["last_state"]["location"]["z"])]
-    direction = data["last_state"]["direction"]
-    afk = data["last_state"]["afk"]
+        # Populate State
+        server = data["last_state"]["server"]
+        char = data["last_state"]["character"]
+        zone = data["last_state"]["zone"]
+        location = [float(data["last_state"]["location"]["y"]), float(data["last_state"]["location"]["x"]), float(data["last_state"]["location"]["z"])]
+        direction = data["last_state"]["direction"]
+        afk = data["last_state"]["afk"]
 
-    # Get chars
-    chars = get_config_chars(data)
+        # Get chars
+        chars = get_config_chars(data)
 
-    # Populate and return a new state
-    state = eqa_state.EQA_State(char, chars, zone, location, direction, afk, server)
+        # Populate and return a new state
+        state = eqa_state.EQA_State(char, chars, zone, location, direction, afk, server)
 
-    return state
+        return state
 
-  except Exception as e:
-    eqa_settings.log('get last state: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('get last state: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def add_type(line_type, base_path):
-  """Adds default setting values for new line_type"""
+    """Adds default setting values for new line_type"""
 
-  try:
-    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
-    data = json.load(json_data)
-    json_data.close()
-    data["line"].update({line_type:{'sound': '0', 'reaction': 'false', 'alert': {}}})
-    json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
-    json.dump(data, json_data, sort_keys=True, indent = 2)
-    json_data.close()
+    try:
+        json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
+        data = json.load(json_data)
+        json_data.close()
+        data["line"].update({line_type:{'sound': '0', 'reaction': 'false', 'alert': {}}})
+        json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
+        json.dump(data, json_data, sort_keys=True, indent=2)
+        json_data.close()
 
-  except Exception as e:
-    eqa_settings.log('add type: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('add type: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def add_zone(zone, base_path):
-  """Adds default setting values for new zones"""
+    """Adds default setting values for new zones"""
 
-  try:
-    json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
-    data = json.load(json_data)
-    json_data.close()
-    data["zones"].update({zone:"false"})
-    json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
-    json.dump(data, json_data, sort_keys=True, indent = 2)
-    json_data.close()
+    try:
+        json_data = open(base_path + 'config.json', 'r', encoding='utf-8')
+        data = json.load(json_data)
+        json_data.close()
+        data["zones"].update({zone:"false"})
+        json_data = open(base_path + 'config.json', 'w', encoding='utf-8')
+        json.dump(data, json_data, sort_keys=True, indent=2)
+        json_data.close()
 
-  except Exception as e:
-    eqa_settings.log('add zone: Error on line ' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('add zone: Error on line ' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 
 def build_config(base_path):
-  """Build a default config"""
+    """Build a default config"""
 
-  home = os.path.expanduser("~")
+    home = os.path.expanduser("~")
 
-  new_config = """
+    new_config = """
 {
   "char_logs": {},
   "last_state": {},
@@ -705,14 +705,14 @@ def build_config(base_path):
 }
 """
 
-  try:
-    f = open(base_path + 'config.json', 'w', encoding='utf-8')
-    f.write(new_config % (base_path, home, base_path))
-    f.close()
+    try:
+        f = open(base_path + 'config.json', 'w', encoding='utf-8')
+        f.write(new_config % (base_path, home, base_path))
+        f.close()
 
-  except Exception as e:
-    eqa_settings.log('build config: Error on line' +
-                      str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
+    except Exception as e:
+        eqa_settings.log('build config: Error on line' +
+                         str(sys.exc_info()[-1].tb_lineno) + ': ' + str(e))
 
 if __name__ == '__main__':
-  main()
+    main()
