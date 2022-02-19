@@ -26,28 +26,29 @@ import time
 
 
 def usage():
-  """Print some helpful things"""
-  print('Something awful happened and we may never know what')
-  sys.exit(1)
+    """Print some helpful things"""
+    print("Something awful happened and we may never know what")
+    sys.exit(1)
 
 
 def timestamp():
-  """Returns a neat little timestamp for things"""
-  unixstamp = int(time.time())
-  timestamp = datetime.datetime.fromtimestamp(int(unixstamp))\
-      .strftime('%Y-%m-%d_%H:%M:%S')
-  return str(timestamp)
+    """Returns a neat little timestamp for things"""
+    unixstamp = int(time.time())
+    timestamp = datetime.datetime.fromtimestamp(int(unixstamp)).strftime(
+        "%Y-%m-%d_%H:%M:%S"
+    )
+    return str(timestamp)
 
 
 def eqa_time():
-  """Returns message timestamp HH:MM:SS.ff"""
-  return datetime.datetime.now().strftime('%H:%M:%S.%f')[:-4]
+    """Returns message timestamp HH:MM:SS.ff"""
+    return datetime.datetime.now().strftime("%H:%M:%S.%f")[:-4]
 
 
 def log(message):
-  """Effectively just for timestamping all log messages"""
-  logging.info('[' + timestamp() + ']: ' + str(message))
+    """Effectively just for timestamping all log messages"""
+    logging.info("[" + timestamp() + "]: " + str(message))
 
 
-if __name__ == '__main__':
-  main()
+if __name__ == "__main__":
+    main()
