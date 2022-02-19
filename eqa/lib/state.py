@@ -22,7 +22,9 @@
 
 
 class EQA_State:
+"""Track State"""
     def __init__(self, char, chars, zone, loc, direction, afk, server):
+        """All States"""
         self.char = char
         self.chars = chars
         self.zone = zone
@@ -32,22 +34,29 @@ class EQA_State:
         self.server = server
 
     def set_char(self, char):
+        """Set Character"""
         self.char = char
 
     def set_chars(self, chars):
+        """Set Characters"""
         self.chars = chars
 
     def set_zone(self, zone):
+        """Set Zone"""
         self.zone = zone
 
     def set_loc(self, loc):
+        """Set Location"""
         self.loc = loc
 
     def set_direction(self, direction):
+        """Set Direction"""
         self.direction = direction
 
     def set_afk(self, afk):
+        """Set AFK"""
         self.afk = afk
 
     def set_server(self, server):
+        """Set Server"""
         self.server = server
