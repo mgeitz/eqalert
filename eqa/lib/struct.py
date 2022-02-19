@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/struct.py
-   Copyright (C) 2019 Michael Geitz
+   Copyright (C) 2022 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -25,6 +25,6 @@ global display
 global sound
 global message
 
-message = namedtuple('data', ['timestamp', 'type', 'tx', 'rx', 'payload'])
-display = namedtuple('data', ['timestamp', 'type', 'screen', 'payload'])
-sound = namedtuple('data', ['sound', 'payload'])
+message = namedtuple("data", ["timestamp", "type", "tx", "rx", "payload"])
+display = namedtuple("data", ["timestamp", "type", "screen", "payload"])
+sound = namedtuple("data", ["sound", "payload"])
