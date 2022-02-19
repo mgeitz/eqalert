@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/config.py
-   Copyright (C) 2019 Michael Geitz
+   Copyright (C) 2022 Michael Geitz
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
