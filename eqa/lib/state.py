@@ -22,7 +22,7 @@
 
 
 class EQA_State:
-"""Track State"""
+    """Track State"""
     def __init__(self, char, chars, zone, loc, direction, afk, server):
         """All States"""
         self.char = char
