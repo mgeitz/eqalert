@@ -27,16 +27,6 @@ import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
 
 
-def last_line(character_log):
-    """Reads and returns last line"""
-    try:
-        with open(character_log, "r") as f:
-            content = deque(f, 1)
-        return content[0]
-    except Exception as e:
-        eqa_settings.log("last_line: " + str(e))
-
-
 def process(exit_flag, log_q, action_q):
     """
     Process: log_q
@@ -50,7 +40,6 @@ def process(exit_flag, log_q, action_q):
                 # Read raw log line
                 log_line = log_q.get()
                 log_q.task_done()
-
                 # Strip line of trailing space and lowercase everything
                 line = log_line.strip()
                 # Split timestamp and message payload

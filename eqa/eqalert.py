@@ -23,7 +23,6 @@
 import logging
 import os
 import pkg_resources
-import pyinotify
 import sys
 import threading
 import time
@@ -33,6 +32,7 @@ import eqa.lib.action as eqa_action
 import eqa.lib.config as eqa_config
 import eqa.lib.curses as eqa_curses
 import eqa.lib.keys as eqa_keys
+import eqa.lib.log as eqa_log
 import eqa.lib.parser as eqa_parser
 import eqa.lib.settings as eqa_settings
 import eqa.lib.sound as eqa_sound
@@ -156,11 +156,11 @@ def main():
 
     ## Process log_q
     ## Produce action_q
-    process_log = threading.Thread(
+    process_parse = threading.Thread(
         target=eqa_parser.process, args=(exit_flag, log_q, action_q)
     )
-    process_log.daemon = True
-    process_log.start()
+    process_parse.daemon = True
+    process_parse.start()
 
     ## Process keyboard_q
     ## Produce display_q, sound_q, system_q
@@ -220,32 +220,12 @@ def main():
 
     ## Consume char_log
     ## Produce log_q
-
-    def callback(event):
-        try:
-            if event.mask == pyinotify.IN_CLOSE_WRITE:
-                log_q.put(eqa_parser.last_line(char_log))
-        except Exception as e:
-            eqa_settings.log(
-                "log watch callback: Error on line "
-                + str(sys.exc_info()[-1].tb_lineno)
-                + ": "
-                + str(e)
-            )
-
-    try:
-        log_watch = pyinotify.WatchManager()
-        log_watch.add_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
-        log_notifier = pyinotify.ThreadedNotifier(log_watch)
-        log_notifier.daemon = True
-        log_notifier.start()
-    except Exception as e:
-        eqa_settings.log(
-            "log watch callback: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+    process_log = threading.Thread(
+        target=eqa_log.process,
+        args=(exit_flag, char_log, log_q),
+    )
+    process_log.daemon = True
+    process_log.start()
 
     # And we're on
     display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "events", "null"))
@@ -288,9 +268,7 @@ def main():
                         # Ensure char/server combo exists as file
                         if os.path.exists(new_char_log):
                             # Stop watch on current log
-                            log_watch.rm_watch(
-                                char_log, pyinotify.IN_CLOSE_WRITE, callback
-                            )
+                            process_log.join()
                             # Set new character
                             char_name, char_server = new_message.payload.split("_")
                             state.set_char(char_name)
@@ -298,9 +276,12 @@ def main():
                             eqa_config.set_last_state(state, base_path)
                             char_log = new_char_log
                             # Start new log watch
-                            log_watch.add_watch(
-                                char_log, pyinotify.IN_CLOSE_WRITE, callback
+                            process_log = threading.Thread(
+                                target=eqa_log.process,
+                                args=(exit_flag, char_log, log_q),
                             )
+                            process_log.daemon = True
+                            process_log.start()
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -401,12 +382,11 @@ def main():
     )
     read_keys.join()
     process_log.join()
+    process_parse.join()
     process_keys.join()
     process_action.join()
     process_sound.join()
     process_display.join()
-    log_watch.rm_watch(char_log, pyinotify.IN_CLOSE_WRITE, callback)
-    log_notifier.stop()
     eqa_curses.close_screens(screen)
 
 
