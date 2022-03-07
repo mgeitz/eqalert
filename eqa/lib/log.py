@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: eqa/lib/state.py
+   File Name: eqa/lib/log.py
    Copyright (C) 2022 Michael Geitz
 
    This program is free software; you can redistribute it and/or modify
