@@ -21,6 +21,7 @@
 import os
 import time
 import sys
+import hashlib
 import gtts
 from playsound import playsound
 
@@ -41,7 +42,7 @@ def process(config, sound_q, exit_flag, cfg_reload):
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
-            time.sleep(0.001)
+            time.sleep(0.01)
             if not sound_q.empty():
                 sound_event = sound_q.get()
                 sound_q.task_done()
@@ -75,11 +76,12 @@ def process(config, sound_q, exit_flag, cfg_reload):
 def speak(phrase, play, sound_file_path):
     """Play a spoken phrase"""
     try:
-        if not os.path.exists(sound_file_path + phrase + ".wav"):
+        phrase_hash = hashlib.md5(phrase.encode())
+        if not os.path.exists(sound_file_path + phrase_hash.hexdigest() + ".wav"):
             tts = gtts.gTTS(text=phrase, lang="en")
-            tts.save(sound_file_path + phrase + ".wav")
+            tts.save(sound_file_path + phrase_hash.hexdigest() + ".wav")
         if play == "true":
-            play_sound(sound_file_path + phrase + ".wav")
+            play_sound(sound_file_path + phrase_hash.hexdigest() + ".wav")
 
     except Exception as e:
         eqa_settings.log(
@@ -88,6 +90,7 @@ def speak(phrase, play, sound_file_path):
 
 
 def alert(config, line_type):
+    """Play pre-generated sounds"""
     if not config["line"][line_type]["sound"] == "0":
         play_sound(
             config["settings"]["paths"]["sound"]
