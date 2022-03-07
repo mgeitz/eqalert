@@ -682,7 +682,7 @@ def build_config(base_path):
       "4": "watch out.wav",
       "5": "hello.wav"
     },
-    "version": "1.9.11"
+    "version": "1.9.13"
   },
   "zones": {
     "an arena (pvp) area": "false",
