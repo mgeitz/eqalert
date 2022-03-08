@@ -730,10 +730,10 @@ def build_config(base_path):
       "4": "watch out.wav",
       "5": "hello.wav"
     },
-    "version": "1.10.0"
+    "version": "2.0.4"
   },
   "zones": {
-    "An Arena (pvp) area": "false",
+    "An Arena (PVP) Area": "false",
     "Befallen": "false",
     "Blackburrow": "false",
     "Butcherblock Mountains": "false",

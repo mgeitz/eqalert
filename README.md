@@ -3,9 +3,6 @@
 An Everquest Emulator Log Parser with NCurses Interface for Linux
 
 ![img](https://i.imgur.com/wMs0RcV.png)
-![img](https://i.imgur.com/NK3bzx2.png)
-![img](https://i.imgur.com/NoqTNfT.png)
-![img](https://i.imgur.com/a9GNMV3.png)
 
 > Best used with the [Linux EQ Launch Manager](https://gist.github.com/mgeitz/aa295061c51b26d53dd818d0ebb3e37a) to maintain reasonable log file size
 
@@ -15,7 +12,7 @@ An Everquest Emulator Log Parser with NCurses Interface for Linux
 Install from pypi
 ```sh
 $ # Install Stable
-$ pip3 install eqalert==1.9.14
+$ pip3 install eqalert==2.0.4
 $
 $ # Install whatever I just pushed to pypi
 $ pip3 install eqalert

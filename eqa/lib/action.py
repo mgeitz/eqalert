@@ -73,7 +73,10 @@ def process(
                         )
                     )
                 elif line_type == "direction":
-                    direction = re.findall('(?:North(?:East|West)?|South(?:East|West)?|(?:Ea|We)st)', check_line)
+                    direction = re.findall(
+                        "(?:North(?:East|West)?|South(?:East|West)?|(?:Ea|We)st)",
+                        check_line,
+                    )
                     system_q.put(
                         eqa_struct.message(
                             eqa_settings.eqa_time(),
@@ -117,10 +120,9 @@ def process(
                             )
                         )
                 elif line_type == "you_new_zone":
-                    nz_iter = 0
-                    current_zone = ""
-                    # what the fuck
-                    current_zone = re.findall('(?<=You have entered)[a-zA-Z\s]+', line)
+                    current_zone = re.findall(
+                        "(?<=You have entered)[a-zA-Z\s]+", check_line
+                    )
                     sound_q.put(eqa_struct.sound("speak", current_zone[0]))
                     display_q.put(
                         eqa_struct.display(
@@ -136,10 +138,12 @@ def process(
                             current_zone[0],
                         )
                     )
-                    if current_zone not in config["zones"].keys():
-                        eqa_config.add_zone(current_zone, base_path)
-                    elif current_zone in config["zones"].keys() and not raid.is_set():
-                        if config["zones"][current_zone] == "raid":
+                    if current_zone[0] not in config["zones"].keys():
+                        eqa_config.add_zone(current_zone[0], base_path)
+                    elif (
+                        current_zone[0] in config["zones"].keys() and not raid.is_set()
+                    ):
+                        if config["zones"][current_zone[0]] == "raid":
                             raid.set()
                             display_q.put(
                                 eqa_struct.display(
@@ -150,8 +154,8 @@ def process(
                                 )
                             )
                             sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
-                    elif current_zone in config["zones"].keys() and raid.is_set():
-                        if config["zones"][current_zone] != "raid":
+                    elif current_zone[0] in config["zones"].keys() and raid.is_set():
+                        if config["zones"][current_zone[0]] != "raid":
                             raid.clear()
                             display_q.put(
                                 eqa_struct.display(
@@ -170,7 +174,10 @@ def process(
                         for keyphrase, value in config["line"][line_type][
                             "alert"
                         ].items():
-                            if str(keyphrase).lower() in check_line.lower() and value == "true":
+                            if (
+                                str(keyphrase).lower() in check_line.lower()
+                                and value == "true"
+                            ):
                                 sound_q.put(eqa_struct.sound("alert", line_type))
                                 display_q.put(
                                     eqa_struct.display(
@@ -186,7 +193,7 @@ def process(
                                 and raid.is_set()
                             ):
                                 if keyphrase == "assist" or keyphrase == "rampage":
-                                    target = re.findall('^([\w\-]+)', line)
+                                    target = re.findall("^([\w\-]+)", check_line)
                                     payload = keyphrase + " on " + target[0]
                                 else:
                                     payload = keyphrase
