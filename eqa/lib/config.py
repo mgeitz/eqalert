@@ -311,10 +311,7 @@ def build_config(base_path):
       "sound": "0"
     },
     "auction_wtb": {
-      "alert": {
-        "t staff": "true",
-        "tranquil staff": "true"
-      },
+      "alert": {},
       "reaction": "false",
       "sound": "0"
     },
