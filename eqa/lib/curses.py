@@ -245,7 +245,7 @@ def draw_events_frame(stdscr, char, zone, events):
     stdscr.addstr(center_y + 1, 2, char.title(), curses.color_pair(2))
 
     # Zone
-    stdscr.addstr(center_y + 1, x - len(zone) - 2, zone.title(), curses.color_pair(2))
+    stdscr.addstr(center_y + 1, x - len(zone) - 2, zone, curses.color_pair(2))
 
     # Draw events
     draw_events(stdscr, events)
