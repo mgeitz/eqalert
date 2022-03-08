@@ -21,6 +21,7 @@
 import datetime
 import sys
 import time
+import re
 
 import eqa.lib.config as eqa_config
 import eqa.lib.settings as eqa_settings
@@ -50,7 +51,7 @@ def process(
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
-            time.sleep(0.001)
+            time.sleep(0.01)
             if not action_q.empty():
                 new_message = action_q.get()
                 action_q.task_done()
@@ -59,31 +60,27 @@ def process(
                 line_tx = new_message.tx
                 line_rx = new_message.rx
                 check_line = new_message.payload
-                check_line_list = new_message.payload.split(" ")
 
                 # Line specific checks
                 if line_type == "undetermined":
                     undetermined_line(check_line, base_path)
-                if line_type == "location":
-                    loc = [
-                        float(check_line_list[3].replace(",", "")),
-                        float(check_line_list[4].replace(",", "")),
-                        float(check_line_list[5].replace(",", "")),
-                    ]
+                elif line_type == "location":
+                    y, x, z = re.findall("[-]?(?:\d*\.)?\d+", check_line)
+                    loc = [y, x, z]
                     system_q.put(
                         eqa_struct.message(
                             eqa_settings.eqa_time(), "system", "loc", "null", loc
                         )
                     )
                 elif line_type == "direction":
-                    direction = check_line_list[-1].replace(".", "")
+                    direction = re.findall('(?:North(?:East|West)?|South(?:East|West)?|(?:Ea|We)st)', check_line)
                     system_q.put(
                         eqa_struct.message(
                             eqa_settings.eqa_time(),
                             "system",
                             "direction",
                             "null",
-                            direction,
+                            direction[0],
                         )
                     )
                 elif line_type.startswith("you_afk"):
@@ -122,22 +119,12 @@ def process(
                 elif line_type == "you_new_zone":
                     nz_iter = 0
                     current_zone = ""
-                    while check_line_list.index("entered") + nz_iter + 1 < len(
-                        check_line_list
-                    ):
-                        current_zone += (
-                            check_line_list[
-                                check_line_list.index("entered") + nz_iter + 1
-                            ]
-                            + " "
-                        )
-                        nz_iter += 1
-                    current_zone = current_zone[:-2]
-                    current_zone = current_zone.rstrip(".")
-                    sound_q.put(eqa_struct.sound("speak", current_zone))
+                    # what the fuck
+                    current_zone = re.findall('(?<=You have entered)[a-zA-Z\s]+', line)
+                    sound_q.put(eqa_struct.sound("speak", current_zone[0]))
                     display_q.put(
                         eqa_struct.display(
-                            eqa_settings.eqa_time(), "update", "zone", current_zone
+                            eqa_settings.eqa_time(), "update", "zone", current_zone[0]
                         )
                     )
                     system_q.put(
@@ -146,7 +133,7 @@ def process(
                             "system",
                             "zone",
                             "null",
-                            current_zone,
+                            current_zone[0],
                         )
                     )
                     if current_zone not in config["zones"].keys():
@@ -183,23 +170,24 @@ def process(
                         for keyphrase, value in config["line"][line_type][
                             "alert"
                         ].items():
-                            if str(keyphrase).lower() in check_line and value == "true":
+                            if str(keyphrase).lower() in check_line.lower() and value == "true":
                                 sound_q.put(eqa_struct.sound("alert", line_type))
                                 display_q.put(
                                     eqa_struct.display(
                                         eqa_settings.eqa_time(),
                                         "event",
                                         "events",
-                                        line_type + ": " + check_line[0:65],
+                                        line_type + ": " + check_line,
                                     )
                                 )
                             elif (
-                                str(keyphrase).lower() in check_line
+                                str(keyphrase).lower() in check_line.lower()
                                 and value == "raid"
                                 and raid.is_set()
                             ):
                                 if keyphrase == "assist" or keyphrase == "rampage":
-                                    payload = keyphrase + " on " + check_line_list[0]
+                                    target = re.findall('^([\w\-]+)', line)
+                                    payload = keyphrase + " on " + target[0]
                                 else:
                                     payload = keyphrase
                                 sound_q.put(eqa_struct.sound("speak", payload))
@@ -208,7 +196,7 @@ def process(
                                         eqa_settings.eqa_time(),
                                         "event",
                                         "events",
-                                        line_type + ": " + check_line[0:65],
+                                        line_type + ": " + check_line,
                                     )
                                 )
 
@@ -216,48 +204,15 @@ def process(
                     elif config["line"][line_type]["reaction"] == "all":
                         # Heal parse
                         if heal_parse.is_set() and line_type == "you_healed":
-                            heal_q.put(
-                                eqa_struct.heal(
-                                    datetime.datetime.now(),
-                                    "heal",
-                                    "you",
-                                    check_line_list[3],
-                                    check_line_list[5],
-                                )
-                            )
+                            pass
 
                         # Spell damage parse
                         elif spell_parse.is_set() and line_type == "spell_damage":
-                            length = check_line_list.index("was")
-                            sp_iter = 0
-                            name = ""
-                            while sp_iter < length:
-                                name = name + check_line_list[sp_iter] + " "
-                                sp_iter += 1
-                            damaged_q.put(
-                                eqa_struct.heal(
-                                    datetime.datetime.now(),
-                                    "spell",
-                                    "null",
-                                    name,
-                                    check_line_list[-4],
-                                )
-                            )
+                            pass
 
                         # DoT damage parse
                         elif spell_parse.is_set() and line_type == "dot_damage":
-                            length = check_line_list.index("has")
-                            dp_iter = 0
-                            name = ""
-                            damage = int(check_line_list[length + 2])
-                            while dp_iter < length:
-                                name = name + check_line_list[dp_iter] + " "
-                                dp_iter += 1
-                            damaged_q.put(
-                                eqa_struct.heal(
-                                    datetime.datetime.now(), "dot", "null", name, damage
-                                )
-                            )
+                            pass
 
                         # Notify on all other all alerts
                         else:
@@ -267,7 +222,7 @@ def process(
                                     eqa_settings.eqa_time(),
                                     "event",
                                     "events",
-                                    line_type + ": " + check_line[0:65],
+                                    line_type + ": " + check_line,
                                 )
                             )
 
@@ -283,14 +238,14 @@ def process(
                     # For triggers requiring all line_types
                     if config["line"]["all"]["reaction"] == "true":
                         for keyphrase, value in config["alert"]["all"].items():
-                            if keyphrase in check_line:
+                            if keyphrase in check_line.lower():
                                 sound_q.put(eqa_struct.sound("alert", line_type))
                                 display_q.put(
                                     eqa_struct.display(
                                         eqa_settings.eqa_time(),
                                         "event",
                                         "events",
-                                        line_type + ": " + check_line[0:65],
+                                        line_type + ": " + check_line,
                                     )
                                 )
 

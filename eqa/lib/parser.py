@@ -30,7 +30,7 @@ import eqa.lib.settings as eqa_settings
 def process(exit_flag, log_q, action_q):
     """
     Process: log_q
-    Produce action_q
+    Produce: action_q
     """
 
     try:
@@ -56,7 +56,7 @@ def process(exit_flag, log_q, action_q):
                     line_type = determine(payload)
                     # Build and queue action
                     new_message = eqa_struct.message(
-                        timestamp, line_type, "null", "null", payload.lower()
+                        timestamp, line_type, "null", "null", payload
                     )
                     action_q.put(new_message)
                 else:
