@@ -106,6 +106,7 @@ def main():
     # Thread Events
     raid = threading.Event()
     cfg_reload = threading.Event()
+    log_reload = threading.Event()
     heal_parse = threading.Event()
     spell_parse = threading.Event()
     exit_flag = threading.Event()
@@ -222,7 +223,7 @@ def main():
     ## Produce log_q
     process_log = threading.Thread(
         target=eqa_log.process,
-        args=(exit_flag, char_log, log_q),
+        args=(log_reload, exit_flag, char_log, log_q),
     )
     process_log.daemon = True
     process_log.start()
@@ -268,7 +269,9 @@ def main():
                         # Ensure char/server combo exists as file
                         if os.path.exists(new_char_log):
                             # Stop watch on current log
+                            log_reload.set()
                             process_log.join()
+                            log_reload.clear()
                             # Set new character
                             char_name, char_server = new_message.payload.split("_")
                             state.set_char(char_name)
@@ -278,7 +281,7 @@ def main():
                             # Start new log watch
                             process_log = threading.Thread(
                                 target=eqa_log.process,
-                                args=(exit_flag, char_log, log_q),
+                                args=(log_reload, exit_flag, char_log, log_q),
                             )
                             process_log.daemon = True
                             process_log.start()

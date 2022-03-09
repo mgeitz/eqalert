@@ -26,7 +26,7 @@ import sys
 import eqa.lib.settings as eqa_settings
 
 
-def process(exit_flag, char_log, log_q):
+def process(log_reload, exit_flag, char_log, log_q):
     """
     Process: char_log
     Produce: log_q
@@ -35,7 +35,7 @@ def process(exit_flag, char_log, log_q):
     try:
         log_file = open(char_log, "r")
         log_file.seek(0, 2)
-        while not exit_flag.is_set():
+        while not exit_flag.is_set() and not log_reload.is_set():
             line = log_file.readline()
             if not line:
                 time.sleep(0.01)
