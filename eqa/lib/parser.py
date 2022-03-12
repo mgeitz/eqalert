@@ -229,7 +229,7 @@ def check_spell(line):
         )
 
 
-def check_received_chat(line)
+def check_received_chat(line):
     """
     Check line for received chat
     """
@@ -271,7 +271,7 @@ def check_received_chat(line)
         )
 
 
-def check_sent_chat(line)
+def check_sent_chat(line):
     """
     Check line for sent chat
     """
@@ -303,7 +303,7 @@ def check_sent_chat(line)
         )
 
 
-def check_command_output(line)
+def check_command_output(line):
     """
     Check line for command output
     """
@@ -415,7 +415,7 @@ def check_command_output(line)
         )
 
 
-def check_system_messages(line)
+def check_system_messages(line):
     """
     Check line for system messages
     """
@@ -475,7 +475,7 @@ def check_system_messages(line)
         )
 
 
-def check_emotes(line)
+def check_emotes(line):
     """
     Check line for emotes
     """
@@ -511,6 +511,7 @@ def check_emotes(line)
             + ": "
             + str(e)
         )
+
 
 if __name__ == "__main__":
     main()
