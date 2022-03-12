@@ -121,7 +121,7 @@ def process(
                         )
                 elif line_type == "you_new_zone":
                     current_zone = re.findall(
-                        "(?<=You have entered)[a-zA-Z\s]+", check_line
+                        "(?<=You have entered )[a-zA-Z\s]+", check_line
                     )
                     sound_q.put(eqa_struct.sound("speak", current_zone[0]))
                     display_q.put(

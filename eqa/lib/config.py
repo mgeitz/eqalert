@@ -183,16 +183,16 @@ def set_last_state(state, base_path):
         json_data.close()
         data["last_state"].update(
             {
-                "server": state.server,
-                "character": state.char,
+                "server": str(state.server),
+                "character": str(state.char),
                 "zone": str(state.zone),
                 "location": {
                     "x": str(state.loc[1]),
                     "y": str(state.loc[0]),
                     "z": str(state.loc[2]),
                 },
-                "direction": state.direction,
-                "afk": state.afk,
+                "direction": str(state.direction),
+                "afk": str(state.afk),
             }
         )
         json_data = open(base_path + "config.json", "w", encoding="utf-8")
@@ -276,7 +276,7 @@ def add_zone(zone, base_path):
         json_data = open(base_path + "config.json", "r", encoding="utf-8")
         data = json.load(json_data)
         json_data.close()
-        data["zones"].update({zone: "false"})
+        data["zones"].update({str(zone): "false"})
         json_data = open(base_path + "config.json", "w", encoding="utf-8")
         json.dump(data, json_data, sort_keys=True, indent=2)
         json_data.close()
@@ -730,7 +730,7 @@ def build_config(base_path):
       "4": "watch out.wav",
       "5": "hello.wav"
     },
-    "version": "2.0.4"
+    "version": "2.0.6"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
