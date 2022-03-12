@@ -297,6 +297,21 @@ def build_config(base_path):
 
     new_config = """
 {
+  "settings": {
+    "paths": {
+      "alert_log": "%slog/",
+      "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
+      "sound": "%ssound/"
+    },
+    "sounds": {
+      "1": "hey.wav",
+      "2": "listen.wav",
+      "3": "look.wav",
+      "4": "watch out.wav",
+      "5": "hello.wav"
+    },
+    "version": "2.0.7"
+  },
   "char_logs": {},
   "last_state": {},
   "line": {
@@ -716,21 +731,6 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     }
-  },
-  "settings": {
-    "paths": {
-      "alert_log": "%slog/",
-      "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
-      "sound": "%ssound/"
-    },
-    "sounds": {
-      "1": "hey.wav",
-      "2": "listen.wav",
-      "3": "look.wav",
-      "4": "watch out.wav",
-      "5": "hello.wav"
-    },
-    "version": "2.0.6"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
