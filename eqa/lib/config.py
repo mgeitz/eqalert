@@ -297,21 +297,6 @@ def build_config(base_path):
 
     new_config = """
 {
-  "settings": {
-    "paths": {
-      "alert_log": "%slog/",
-      "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
-      "sound": "%ssound/"
-    },
-    "sounds": {
-      "1": "hey.wav",
-      "2": "listen.wav",
-      "3": "look.wav",
-      "4": "watch out.wav",
-      "5": "hello.wav"
-    },
-    "version": "2.0.7"
-  },
   "char_logs": {},
   "last_state": {},
   "line": {
@@ -342,7 +327,47 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
+    "combat_other_melee_block": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "combat_other_melee_crit": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "combat_other_melee_dodge": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
     "combat_other_melee_miss": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "combat_other_melee_parry": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "combat_other_melee_reposte": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "combat_you_melee": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "combat_you_melee_miss": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "combat_you_receive_melee": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
@@ -353,11 +378,6 @@ def build_config(base_path):
       "sound": "0"
     },
     "direction_miss": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "0"
-    },
-    "dot_damage": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
@@ -402,6 +422,16 @@ def build_config(base_path):
       "reaction": "speak",
       "sound": "0"
     },
+    "experience_group": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "experience_solo": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
     "faction_line": {
       "alert": {},
       "reaction": "false",
@@ -409,13 +439,48 @@ def build_config(base_path):
     },
     "group": {
       "alert": {
-        "help": "true",
-        "inc": "true"
+        "inc": "true",
+        "help": "true"
       },
       "reaction": "true",
       "sound": "4"
     },
+    "group_disbanded": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
     "group_invite": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "group_invite_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "group_joined": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "group_joined_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "group_join_instruction": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "group_join_notify": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "group_removed": {
       "alert": {},
       "reaction": "speak",
       "sound": "0"
@@ -444,25 +509,105 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
-    "melee_hit": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "2"
-    },
-    "melee_miss": {
+    "looted_item_other": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "mysterious_oner": {
+    "looted_item_you": {
       "alert": {},
       "reaction": "false",
+      "sound": "0"
+    },
+    "looted_money_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "looted_money_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "mob_enrage_off": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "mob_enrage_on": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "mob_rampage_on": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "mob_slain_other": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "mob_slain_you": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "motd_game": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "motd_guild": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "motd_welcome": {
+      "alert": {},
+      "reaction": "speak",
       "sound": "0"
     },
     "ooc": {
       "alert": {},
       "reaction": "false",
       "sound": "1"
+    },
+    "pet_back": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "pet_follow": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "pet_guard": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "pet_illegal_target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "pet_sit_stand": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "pet_spawn": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "pet_taunt_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
     },
     "random": {
       "alert": {},
@@ -481,29 +626,24 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
-    "spell_begin_casting": {
+    "spell_cast_other": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "spell_break": {
+    "spell_cast_you": {
       "alert": {},
       "reaction": "false",
-      "sound": "4"
+      "sound": "0"
     },
-    "spell_break_charm": {
+    "spell_cooldown_active": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_cured": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
-    },
-    "spell_break_ensare": {
-      "alert": {},
-      "reaction": "speak",
-      "sound": "0"
-    },
-    "spell_break_ensnare": {
-      "alert": {},
-      "reaction": "false",
       "sound": "0"
     },
     "spell_damage": {
@@ -511,34 +651,64 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
-    "spell_fizzle": {
+    "spell_fizzle_other": {
       "alert": {},
       "reaction": "true",
       "sound": "5"
     },
-    "spell_interrupted": {
-      "alert": {},
-      "reaction": "true",
-      "sound": "2"
-    },
-    "spell_invis": {
+    "spell_fizzle_you": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "spell_regen": {
+    "spell_forget": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "spell_resist": {
+    "spell_gate_collapse": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_heal_you": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "0"
+    },
+    "spell_interrupt_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_memorize_already": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_memorize_finish": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_recover_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_regen_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_resist_you": {
       "alert": {},
       "reaction": "speak",
       "sound": "0"
     },
-    "spell_something": {
+    "spell_worn_off": {
       "alert": {},
-      "reaction": "false",
+      "reaction": "speak",
       "sound": "0"
     },
     "target": {
@@ -546,14 +716,29 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "3"
     },
-    "target_cured": {
+    "tell": {
       "alert": {},
       "reaction": "speak",
       "sound": "0"
     },
-    "tell": {
+    "time_earth": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "false",
+      "sound": "0"
+    },
+    "time_game": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "tracking": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "trade_money": {
+      "alert": {},
+      "reaction": "false",
       "sound": "0"
     },
     "undetermined": {
@@ -586,6 +771,21 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
+    "who_player_anon": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "who_player_anon_linkdead": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "who_player_linkdead": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
     "who_top": {
       "alert": {},
       "reaction": "false",
@@ -611,16 +811,6 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
-    "you_auction_wtb": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "0"
-    },
-    "you_auction_wts": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "0"
-    },
     "you_camping": {
       "alert": {},
       "reaction": "false",
@@ -639,11 +829,6 @@ def build_config(base_path):
     "you_guild": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
-    },
-    "you_healed": {
-      "alert": {},
-      "reaction": "all",
       "sound": "0"
     },
     "you_hungry": {
@@ -706,16 +891,6 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
-    "you_spell_fizzle": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "0"
-    },
-    "you_spell_forget": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "0"
-    },
     "you_tell": {
       "alert": {},
       "reaction": "false",
@@ -731,6 +906,21 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     }
+  },
+  "settings": {
+    "paths": {
+      "alert_log": "%slog/",
+      "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
+      "sound": "%ssound/"
+    },
+    "sounds": {
+      "1": "hey.wav",
+      "2": "listen.wav",
+      "3": "look.wav",
+      "4": "watch out.wav",
+      "5": "hello.wav"
+    },
+    "version": "2.1.2"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
@@ -773,8 +963,8 @@ def build_config(base_path):
     "Kedge Keep": "false",
     "Kithicor Woods": "false",
     "Kurn's Tower": "false",
-    "Lake of Ill Omen": "false",
     "Lake Rathetear": "false",
+    "Lake of Ill Omen": "false",
     "Lavastorm Mountains": "false",
     "Lesser Faydark": "false",
     "Lost Temple of Cazic-Thule": "false",
@@ -835,6 +1025,7 @@ def build_config(base_path):
     "Western Wastes": "false"
   }
 }
+
 """
 
     try:
