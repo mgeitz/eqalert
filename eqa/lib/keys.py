@@ -32,14 +32,12 @@ def process(
     display_q,
     sound_q,
     exit_flag,
-    heal_parse,
-    spell_parse,
     raid,
     chars,
 ):
     """
     Process: keyboard_q
-    Produce: sound_q, display_q, system_q, heal_q, damage_q
+    Produce: sound_q, display_q, system_q
     """
 
     key = ""

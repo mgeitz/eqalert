@@ -34,11 +34,7 @@ def process(
     system_q,
     display_q,
     sound_q,
-    heal_q,
-    damage_q,
     exit_flag,
-    heal_parse,
-    spell_parse,
     raid,
     cfg_reload,
     config,
@@ -46,7 +42,7 @@ def process(
 ):
     """
     Process: action_q
-    Produce: sound_q, display_q, system_q, heal_q, damage_q
+    Produce: sound_q, display_q, system_q
     """
 
     try:
@@ -209,29 +205,17 @@ def process(
 
                     # Or if line_type is parsed for as all
                     elif config["line"][line_type]["reaction"] == "all":
-                        # Heal parse
-                        if heal_parse.is_set() and line_type == "you_healed":
-                            pass
 
-                        # Spell damage parse
-                        elif spell_parse.is_set() and line_type == "spell_damage":
-                            pass
-
-                        # DoT damage parse
-                        elif spell_parse.is_set() and line_type == "dot_damage":
-                            pass
-
-                        # Notify on all other all alerts
-                        else:
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                            display_q.put(
-                                eqa_struct.display(
-                                    eqa_settings.eqa_time(),
-                                    "event",
-                                    "events",
-                                    line_type + ": " + check_line,
-                                )
+                        # Notify on all 'all' alerts
+                        sound_q.put(eqa_struct.sound("alert", line_type))
+                        display_q.put(
+                            eqa_struct.display(
+                                eqa_settings.eqa_time(),
+                                "event",
+                                "events",
+                                line_type + ": " + check_line,
                             )
+                        )
 
                     # Or if line_type is parsed for as a spoken alert
                     elif config["line"][line_type]["reaction"] == "speak":

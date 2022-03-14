@@ -96,8 +96,6 @@ def main():
     sound_q = queue.Queue()
     system_q = queue.Queue()
     log_q = queue.Queue()
-    heal_q = queue.Queue()
-    damage_q = queue.Queue()
 
     # Bootstraps bootstraps
     if not os.path.exists(base_path + "config.json"):
@@ -107,8 +105,6 @@ def main():
     raid = threading.Event()
     cfg_reload = threading.Event()
     log_reload = threading.Event()
-    heal_parse = threading.Event()
-    spell_parse = threading.Event()
     exit_flag = threading.Event()
 
     # Build initial state
@@ -173,8 +169,6 @@ def main():
             display_q,
             sound_q,
             exit_flag,
-            heal_parse,
-            spell_parse,
             raid,
             state.chars,
         ),
@@ -183,7 +177,7 @@ def main():
     process_keys.start()
 
     ## Consume action_q
-    ## Produce display_q, sound_q, system_q, heal_q, damage_q
+    ## Produce display_q, sound_q, system_q
     process_action = threading.Thread(
         target=eqa_action.process,
         args=(
@@ -191,11 +185,7 @@ def main():
             system_q,
             display_q,
             sound_q,
-            heal_q,
-            damage_q,
             exit_flag,
-            heal_parse,
-            spell_parse,
             raid,
             cfg_reload,
             config,
@@ -335,11 +325,7 @@ def main():
                                 system_q,
                                 display_q,
                                 sound_q,
-                                heal_q,
-                                damage_q,
                                 exit_flag,
-                                heal_parse,
-                                spell_parse,
                                 raid,
                                 cfg_reload,
                                 config,
