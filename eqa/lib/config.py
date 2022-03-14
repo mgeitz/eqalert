@@ -387,6 +387,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
+    "ding_down": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
+    "ding_up": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
     "direction": {
       "alert": {},
       "reaction": "false",
@@ -455,7 +465,7 @@ def build_config(base_path):
     "group": {
       "alert": {
         "inc": "true",
-        "help": "true"
+        "oom": "true"
       },
       "reaction": "true",
       "sound": "4"
@@ -559,6 +569,11 @@ def build_config(base_path):
       "reaction": "speak",
       "sound": "0"
     },
+    "mob_out_of_range": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
     "mob_rampage_on": {
       "alert": {},
       "reaction": "speak",
@@ -629,6 +644,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
+    "player_linkedead": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
     "random": {
       "alert": {},
       "reaction": "false",
@@ -642,6 +662,16 @@ def build_config(base_path):
       "sound": "0"
     },
     "shout": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_cast_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_cast_oom": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
@@ -701,6 +731,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
+    "spell_interrupt_you": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
     "spell_memorize_already": {
       "alert": {},
       "reaction": "false",
@@ -712,6 +747,11 @@ def build_config(base_path):
       "sound": "0"
     },
     "spell_memorize_finish": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_not_hold": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
@@ -762,6 +802,11 @@ def build_config(base_path):
       "sound": "0"
     },
     "tracking": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "trade_item": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
@@ -836,6 +881,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
+    "who_total_empty": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "who_total_local_empty": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
     "you_afk_off": {
       "alert": {},
       "reaction": "false",
@@ -857,6 +912,11 @@ def build_config(base_path):
       "sound": "0"
     },
     "you_camping_abandoned": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "you_cannot_reach": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
@@ -960,7 +1020,7 @@ def build_config(base_path):
       "4": "watch out.wav",
       "5": "hello.wav"
     },
-    "version": "2.1.5"
+    "version": "2.1.7"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
