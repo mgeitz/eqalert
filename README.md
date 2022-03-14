@@ -12,7 +12,7 @@ An Everquest Emulator Log Parser with NCurses Interface for Linux
 Install from pypi
 ```sh
 $ # Install Stable
-$ pip3 install eqalert==2.1.2
+$ pip3 install eqalert==2.1.4
 $
 $ # Install whatever I just pushed to pypi
 $ pip3 install eqalert

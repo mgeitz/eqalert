@@ -372,6 +372,21 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
+    "combat_you_stun_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "combat_you_stun_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "command_block": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
     "direction": {
       "alert": {},
       "reaction": "false",
@@ -450,9 +465,9 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
-    "group_invite": {
+    "group_invite_instruction": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "false",
       "sound": "0"
     },
     "group_invite_other": {
@@ -460,9 +475,14 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
+    "group_invite_you": {
+      "alert": {},
+      "reaction": "speak",
+      "sound": "0"
+    },
     "group_joined": {
       "alert": {},
-      "reaction": "false",
+      "reaction": "speak",
       "sound": "0"
     },
     "group_joined_other": {
@@ -470,12 +490,12 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
-    "group_join_instruction": {
+    "group_join_notify": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "group_join_notify": {
+    "group_leave_other": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
@@ -686,12 +706,22 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
+    "spell_memorize_begin": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
     "spell_memorize_finish": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
     "spell_recover_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "spell_recover_you": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
@@ -787,6 +817,16 @@ def build_config(base_path):
       "sound": "0"
     },
     "who_top": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "who_top_friends": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "who_top_lfg": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
@@ -920,7 +960,7 @@ def build_config(base_path):
       "4": "watch out.wav",
       "5": "hello.wav"
     },
-    "version": "2.1.2"
+    "version": "2.1.4"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
