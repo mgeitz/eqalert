@@ -109,6 +109,11 @@ def add_char_log(char, server, base_path):
                     "server": server,
                     "file_name": char_log,
                     "disabled": "false",
+                    "char_state": {
+                        "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
+                        "direction": "unavailable",
+                        "zone": "unavailable",
+                    },
                 }
             }
         )
@@ -136,9 +141,6 @@ def bootstrap_state(base_path, char, server):
             {
                 "server": server,
                 "character": char,
-                "zone": "unavailable",
-                "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
-                "direction": "unavailable",
                 "afk": "false",
             }
         )
@@ -185,14 +187,28 @@ def set_last_state(state, base_path):
             {
                 "server": str(state.server),
                 "character": str(state.char),
-                "zone": str(state.zone),
-                "location": {
-                    "x": str(state.loc[1]),
-                    "y": str(state.loc[0]),
-                    "z": str(state.loc[2]),
-                },
-                "direction": str(state.direction),
                 "afk": str(state.afk),
+            }
+        )
+        data["char_logs"][state.char + "_" + state.server].update(
+            {
+                "char": str(state.char),
+                "disabled": "false",
+                "file_name": "eqlog_"
+                + str(state.char)
+                + "_"
+                + str(state.server)
+                + ".txt",
+                "server": str(state.server),
+                "char_state": {
+                    "direction": str(state.direction),
+                    "location": {
+                        "x": str(state.loc[1]),
+                        "y": str(state.loc[0]),
+                        "z": str(state.loc[2]),
+                    },
+                    "zone": str(state.zone),
+                },
             }
         )
         json_data = open(base_path + "config.json", "w", encoding="utf-8")
@@ -220,13 +236,19 @@ def get_last_state(base_path):
         # Populate State
         server = data["last_state"]["server"]
         char = data["last_state"]["character"]
-        zone = data["last_state"]["zone"]
+        zone = data["char_logs"][char + "_" + server]["char_state"]["zone"]
         location = [
-            float(data["last_state"]["location"]["y"]),
-            float(data["last_state"]["location"]["x"]),
-            float(data["last_state"]["location"]["z"]),
+            float(
+                data["char_logs"][char + "_" + server]["char_state"]["location"]["y"]
+            ),
+            float(
+                data["char_logs"][char + "_" + server]["char_state"]["location"]["x"]
+            ),
+            float(
+                data["char_logs"][char + "_" + server]["char_state"]["location"]["z"]
+            ),
         ]
-        direction = data["last_state"]["direction"]
+        direction = data["char_logs"][char + "_" + server]["char_state"]["direction"]
         afk = data["last_state"]["afk"]
 
         # Get chars
@@ -407,37 +429,47 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
-    "emote_bonk": {
+    "emote_bonk_other": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "emote_bow": {
+    "emote_bow_other": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "emote_cheer": {
+    "emote_cheer_other": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "emote_dance": {
+    "emote_dance_other": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "emote_smile": {
+    "emote_smile_other": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "emote_thank": {
+    "emote_thank_other": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
     },
-    "emote_wave": {
+    "emote_wave_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "encumbered_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
+    "encumbered_on": {
       "alert": {},
       "reaction": "false",
       "sound": "0"
@@ -492,7 +524,7 @@ def build_config(base_path):
     },
     "group_joined": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "false",
       "sound": "0"
     },
     "group_joined_other": {
@@ -666,6 +698,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "0"
     },
+    "skill_up": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "0"
+    },
     "spell_cast_other": {
       "alert": {},
       "reaction": "false",
@@ -723,7 +760,7 @@ def build_config(base_path):
     },
     "spell_heal_you": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "false",
       "sound": "0"
     },
     "spell_interrupt_other": {
@@ -958,12 +995,12 @@ def build_config(base_path):
     },
     "you_outdrink": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "false",
       "sound": "0"
     },
     "you_outdrinklowfood": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "false",
       "sound": "0"
     },
     "you_outfood": {
@@ -998,7 +1035,7 @@ def build_config(base_path):
     },
     "you_thirsty": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "false",
       "sound": "0"
     },
     "zoning": {
@@ -1020,7 +1057,7 @@ def build_config(base_path):
       "4": "watch out.wav",
       "5": "hello.wav"
     },
-    "version": "2.1.7"
+    "version": "2.2.0"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
@@ -1101,7 +1138,7 @@ def build_config(base_path):
     "Steamfont Mountains": "false",
     "Surefall Glade": "false",
     "Temple of Droga": "false",
-    "Temple of Solusek ro": "false",
+    "Temple of Solusek Ro": "false",
     "Temple of Veeshan": "raid",
     "The Arena": "false",
     "The Burning Wood": "false",

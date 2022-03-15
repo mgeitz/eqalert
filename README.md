@@ -73,3 +73,22 @@ Settings:
   - right : Toggle selection on
   - left  : Toggle selection off
   - space : Cycle selection
+
+## Custom Alerting
+
+Modify `~/.eqa/config.json` to customize alerts.
+
+These aren't as clear as they should be, will refactor, but for now..
+
+### Reaction Types
+
+- `false`: Disable alerting for this line type
+- `true`: Alert for matching strings under `alert` for the line type, using the set sound
+- `speak`: Full text-to-speech for the entire line (probably don't enable this for `combat_other_melee`
+- `all`: Alert for all lines of a given line type, using the set sound
+
+### Alert Types
+
+- `false`: Disable alerting for the given string of a line type
+- `true`: Alert for the given string of a line type
+- `raid`: Alert for the given string of a line type when raid mode is enabled

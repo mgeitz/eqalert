@@ -105,6 +105,16 @@ def determine(line):
         if line_type is not None:
             return line_type
 
+        # Group System Messages
+        line_type = check_group_system_messages(line)
+        if line_type is not None:
+            return line_type
+
+        # Loot Trade Messages
+        line_type = check_loot_trade(line)
+        if line_type is not None:
+            return line_type
+
         # Emotes
         line_type = check_emotes(line)
         if line_type is not None:
@@ -310,11 +320,12 @@ def check_spell(line):
         ):
             return "spell_damage"
         elif (
-            re.fullmatch(r"^Beginning to memorize [a-zA-Z\s]+\.\.\.$", line) is not None
+            re.fullmatch(r"^Beginning to memorize [a-zA-Z\s\'\:]+\.\.\.$", line)
+            is not None
         ):
             return "spell_memorize_begin"
         elif (
-            re.fullmatch(r"^You have finished memorizing [a-zA-Z\s]+\.$", line)
+            re.fullmatch(r"^You have finished memorizing [a-zA-Z\s\'\:]+\.$", line)
             is not None
         ):
             return "spell_memorize_finish"
@@ -519,9 +530,93 @@ def check_system_messages(line):
     """
 
     try:
-        if re.fullmatch(r"^You have entered [a-zA-Z\s]+\.$", line) is not None:
+        if re.fullmatch(r"^You have entered [a-zA-Z\s\'\:]+\.$", line) is not None:
             return "you_new_zone"
-        elif re.fullmatch(r"^[a-zA-Z]+ has gone Linkdead.", line) is not None:
+        elif re.fullmatch(r"^LOADING, PLEASE WAIT\.\.\.$", line) is not None:
+            return "zoning"
+        elif re.fullmatch(r"^You are out of food\.", line) is not None:
+            return "you_outfood"
+        elif re.fullmatch(r"^You are out of drink\.", line) is not None:
+            return "you_outdrink"
+        elif re.fullmatch(r"^You are out of food and drink\.", line) is not None:
+            return "you_outfooddrink"
+        elif re.fullmatch(r"^You are out of food and low on drink\.", line) is not None:
+            return "you_outfoodlowdrink"
+        elif re.fullmatch(r"^You are out of drink and low on food\.", line) is not None:
+            return "you_outdrinklowfood"
+        elif re.fullmatch(r"^You are thirsty\.", line) is not None:
+            return "you_thirsty"
+        elif re.fullmatch(r"^You are hungry\.", line) is not None:
+            return "you_hungry"
+        elif re.fullmatch(r"^You are no longer encumbered\.$", line) is not None:
+            return "encumbered_off"
+        elif re.fullmatch(r"^You are encumbered\!$", line) is not None:
+            return "encumbered_on"
+        elif (
+            re.fullmatch(r"^You have become better at [a-zA-Z\s]+\! \(\d+\)$", line)
+            is not None
+        ):
+            return "skill_up"
+        elif re.fullmatch(r"^Welcome to level \d+\!", line) is not None:
+            return "ding_up"
+        elif (
+            re.fullmatch(r"^You LOST a level\! You are now level \d+\!", line)
+            is not None
+        ):
+            return "ding_down"
+        elif re.fullmatch(r"^It begins to rain\.$", line) is not None:
+            return "weather_start_rain"
+        elif re.fullmatch(r"^It begins to snow\.$", line) is not None:
+            return "weather_start_snow"
+        elif re.fullmatch(r"^You can\'t reach that, get closer\.$", line) is not None:
+            return "you_cannot_reach"
+        elif (
+            re.fullmatch(
+                r"^Your faction standing with \w+ (?:could not possibly get any|got) (?:better|worse)\.$",
+                line,
+            )
+            is not None
+        ):
+            return "faction_line"
+        elif re.fullmatch(r"^[a-zA-Z\s]+ engages \w+\!$", line) is not None:
+            return "engage"
+        elif (
+            re.fullmatch(
+                r"^(Targeted \((NPC|Player)\)\: [a-zA-Z\s]+|You no longer have a target\.)",
+                line,
+            )
+            is not None
+        ):
+            return "target"
+        elif re.fullmatch(r"^Welcome to EverQuest\!$", line) is not None:
+            return "motd_welcome"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z\s]+ is (?:behind and to the (?:righ|lef)t\.|ahead and to the (?:righ|lef)t\.|(?:straight ahead|behind you)\.|to the (?:righ|lef)t\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "tracking"
+
+        return None
+
+    except Exception as e:
+        eqa_settings.log(
+            "process_log (check_system_messages): Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def check_group_system_messages(line):
+    """
+    Check line for group system messages
+    """
+
+    try:
+        if re.fullmatch(r"^[a-zA-Z]+ has gone Linkdead.", line) is not None:
             return "player_linkdead"
         elif re.fullmatch(r"^You have joined the group\.", line) is not None:
             return "group_joined"
@@ -548,7 +643,7 @@ def check_system_messages(line):
             is not None
         ):
             return "group_invite_instruction"
-        elif re.fullmatch(r"^\Your group has been disbanded.$", line) is not None:
+        elif re.fullmatch(r"^Your group has been disbanded\.$", line) is not None:
             return "group_disbanded"
         elif (
             re.fullmatch(
@@ -557,44 +652,25 @@ def check_system_messages(line):
             is not None
         ):
             return "group_join_notify"
-        elif re.fullmatch(r"^You are out of food\.", line) is not None:
-            return "you_outfood"
-        elif re.fullmatch(r"^You are out of drink\.", line) is not None:
-            return "you_outdrink"
-        elif re.fullmatch(r"^You are out of food and drink\.", line) is not None:
-            return "you_outfooddrink"
-        elif re.fullmatch(r"^You are out of food and low on drink\.", line) is not None:
-            return "you_outfoodlowdrink"
-        elif re.fullmatch(r"^You are out of drink and low on food\.", line) is not None:
-            return "you_outdrinklowfood"
-        elif re.fullmatch(r"^You are thirsty\.", line) is not None:
-            return "you_thirsty"
-        elif re.fullmatch(r"^You are hungry\.", line) is not None:
-            return "you_hungry"
-        elif re.fullmatch(r"^Welcome to level \d+\!", line) is not None:
-            return "ding_up"
-        elif (
-            re.fullmatch(r"^You LOST a level\! You are now level \d+\!", line)
-            is not None
-        ):
-            return "ding_down"
-        elif re.fullmatch(r"^It begins to rain\.$", line) is not None:
-            return "weather_start_rain"
-        elif re.fullmatch(r"^It begins to snow\.$", line) is not None:
-            return "weather_start_snow"
-        elif re.fullmatch(r"^You can\'t reach that, get closer\.$", line) is not None:
-            return "you_cannot_reach"
-        elif (
-            re.fullmatch(
-                r"^Your faction standing with \w+ (?:could not possibly get any|got) (?:better|worse)\.$",
-                line,
-            )
-            is not None
-        ):
-            return "faction_line"
-        elif (
-            re.fullmatch(r"^\-\-\w+ has looted [a-zA-Z\s\:]+\.\-\-$", line) is not None
-        ):
+
+        return None
+
+    except Exception as e:
+        eqa_settings.log(
+            "process_log (check_group_system_messages): Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def check_loot_trade(line):
+    """
+    Check line for looting or trading
+    """
+
+    try:
+        if re.fullmatch(r"^\-\-\w+ has looted [a-zA-Z\s\:]+\.\-\-$", line) is not None:
             return "looted_item_other"
         elif (
             re.fullmatch(r"^\-\-You have looted [a-zA-Z\s\:]+\.\-\-$", line) is not None
@@ -616,28 +692,6 @@ def check_system_messages(line):
             is not None
         ):
             return "looted_money_other"
-        elif re.fullmatch(r"^[a-zA-Z\s]+ engages \w+\!$", line) is not None:
-            return "engage"
-        elif re.fullmatch(r"^LOADING, PLEASE WAIT\.\.\.$", line) is not None:
-            return "zoning"
-        elif (
-            re.fullmatch(
-                r"^(Targeted \((NPC|Player)\)\: [a-zA-Z\s]+|You no longer have a target\.)",
-                line,
-            )
-            is not None
-        ):
-            return "target"
-        elif re.fullmatch(r"^Welcome to EverQuest\!$", line) is not None:
-            return "motd_welcome"
-        elif (
-            re.fullmatch(
-                r"^[a-zA-Z\s]+ is (?:behind and to the (?:righ|lef)t\.|ahead and to the (?:righ|lef)t\.|(?:straight ahead|behind you)\.|to the (?:righ|lef)t\.)$",
-                line,
-            )
-            is not None
-        ):
-            return "tracking"
         elif (
             re.fullmatch(r"^The total trade is\: \d+ PP, \d+ GP, \d+ SP, \d+ CP$", line)
             is not None
@@ -652,7 +706,7 @@ def check_system_messages(line):
 
     except Exception as e:
         eqa_settings.log(
-            "process_log (check_system_messages): Error on line "
+            "process_log (check_loot_trade): Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
@@ -666,11 +720,11 @@ def check_emotes(line):
 
     try:
         if re.fullmatch(r"^\w+ bows before \w+\.$", line) is not None:
-            return "emote_bow"
+            return "emote_bow_other"
         elif re.fullmatch(r"^\w+ thanks \w+ heartily\.$", line) is not None:
-            return "emote_thank"
+            return "emote_thank_other"
         elif re.fullmatch(r"^\w+ waves at \w+\.$", line) is not None:
-            return "emote_wave"
+            return "emote_wave_other"
         elif (
             re.fullmatch(
                 r"^\w+ grabs hold of \w+ and begins to dance with (?:h(?:er|im)|it)\.$",
@@ -678,13 +732,13 @@ def check_emotes(line):
             )
             is not None
         ):
-            return "emote_dance"
+            return "emote_dance_other"
         elif re.fullmatch(r"^\w+ bonks \w+ on the head\!$", line) is not None:
-            return "emote_bonk"
+            return "emote_bonk_other"
         elif re.fullmatch(r"^\w+ beams a smile at (a|) \w+$", line) is not None:
-            return "emote_smile"
+            return "emote_smile_other"
         elif re.fullmatch(r"^\w+ cheers at \w+$", line) is not None:
-            return "emote_cheer"
+            return "emote_cheer_other"
 
         return None
 
