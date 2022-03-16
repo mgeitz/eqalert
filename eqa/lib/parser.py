@@ -263,7 +263,10 @@ def check_melee(line):
             return "mob_out_of_range"
         elif re.fullmatch(r"^You gain experience\!\!$", line) is not None:
             return "experience_solo"
-        elif re.fullmatch(r"^You regain some experience from resurrection\.$", line) is not None:
+        elif (
+            re.fullmatch(r"^You regain some experience from resurrection\.$", line)
+            is not None
+        ):
             return "experience_solo_resurrection"
         elif re.fullmatch(r"^You gain party experience\!\!$", line) is not None:
             return "experience_group"
@@ -374,9 +377,14 @@ def check_spell(line):
             return "spell_gate_collapse"
         elif re.fullmatch(r"^You haven't recovered yet\.\.\.$", line) is not None:
             return "spell_cooldown_active"
-        elif re.fullmatch(r"^You must be standing to cast a spell\.$", line) is not None:
+        elif (
+            re.fullmatch(r"^You must be standing to cast a spell\.$", line) is not None
+        ):
             return "spell_sitting"
-        elif re.fullmatch(r"^You must first select a target for this spell\!$", line) is not None:
+        elif (
+            re.fullmatch(r"^You must first select a target for this spell\!$", line)
+            is not None
+        ):
             return "spell_no_target"
 
         return None
@@ -564,13 +572,23 @@ def check_system_messages(line):
             return "you_outdrink"
         elif re.fullmatch(r"^You are out of food and drink\.$", line) is not None:
             return "you_outfooddrink"
-        elif re.fullmatch(r"^You are out of food and low on drink\.$", line) is not None:
+        elif (
+            re.fullmatch(r"^You are out of food and low on drink\.$", line) is not None
+        ):
             return "you_outfoodlowdrink"
-        elif re.fullmatch(r"^You are out of drink and low on food\.$", line) is not None:
+        elif (
+            re.fullmatch(r"^You are out of drink and low on food\.$", line) is not None
+        ):
             return "you_outdrinklowfood"
         elif re.fullmatch(r"^You are thirsty\.$", line) is not None:
             return "you_thirsty"
-        elif re.fullmatch(r"^Glug, glug, glug\.\.\.  [a-zA-Z]+ takes a drink from [a-zA-Z\s]+\.$", line) is not None:
+        elif (
+            re.fullmatch(
+                r"^Glug, glug, glug\.\.\.  [a-zA-Z]+ takes a drink from [a-zA-Z\s]+\.$",
+                line,
+            )
+            is not None
+        ):
             return "drink_other"
         elif re.fullmatch(r"^You are hungry\.", line) is not None:
             return "you_hungry"
@@ -793,12 +811,7 @@ def check_who(line):
             return "who_top_friends"
         elif re.fullmatch(r"^Players Looking For Groups\:$", line) is not None:
             return "who_top_lfg"
-        elif (
-            re.fullmatch(
-                r"^\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-$", line
-            )
-            is not None
-        ):
+        elif re.fullmatch(r"^---------------------------$", line) is not None:
             return "who_line"
         elif (
             re.fullmatch(
