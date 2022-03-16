@@ -228,6 +228,16 @@ def check_melee(line):
         ):
             return "combat_other_melee_crit"
         elif (
+            re.fullmatch(r"^[a-zA-Z\s]+ has landed a Thunderous Kick\! \(\d+\)$", line)
+            is not None
+        ):
+            return "combat_other_melee_crit_kick"
+        elif (
+            re.fullmatch(r"^[a-zA-Z\s]+ lands a Crippling Blow\!\(\d+\)$", line)
+            is not None
+        ):
+            return "combat_other_melee_crit_kick"
+        elif (
             re.fullmatch(r"^[a-zA-Z\s]+ has become (ENRAGED|enraged)\.$", line)
             is not None
         ):
@@ -235,7 +245,7 @@ def check_melee(line):
         elif re.fullmatch(r"^[a-zA-Z\s]+ is no longer enraged\.$", line) is not None:
             return "mob_enrage_off"
         elif (
-            re.fullmatch(r"^[a-zA-Z\s]+ goes on a (RAMPAGE|rampage)\.$", line)
+            re.fullmatch(r"^[a-zA-Z\s]+ goes on a (RAMPAGE|rampage)\!$", line)
             is not None
         ):
             return "mob_rampage_on"
@@ -253,8 +263,12 @@ def check_melee(line):
             return "mob_out_of_range"
         elif re.fullmatch(r"^You gain experience\!\!$", line) is not None:
             return "experience_solo"
+        elif re.fullmatch(r"^You regain some experience from resurrection\.$", line) is not None:
+            return "experience_solo_resurrection"
         elif re.fullmatch(r"^You gain party experience\!\!$", line) is not None:
             return "experience_group"
+        elif re.fullmatch(r"^You have lost experience\.$", line) is not None:
+            return "experience_lost"
         elif re.fullmatch(r"^You are stunned\!$", line) is not None:
             return "combat_you_stun_on"
         elif re.fullmatch(r"^You are unstunned\.$", line) is not None:
@@ -280,6 +294,8 @@ def check_spell(line):
             return "spell_cast_other"
         elif re.fullmatch(r"^You begin casting [a-zA-Z\s]+\.$", line) is not None:
             return "spell_cast_you"
+        elif re.fullmatch(r"^Your [a-zA-Z\s\:\']+ begins to glow\.$", line) is not None:
+            return "spell_cast_item_you"
         elif re.fullmatch(r"^\w+\'s spell fizzles\!$", line) is not None:
             return "spell_fizzle_other"
         elif re.fullmatch(r"^Your spell fizzles\!$", line) is not None:
@@ -348,7 +364,9 @@ def check_spell(line):
         ):
             return "spell_heal_you"
         elif re.fullmatch(r"^Your target has been cured\.$", line) is not None:
-            return "spell_cured"
+            return "spell_cured_other"
+        elif re.fullmatch(r"^You have been summoned\!$", line) is not None:
+            return "spell_summoned_you"
         elif (
             re.fullmatch(r"^Your gate is too unstable, and collapses\.$", line)
             is not None
@@ -356,6 +374,10 @@ def check_spell(line):
             return "spell_gate_collapse"
         elif re.fullmatch(r"^You haven't recovered yet\.\.\.$", line) is not None:
             return "spell_cooldown_active"
+        elif re.fullmatch(r"^You must be standing to cast a spell\.$", line) is not None:
+            return "spell_sitting"
+        elif re.fullmatch(r"^You must first select a target for this spell\!$", line) is not None:
+            return "spell_no_target"
 
         return None
 
@@ -507,6 +529,8 @@ def check_command_output(line):
             return "motd_game"
         elif re.fullmatch(r"^GUILD MOTD\:.+", line) is not None:
             return "motd_guild"
+        elif re.fullmatch(r"^Summoning [a-zA-Z]+\'s corpse\.\.\.", line) is not None:
+            return "summon_corpse"
         elif (
             re.fullmatch(r"^You can\'t use that command while casting\.\.\.$", line)
             is not None
@@ -534,18 +558,20 @@ def check_system_messages(line):
             return "you_new_zone"
         elif re.fullmatch(r"^LOADING, PLEASE WAIT\.\.\.$", line) is not None:
             return "zoning"
-        elif re.fullmatch(r"^You are out of food\.", line) is not None:
+        elif re.fullmatch(r"^You are out of food\.$", line) is not None:
             return "you_outfood"
-        elif re.fullmatch(r"^You are out of drink\.", line) is not None:
+        elif re.fullmatch(r"^You are out of drink\.$", line) is not None:
             return "you_outdrink"
-        elif re.fullmatch(r"^You are out of food and drink\.", line) is not None:
+        elif re.fullmatch(r"^You are out of food and drink\.$", line) is not None:
             return "you_outfooddrink"
-        elif re.fullmatch(r"^You are out of food and low on drink\.", line) is not None:
+        elif re.fullmatch(r"^You are out of food and low on drink\.$", line) is not None:
             return "you_outfoodlowdrink"
-        elif re.fullmatch(r"^You are out of drink and low on food\.", line) is not None:
+        elif re.fullmatch(r"^You are out of drink and low on food\.$", line) is not None:
             return "you_outdrinklowfood"
-        elif re.fullmatch(r"^You are thirsty\.", line) is not None:
+        elif re.fullmatch(r"^You are thirsty\.$", line) is not None:
             return "you_thirsty"
+        elif re.fullmatch(r"^Glug, glug, glug\.\.\.  [a-zA-Z]+ takes a drink from [a-zA-Z\s]+\.$", line) is not None:
+            return "drink_other"
         elif re.fullmatch(r"^You are hungry\.", line) is not None:
             return "you_hungry"
         elif re.fullmatch(r"^You are no longer encumbered\.$", line) is not None:
@@ -598,6 +624,10 @@ def check_system_messages(line):
             is not None
         ):
             return "tracking"
+        elif re.fullmatch(r"^Track players \* OFF \*$", line) is not None:
+            return "tracking_player_off"
+        elif re.fullmatch(r"^Track players \* ON \*$", line) is not None:
+            return "tracking_player_on"
 
         return None
 
@@ -852,30 +882,30 @@ def check_pets(line):
 
     try:
         if (
-            re.fullmatch(r"^[a-zA-Z\s]+ says, \'Following you, Master\.\'", line)
+            re.fullmatch(r"^[a-zA-Z\s]+ says, \'Following you, Master\.\'$", line)
             is not None
         ):
             return "pet_follow"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says, \'No longer taunting attackers, Master\.\'", line
+                r"^[a-zA-Z\s]+ says, \'No longer taunting attackers, Master\.\'$", line
             )
             is not None
         ):
             return "pet_taunt_off"
         elif (
-            re.fullmatch(r"^[a-zA-Z\s]+ says, \'At your service Master\.\'", line)
+            re.fullmatch(r"^[a-zA-Z\s]+ says, \'At your service Master\.\'$", line)
             is not None
         ):
             return "pet_spawn"
         elif (
-            re.fullmatch(r"^[a-zA-Z\s]+ says, \'Changing position, Master\.\'", line)
+            re.fullmatch(r"^[a-zA-Z\s]+ says, \'Changing position, Master\.\'$", line)
             is not None
         ):
             return "pet_sit_stand"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says, \'Guarding with my life\.\.oh splendid one\.\'",
+                r"^[a-zA-Z\s]+ says \'Guarding with my life\.\.oh splendid one\.\'$",
                 line,
             )
             is not None
@@ -883,18 +913,25 @@ def check_pets(line):
             return "pet_guard"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says, \'Sorry, Master\.\.calming down\.\'", line
+                r"^[a-zA-Z\s]+ says \'Sorry, Master\.\.calming down\.\'$", line
             )
             is not None
         ):
             return "pet_back"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says, \'That is not a legal target master\.\'", line
+                r"^[a-zA-Z\s]+ says, \'That is not a legal target master\.\'$", line
             )
             is not None
         ):
             return "pet_illegal_target"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z\s]+ says \'Sorry to have failed you, oh Great One\.\'$", line
+            )
+            is not None
+        ):
+            return "pet_dead"
 
         return None
 
