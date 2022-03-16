@@ -325,174 +325,174 @@ def build_config(base_path):
     "all": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "auction": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "auction_wtb": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "auction_wts": {
       "alert": {
         "shiny brass idol": "true"
       },
       "reaction": "true",
-      "sound": "3"
+      "sound": "look at auction"
     },
     "combat_other_melee": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_other_melee_block": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_other_melee_crit": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_other_melee_dodge": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_other_melee_miss": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_other_melee_parry": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_other_melee_reposte": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_you_melee": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_you_melee_miss": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_you_receive_melee": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_you_stun_off": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "combat_you_stun_on": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "command_block": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "ding_down": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "ding_up": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "direction": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "direction_miss": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "emote_bonk_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "emote_bow_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "emote_cheer_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "emote_dance_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "emote_smile_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "emote_thank_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "emote_wave_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "encumbered_off": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "encumbered_on": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "engage": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "experience_group": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "experience_solo": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "faction_line": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "group": {
       "alert": {
@@ -500,55 +500,56 @@ def build_config(base_path):
         "oom": "true"
       },
       "reaction": "true",
-      "sound": "4"
+      "sound": "watch out"
     },
     "group_disbanded": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "group_invite_instruction": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "group_invite_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "group_invite_you": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "group_joined": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "group_joined_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "group_join_notify": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "group_leave_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "group_removed": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "guild": {
       "alert": {
+        "help": "true",
         "assist": "raid",
         "fixated": "raid",
         "fixation": "raid",
@@ -564,500 +565,494 @@ def build_config(base_path):
         "tash": "raid"
       },
       "reaction": "true",
-      "sound": "3"
+      "sound": "look at guild"
     },
     "location": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "looted_item_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "looted_item_you": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "looted_money_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "looted_money_you": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "mob_enrage_off": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "mob_enrage_on": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "mob_out_of_range": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "mob_rampage_on": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "mob_slain_other": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "mob_slain_you": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "motd_game": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "motd_guild": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "motd_welcome": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "ooc": {
       "alert": {},
       "reaction": "false",
-      "sound": "1"
+      "sound": "false"
     },
     "pet_back": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "pet_follow": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "pet_guard": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "pet_illegal_target": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "pet_sit_stand": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "pet_spawn": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "pet_taunt_off": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "player_linkedead": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "random": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "say": {
       "alert": {
         "help": "true"
       },
       "reaction": "true",
-      "sound": "0"
+      "sound": "look at say"
     },
     "shout": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "skill_up": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_cast_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_cast_oom": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_cast_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_cast_you": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_cooldown_active": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_cured": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_damage": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_fizzle_other": {
       "alert": {},
-      "reaction": "true",
-      "sound": "5"
+      "reaction": "false",
+      "sound": "false"
     },
     "spell_fizzle_you": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_forget": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_gate_collapse": {
       "alert": {},
-      "reaction": "false",
-      "sound": "0"
+      "reaction": "all",
+      "sound": "gate collapse"
     },
     "spell_heal_you": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_interrupt_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_interrupt_you": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "0"
+      "reaction": "false",
+      "sound": "false"
     },
     "spell_memorize_already": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_memorize_begin": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_memorize_finish": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_not_hold": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_recover_other": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_recover_you": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_regen_on": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_resist_you": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "spell_worn_off": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "target": {
       "alert": {},
       "reaction": "false",
-      "sound": "3"
+      "sound": "false"
     },
     "tell": {
       "alert": {},
       "reaction": "speak",
-      "sound": "0"
+      "sound": "false"
     },
     "time_earth": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "time_game": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "tracking": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "trade_item": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "trade_money": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "undetermined": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "weather_start_rain": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "weather_start_snow": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_line": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_player": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_player_afk": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_player_anon": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_player_anon_linkdead": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_player_linkdead": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_top": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_top_friends": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_top_lfg": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_total": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_total_empty": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "who_total_local_empty": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_afk_off": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_afk_on": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_auction": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_camping": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_camping_abandoned": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_cannot_reach": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_group": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_guild": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_hungry": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_lfg_off": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_lfg_on": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_new_zone": {
       "alert": {},
       "reaction": "all",
-      "sound": "0"
+      "sound": "false"
     },
     "you_ooc": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_outdrink": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_outdrinklowfood": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_outfood": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_outfooddrink": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_outfoodlowdrink": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_say": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_shout": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_tell": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "you_thirsty": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     },
     "zoning": {
       "alert": {},
       "reaction": "false",
-      "sound": "0"
+      "sound": "false"
     }
   },
   "settings": {
     "paths": {
       "alert_log": "%slog/",
       "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
-      "sound": "%ssound/"
+      "sound": "%ssound/",
+      "tmp_sound": "/tmp/eqa/sound/"
     },
-    "sounds": {
-      "1": "hey.wav",
-      "2": "listen.wav",
-      "3": "look.wav",
-      "4": "watch out.wav",
-      "5": "hello.wav"
-    },
-    "version": "2.2.0"
+    "version": "2.2.1"
   },
   "zones": {
     "An Arena (PVP) Area": "false",

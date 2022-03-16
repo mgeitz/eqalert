@@ -236,7 +236,7 @@ def check_melee(line):
             re.fullmatch(r"^[a-zA-Z\s]+ lands a Crippling Blow\!\(\d+\)$", line)
             is not None
         ):
-            return "combat_other_melee_crit_kick"
+            return "combat_other_melee_crip_blow"
         elif (
             re.fullmatch(r"^[a-zA-Z\s]+ has become (ENRAGED|enraged)\.$", line)
             is not None
