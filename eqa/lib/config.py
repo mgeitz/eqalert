@@ -360,7 +360,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_other_melee_crip_blow": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_other_melee_crit": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_melee_crit_kick": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -435,6 +445,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "drink_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_bonk_other": {
       "alert": {},
       "reaction": "false",
@@ -490,7 +505,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "experience_lost": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "oh no!"
+    },
     "experience_solo": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "experience_solo_resurrection": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -653,6 +678,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "pet_dead": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "pet dead"
+    },
     "pet_follow": {
       "alert": {},
       "reaction": "false",
@@ -710,7 +740,7 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "spell_cast_other": {
+    "spell_cast_item_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -737,8 +767,8 @@ def build_config(base_path):
     },
     "spell_cured": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "cured"
     },
     "spell_damage": {
       "alert": {},
@@ -795,6 +825,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spell_no_target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spell_not_hold": {
       "alert": {},
       "reaction": "false",
@@ -820,9 +855,24 @@ def build_config(base_path):
       "reaction": "speak",
       "sound": "false"
     },
+    "spell_sitting": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_summoned_you": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "summoned"
+    },
     "spell_worn_off": {
       "alert": {},
       "reaction": "speak",
+      "sound": "false"
+    },
+    "summon_corpse": {
+      "alert": {},
+      "reaction": "false",
       "sound": "false"
     },
     "target": {
@@ -846,6 +896,16 @@ def build_config(base_path):
       "sound": "false"
     },
     "tracking": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tracking_player_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tracking_player_on": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -1058,7 +1118,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.2.4"
+    "version": "2.2.5"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
