@@ -192,7 +192,9 @@ def process(
                                     "Debug mode disabled",
                                 )
                             )
-                            sound_q.put(eqa_struct.sound("speak", "Debug mode disabled"))
+                            sound_q.put(
+                                eqa_struct.sound("speak", "Debug mode disabled")
+                            )
 
                 # State keys
                 elif page == "state":
