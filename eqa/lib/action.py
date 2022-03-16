@@ -37,6 +37,7 @@ def process(
     exit_flag,
     raid,
     cfg_reload,
+    debug_mode,
     config,
     base_path,
 ):
@@ -58,7 +59,7 @@ def process(
                 check_line = new_message.payload
 
                 # Line specific checks
-                if line_type == "undetermined":
+                if line_type == "undetermined" and debug_mode.is_set():
                     undetermined_line(check_line, base_path)
                 elif line_type == "location":
                     y, x, z = re.findall("[-]?(?:\d*\.)?\d+", check_line)
@@ -141,6 +142,7 @@ def process(
                     ):
                         if config["zones"][current_zone[0]] == "raid":
                             raid.set()
+                            state.set_raid("true")
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -153,6 +155,7 @@ def process(
                     elif current_zone[0] in config["zones"].keys() and raid.is_set():
                         if config["zones"][current_zone[0]] != "raid":
                             raid.clear()
+                            state.set_raid("false")
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -273,10 +276,12 @@ def process(
 
 
 def undetermined_line(line, base_path):
-    """Temp function to log undetermined log lines"""
-    f = open(base_path + "log/undetermined.txt", "a")
-    f.write(line + "\n")
-    f.close()
+    """Debug function to log unmatched log lines"""
+
+    undetermined_log = base_path + "log/undetermined.txt"
+    undetermined_log_file = open(undetermined_log, "a")
+    undetermined_log_file.write(line + "\n")
+    undetermined_log_file.close()
 
 
 if __name__ == "__main__":

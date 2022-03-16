@@ -33,6 +33,7 @@ def process(
     sound_q,
     exit_flag,
     raid,
+    debug_mode,
     chars,
 ):
     """
@@ -112,6 +113,15 @@ def process(
                     elif key == ord("r"):
                         if not raid.is_set():
                             raid.set()
+                            system_q.put(
+                                eqa_struct.message(
+                                    eqa_settings.eqa_time(),
+                                    "system",
+                                    "raid",
+                                    "null",
+                                    "true",
+                                )
+                            )
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -123,6 +133,15 @@ def process(
                             sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
                         elif raid.is_set():
                             raid.clear()
+                            system_q.put(
+                                eqa_struct.message(
+                                    eqa_settings.eqa_time(),
+                                    "system",
+                                    "raid",
+                                    "null",
+                                    "false",
+                                )
+                            )
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -132,11 +151,48 @@ def process(
                                 )
                             )
                             sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "events", "null"
+
+                    elif key == ord("d"):
+                        if not debug_mode.is_set():
+                            debug_mode.set()
+                            system_q.put(
+                                eqa_struct.message(
+                                    eqa_settings.eqa_time(),
+                                    "system",
+                                    "debug",
+                                    "null",
+                                    "true",
+                                )
                             )
-                        )
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    "Debug mode enabled",
+                                )
+                            )
+                            sound_q.put(eqa_struct.sound("speak", "Debug mode enabled"))
+                        elif debug_mode.is_set():
+                            debug_mode.clear()
+                            system_q.put(
+                                eqa_struct.message(
+                                    eqa_settings.eqa_time(),
+                                    "system",
+                                    "debug",
+                                    "null",
+                                    "false",
+                                )
+                            )
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    "Debug mode disabled",
+                                )
+                            )
+                            sound_q.put(eqa_struct.sound("speak", "Debug mode disabled"))
 
                 # State keys
                 elif page == "state":

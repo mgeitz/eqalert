@@ -341,15 +341,17 @@ def draw_state(stdscr, state, raid):
         # raid state
         stdscr.addstr(15, 5, "Raid", curses.color_pair(2))
         stdscr.addstr(15, 16, ": ", curses.color_pair(1))
-        if not raid.is_set():
-            stdscr.addstr(15, 18, "False", curses.color_pair(3))
-        else:
-            stdscr.addstr(15, 18, "True", curses.color_pair(3))
+        stdscr.addstr(15, 18, state.raid.title(), curses.color_pair(3))
 
         # afk state
         stdscr.addstr(17, 5, "AFK", curses.color_pair(2))
         stdscr.addstr(17, 16, ": ", curses.color_pair(1))
         stdscr.addstr(17, 18, state.afk.title(), curses.color_pair(3))
+
+        # debug state
+        stdscr.addstr(19, 5, "Debug", curses.color_pair(2))
+        stdscr.addstr(19, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(19, 18, state.debug.title(), curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(
