@@ -106,6 +106,7 @@ def main():
     cfg_reload = threading.Event()
     log_reload = threading.Event()
     exit_flag = threading.Event()
+    debug_mode = threading.Event()
 
     # Build initial state
     logging.basicConfig(filename=base_path + "log/eqalert.log", level=logging.INFO)
@@ -118,6 +119,11 @@ def main():
         + config["char_logs"][char + "_" + server]["file_name"]
     )
     state = eqa_config.get_last_state(base_path)
+
+    if state.raid == "true":
+        raid.set()
+    if state.debug == "true":
+        debug_mode.set()
 
     # Ensure the character log file exists
     if not os.path.exists(char_log):
@@ -170,6 +176,7 @@ def main():
             sound_q,
             exit_flag,
             raid,
+            debug_mode,
             state.chars,
         ),
     )
@@ -188,6 +195,7 @@ def main():
             exit_flag,
             raid,
             cfg_reload,
+            debug_mode,
             config,
             base_path,
         ),
@@ -241,6 +249,14 @@ def main():
                     # Update afk status
                     elif new_message.tx == "afk":
                         state.set_afk(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
+                    # Update raid status
+                    elif new_message.tx == "raid":
+                        state.set_raid(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
+                    # Update debug status
+                    elif new_message.tx == "debug":
+                        state.set_debug(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
                     # Update location
                     elif new_message.tx == "loc":
@@ -328,6 +344,7 @@ def main():
                                 exit_flag,
                                 raid,
                                 cfg_reload,
+                                debug_mode,
                                 config,
                                 base_path,
                             ),

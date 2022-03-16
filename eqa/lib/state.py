@@ -24,7 +24,7 @@
 class EQA_State:
     """Track State"""
 
-    def __init__(self, char, chars, zone, loc, direction, afk, server):
+    def __init__(self, char, chars, zone, loc, direction, afk, server, raid, debug):
         """All States"""
         self.char = char
         self.chars = chars
@@ -33,6 +33,8 @@ class EQA_State:
         self.direction = direction
         self.afk = afk
         self.server = server
+        self.raid = raid
+        self.debug = debug
 
     def set_char(self, char):
         """Set Character"""
@@ -61,3 +63,11 @@ class EQA_State:
     def set_server(self, server):
         """Set Server"""
         self.server = server
+
+    def set_raid(self, raid):
+        """Set Raid"""
+        self.raid = raid
+
+    def set_debug(self, debug):
+        """Set Debug"""
+        self.debug = debug
