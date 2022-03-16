@@ -847,7 +847,7 @@ def check_who(line):
             return "who_player_anon"
         elif (
             re.fullmatch(
-                r"^\<LINKDEAD\>\[ANONYMOUS\] \w+ (?:( \<[a-zA-Z\s]+\>))$(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|)",
+                r"^\<LINKDEAD\>\[ANONYMOUS\] \w+ (?:( \<[a-zA-Z\s]+\>))$(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|))",
                 line,
             )
             is not None
