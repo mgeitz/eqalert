@@ -261,7 +261,9 @@ def get_last_state(base_path):
         chars = get_config_chars(data)
 
         # Populate and return a new state
-        state = eqa_state.EQA_State(char, chars, zone, location, direction, afk, server, raid, debug)
+        state = eqa_state.EQA_State(
+            char, chars, zone, location, direction, afk, server, raid, debug
+        )
 
         return state
 
@@ -1118,7 +1120,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.2.5"
+    "version": "2.2.6"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
