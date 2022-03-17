@@ -404,7 +404,7 @@ def check_received_chat(line):
     """
 
     try:
-        if re.fullmatch(r"^\w+ tells you, \'.+\'$", line) is not None:
+        if re.fullmatch(r"^\w+ tells you, \'(.+|)\'$", line) is not None:
             return "tell"
         elif re.fullmatch(r"^\w+ says, \'.+\'$", line) is not None:
             return "say"
