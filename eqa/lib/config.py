@@ -854,8 +854,8 @@ def build_config(base_path):
     },
     "spell_resist_you": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "resist"
     },
     "spell_sitting": {
       "alert": {},
@@ -1120,7 +1120,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.2.6"
+    "version": "2.2.7"
   },
   "zones": {
     "An Arena (PVP) Area": "false",

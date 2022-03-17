@@ -142,7 +142,15 @@ def process(
                     ):
                         if config["zones"][current_zone[0]] == "raid":
                             raid.set()
-                            state.set_raid("true")
+                            system_q.put(
+                                eqa_struct.message(
+                                    eqa_settings.eqa_time(),
+                                    "system",
+                                    "raid",
+                                    "null",
+                                    "true",
+                                )
+                            )
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -155,7 +163,15 @@ def process(
                     elif current_zone[0] in config["zones"].keys() and raid.is_set():
                         if config["zones"][current_zone[0]] != "raid":
                             raid.clear()
-                            state.set_raid("false")
+                            system_q.put(
+                                eqa_struct.message(
+                                    eqa_settings.eqa_time(),
+                                    "system",
+                                    "raid",
+                                    "null",
+                                    "false",
+                                )
+                            )
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
