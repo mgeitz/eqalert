@@ -28,7 +28,7 @@ import eqa.lib.state as eqa_state
 import eqa.lib.settings as eqa_settings
 
 
-def display(stdscr, display_q, state, raid, exit_flag):
+def display(stdscr, display_q, state, exit_flag):
     """
     Process: display_q
     Produce: display event
@@ -49,36 +49,26 @@ def display(stdscr, display_q, state, raid, exit_flag):
                 if display_event.type == "update":
                     if display_event.screen == "setting":
                         setting = display_event.payload
-                        draw_page(
-                            stdscr, page, events, state, setting, selected_char, raid
-                        )
+                        draw_page(stdscr, page, events, state, setting, selected_char)
                     elif display_event.screen == "selected_char":
                         selected_char = display_event.payload
-                        draw_page(
-                            stdscr, page, events, state, setting, selected_char, raid
-                        )
+                        draw_page(stdscr, page, events, state, setting, selected_char)
                     elif display_event.screen == "select_char":
                         selected_char = display_event.payload
                         state.char = state.chars[selected_char]
-                        draw_page(
-                            stdscr, page, events, state, setting, selected_char, raid
-                        )
+                        draw_page(stdscr, page, events, state, setting, selected_char)
                     elif display_event.screen == "zone":
                         zone = display_event.payload
-                        draw_page(
-                            stdscr, page, events, state, setting, selected_char, raid
-                        )
+                        draw_page(stdscr, page, events, state, setting, selected_char)
                     elif display_event.screen == "char":
                         state.char = display_event.payload
-                        draw_page(
-                            stdscr, page, events, state, setting, selected_char, raid
-                        )
+                        draw_page(stdscr, page, events, state, setting, selected_char)
 
                 # Display Draw
                 elif display_event.type == "draw":
                     if display_event.screen != "redraw":
                         page = display_event.screen
-                    draw_page(stdscr, page, events, state, setting, selected_char, raid)
+                    draw_page(stdscr, page, events, state, setting, selected_char)
 
                 # Draw Update
                 elif display_event.type == "event":
@@ -86,19 +76,11 @@ def display(stdscr, display_q, state, raid, exit_flag):
                         events.append(display_event)
                         if page == "events":
                             draw_page(
-                                stdscr,
-                                page,
-                                events,
-                                state,
-                                setting,
-                                selected_char,
-                                raid,
+                                stdscr, page, events, state, setting, selected_char
                             )
                     elif display_event.screen == "clear":
                         events = []
-                        draw_page(
-                            stdscr, page, events, state, setting, selected_char, raid
-                        )
+                        draw_page(stdscr, page, events, state, setting, selected_char)
 
     except Exception as e:
         eqa_settings.log(
@@ -111,14 +93,14 @@ def display(stdscr, display_q, state, raid, exit_flag):
     sys.exit()
 
 
-def draw_page(stdscr, page, events, state, setting, selected_char, raid):
+def draw_page(stdscr, page, events, state, setting, selected_char):
     y, x = stdscr.getmaxyx()
     try:
         if x >= 80 and y >= 40:
             if page == "events":
                 draw_events_frame(stdscr, state.char, state.zone, events)
             elif page == "state":
-                draw_state(stdscr, state, raid)
+                draw_state(stdscr, state)
             elif page == "settings":
                 draw_settings(stdscr, state, setting, selected_char)
             elif page == "help":
@@ -294,7 +276,7 @@ def draw_ftime(stdscr, timestamp, y):
     stdscr.addstr(y, 10, ms, curses.color_pair(3))
 
 
-def draw_state(stdscr, state, raid):
+def draw_state(stdscr, state):
     """Draw state"""
     y, x = stdscr.getmaxyx()
     center_y = int(y / 2)
@@ -352,6 +334,11 @@ def draw_state(stdscr, state, raid):
         stdscr.addstr(19, 5, "Debug", curses.color_pair(2))
         stdscr.addstr(19, 16, ": ", curses.color_pair(1))
         stdscr.addstr(19, 18, state.debug.title(), curses.color_pair(3))
+
+        # mute state
+        stdscr.addstr(21, 5, "Mute", curses.color_pair(2))
+        stdscr.addstr(21, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(21, 18, state.mute.title(), curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(

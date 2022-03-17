@@ -30,16 +30,15 @@ import eqa.lib.struct as eqa_struct
 
 
 def process(
+    config,
+    base_path,
+    state,
     action_q,
     system_q,
     display_q,
     sound_q,
     exit_flag,
-    raid,
     cfg_reload,
-    debug_mode,
-    config,
-    base_path,
 ):
     """
     Process: action_q
@@ -59,7 +58,7 @@ def process(
                 check_line = new_message.payload
 
                 # Line specific checks
-                if line_type == "undetermined" and debug_mode.is_set():
+                if line_type == "undetermined" and state.debug == "true":
                     undetermined_line(check_line, base_path)
                 elif line_type == "location":
                     y, x, z = re.findall("[-]?(?:\d*\.)?\d+", check_line)
@@ -83,6 +82,72 @@ def process(
                             direction[0],
                         )
                     )
+                elif line_type == "you_say":
+                    if (
+                        re.fullmatch(r"^You say, \'parser mute\'$", check_line)
+                        is not None
+                    ):
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "mute",
+                                "null",
+                                "all",
+                            )
+                        )
+                    elif (
+                        re.fullmatch(r"^You say, \'parser mute speak\'$", check_line)
+                        is not None
+                    ):
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "mute",
+                                "null",
+                                "speak",
+                            )
+                        )
+                    elif (
+                        re.fullmatch(r"^You say, \'parser mute alert\'$", check_line)
+                        is not None
+                    ):
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "mute",
+                                "null",
+                                "alert",
+                            )
+                        )
+                    elif (
+                        re.fullmatch(r"^You say, \'parser raid\'$", check_line)
+                        is not None
+                    ):
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "raid",
+                                "toggle",
+                                "null",
+                            )
+                        )
+                    elif (
+                        re.fullmatch(r"^You say, \'parser debug\'$", check_line)
+                        is not None
+                    ):
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "debug",
+                                "toggle",
+                                "null",
+                            )
+                        )
                 elif line_type.startswith("you_afk"):
                     if line_type == "you_afk_on":
                         display_q.put(
@@ -138,49 +203,33 @@ def process(
                     if current_zone[0] not in config["zones"].keys():
                         eqa_config.add_zone(current_zone[0], base_path)
                     elif (
-                        current_zone[0] in config["zones"].keys() and not raid.is_set()
+                        current_zone[0] in config["zones"].keys()
+                        and not state.raid == "true"
                     ):
                         if config["zones"][current_zone[0]] == "raid":
-                            raid.set()
                             system_q.put(
                                 eqa_struct.message(
                                     eqa_settings.eqa_time(),
                                     "system",
                                     "raid",
-                                    "null",
                                     "true",
-                                )
-                            )
-                            display_q.put(
-                                eqa_struct.display(
-                                    eqa_settings.eqa_time(),
-                                    "event",
-                                    "events",
                                     "Raid mode auto-enabled",
                                 )
                             )
-                            sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
-                    elif current_zone[0] in config["zones"].keys() and raid.is_set():
+                    elif (
+                        current_zone[0] in config["zones"].keys()
+                        and state.raid == "true"
+                    ):
                         if config["zones"][current_zone[0]] != "raid":
-                            raid.clear()
                             system_q.put(
                                 eqa_struct.message(
                                     eqa_settings.eqa_time(),
                                     "system",
                                     "raid",
-                                    "null",
                                     "false",
-                                )
-                            )
-                            display_q.put(
-                                eqa_struct.display(
-                                    eqa_settings.eqa_time(),
-                                    "event",
-                                    "events",
                                     "Raid mode auto-disabled",
                                 )
                             )
-                            sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
 
                 # If line_type is a parsable type
                 if line_type in config["line"].keys():
@@ -205,7 +254,7 @@ def process(
                             elif (
                                 str(keyphrase).lower() in check_line.lower()
                                 and value == "raid"
-                                and raid.is_set()
+                                and state.raid == "true"
                             ):
                                 if keyphrase == "assist" or keyphrase == "rampage":
                                     target = re.findall("^([\w\-]+)", check_line)

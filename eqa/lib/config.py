@@ -144,6 +144,7 @@ def bootstrap_state(base_path, char, server):
                 "afk": "false",
                 "raid": "false",
                 "debug": "false",
+                "mute": "false",
             }
         )
         json_data = open(base_path + "config.json", "w", encoding="utf-8")
@@ -192,6 +193,7 @@ def set_last_state(state, base_path):
                 "afk": str(state.afk),
                 "raid": str(state.raid),
                 "debug": str(state.debug),
+                "mute": str(state.mute),
             }
         )
         data["char_logs"][state.char + "_" + state.server].update(
@@ -256,13 +258,14 @@ def get_last_state(base_path):
         afk = data["last_state"]["afk"]
         raid = data["last_state"]["raid"]
         debug = data["last_state"]["debug"]
+        mute = data["last_state"]["mute"]
 
         # Get chars
         chars = get_config_chars(data)
 
         # Populate and return a new state
         state = eqa_state.EQA_State(
-            char, chars, zone, location, direction, afk, server, raid, debug
+            char, chars, zone, location, direction, afk, server, raid, debug, mute
         )
 
         return state
@@ -1120,7 +1123,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.2.7"
+    "version": "2.3.2"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
@@ -1158,7 +1161,7 @@ def build_config(base_path):
     "Icewell Keep": "raid",
     "Infected Paw": "false",
     "Innothule Swamp": "false",
-    "Kael Drakkel": "false",
+    "Kael Drakkel": "raid",
     "Karnor's Castle": "false",
     "Kedge Keep": "false",
     "Kithicor Woods": "false",
@@ -1181,7 +1184,7 @@ def build_config(base_path):
     "Old Sebilis": "false",
     "Paineel": "false",
     "Permafrost Caverns": "false",
-    "Plane of Air": "false",
+    "Plane of Air": "raid",
     "Plane of Fear": "raid",
     "Plane of Growth": "false",
     "Plane of Hate": "raid",
@@ -1193,7 +1196,7 @@ def build_config(base_path):
     "Sirens Grotto": "false",
     "Skyfire Mountains": "false",
     "Skyshrine": "false",
-    "Sleepers Tomb": "false",
+    "Sleepers Tomb": "raid",
     "South Kaladim": "false",
     "Southern Desert of Ro": "false",
     "Southern Felwithe": "false",
@@ -1222,7 +1225,7 @@ def build_config(base_path):
     "West Freeport": "false",
     "Western Plains of Karana": "false",
     "Western Wastelands": "false",
-    "Western Wastes": "false"
+    "Western Wastes": "raid"
   }
 }
 

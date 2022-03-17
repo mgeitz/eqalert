@@ -102,11 +102,9 @@ def main():
         bootstrap(base_path)
 
     # Thread Events
-    raid = threading.Event()
     cfg_reload = threading.Event()
     log_reload = threading.Event()
     exit_flag = threading.Event()
-    debug_mode = threading.Event()
 
     # Build initial state
     logging.basicConfig(filename=base_path + "log/eqalert.log", level=logging.INFO)
@@ -119,11 +117,6 @@ def main():
         + config["char_logs"][char + "_" + server]["file_name"]
     )
     state = eqa_config.get_last_state(base_path)
-
-    if state.raid == "true":
-        raid.set()
-    if state.debug == "true":
-        debug_mode.set()
 
     # Ensure the character log file exists
     if not os.path.exists(char_log):
@@ -170,14 +163,12 @@ def main():
     process_keys = threading.Thread(
         target=eqa_keys.process,
         args=(
+            state.chars,
+            display_q,
             keyboard_q,
             system_q,
-            display_q,
-            sound_q,
+            cfg_reload,
             exit_flag,
-            raid,
-            debug_mode,
-            state.chars,
         ),
     )
     process_keys.daemon = True
@@ -188,16 +179,15 @@ def main():
     process_action = threading.Thread(
         target=eqa_action.process,
         args=(
+            config,
+            base_path,
+            state,
             action_q,
             system_q,
             display_q,
             sound_q,
             exit_flag,
-            raid,
             cfg_reload,
-            debug_mode,
-            config,
-            base_path,
         ),
     )
     process_action.daemon = True
@@ -212,7 +202,7 @@ def main():
 
     ## Consume display_q
     process_display = threading.Thread(
-        target=eqa_curses.display, args=(screen, display_q, state, raid, exit_flag)
+        target=eqa_curses.display, args=(screen, display_q, state, exit_flag)
     )
     process_display.daemon = True
     process_display.start()
@@ -246,18 +236,6 @@ def main():
                     if new_message.tx == "zone":
                         state.set_zone(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
-                    # Update afk status
-                    elif new_message.tx == "afk":
-                        state.set_afk(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
-                    # Update raid status
-                    elif new_message.tx == "raid":
-                        state.set_raid(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
-                    # Update debug status
-                    elif new_message.tx == "debug":
-                        state.set_debug(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
                     # Update location
                     elif new_message.tx == "loc":
                         state.set_loc(new_message.payload)
@@ -266,6 +244,216 @@ def main():
                     elif new_message.tx == "direction":
                         state.set_direction(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                    # Update afk status
+                    elif new_message.tx == "afk":
+                        state.set_afk(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
+                    # Update raid status
+                    elif new_message.tx == "raid":
+                        if state.raid == "false" and new_message.rx == "toggle":
+                            state.set_raid("true")
+                            eqa_config.set_last_state(state, base_path)
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    "Raid mode enabled",
+                                )
+                            )
+                            sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
+                        elif state.raid == "true" and new_message.rx == "toggle":
+                            state.set_raid("false")
+                            eqa_config.set_last_state(state, base_path)
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    "Raid mode disabled",
+                                )
+                            )
+                            sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
+                        elif state.raid == "false" and new_message.rx == "true":
+                            state.set_raid("true")
+                            eqa_config.set_last_state(state, base_path)
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    new_message.payload,
+                                )
+                            )
+                            sound_q.put(eqa_struct.sound("speak", new_message.payload))
+                        elif state.raid == "true" and new_message.rx == "false":
+                            state.set_raid("false")
+                            eqa_config.set_last_state(state, base_path)
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    new_message.payload,
+                                )
+                            )
+                            sound_q.put(eqa_struct.sound("speak", new_message.payload))
+                    # Update debug status
+                    elif new_message.tx == "debug":
+                        if state.debug == "false" and new_message.rx == "toggle":
+                            state.set_debug("true")
+                            eqa_config.set_last_state(state, base_path)
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    "Debug mode enabled",
+                                )
+                            )
+                            sound_q.put(eqa_struct.sound("speak", "Debug mode enabled"))
+                        elif state.debug == "true" and new_message.rx == "toggle":
+                            state.set_debug("false")
+                            eqa_config.set_last_state(state, base_path)
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    "Debug mode disabled",
+                                )
+                            )
+                            sound_q.put(
+                                eqa_struct.sound("speak", "Debug mode disabled")
+                            )
+                    # Update mute status
+                    elif new_message.tx == "mute":
+                        if new_message.payload == "all":
+                            if state.mute == "false":
+                                sound_q.put(eqa_struct.sound("mute_speak", "true"))
+                                sound_q.put(eqa_struct.sound("mute_alert", "true"))
+                                state.set_mute("true")
+                                eqa_config.set_last_state(state, base_path)
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Mute Enabled",
+                                    )
+                                )
+                            else:
+                                sound_q.put(eqa_struct.sound("mute_speak", "false"))
+                                sound_q.put(eqa_struct.sound("mute_alert", "false"))
+                                state.set_mute("false")
+                                eqa_config.set_last_state(state, base_path)
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Mute Disabled",
+                                    )
+                                )
+                        elif new_message.payload == "speak":
+                            if state.mute == "false":
+                                sound_q.put(eqa_struct.sound("mute_speak", "true"))
+                                state.set_mute("speak")
+                                eqa_config.set_last_state(state, base_path)
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Mute Speak Enabled",
+                                    )
+                                )
+                            elif state.mute == "alert":
+                                sound_q.put(eqa_struct.sound("mute_speak", "true"))
+                                state.set_mute("true")
+                                eqa_config.set_last_state(state, base_path)
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Mute Enabled",
+                                    )
+                                )
+                            elif state.mute == "true":
+                                sound_q.put(eqa_struct.sound("mute_speak", "false"))
+                                state.set_mute("alert")
+                                eqa_config.set_last_state(state, base_path)
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Mute Speak Disabled",
+                                    )
+                                )
+                            else:
+                                sound_q.put(eqa_struct.sound("mute_speak", "false"))
+                                state.set_mute("false")
+                                eqa_config.set_last_state(state, base_path)
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Mute Disabled",
+                                    )
+                                )
+                        elif new_message.payload == "alert":
+                            if state.mute == "false":
+                                sound_q.put(eqa_struct.sound("mute_alert", "true"))
+                                state.set_mute("alert")
+                                eqa_config.set_last_state(state, base_path)
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Mute Alert Enabled",
+                                    )
+                                )
+                            elif state.mute == "speak":
+                                sound_q.put(eqa_struct.sound("mute_alert", "true"))
+                                state.set_mute("true")
+                                eqa_config.set_last_state(state, base_path)
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Mute Enabled",
+                                    )
+                                )
+                            elif state.mute == "true":
+                                sound_q.put(eqa_struct.sound("mute_alert", "false"))
+                                state.set_mute("speak")
+                                eqa_config.set_last_state(state, base_path)
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Mute Alert Disabled",
+                                    )
+                                )
+                            else:
+                                sound_q.put(eqa_struct.sound("mute_alert", "false"))
+                                state.set_mute("false")
+                                eqa_config.set_last_state(state, base_path)
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Mute Disabled",
+                                    )
+                                )
+
                     # Update character
                     elif new_message.tx == "new_character":
                         new_char_log = (
@@ -326,37 +514,54 @@ def main():
                         # Reload config
                         eqa_config.update_logs(base_path)
                         config = eqa_config.read_config(base_path)
+                        state = eqa_config.get_last_state(base_path)
                         # Reread characters
                         state.set_chars(eqa_config.get_config_chars(config))
-                        # Stop process_action and process_sound
+                        # Stop state dependent processes
                         cfg_reload.set()
                         process_action.join()
                         process_sound.join()
+                        process_keys.join()
                         cfg_reload.clear()
-                        # Start process_action and process_sound
+                        # Restart process_keys
+                        process_keys = threading.Thread(
+                            target=eqa_keys.process,
+                            args=(
+                                state.chars,
+                                display_q,
+                                keyboard_q,
+                                system_q,
+                                cfg_reload,
+                                exit_flag,
+                            ),
+                        )
+                        process_keys.daemon = True
+                        process_keys.start()
+                        # Restart process_action
                         process_action = threading.Thread(
                             target=eqa_action.process,
                             args=(
+                                config,
+                                base_path,
+                                state,
                                 action_q,
                                 system_q,
                                 display_q,
                                 sound_q,
                                 exit_flag,
-                                raid,
                                 cfg_reload,
-                                debug_mode,
-                                config,
-                                base_path,
                             ),
                         )
                         process_action.daemon = True
                         process_action.start()
+                        # Restart process_sound
                         process_sound = threading.Thread(
                             target=eqa_sound.process,
                             args=(config, sound_q, exit_flag, cfg_reload),
                         )
                         process_sound.daemon = True
                         process_sound.start()
+                        # Notify successful configuration reload
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(),

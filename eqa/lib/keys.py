@@ -27,18 +27,16 @@ import eqa.lib.struct as eqa_struct
 
 
 def process(
+    chars,
+    display_q,
     keyboard_q,
     system_q,
-    display_q,
-    sound_q,
+    cfg_reload,
     exit_flag,
-    raid,
-    debug_mode,
-    chars,
 ):
     """
     Process: keyboard_q
-    Produce: sound_q, display_q, system_q
+    Produce: display_q, system_q
     """
 
     key = ""
@@ -46,13 +44,17 @@ def process(
     settings = "character"
     selected_char = 0
 
-    while key != ord("q") and key != 27:
+    while not exit_flag.is_set() and not cfg_reload.is_set():
         try:
             # Get key
-            time.sleep(0.001)
+            time.sleep(0.01)
             if not keyboard_q.empty():
                 key = keyboard_q.get()
                 keyboard_q.task_done()
+
+                # Check for quit event
+                if key == ord("q") or key == 27:
+                    exit_flag.set()
 
                 # Handle resize event
                 if key == curses.KEY_RESIZE:
@@ -111,90 +113,35 @@ def process(
                             )
                         )
                     elif key == ord("r"):
-                        if not raid.is_set():
-                            raid.set()
-                            system_q.put(
-                                eqa_struct.message(
-                                    eqa_settings.eqa_time(),
-                                    "system",
-                                    "raid",
-                                    "null",
-                                    "true",
-                                )
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "raid",
+                                "toggle",
+                                "null",
                             )
-                            display_q.put(
-                                eqa_struct.display(
-                                    eqa_settings.eqa_time(),
-                                    "event",
-                                    "events",
-                                    "Raid mode enabled",
-                                )
-                            )
-                            sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
-                        elif raid.is_set():
-                            raid.clear()
-                            system_q.put(
-                                eqa_struct.message(
-                                    eqa_settings.eqa_time(),
-                                    "system",
-                                    "raid",
-                                    "null",
-                                    "false",
-                                )
-                            )
-                            display_q.put(
-                                eqa_struct.display(
-                                    eqa_settings.eqa_time(),
-                                    "event",
-                                    "events",
-                                    "Raid mode disabled",
-                                )
-                            )
-                            sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
-
+                        )
                     elif key == ord("d"):
-                        if not debug_mode.is_set():
-                            debug_mode.set()
-                            system_q.put(
-                                eqa_struct.message(
-                                    eqa_settings.eqa_time(),
-                                    "system",
-                                    "debug",
-                                    "null",
-                                    "true",
-                                )
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "debug",
+                                "toggle",
+                                "null",
                             )
-                            display_q.put(
-                                eqa_struct.display(
-                                    eqa_settings.eqa_time(),
-                                    "event",
-                                    "events",
-                                    "Debug mode enabled",
-                                )
+                        )
+                    elif key == ord("m"):
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "mute",
+                                "null",
+                                "all",
                             )
-                            sound_q.put(eqa_struct.sound("speak", "Debug mode enabled"))
-                        elif debug_mode.is_set():
-                            debug_mode.clear()
-                            system_q.put(
-                                eqa_struct.message(
-                                    eqa_settings.eqa_time(),
-                                    "system",
-                                    "debug",
-                                    "null",
-                                    "false",
-                                )
-                            )
-                            display_q.put(
-                                eqa_struct.display(
-                                    eqa_settings.eqa_time(),
-                                    "event",
-                                    "events",
-                                    "Debug mode disabled",
-                                )
-                            )
-                            sound_q.put(
-                                eqa_struct.sound("speak", "Debug mode disabled")
-                            )
+                        )
 
                 # State keys
                 elif page == "state":
@@ -257,8 +204,7 @@ def process(
             exit_flag.set()
             sys.exit()
 
-    exit_flag.set()
-    sys.exit()
+    sys.exit(0)
 
 
 def read(exit_flag, keyboard_q, stdscr):
@@ -272,10 +218,10 @@ def read(exit_flag, keyboard_q, stdscr):
         while not exit_flag.is_set():
             key = stdscr.getch()
             keyboard_q.put(key)
-        sys.exit()
+        sys.exit(0)
     except Exception as e:
         eqa_settings.log("read keys: " + str(e))
-        sys.exit()
+        sys.exit(0)
 
 
 if __name__ == "__main__":
