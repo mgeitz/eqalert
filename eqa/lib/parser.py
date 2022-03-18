@@ -85,6 +85,11 @@ def determine(line):
         if line_type is not None:
             return line_type
 
+        # Spell Specific
+        line_type = check_spell_specific(line)
+        if line_type is not None:
+            return line_type
+
         # Received Player Chat
         line_type = check_received_chat(line)
         if line_type is not None:
@@ -357,24 +362,8 @@ def check_spell(line):
             return "spell_memorize_already"
         elif re.fullmatch(r"^You forget .+\.", line) is not None:
             return "spell_forget"
-        elif re.fullmatch(r"^\w+ begins to regenerate\.$", line) is not None:
-            return "spell_regen_on"
         elif re.fullmatch(r"^Your [a-zA-Z\s]+ spell has worn off\.$", line) is not None:
             return "spell_worn_off"
-        elif (
-            re.fullmatch(r"^You have healed .+ for \d+ points of damage\.$", line)
-            is not None
-        ):
-            return "spell_heal_you"
-        elif re.fullmatch(r"^Your target has been cured\.$", line) is not None:
-            return "spell_cured_other"
-        elif re.fullmatch(r"^You have been summoned\!$", line) is not None:
-            return "spell_summoned_you"
-        elif (
-            re.fullmatch(r"^Your gate is too unstable, and collapses\.$", line)
-            is not None
-        ):
-            return "spell_gate_collapse"
         elif re.fullmatch(r"^You haven't recovered yet\.\.\.$", line) is not None:
             return "spell_cooldown_active"
         elif (
@@ -392,6 +381,63 @@ def check_spell(line):
     except Exception as e:
         eqa_settings.log(
             "process_log (check_spell): Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def check_spell_specific(line):
+    """
+    Check line for spell specific output
+    """
+    try:
+        if re.fullmatch(r"^\w+ begins to regenerate\.$", line) is not None:
+            return "spell_regen_on_other"
+        elif re.fullmatch(r"^You begin to regenerate\.$", line) is not None:
+            return "spell_regen_on_you"
+        elif (
+            re.fullmatch(r"^You feel the spirit of wolf enter you\.$", line) is not None
+        ):
+            return "spell_sow_on_you"
+        elif re.fullmatch(r"^Your feet slow down\.$", line) is not None:
+            return "spell_sow_off_you"
+        elif re.fullmatch(r"^You(?:r body fades away| vanish)\.$", line) is not None:
+            return "spell_invis_on_you"
+        elif re.fullmatch(r"^You (?:return to view|appear)\.$", line) is not None:
+            return "spell_invis_off_you"
+        elif (
+            re.fullmatch(r"^You feel yourself starting to appear\.$", line) is not None
+        ):
+            return "spell_invis_dropping_you"
+        elif re.fullmatch(r"^Your feet leave the ground\.$", line) is not None:
+            return "spell_levitate_on_you"
+        elif (
+            re.fullmatch(r"^You feel as if you are about to fall\.$", line) is not None
+        ):
+            return "spell_levitate_dropping_you"
+        elif re.fullmatch(r"^You can no longer levitate\.$", line) is not None:
+            return "spell_levitate_off_you"
+        elif (
+            re.fullmatch(r"^You have healed .+ for \d+ points of damage\.$", line)
+            is not None
+        ):
+            return "spell_heal_you"
+        elif re.fullmatch(r"^Your target has been cured\.$", line) is not None:
+            return "spell_cured_other"
+        elif re.fullmatch(r"^You have been summoned\!$", line) is not None:
+            return "spell_summoned_you"
+        elif (
+            re.fullmatch(r"^Your gate is too unstable, and collapses\.$", line)
+            is not None
+        ):
+            return "spell_gate_collapse"
+
+        return None
+
+    except Exception as e:
+        eqa_settings.log(
+            "process_log (check_spell_specific): Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
@@ -428,6 +474,10 @@ def check_received_chat(line):
             return "auction_wtb"
         elif re.fullmatch(r"^\w+ auctions, \'.+\'$", line) is not None:
             return "auction"
+        elif re.fullmatch(r"^[a-zA-Z\s]+ tells you, \'.+\'$", line) is not None:
+            return "tell_npc"
+        elif re.fullmatch(r"^[a-zA-Z\s]+ says, \'.+\'$", line) is not None:
+            return "say_npc"
 
         return None
 
@@ -787,6 +837,8 @@ def check_emotes(line):
             return "emote_smile_other"
         elif re.fullmatch(r"^\w+ cheers at \w+$", line) is not None:
             return "emote_cheer_other"
+        elif re.fullmatch(r"^You thank (everyone|\w+ heartily)\.$", line) is not None:
+            return "emote_thank_you"
 
         return None
 
@@ -813,6 +865,8 @@ def check_who(line):
             return "who_top_lfg"
         elif re.fullmatch(r"^---------------------------$", line) is not None:
             return "who_line"
+        elif re.fullmatch(r"^---------------------------------$", line) is not None:
+            return "who_line_friends"
         elif (
             re.fullmatch(
                 r"^\[\d+ (?:(?:(?:Shadow )?Knigh|Hierophan|Revenan)t|(?:Elemental|Phantasm)ist|High Priest|Illusionist|(?:Grandmast|P(?:athfind|reserv)|C(?:hannel|avali)|(?:Enchan|Mas)t|(?:Begu|Def)il|Conjur|Sorcer|Wa(?:nder|rd)|(?:Crusa|Outri)d|Rang|Evok|Reav)er|Necromancer|(?:B(?:lackgu)?|Wiz)ard|Grave Lord|(?:T(?:roubadou|empla)|Warrio|Vica)r|A(?:rch Mage|ssassin)|Minstrel|Virtuoso|(?:(?:Myrmid|Champi)o|Magicia|Shama)n|(?:Discipl|Oracl|R(?:ogu|ak))e|Luminary|Warlock|Heretic|Paladin|(?:Warlor|Drui)d|Cleric|Mystic|Monk)\] \w+ \((?:Barbarian|Halfling|Half\-Elf|(?:Dark|High) Elf|Wood Elf|Skeleton|Erudite|Iksar|Troll|(?:Gnom|Ogr)e|Dwarf|Human)\)(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|))$",

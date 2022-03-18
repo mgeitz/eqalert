@@ -56,6 +56,8 @@ Spot check these default paths generated in `config.json`
 
 ## Controls
 
+### Keyboard Controls
+
 #### Global
   - F1      : Events
   - F2      : State
@@ -76,6 +78,37 @@ Spot check these default paths generated in `config.json`
   - right : Toggle selection on
   - left  : Toggle selection off
   - space : Cycle selection
+
+### Say Controls
+
+You can control some parser settings using `/say` in-game.  This is better suited for one monitor setups.
+
+- /say parser raid
+Toggle raid mode.
+
+- /say parser debug
+Toggle debug mode (logging of unmatched lines).
+
+- /say parser mute
+Toggle global mute/unmute on all audio alerts.
+
+- /say parser mute speak
+Toggle mute/unmute on all `speak` alerts.
+
+- /say parser mute alert
+Toggle mute/unmute on all `alert` alerts.
+
+- /say parser mute line playername
+Mute messages from playername on line type. Provided the line type given is valid and has a reaction setting of `speak`.
+> example: /say parser mute tell indef
+
+- /say parser unmute line playername
+Unmute messages from playername on line type.
+> example: /say parser unmute tell indef
+
+- /say parser mute list clear
+clear all line type, playername entries from mute list
+
 
 ## Custom Alerting
 

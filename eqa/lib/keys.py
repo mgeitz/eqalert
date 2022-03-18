@@ -138,7 +138,7 @@ def process(
                                 eqa_settings.eqa_time(),
                                 "system",
                                 "mute",
-                                "null",
+                                "toggle",
                                 "all",
                             )
                         )

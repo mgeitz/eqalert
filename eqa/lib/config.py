@@ -437,8 +437,8 @@ def build_config(base_path):
     },
     "ding_up": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "congratulations"
     },
     "direction": {
       "alert": {},
@@ -481,6 +481,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "emote_thank_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_thank_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -770,7 +775,7 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "spell_cured": {
+    "spell_cured_other": {
       "alert": {},
       "reaction": "all",
       "sound": "cured"
@@ -815,6 +820,36 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spell_invis_dropping_you": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "invis is dropping"
+    },
+    "spell_invis_off_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_invis_on_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_levitate_dropping_you": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "levitate is dropping"
+    },
+    "spell_levitate_off_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_levitate_on_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spell_memorize_already": {
       "alert": {},
       "reaction": "false",
@@ -850,7 +885,12 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "spell_regen_on": {
+    "spell_regen_on_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_regen_on_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -865,10 +905,20 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spell_sow_off_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_sow_on_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spell_summoned_you": {
       "alert": {},
       "reaction": "all",
-      "sound": "summoned"
+      "sound": "you have been summoned"
     },
     "spell_worn_off": {
       "alert": {},
@@ -941,6 +991,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "who_line": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "who_line_friends": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -1123,7 +1178,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.3.2"
+    "version": "2.3.4"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
