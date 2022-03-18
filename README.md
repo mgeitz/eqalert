@@ -12,7 +12,7 @@ An Everquest Emulator Log Parser with NCurses Interface for Linux
 Install from pypi
 ```sh
 $ # Install Stable
-$ pip3 install eqalert==2.2.5
+$ pip3 install eqalert==2.3.2
 $
 $ # Install whatever I just pushed to pypi
 $ pip3 install eqalert
@@ -47,7 +47,8 @@ Spot check these default paths generated in `config.json`
         "paths": {
             "alert_log": "[$HOME/.eqa/]log/",
             "char_log": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
-            "sound": "[$HOME/.eqa/]sound/"
+            "sound": "[$HOME/.eqa/]sound/",
+            "tmp_sound": "/tmp/eqa/sound/"
         },
 ```
 > Press `F12` to reload your config or restart the program if any changes were made to the config
@@ -67,6 +68,7 @@ Spot check these default paths generated in `config.json`
   - c     : Clear event box
   - r     : Toggle raid mode
   - d     : Toggle debug mode
+  - m     : Toggle audio mute
 
 #### Settings
   - up    : Cycle up in selection
@@ -78,6 +80,8 @@ Spot check these default paths generated in `config.json`
 ## Custom Alerting
 
 Modify `~/.eqa/config.json` to customize alerts.
+
+### Line Types
 
 Here is a an example configuration for a given line type in the config:
 ```
@@ -96,7 +100,7 @@ There is a configuration entry for all lines matched by the parser.  If a new on
 
 - `false`: Disable alerting for this line type
 - `true`: Alert for matching strings under `alert` for the line type, using the set sound
-- `speak`: Full text-to-speech for the entire line (probably don't enable this for `combat_other_melee`
+- `speak`: Full text-to-speech for the entire line (probably don't enable this for `combat_other_melee`)
 - `all`: Alert for all lines of a given line type, using the set sound
 
 #### Alert Keys
@@ -126,3 +130,10 @@ For instance, the following example will alert for the word `hey` when someone e
 - You can type anything you want as the value here and it will be the text-to-speech alert you hear when an enabled alert is found in the line type and reaction is set to true.
 
 > One exception to this, `false` cannot be used as a text-to-speech alert, it indicates you don't want a sound alert.  This is useful if you only want something to show as an event on the display and make no sound.
+
+### Zones
+
+Right now, there are only two valid settings for a zones value:
+
+- `false`: Considered a non-raid zone
+- `raid`: A raid zone, parser raid mode will auto-enable when this zone is detected

@@ -36,6 +36,8 @@ def process(config, sound_q, exit_flag, cfg_reload):
     """
 
     tmp_sound_file_path = config["settings"]["paths"]["tmp_sound"]
+    mute_speak = "false"
+    mute_alert = "false"
 
     if not os.path.exists(tmp_sound_file_path):
         os.makedirs(tmp_sound_file_path)
@@ -47,20 +49,15 @@ def process(config, sound_q, exit_flag, cfg_reload):
                 sound_event = sound_q.get()
                 sound_q.task_done()
 
-                if sound_event.sound == "speak":
+                if sound_event.sound == "mute_speak":
+                    mute_speak = sound_event.payload
+                elif sound_event.sound == "mute_alert":
+                    mute_alert = sound_event.payload
+                elif sound_event.sound == "speak" and not mute_speak == "true":
                     speak(sound_event.payload, "true", tmp_sound_file_path)
-                elif sound_event.sound == "alert":
+                elif sound_event.sound == "alert" and not mute_alert == "true":
                     alert(config, sound_event.payload)
-                else:
-                    speak(sound_event.payload, "true", tmp_sound_file_path)
-                    display_q.put(
-                        eqa_struct.display(
-                            eqa_settings.eqa_time(),
-                            "event",
-                            "events",
-                            "[Malformed sound event] " + sound_event.sound,
-                        )
-                    )
+
     except Exception as e:
         eqa_settings.log(
             "sound_process: Error on line "
@@ -68,7 +65,6 @@ def process(config, sound_q, exit_flag, cfg_reload):
             + ": "
             + str(e)
         )
-        sys.exit()
 
     sys.exit()
 
