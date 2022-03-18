@@ -28,6 +28,8 @@ import eqa.lib.settings as eqa_settings
 import eqa.lib.sound as eqa_sound
 import eqa.lib.struct as eqa_struct
 
+mute_list = []
+
 
 def process(
     config,
@@ -84,7 +86,7 @@ def process(
                     )
                 elif line_type == "you_say":
                     if (
-                        re.fullmatch(r"^You say, \'parser mute\'$", check_line)
+                        re.fullmatch(r"^You say, \'parser (un|)mute\'$", check_line)
                         is not None
                     ):
                         system_q.put(
@@ -92,12 +94,14 @@ def process(
                                 eqa_settings.eqa_time(),
                                 "system",
                                 "mute",
-                                "null",
+                                "toggle",
                                 "all",
                             )
                         )
                     elif (
-                        re.fullmatch(r"^You say, \'parser mute speak\'$", check_line)
+                        re.fullmatch(
+                            r"^You say, \'parser (un|)mute speak\'$", check_line
+                        )
                         is not None
                     ):
                         system_q.put(
@@ -105,12 +109,63 @@ def process(
                                 eqa_settings.eqa_time(),
                                 "system",
                                 "mute",
-                                "null",
+                                "toggle",
                                 "speak",
                             )
                         )
                     elif (
-                        re.fullmatch(r"^You say, \'parser mute alert\'$", check_line)
+                        re.fullmatch(
+                            r"^You say, \'parser mute speak [a-zA-Z\s]+\'$", check_line
+                        )
+                        is not None
+                    ):
+                        mute_candidate = re.findall(
+                            r"(?<=You say, \'parser mute speak )\w+ \w+", check_line
+                        )
+                        mute_line, mute_player = mute_candidate[0].lower().split(" ")
+                        if (
+                            mute_line in config["line"]
+                            and config["line"][mute_line]["reaction"] == "speak"
+                            and (mute_line, mute_player) not in mute_list
+                        ):
+                            mute_list.append((mute_line, mute_player))
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    mute_player.title()
+                                    + " muted for line type "
+                                    + mute_line,
+                                )
+                            )
+                    elif (
+                        re.fullmatch(
+                            r"^You say, \'parser unmute speak [a-zA-Z\s]+\'$",
+                            check_line,
+                        )
+                        is not None
+                    ):
+                        mute_candidate = re.findall(
+                            r"(?<=You say, \'parser unmute speak )\w+ \w+", check_line
+                        )
+                        mute_line, mute_player = mute_candidate[0].lower().split(" ")
+                        if (mute_line, mute_player) in mute_list:
+                            mute_list.remove((mute_line, mute_player))
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    mute_player.title()
+                                    + " unmuted for line type "
+                                    + mute_line,
+                                )
+                            )
+                    elif (
+                        re.fullmatch(
+                            r"^You say, \'parser (un|)mute alert\'$", check_line
+                        )
                         is not None
                     ):
                         system_q.put(
@@ -118,8 +173,21 @@ def process(
                                 eqa_settings.eqa_time(),
                                 "system",
                                 "mute",
-                                "null",
+                                "toggle",
                                 "alert",
+                            )
+                        )
+                    elif (
+                        re.fullmatch(r"^You say, \'parser mute list clear\'$", check_line)
+                        is not None
+                    ):
+                        mute_list.clear()
+                        display_q.put(
+                            eqa_struct.display(
+                                eqa_settings.eqa_time(),
+                                "event",
+                                "events",
+                                "Muted list cleared",
                             )
                         )
                     elif (
@@ -145,6 +213,19 @@ def process(
                                 "system",
                                 "debug",
                                 "toggle",
+                                "null",
+                            )
+                        )
+                    elif (
+                        re.fullmatch(r"^You say, \'parser reload\'$", check_line)
+                        is not None
+                    ):
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "reload_config",
+                                "null",
                                 "null",
                             )
                         )
@@ -287,12 +368,30 @@ def process(
 
                     # Or if line_type is parsed for as a spoken alert
                     elif config["line"][line_type]["reaction"] == "speak":
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(), "event", "events", check_line
+                        # Check for empty mute_list
+                        if not mute_list:
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "event",
+                                    "events",
+                                    check_line,
+                                )
                             )
-                        )
-                        sound_q.put(eqa_struct.sound("speak", check_line))
+                            sound_q.put(eqa_struct.sound("speak", check_line))
+                        # Otherwise, check if line_type and sender are muted
+                        else:
+                            sender = re.findall(r"^\w+", check_line)
+                            if not (line_type, sender[0].lower()) in mute_list:
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        check_line,
+                                    )
+                                )
+                                sound_q.put(eqa_struct.sound("speak", check_line))
 
                     # For triggers requiring all line_types
                     if config["line"]["all"]["reaction"] == "true":

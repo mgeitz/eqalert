@@ -328,7 +328,7 @@ def main():
                             )
                     # Update mute status
                     elif new_message.tx == "mute":
-                        if new_message.payload == "all":
+                        if new_message.rx == "toggle" and new_message.payload == "all":
                             if state.mute == "false":
                                 sound_q.put(eqa_struct.sound("mute_speak", "true"))
                                 sound_q.put(eqa_struct.sound("mute_alert", "true"))
@@ -355,7 +355,11 @@ def main():
                                         "Mute Disabled",
                                     )
                                 )
-                        elif new_message.payload == "speak":
+                                sound_q.put(eqa_struct.sound("speak", "Mute disabled"))
+                        elif (
+                            new_message.rx == "toggle"
+                            and new_message.payload == "speak"
+                        ):
                             if state.mute == "false":
                                 sound_q.put(eqa_struct.sound("mute_speak", "true"))
                                 state.set_mute("speak")
@@ -392,6 +396,9 @@ def main():
                                         "Mute Speak Disabled",
                                     )
                                 )
+                                sound_q.put(
+                                    eqa_struct.sound("speak", "Mute speak disabled")
+                                )
                             else:
                                 sound_q.put(eqa_struct.sound("mute_speak", "false"))
                                 state.set_mute("false")
@@ -404,7 +411,11 @@ def main():
                                         "Mute Disabled",
                                     )
                                 )
-                        elif new_message.payload == "alert":
+                                sound_q.put(eqa_struct.sound("speak", "Mute disabled"))
+                        elif (
+                            new_message.rx == "toggle"
+                            and new_message.payload == "alert"
+                        ):
                             if state.mute == "false":
                                 sound_q.put(eqa_struct.sound("mute_alert", "true"))
                                 state.set_mute("alert")
@@ -441,6 +452,9 @@ def main():
                                         "Mute Alert Disabled",
                                     )
                                 )
+                                sound_q.put(
+                                    eqa_struct.sound("speak", "Mute alert disabled")
+                                )
                             else:
                                 sound_q.put(eqa_struct.sound("mute_alert", "false"))
                                 state.set_mute("false")
@@ -453,6 +467,7 @@ def main():
                                         "Mute Disabled",
                                     )
                                 )
+                                sound_q.put(eqa_struct.sound("speak", "Mute disabled"))
 
                     # Update character
                     elif new_message.tx == "new_character":
