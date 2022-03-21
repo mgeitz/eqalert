@@ -905,6 +905,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spell_slow_on": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "slowed"
+    },
     "spell_sow_off_you": {
       "alert": {},
       "reaction": "false",
