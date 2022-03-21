@@ -640,8 +640,8 @@ def build_config(base_path):
     },
     "mob_enrage_on": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "enrage"
     },
     "mob_out_of_range": {
       "alert": {},
@@ -650,8 +650,8 @@ def build_config(base_path):
     },
     "mob_rampage_on": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "rampage"
     },
     "mob_slain_other": {
       "alert": {},
