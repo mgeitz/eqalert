@@ -794,7 +794,7 @@ def check_spell_specific(line):
             return "spell_cured_other"
         elif re.fullmatch(r"^You have been summoned\!$", line) is not None:
             return "spell_summoned_you"
-        elif re.fullmatch(r"^[a-zA-Z\s]+$ yawns\.", line) is not None:
+        elif re.fullmatch(r"^[a-zA-Z\s]+ yawns\.$", line) is not None:
             return "spell_slow_on"
         elif (
             re.fullmatch(r"^Your gate is too unstable, and collapses\.$", line)
