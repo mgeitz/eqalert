@@ -640,8 +640,8 @@ def build_config(base_path):
     },
     "mob_enrage_on": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "enrage"
     },
     "mob_out_of_range": {
       "alert": {},
@@ -650,8 +650,8 @@ def build_config(base_path):
     },
     "mob_rampage_on": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "rampage"
     },
     "mob_slain_other": {
       "alert": {},
@@ -904,6 +904,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "spell_slow_on": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "slowed"
     },
     "spell_sow_off_you": {
       "alert": {},
@@ -1178,7 +1183,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.3.4"
+    "version": "2.3.6"
   },
   "zones": {
     "An Arena (PVP) Area": "false",

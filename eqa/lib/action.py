@@ -178,7 +178,9 @@ def process(
                             )
                         )
                     elif (
-                        re.fullmatch(r"^You say, \'parser mute list clear\'$", check_line)
+                        re.fullmatch(
+                            r"^You say, \'parser mute list clear\'$", check_line
+                        )
                         is not None
                     ):
                         mute_list.clear()
