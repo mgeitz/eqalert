@@ -61,258 +61,20 @@ def process(
 
                 # Line specific checks
                 if line_type == "undetermined" and state.debug == "true":
-                    undetermined_line(check_line, base_path)
+                    action_undetermined(check_line, base_path)
                 elif line_type == "location":
-                    y, x, z = re.findall("[-]?(?:\d*\.)?\d+", check_line)
-                    loc = [y, x, z]
-                    system_q.put(
-                        eqa_struct.message(
-                            eqa_settings.eqa_time(), "system", "loc", "null", loc
-                        )
-                    )
+                    action_location(system_q, check_line)
                 elif line_type == "direction":
-                    direction = re.findall(
-                        "(?:North(?:East|West)?|South(?:East|West)?|(?:Ea|We)st)",
-                        check_line,
-                    )
-                    system_q.put(
-                        eqa_struct.message(
-                            eqa_settings.eqa_time(),
-                            "system",
-                            "direction",
-                            "null",
-                            direction[0],
-                        )
-                    )
+                    action_direction(system_q, check_line)
                 elif line_type == "you_say":
-                    if (
-                        re.fullmatch(r"^You say, \'parser (un|)mute\'$", check_line)
-                        is not None
-                    ):
-                        system_q.put(
-                            eqa_struct.message(
-                                eqa_settings.eqa_time(),
-                                "system",
-                                "mute",
-                                "toggle",
-                                "all",
-                            )
-                        )
-                    elif (
-                        re.fullmatch(
-                            r"^You say, \'parser (un|)mute speak\'$", check_line
-                        )
-                        is not None
-                    ):
-                        system_q.put(
-                            eqa_struct.message(
-                                eqa_settings.eqa_time(),
-                                "system",
-                                "mute",
-                                "toggle",
-                                "speak",
-                            )
-                        )
-                    elif (
-                        re.fullmatch(
-                            r"^You say, \'parser mute speak [a-zA-Z\s]+\'$", check_line
-                        )
-                        is not None
-                    ):
-                        mute_candidate = re.findall(
-                            r"(?<=You say, \'parser mute speak )\w+ \w+", check_line
-                        )
-                        mute_line, mute_player = mute_candidate[0].lower().split(" ")
-                        if (
-                            mute_line in config["line"]
-                            and config["line"][mute_line]["reaction"] == "speak"
-                            and (mute_line, mute_player) not in mute_list
-                        ):
-                            mute_list.append((mute_line, mute_player))
-                            display_q.put(
-                                eqa_struct.display(
-                                    eqa_settings.eqa_time(),
-                                    "event",
-                                    "events",
-                                    mute_player.title()
-                                    + " muted for line type "
-                                    + mute_line,
-                                )
-                            )
-                    elif (
-                        re.fullmatch(
-                            r"^You say, \'parser unmute speak [a-zA-Z\s]+\'$",
-                            check_line,
-                        )
-                        is not None
-                    ):
-                        mute_candidate = re.findall(
-                            r"(?<=You say, \'parser unmute speak )\w+ \w+", check_line
-                        )
-                        mute_line, mute_player = mute_candidate[0].lower().split(" ")
-                        if (mute_line, mute_player) in mute_list:
-                            mute_list.remove((mute_line, mute_player))
-                            display_q.put(
-                                eqa_struct.display(
-                                    eqa_settings.eqa_time(),
-                                    "event",
-                                    "events",
-                                    mute_player.title()
-                                    + " unmuted for line type "
-                                    + mute_line,
-                                )
-                            )
-                    elif (
-                        re.fullmatch(
-                            r"^You say, \'parser (un|)mute alert\'$", check_line
-                        )
-                        is not None
-                    ):
-                        system_q.put(
-                            eqa_struct.message(
-                                eqa_settings.eqa_time(),
-                                "system",
-                                "mute",
-                                "toggle",
-                                "alert",
-                            )
-                        )
-                    elif (
-                        re.fullmatch(
-                            r"^You say, \'parser mute list clear\'$", check_line
-                        )
-                        is not None
-                    ):
-                        mute_list.clear()
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                "Muted list cleared",
-                            )
-                        )
-                    elif (
-                        re.fullmatch(r"^You say, \'parser raid\'$", check_line)
-                        is not None
-                    ):
-                        system_q.put(
-                            eqa_struct.message(
-                                eqa_settings.eqa_time(),
-                                "system",
-                                "raid",
-                                "toggle",
-                                "null",
-                            )
-                        )
-                    elif (
-                        re.fullmatch(r"^You say, \'parser debug\'$", check_line)
-                        is not None
-                    ):
-                        system_q.put(
-                            eqa_struct.message(
-                                eqa_settings.eqa_time(),
-                                "system",
-                                "debug",
-                                "toggle",
-                                "null",
-                            )
-                        )
-                    elif (
-                        re.fullmatch(r"^You say, \'parser reload\'$", check_line)
-                        is not None
-                    ):
-                        system_q.put(
-                            eqa_struct.message(
-                                eqa_settings.eqa_time(),
-                                "system",
-                                "reload_config",
-                                "null",
-                                "null",
-                            )
-                        )
+                    if re.fullmatch(r"^You say, \'parser .+\'$", line) is not None:
+                        action_you_say_commands(system_q, check_line, config, mute_list)
                 elif line_type.startswith("you_afk"):
-                    if line_type == "you_afk_on":
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                "You are now AFK",
-                            )
-                        )
-                        system_q.put(
-                            eqa_struct.message(
-                                eqa_settings.eqa_time(), "system", "afk", "null", "true"
-                            )
-                        )
-                    elif line_type == "you_afk_off":
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                "You are no longer AFK",
-                            )
-                        )
-                        system_q.put(
-                            eqa_struct.message(
-                                eqa_settings.eqa_time(),
-                                "system",
-                                "afk",
-                                "null",
-                                "false",
-                            )
-                        )
+                    action_you_afk(system_q, check_line, line_type)
                 elif line_type == "you_new_zone":
-                    current_zone = re.findall(
-                        "(?<=You have entered )[a-zA-Z\s]+", check_line
+                    action_you_new_zone(
+                        system_q, display_q, sound_q, state, config, check_line
                     )
-                    sound_q.put(eqa_struct.sound("speak", current_zone[0]))
-                    display_q.put(
-                        eqa_struct.display(
-                            eqa_settings.eqa_time(), "update", "zone", current_zone[0]
-                        )
-                    )
-                    system_q.put(
-                        eqa_struct.message(
-                            eqa_settings.eqa_time(),
-                            "system",
-                            "zone",
-                            "null",
-                            current_zone[0],
-                        )
-                    )
-                    if current_zone[0] not in config["zones"].keys():
-                        eqa_config.add_zone(current_zone[0], base_path)
-                    elif (
-                        current_zone[0] in config["zones"].keys()
-                        and not state.raid == "true"
-                    ):
-                        if config["zones"][current_zone[0]] == "raid":
-                            system_q.put(
-                                eqa_struct.message(
-                                    eqa_settings.eqa_time(),
-                                    "system",
-                                    "raid",
-                                    "true",
-                                    "Raid mode auto-enabled",
-                                )
-                            )
-                    elif (
-                        current_zone[0] in config["zones"].keys()
-                        and state.raid == "true"
-                    ):
-                        if config["zones"][current_zone[0]] != "raid":
-                            system_q.put(
-                                eqa_struct.message(
-                                    eqa_settings.eqa_time(),
-                                    "system",
-                                    "raid",
-                                    "false",
-                                    "Raid mode auto-disabled",
-                                )
-                            )
 
                 # If line_type is a parsable type
                 if line_type in config["line"].keys():
@@ -441,7 +203,273 @@ def process(
     sys.exit(0)
 
 
-def undetermined_line(line, base_path):
+def action_direction(system_q, check_line):
+    """Perform actions for direction line types"""
+
+    try:
+        direction = re.findall(
+            "(?:North(?:East|West)?|South(?:East|West)?|(?:Ea|We)st)",
+            check_line,
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "direction",
+                "null",
+                direction[0],
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action direction: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_location(system_q, check_line):
+    """Perform actions for direction line types"""
+
+    try:
+        y, x, z = re.findall("[-]?(?:\d*\.)?\d+", check_line)
+        loc = [y, x, z]
+        system_q.put(
+            eqa_struct.message(eqa_settings.eqa_time(), "system", "loc", "null", loc)
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action location: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_you_say_commands(system_q, check_line, config, mute_list):
+    """Perform actions for parser say commands"""
+
+    try:
+        if re.fullmatch(r"^You say, \'parser (un|)mute\'$", check_line) is not None:
+            system_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(),
+                    "system",
+                    "mute",
+                    "toggle",
+                    "all",
+                )
+            )
+        elif (
+            re.fullmatch(r"^You say, \'parser (un|)mute speak\'$", check_line)
+            is not None
+        ):
+            system_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(),
+                    "system",
+                    "mute",
+                    "toggle",
+                    "speak",
+                )
+            )
+        elif (
+            re.fullmatch(r"^You say, \'parser mute speak [a-zA-Z\s]+\'$", check_line)
+            is not None
+        ):
+            mute_candidate = re.findall(
+                r"(?<=You say, \'parser mute speak )\w+ \w+", check_line
+            )
+            mute_line, mute_player = mute_candidate[0].lower().split(" ")
+            if (
+                mute_line in config["line"]
+                and config["line"][mute_line]["reaction"] == "speak"
+                and (mute_line, mute_player) not in mute_list
+            ):
+                mute_list.append((mute_line, mute_player))
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        mute_player.title() + " muted for line type " + mute_line,
+                    )
+                )
+        elif (
+            re.fullmatch(
+                r"^You say, \'parser unmute speak [a-zA-Z\s]+\'$",
+                check_line,
+            )
+            is not None
+        ):
+            mute_candidate = re.findall(
+                r"(?<=You say, \'parser unmute speak )\w+ \w+", check_line
+            )
+            mute_line, mute_player = mute_candidate[0].lower().split(" ")
+            if (mute_line, mute_player) in mute_list:
+                mute_list.remove((mute_line, mute_player))
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        mute_player.title() + " unmuted for line type " + mute_line,
+                    )
+                )
+        elif (
+            re.fullmatch(r"^You say, \'parser (un|)mute alert\'$", check_line)
+            is not None
+        ):
+            system_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(),
+                    "system",
+                    "mute",
+                    "toggle",
+                    "alert",
+                )
+            )
+        elif (
+            re.fullmatch(r"^You say, \'parser mute list clear\'$", check_line)
+            is not None
+        ):
+            mute_list.clear()
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Muted list cleared",
+                )
+            )
+        elif re.fullmatch(r"^You say, \'parser raid\'$", check_line) is not None:
+            system_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(),
+                    "system",
+                    "raid",
+                    "toggle",
+                    "null",
+                )
+            )
+        elif re.fullmatch(r"^You say, \'parser debug\'$", check_line) is not None:
+            system_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(),
+                    "system",
+                    "debug",
+                    "toggle",
+                    "null",
+                )
+            )
+        elif re.fullmatch(r"^You say, \'parser reload\'$", check_line) is not None:
+            system_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(),
+                    "system",
+                    "reload_config",
+                    "null",
+                    "null",
+                )
+            )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action you say command: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_you_afk(system_q, check_line, line_type):
+    """Perform actions for you_afk_* line types"""
+
+    try:
+        if line_type == "you_afk_on":
+            system_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(), "system", "afk", "null", "true"
+                )
+            )
+        elif line_type == "you_afk_off":
+            system_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(),
+                    "system",
+                    "afk",
+                    "null",
+                    "false",
+                )
+            )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action you afk: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_you_new_zone(system_q, display_q, sound_q, state, config, check_line):
+    """Perform actions for you new zone line types"""
+
+    try:
+        current_zone = re.findall("(?<=You have entered )[a-zA-Z\s]+", check_line)
+        sound_q.put(eqa_struct.sound("speak", current_zone[0]))
+        display_q.put(
+            eqa_struct.display(
+                eqa_settings.eqa_time(), "update", "zone", current_zone[0]
+            )
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "zone",
+                "null",
+                current_zone[0],
+            )
+        )
+        if current_zone[0] not in config["zones"].keys():
+            eqa_config.add_zone(current_zone[0], base_path)
+        elif current_zone[0] in config["zones"].keys() and not state.raid == "true":
+            if config["zones"][current_zone[0]] == "raid":
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "raid",
+                        "true",
+                        "Raid mode auto-enabled",
+                    )
+                )
+        elif current_zone[0] in config["zones"].keys() and state.raid == "true":
+            if config["zones"][current_zone[0]] != "raid":
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "raid",
+                        "false",
+                        "Raid mode auto-disabled",
+                    )
+                )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action you new zone: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_undetermined(line, base_path):
     """Debug function to log unmatched log lines"""
 
     undetermined_log = base_path + "log/undetermined.txt"
