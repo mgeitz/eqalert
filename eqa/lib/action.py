@@ -66,14 +66,39 @@ def process(
                     action_location(system_q, check_line)
                 elif line_type == "direction":
                     action_direction(system_q, check_line)
+                elif line_type == "motd_welcome":
+                    action_motd_welcome(system_q)
+                elif line_type == "group_join_notify":
+                    action_group_join_notify(system_q, check_line)
+                elif line_type == "group_removed":
+                    action_group_removed(system_q)
+                elif line_type == "group_created":
+                    action_group_created(system_q)
+                elif line_type == "group_leader_you":
+                    action_group_leader_you(system_q)
+                elif line_type == "group_leader_other":
+                    action_group_leader_other(system_q, check_line)
+                elif line_type == "encumbered_off":
+                    action_encumbered_off(system_q)
+                elif line_type == "encumbered_on":
+                    action_encumbered_on(system_q)
+                elif line_type == "you_char_bound":
+                    action_you_char_bound(system_q, check_line)
+                elif line_type == "spell_bind_you":
+                    action_spell_bind_you(system_q, state)
+                elif line_type == "you_afk_off":
+                    action_you_afk_off(system_q)
+                elif line_type == "you_afk_on":
+                    action_you_afk_on(system_q)
                 elif line_type == "you_say":
-                    if re.fullmatch(r"^You say, \'parser .+\'$", line) is not None:
+                    if (
+                        re.fullmatch(r"^You say, \'parser .+\'$", check_line)
+                        is not None
+                    ):
                         action_you_say_commands(system_q, check_line, config, mute_list)
-                elif line_type.startswith("you_afk"):
-                    action_you_afk(system_q, check_line, line_type)
                 elif line_type == "you_new_zone":
                     action_you_new_zone(
-                        system_q, display_q, sound_q, state, config, check_line
+                        base_path, system_q, display_q, sound_q, state, config, check_line
                     )
 
                 # If line_type is a parsable type
@@ -201,6 +226,237 @@ def process(
         )
 
     sys.exit(0)
+
+
+def action_motd_welcome(system_q):
+    """Perform actions for motd welcome line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "group",
+                "null",
+                "false",
+            )
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "leader",
+                "null",
+                "false",
+            )
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "afk",
+                "null",
+                "false",
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action motd welcome: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_group_created(system_q):
+    """Perform actions for group created line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "group",
+                "null",
+                "true",
+            )
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "leader",
+                "null",
+                "you",
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action group created: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_group_removed(system_q):
+    """Perform actions for group removed line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "group",
+                "null",
+                "false",
+            )
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "leader",
+                "null",
+                "false",
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action group removed: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_group_join_notify(system_q, check_line):
+    """Perform actions for group joined line types"""
+
+    try:
+        leader = re.findall(r"(?<=You notify )\w+", check_line)
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "group",
+                "null",
+                "true",
+            )
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "leader",
+                "null",
+                leader[0],
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action group joined: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_group_leader_you(system_q):
+    """Perform actions for group leader you line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "leader",
+                "null",
+                "you",
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action group leader you: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_group_leader_other(system_q, check_line):
+    """Perform actions for group leader you line types"""
+
+    try:
+        leader = re.findall(r"^\w+", check_line)
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "leader",
+                "null",
+                leader[0].lower(),
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action group leader other: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_encumbered_off(system_q):
+    """Perform actions for encumbered off line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "encumbered",
+                "null",
+                "false",
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action encumbered off: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_encumbered_on(system_q):
+    """Perform actions for encumbered on line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "encumbered",
+                "null",
+                "true",
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action encumbered on: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
 
 
 def action_direction(system_q, check_line):
@@ -385,26 +641,19 @@ def action_you_say_commands(system_q, check_line, config, mute_list):
         )
 
 
-def action_you_afk(system_q, check_line, line_type):
-    """Perform actions for you_afk_* line types"""
+def action_you_afk_off(system_q):
+    """Perform actions for you_afk_off line types"""
 
     try:
-        if line_type == "you_afk_on":
-            system_q.put(
-                eqa_struct.message(
-                    eqa_settings.eqa_time(), "system", "afk", "null", "true"
-                )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "afk",
+                "null",
+                "false",
             )
-        elif line_type == "you_afk_off":
-            system_q.put(
-                eqa_struct.message(
-                    eqa_settings.eqa_time(),
-                    "system",
-                    "afk",
-                    "null",
-                    "false",
-                )
-            )
+        )
 
     except Exception as e:
         eqa_settings.log(
@@ -415,7 +664,79 @@ def action_you_afk(system_q, check_line, line_type):
         )
 
 
-def action_you_new_zone(system_q, display_q, sound_q, state, config, check_line):
+def action_you_afk_on(system_q):
+    """Perform actions for you_afk_on line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "afk",
+                "null",
+                "true",
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action you afk: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_spell_bind_you(system_q, state):
+    """Perform actions for spell bind you line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "bind",
+                "null",
+                str(state.zone),
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action you char bound: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_you_char_bound(system_q, check_line):
+    """Perform actions for you char bound line types"""
+
+    try:
+        bound_zone = re.findall(
+            "(?<=You are currently bound in\: )[a-zA-Z\s]+", check_line
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "bind",
+                "null",
+                bound_zone[0],
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action you char bound: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_you_new_zone(base_path, system_q, display_q, sound_q, state, config, check_line):
     """Perform actions for you new zone line types"""
 
     try:

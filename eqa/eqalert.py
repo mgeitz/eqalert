@@ -277,16 +277,32 @@ def main():
                         eqa_config.set_last_state(state, base_path)
                     # Update afk status
                     elif new_message.tx == "afk":
-                        system_afk(state, display_q, new_message)
+                        system_afk(base_path, state, display_q, new_message)
                     # Update raid status
                     elif new_message.tx == "raid":
-                        system_raid(state, display_q, sound_q, new_message)
+                        system_raid(base_path, state, display_q, sound_q, new_message)
                     # Update debug status
                     elif new_message.tx == "debug":
-                        system_debug(state, display_q, sound_q, new_message)
+                        system_debug(base_path, state, display_q, sound_q, new_message)
+                    # Update group status
+                    elif new_message.tx == "group":
+                        state.set_group(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
+                    # Update group leader status
+                    elif new_message.tx == "leader":
+                        state.set_leader(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
+                    # Update encumbered status
+                    elif new_message.tx == "encumbered":
+                        state.set_encumbered(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
+                    # Update bind status
+                    elif new_message.tx == "bind":
+                        state.set_bind(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
                     # Update mute status
                     elif new_message.tx == "mute":
-                        system_mute(state, display_q, sound_q, new_message)
+                        system_mute(base_path, state, display_q, sound_q, new_message)
                     # Update character
                     elif new_message.tx == "new_character":
                         new_char_log = (
@@ -434,7 +450,7 @@ def main():
     eqa_curses.close_screens(screen)
 
 
-def system_raid(state, display_q, sound_q, new_message):
+def system_raid(base_path, state, display_q, sound_q, new_message):
     """Perform system tasks for raid behavior"""
 
     try:
@@ -496,7 +512,7 @@ def system_raid(state, display_q, sound_q, new_message):
         )
 
 
-def system_afk(state, display_q, new_message):
+def system_afk(base_path, state, display_q, new_message):
     """Perform system tasks for afk behavior"""
 
     try:
@@ -511,7 +527,7 @@ def system_afk(state, display_q, new_message):
                     "You are now AFK",
                 )
             )
-        else:
+        elif new_message.payload == "false":
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -530,7 +546,7 @@ def system_afk(state, display_q, new_message):
         )
 
 
-def system_debug(state, display_q, sound_q, new_message):
+def system_debug(base_path, state, display_q, sound_q, new_message):
     """Perform system tasks for debug behavior"""
 
     try:
@@ -568,7 +584,7 @@ def system_debug(state, display_q, sound_q, new_message):
         )
 
 
-def system_mute(state, display_q, sound_q, new_message):
+def system_mute(base_path, state, display_q, sound_q, new_message):
     """Perform system tasks for mute behavior"""
 
     try:

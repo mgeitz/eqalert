@@ -25,7 +25,21 @@ class EQA_State:
     """Track State"""
 
     def __init__(
-        self, char, chars, zone, loc, direction, afk, server, raid, debug, mute
+        self,
+        char,
+        chars,
+        zone,
+        loc,
+        direction,
+        afk,
+        server,
+        raid,
+        debug,
+        mute,
+        group,
+        leader,
+        encumbered,
+        bind,
     ):
         """All States"""
         self.char = char
@@ -38,6 +52,10 @@ class EQA_State:
         self.raid = raid
         self.debug = debug
         self.mute = mute
+        self.group = group
+        self.leader = leader
+        self.encumbered = encumbered
+        self.bind = bind
 
     def set_char(self, char):
         """Set Character"""
@@ -78,3 +96,19 @@ class EQA_State:
     def set_mute(self, mute):
         """Set Mute"""
         self.mute = mute
+
+    def set_group(self, group):
+        """Set Group"""
+        self.group = group
+
+    def set_leader(self, leader):
+        """Set Leader"""
+        self.leader = leader
+
+    def set_encumbered(self, encumbered):
+        """Set Encumbered"""
+        self.encumbered = encumbered
+
+    def set_bind(self, bind):
+        """Set Bind"""
+        self.bind = bind

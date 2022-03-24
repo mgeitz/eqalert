@@ -340,6 +340,27 @@ def draw_state(stdscr, state):
         stdscr.addstr(21, 16, ": ", curses.color_pair(1))
         stdscr.addstr(21, 18, state.mute.title(), curses.color_pair(3))
 
+        # encumbered state
+        stdscr.addstr(23, 5, "Encumbered", curses.color_pair(2))
+        stdscr.addstr(23, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(23, 18, state.encumbered.title(), curses.color_pair(3))
+
+        # bind state
+        stdscr.addstr(25, 5, "Bind", curses.color_pair(2))
+        stdscr.addstr(25, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(25, 18, state.bind.title(), curses.color_pair(3))
+
+        # group state
+        stdscr.addstr(27, 5, "Group", curses.color_pair(2))
+        stdscr.addstr(27, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(27, 18, state.group.title(), curses.color_pair(3))
+
+        # leader state
+        if state.group == "true":
+            stdscr.addstr(29, 5, "Leader", curses.color_pair(2))
+            stdscr.addstr(29, 16, ": ", curses.color_pair(1))
+            stdscr.addstr(29, 18, state.leader.title(), curses.color_pair(3))
+
     except Exception as e:
         eqa_settings.log(
             "draw state: Error on line "

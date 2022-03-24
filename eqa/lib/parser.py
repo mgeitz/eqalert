@@ -809,6 +809,8 @@ def check_spell_specific(line):
             return "spell_summoned_you"
         elif re.fullmatch(r"^[a-zA-Z\s]+ yawns\.$", line) is not None:
             return "spell_slow_on"
+        elif re.fullmatch(r"^You feel yourself bind to the area\.$", line) is not None:
+            return "spell_bind_you"
         elif (
             re.fullmatch(r"^Your gate is too unstable, and collapses\.$", line)
             is not None
@@ -884,7 +886,7 @@ def check_who(line):
             return "who_line_friends"
         elif (
             re.fullmatch(
-                r"^(AFK |\<LINKDEAD\>|)\[(\d+ [a-zA-Z\s]+|ANONYMOUS)\] \w+( \([a-zA-Z\s]+\)|)( \<[a-zA-Z\s]+\>|)( ZONE\: \w+)(  LFG|)$",
+                r"^(AFK |\<LINKDEAD\>|AFK  <LINKDEAD>|)\[(\d+ [a-zA-Z\s]+|ANONYMOUS)\] \w+( \([a-zA-Z\s]+\)|)( \<[a-zA-Z\s]+\>|)( ZONE\: \w+|)(  LFG|)$",
                 line,
             )
             is not None

@@ -105,7 +105,7 @@ def add_char_log(char, server, base_path):
         data["char_logs"].update(
             {
                 char_server: {
-                    "char": char,
+                    "character": char,
                     "server": server,
                     "file_name": char_log,
                     "disabled": "false",
@@ -113,6 +113,8 @@ def add_char_log(char, server, base_path):
                         "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
                         "direction": "unavailable",
                         "zone": "unavailable",
+                        "encumbered": "false",
+                        "bind": "unavailable",
                     },
                 }
             }
@@ -145,6 +147,8 @@ def bootstrap_state(base_path, char, server):
                 "raid": "false",
                 "debug": "false",
                 "mute": "false",
+                "group": "false",
+                "leader": "false",
             }
         )
         json_data = open(base_path + "config.json", "w", encoding="utf-8")
@@ -194,6 +198,8 @@ def set_last_state(state, base_path):
                 "raid": str(state.raid),
                 "debug": str(state.debug),
                 "mute": str(state.mute),
+                "group": str(state.group),
+                "leader": str(state.leader),
             }
         )
         data["char_logs"][state.char + "_" + state.server].update(
@@ -214,6 +220,8 @@ def set_last_state(state, base_path):
                         "z": str(state.loc[2]),
                     },
                     "zone": str(state.zone),
+                    "encumbered": str(state.encumbered),
+                    "bind": str(state.bind),
                 },
             }
         )
@@ -255,17 +263,34 @@ def get_last_state(base_path):
             ),
         ]
         direction = data["char_logs"][char + "_" + server]["char_state"]["direction"]
+        encumbered = data["char_logs"][char + "_" + server]["char_state"]["encumbered"]
+        bind = data["char_logs"][char + "_" + server]["char_state"]["bind"]
         afk = data["last_state"]["afk"]
         raid = data["last_state"]["raid"]
         debug = data["last_state"]["debug"]
         mute = data["last_state"]["mute"]
+        group = data["last_state"]["group"]
+        leader = data["last_state"]["leader"]
 
         # Get chars
         chars = get_config_chars(data)
 
         # Populate and return a new state
         state = eqa_state.EQA_State(
-            char, chars, zone, location, direction, afk, server, raid, debug, mute
+            char,
+            chars,
+            zone,
+            location,
+            direction,
+            afk,
+            server,
+            raid,
+            debug,
+            mute,
+            group,
+            leader,
+            encumbered,
+            bind,
         )
 
         return state
@@ -543,6 +568,11 @@ def build_config(base_path):
       "reaction": "true",
       "sound": "watch out"
     },
+    "group_created": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "group_disbanded": {
       "alert": {},
       "reaction": "false",
@@ -574,6 +604,16 @@ def build_config(base_path):
       "sound": "false"
     },
     "group_join_notify": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_leader_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_leader_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -723,7 +763,7 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "player_linkedead": {
+    "player_linkdead": {
       "alert": {},
       "reaction": "speak",
       "sound": "false"
@@ -740,12 +780,22 @@ def build_config(base_path):
       "reaction": "true",
       "sound": "look at say"
     },
+    "say_npc": {
+      "alert": {},
+      "reaction": "true",
+      "sound": "false"
+    },
     "shout": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
     "skill_up": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_bind_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -945,6 +995,11 @@ def build_config(base_path):
       "reaction": "speak",
       "sound": "false"
     },
+    "tell_npc": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "time_earth": {
       "alert": {},
       "reaction": "false",
@@ -1010,26 +1065,6 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "who_player_afk": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_player_anon": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_player_anon_linkdead": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_player_linkdead": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
     "who_top": {
       "alert": {},
       "reaction": "false",
@@ -1086,6 +1121,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "you_cannot_reach": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_char_bound": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -1183,7 +1223,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.3.6"
+    "version": "2.4.10"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
