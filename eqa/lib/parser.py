@@ -886,7 +886,7 @@ def check_who(line):
             return "who_line_friends"
         elif (
             re.fullmatch(
-                r"^(AFK |\<LINKDEAD\>|AFK  <LINKDEAD>|)\[(\d+ [a-zA-Z\s]+|ANONYMOUS)\] \w+( \([a-zA-Z\s]+\)|)( \<[a-zA-Z\s]+\>|)( ZONE\: \w+|)(  LFG|)$",
+                r"^(AFK |\<LINKDEAD\>|AFK  <LINKDEAD>|)\[(\d+ [a-zA-Z\s]+|ANONYMOUS)\] \w+( \([a-zA-Z\s]+\)|)( \<[a-zA-Z\s]+\>|)( ZONE\: \w+|)( LFG|)$",
                 line,
             )
             is not None

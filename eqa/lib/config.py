@@ -782,7 +782,7 @@ def build_config(base_path):
     },
     "say_npc": {
       "alert": {},
-      "reaction": "true",
+      "reaction": "false",
       "sound": "false"
     },
     "shout": {
