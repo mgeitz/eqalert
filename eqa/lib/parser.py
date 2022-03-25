@@ -85,11 +85,6 @@ def determine(line):
         if line_type is not None:
             return line_type
 
-        # Spell Specific
-        line_type = check_spell_specific(line)
-        if line_type is not None:
-            return line_type
-
         # Received Player Chat
         line_type = check_received_chat(line)
         if line_type is not None:
@@ -97,6 +92,11 @@ def determine(line):
 
         # Sent Player Chat
         line_type = check_sent_chat(line)
+        if line_type is not None:
+            return line_type
+
+        # Spell Specific
+        line_type = check_spell_specific(line)
         if line_type is not None:
             return line_type
 
@@ -628,6 +628,11 @@ def check_system_messages(line):
         elif re.fullmatch(r"^Welcome to EverQuest\!$", line) is not None:
             return "motd_welcome"
         elif (
+            re.fullmatch(r"^You are currently bound in\: [a-zA-Z\s]+$", line)
+            is not None
+        ):
+            return "you_char_bound"
+        elif (
             re.fullmatch(
                 r"^[a-zA-Z\s]+ is (?:behind and to the (?:righ|lef)t\.|ahead and to the (?:righ|lef)t\.|(?:straight ahead|behind you)\.|to the (?:righ|lef)t\.)$",
                 line,
@@ -686,6 +691,14 @@ def check_group_system_messages(line):
             return "group_invite_instruction"
         elif re.fullmatch(r"^Your group has been disbanded\.$", line) is not None:
             return "group_disbanded"
+        elif (
+            re.fullmatch(r"^You are now the leader of your group\.$", line) is not None
+        ):
+            return "group_leader_you"
+        elif re.fullmatch(r"^\w+ is now the leader of your group\.$", line) is not None:
+            return "group_leader_other"
+        elif re.fullmatch(r"^You have formed the group\.$", line) is not None:
+            return "group_created"
         elif (
             re.fullmatch(
                 r"^You notify [a-zA-Z]+ that you agree to join the group\.$", line
@@ -796,6 +809,8 @@ def check_spell_specific(line):
             return "spell_summoned_you"
         elif re.fullmatch(r"^[a-zA-Z\s]+ yawns\.$", line) is not None:
             return "spell_slow_on"
+        elif re.fullmatch(r"^You feel yourself bind to the area\.$", line) is not None:
+            return "spell_bind_you"
         elif (
             re.fullmatch(r"^Your gate is too unstable, and collapses\.$", line)
             is not None
@@ -871,44 +886,12 @@ def check_who(line):
             return "who_line_friends"
         elif (
             re.fullmatch(
-                r"^\[\d+ (?:(?:(?:Shadow )?Knigh|Hierophan|Revenan)t|(?:Elemental|Phantasm)ist|High Priest|Illusionist|(?:Grandmast|P(?:athfind|reserv)|C(?:hannel|avali)|(?:Enchan|Mas)t|(?:Begu|Def)il|Conjur|Sorcer|Wa(?:nder|rd)|(?:Crusa|Outri)d|Rang|Evok|Reav)er|Necromancer|(?:B(?:lackgu)?|Wiz)ard|Grave Lord|(?:T(?:roubadou|empla)|Warrio|Vica)r|A(?:rch Mage|ssassin)|Minstrel|Virtuoso|(?:(?:Myrmid|Champi)o|Magicia|Shama)n|(?:Discipl|Oracl|R(?:ogu|ak))e|Luminary|Warlock|Heretic|Paladin|(?:Warlor|Drui)d|Cleric|Mystic|Monk)\] \w+ \((?:Barbarian|Halfling|Half\-Elf|(?:Dark|High) Elf|Wood Elf|Skeleton|Erudite|Iksar|Troll|(?:Gnom|Ogr)e|Dwarf|Human)\)(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|))$",
+                r"^(AFK |\<LINKDEAD\>|AFK  <LINKDEAD>|)\[(\d+ [a-zA-Z\s]+|ANONYMOUS)\] \w+( \([a-zA-Z\s]+\)|)( \<[a-zA-Z\s]+\>|)( ZONE\: \w+|)(  LFG|)$",
                 line,
             )
             is not None
         ):
             return "who_player"
-        elif (
-            re.fullmatch(
-                r"^AFK \[\d+ (?:(?:(?:Shadow )?Knigh|Hierophan|Revenan)t|(?:Elemental|Phantasm)ist|High Priest|Illusionist|(?:Grandmast|P(?:athfind|reserv)|C(?:hannel|avali)|(?:Enchan|Mas)t|(?:Begu|Def)il|Conjur|Sorcer|Wa(?:nder|rd)|(?:Crusa|Outri)d|Rang|Evok|Reav)er|Necromancer|(?:B(?:lackgu)?|Wiz)ard|Grave Lord|(?:T(?:roubadou|empla)|Warrio|Vica)r|A(?:rch Mage|ssassin)|Minstrel|Virtuoso|(?:(?:Myrmid|Champi)o|Magicia|Shama)n|(?:Discipl|Oracl|R(?:ogu|ak))e|Luminary|Warlock|Heretic|Paladin|(?:Warlor|Drui)d|Cleric|Mystic|Monk)\] \w+ \((?:Barbarian|Halfling|Half\-Elf|(?:Dark|High) Elf|Wood Elf|Skeleton|Erudite|Iksar|Troll|(?:Gnom|Ogr)e|Dwarf|Human)\)(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|))$",
-                line,
-            )
-            is not None
-        ):
-            return "who_player_afk"
-        elif (
-            re.fullmatch(
-                r"^\<LINKDEAD\>\[\d+ (?:(?:(?:Shadow )?Knigh|Hierophan|Revenan)t|(?:Elemental|Phantasm)ist|High Priest|Illusionist|(?:Grandmast|P(?:athfind|reserv)|C(?:hannel|avali)|(?:Enchan|Mas)t|(?:Begu|Def)il|Conjur|Sorcer|Wa(?:nder|rd)|(?:Crusa|Outri)d|Rang|Evok|Reav)er|Necromancer|(?:B(?:lackgu)?|Wiz)ard|Grave Lord|(?:T(?:roubadou|empla)|Warrio|Vica)r|A(?:rch Mage|ssassin)|Minstrel|Virtuoso|(?:(?:Myrmid|Champi)o|Magicia|Shama)n|(?:Discipl|Oracl|R(?:ogu|ak))e|Luminary|Warlock|Heretic|Paladin|(?:Warlor|Drui)d|Cleric|Mystic|Monk)\] \w+ \((?:Barbarian|Halfling|Half\-Elf|(?:Dark|High) Elf|Wood Elf|Skeleton|Erudite|Iksar|Troll|(?:Gnom|Ogr)e|Dwarf|Human)\)(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|))$",
-                line,
-            )
-            is not None
-        ):
-            return "who_player_linkdead"
-        elif (
-            re.fullmatch(
-                r"^\[ANONYMOUS\] \w+ (?:( \<[a-zA-Z\s]+\>))$(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|))",
-                line,
-            )
-            is not None
-        ):
-            return "who_player_anon"
-        elif (
-            re.fullmatch(
-                r"^\<LINKDEAD\>\[ANONYMOUS\] \w+ (?:( \<[a-zA-Z\s]+\>))$(?:( \<[a-zA-Z\s]+\> ZONE\: \w+| \<[a-zA-Z\s]+\>|))",
-                line,
-            )
-            is not None
-        ):
-            return "who_player_anon_linkdead"
         elif (
             re.fullmatch(
                 r"^There (is|are) \d+ (player|players) in [a-zA-Z\s]+\.$", line
@@ -951,24 +934,24 @@ def check_pets(line):
 
     try:
         if (
-            re.fullmatch(r"^[a-zA-Z\s]+ says, \'Following you, Master\.\'$", line)
+            re.fullmatch(r"^[a-zA-Z\s]+ says \'Following you, Master\.\'$", line)
             is not None
         ):
             return "pet_follow"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says, \'No longer taunting attackers, Master\.\'$", line
+                r"^[a-zA-Z\s]+ says \'No longer taunting attackers, Master\.\'$", line
             )
             is not None
         ):
             return "pet_taunt_off"
         elif (
-            re.fullmatch(r"^[a-zA-Z\s]+ says, \'At your service Master\.\'$", line)
+            re.fullmatch(r"^[a-zA-Z\s]+ says \'At your service Master\.\'$", line)
             is not None
         ):
             return "pet_spawn"
         elif (
-            re.fullmatch(r"^[a-zA-Z\s]+ says, \'Changing position, Master\.\'$", line)
+            re.fullmatch(r"^[a-zA-Z\s]+ says \'Changing position, Master\.\'$", line)
             is not None
         ):
             return "pet_sit_stand"
@@ -989,7 +972,7 @@ def check_pets(line):
             return "pet_back"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says, \'That is not a legal target master\.\'$", line
+                r"^[a-zA-Z\s]+ says \'That is not a legal target master\.\'$", line
             )
             is not None
         ):
