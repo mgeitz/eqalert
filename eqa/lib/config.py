@@ -782,7 +782,7 @@ def build_config(base_path):
     },
     "say_npc": {
       "alert": {},
-      "reaction": "true",
+      "reaction": "false",
       "sound": "false"
     },
     "shout": {
@@ -1223,7 +1223,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.4.10"
+    "version": "2.4.11"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
@@ -1328,7 +1328,6 @@ def build_config(base_path):
     "Western Wastes": "raid"
   }
 }
-
 """
 
     try:
