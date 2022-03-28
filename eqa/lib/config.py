@@ -1328,7 +1328,6 @@ def build_config(base_path):
     "Western Wastes": "raid"
   }
 }
-
 """
 
     try:
