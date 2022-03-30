@@ -825,7 +825,7 @@ def action_matched(line_type, line, base_path):
                 )
                 os.rename(matched_log, archived_log)
         matched_log_file = open(matched_log, "a")
-        matched_log_file.write(line_type + "\t\t: " + line + "\n")
+        matched_log_file.write('%-30s : %-70s\n' % (line_type, line))
         matched_log_file.close()
 
     except Exception as e:
