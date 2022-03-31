@@ -812,9 +812,9 @@ def action_matched(line_type, line, base_path):
         if os.path.exists(matched_log):
             file_size = os.path.getsize(matched_log)
             if file_size > 5000000:
-                version = str(pkg_resources.get_distribution("eqalert").version).replace(
-                    ".", "-"
-                )
+                version = str(
+                    pkg_resources.get_distribution("eqalert").version
+                ).replace(".", "-")
                 archived_log = (
                     base_path
                     + "log/debug/matched-lines_"
@@ -825,7 +825,7 @@ def action_matched(line_type, line, base_path):
                 )
                 os.rename(matched_log, archived_log)
         matched_log_file = open(matched_log, "a")
-        matched_log_file.write('%-30s : %-70s\n' % (line_type, line))
+        matched_log_file.write("%-30s : %-70s\n" % (line_type, line))
         matched_log_file.close()
 
     except Exception as e:
@@ -846,9 +846,9 @@ def action_undetermined(line, base_path):
         if os.path.exists(undetermined_log):
             file_size = os.path.getsize(undetermined_log)
             if file_size > 5000000:
-                version = str(pkg_resources.get_distribution("eqalert").version).replace(
-                    ".", "-"
-                )
+                version = str(
+                    pkg_resources.get_distribution("eqalert").version
+                ).replace(".", "-")
                 archived_log = (
                     base_path
                     + "log/debug/undetermined-lines_"
