@@ -61,13 +61,15 @@ def process(
                 line_rx = new_message.rx
                 check_line = new_message.payload
 
-                # Line specific checks
+                # Debug modes
                 if state.debug != "false":
                     if line_type == "undetermined":
                         action_undetermined(check_line, base_path)
                     if state.debug == "all":
                         action_matched(line_type, check_line, base_path)
-                elif line_type == "location":
+
+                # Line specific checks
+                if line_type == "location":
                     action_location(system_q, check_line)
                 elif line_type == "direction":
                     action_direction(system_q, check_line)
