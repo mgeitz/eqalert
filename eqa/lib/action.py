@@ -22,6 +22,8 @@ import datetime
 import sys
 import time
 import re
+import os
+from datetime import datetime
 
 import eqa.lib.config as eqa_config
 import eqa.lib.settings as eqa_settings
@@ -60,8 +62,11 @@ def process(
                 check_line = new_message.payload
 
                 # Line specific checks
-                if line_type == "undetermined" and state.debug == "true":
-                    action_undetermined(check_line, base_path)
+                if state.debug != "false":
+                    if line_type == "undetermined":
+                        action_undetermined(check_line, base_path)
+                    if state.debug == "all":
+                        action_matched(line_type, check_line, base_path)
                 elif line_type == "location":
                     action_location(system_q, check_line)
                 elif line_type == "direction":
@@ -98,7 +103,13 @@ def process(
                         action_you_say_commands(system_q, check_line, config, mute_list)
                 elif line_type == "you_new_zone":
                     action_you_new_zone(
-                        base_path, system_q, display_q, sound_q, state, config, check_line
+                        base_path,
+                        system_q,
+                        display_q,
+                        sound_q,
+                        state,
+                        config,
+                        check_line,
                     )
 
                 # If line_type is a parsable type
@@ -736,7 +747,9 @@ def action_you_char_bound(system_q, check_line):
         )
 
 
-def action_you_new_zone(base_path, system_q, display_q, sound_q, state, config, check_line):
+def action_you_new_zone(
+    base_path, system_q, display_q, sound_q, state, config, check_line
+):
     """Perform actions for you new zone line types"""
 
     try:
@@ -790,13 +803,72 @@ def action_you_new_zone(base_path, system_q, display_q, sound_q, state, config, 
         )
 
 
+def action_matched(line_type, line, base_path):
+    """Debug function to log all log lines and matches log lines"""
+
+    try:
+
+        matched_log = base_path + "log/debug/matched-lines.txt"
+        if os.path.exists(matched_log):
+            file_size = os.path.getsize(matched_log)
+            if file_size > 5000000:
+                version = str(pkg_resources.get_distribution("eqalert").version).replace(
+                    ".", "-"
+                )
+                archived_log = (
+                    base_path
+                    + "log/debug/matched-lines_"
+                    + version
+                    + "_"
+                    + str(datetime.now().date())
+                    + ".txt"
+                )
+                os.rename(matched_log, archived_log)
+        matched_log_file = open(matched_log, "a")
+        matched_log_file.write('%-30s : %-70s\n' % (line_type, line))
+        matched_log_file.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "action matched: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def action_undetermined(line, base_path):
     """Debug function to log unmatched log lines"""
 
-    undetermined_log = base_path + "log/undetermined.txt"
-    undetermined_log_file = open(undetermined_log, "a")
-    undetermined_log_file.write(line + "\n")
-    undetermined_log_file.close()
+    try:
+
+        undetermined_log = base_path + "log/debug/undetermined-lines.txt"
+        if os.path.exists(undetermined_log):
+            file_size = os.path.getsize(undetermined_log)
+            if file_size > 5000000:
+                version = str(pkg_resources.get_distribution("eqalert").version).replace(
+                    ".", "-"
+                )
+                archived_log = (
+                    base_path
+                    + "log/debug/undetermined-lines_"
+                    + version
+                    + "_"
+                    + str(datetime.now().date())
+                    + ".txt"
+                )
+                os.rename(undetermined_log, archived_log)
+        undetermined_log_file = open(undetermined_log, "a")
+        undetermined_log_file.write(line + "\n")
+        undetermined_log_file.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "action undetermined: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
 
 
 if __name__ == "__main__":
