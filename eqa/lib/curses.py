@@ -504,28 +504,36 @@ def draw_help(stdscr):
     stdscr.addstr(17, 15, ":", curses.color_pair(1))
     stdscr.addstr(17, 17, "Toggle raid mode", curses.color_pair(3))
 
+    stdscr.addstr(18, 9, "d", curses.color_pair(2))
+    stdscr.addstr(18, 15, ":", curses.color_pair(1))
+    stdscr.addstr(18, 17, "Toggle debug modes", curses.color_pair(3))
+
+    stdscr.addstr(19, 9, "m", curses.color_pair(2))
+    stdscr.addstr(19, 15, ":", curses.color_pair(1))
+    stdscr.addstr(19, 17, "Toggle mute", curses.color_pair(3))
+
     # Settings commands
-    stdscr.addstr(19, 7, "Settings", curses.color_pair(1))
+    stdscr.addstr(21, 7, "Settings", curses.color_pair(1))
 
-    stdscr.addstr(20, 9, "up", curses.color_pair(2))
-    stdscr.addstr(20, 15, ":", curses.color_pair(1))
-    stdscr.addstr(20, 17, "Cycle up in selection", curses.color_pair(3))
-
-    stdscr.addstr(21, 9, "down", curses.color_pair(2))
-    stdscr.addstr(21, 15, ":", curses.color_pair(1))
-    stdscr.addstr(21, 17, "Cycle down in selection", curses.color_pair(3))
-
-    stdscr.addstr(22, 9, "right", curses.color_pair(2))
+    stdscr.addstr(22, 9, "up", curses.color_pair(2))
     stdscr.addstr(22, 15, ":", curses.color_pair(1))
-    stdscr.addstr(22, 17, "Toggle selection on", curses.color_pair(3))
+    stdscr.addstr(22, 17, "Cycle up in selection", curses.color_pair(3))
 
-    stdscr.addstr(23, 9, "left", curses.color_pair(2))
+    stdscr.addstr(23, 9, "down", curses.color_pair(2))
     stdscr.addstr(23, 15, ":", curses.color_pair(1))
-    stdscr.addstr(23, 17, "Toggle selection off", curses.color_pair(3))
+    stdscr.addstr(23, 17, "Cycle down in selection", curses.color_pair(3))
 
-    stdscr.addstr(24, 9, "space", curses.color_pair(2))
+    stdscr.addstr(24, 9, "right", curses.color_pair(2))
     stdscr.addstr(24, 15, ":", curses.color_pair(1))
-    stdscr.addstr(24, 17, "Cycle selection", curses.color_pair(3))
+    stdscr.addstr(24, 17, "Toggle selection on", curses.color_pair(3))
+
+    stdscr.addstr(25, 9, "left", curses.color_pair(2))
+    stdscr.addstr(25, 15, ":", curses.color_pair(1))
+    stdscr.addstr(25, 17, "Toggle selection off", curses.color_pair(3))
+
+    stdscr.addstr(26, 9, "space", curses.color_pair(2))
+    stdscr.addstr(26, 15, ":", curses.color_pair(1))
+    stdscr.addstr(26, 17, "Cycle selection", curses.color_pair(3))
 
 
 def draw_toosmall(stdscr):
