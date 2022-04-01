@@ -303,6 +303,18 @@ def main():
                     elif new_message.tx == "bind":
                         state.set_bind(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                    # Update level status
+                    elif new_message.tx == "level":
+                        state.set_level(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
+                    # Update class status
+                    elif new_message.tx == "class":
+                        state.set_class(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
+                    # Update guild status
+                    elif new_message.tx == "guild":
+                        state.set_guild(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
                     # Update mute status
                     elif new_message.tx == "mute":
                         system_mute(base_path, state, display_q, sound_q, new_message)

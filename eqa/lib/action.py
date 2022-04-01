@@ -97,6 +97,8 @@ def process(
                     action_you_afk_off(system_q)
                 elif line_type == "you_afk_on":
                     action_you_afk_on(system_q)
+                elif line_type == "who_player":
+                    action_who_player(system_q, state, check_line)
                 elif line_type == "you_say":
                     if (
                         re.fullmatch(r"^You say, \'parser .+\'$", check_line)
@@ -743,6 +745,52 @@ def action_you_char_bound(system_q, check_line):
     except Exception as e:
         eqa_settings.log(
             "action you char bound: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_who_player(system_q, state, line):
+    """Perform actions for who_player line types"""
+
+    try:
+        if state.char.lower() in line.lower():
+            if re.findall(r"\d+ [a-zA-Z\s]+", line) is not None:
+                char_level,char_class = re.findall(r"\d+ [a-zA-Z\s]+", line)[0].split(" ", 1)
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "level",
+                        "null",
+                        char_level,
+                    )
+                )
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "class",
+                        "null",
+                        char_class,
+                    )
+                )
+            if re.findall(r"(?<=\<)[a-zA-Z\s]+", line) is not None:
+                char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0]
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "guild",
+                        "null",
+                        char_guild,
+                    )
+                )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action who player: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)

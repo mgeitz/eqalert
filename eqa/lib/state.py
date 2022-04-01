@@ -40,6 +40,9 @@ class EQA_State:
         leader,
         encumbered,
         bind,
+        char_level,
+        char_class,
+        char_guild,
     ):
         """All States"""
         self.char = char
@@ -56,6 +59,9 @@ class EQA_State:
         self.leader = leader
         self.encumbered = encumbered
         self.bind = bind
+        self.char_level = char_level
+        self.char_class = char_class
+        self.char_guild = char_guild
 
     def set_char(self, char):
         """Set Character"""
@@ -112,3 +118,15 @@ class EQA_State:
     def set_bind(self, bind):
         """Set Bind"""
         self.bind = bind
+
+    def set_level(self, char_level):
+        """Set Level"""
+        self.char_level = char_level
+
+    def set_class(self, char_class):
+        """Set Class"""
+        self.char_class = char_class
+
+    def set_char_guild(self, char_guild):
+        """Set Guild"""
+        self.char_guild = char_guild

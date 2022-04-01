@@ -115,6 +115,9 @@ def add_char_log(char, server, base_path):
                         "zone": "unavailable",
                         "encumbered": "false",
                         "bind": "unavailable",
+                        "level": "unavailable",
+                        "class": "unavailable",
+                        "guild": "unavailable",
                     },
                 }
             }
@@ -222,6 +225,9 @@ def set_last_state(state, base_path):
                     "zone": str(state.zone),
                     "encumbered": str(state.encumbered),
                     "bind": str(state.bind),
+                    "level": str(state.char_level),
+                    "class": str(state.char_class),
+                    "guild": str(state.char_guild),
                 },
             }
         )
@@ -265,6 +271,9 @@ def get_last_state(base_path):
         direction = data["char_logs"][char + "_" + server]["char_state"]["direction"]
         encumbered = data["char_logs"][char + "_" + server]["char_state"]["encumbered"]
         bind = data["char_logs"][char + "_" + server]["char_state"]["bind"]
+        char_level = data["char_logs"][char + "_" + server]["char_state"]["level"]
+        char_class = data["char_logs"][char + "_" + server]["char_state"]["class"]
+        char_guild = data["char_logs"][char + "_" + server]["char_state"]["guild"]
         afk = data["last_state"]["afk"]
         raid = data["last_state"]["raid"]
         debug = data["last_state"]["debug"]
@@ -291,6 +300,9 @@ def get_last_state(base_path):
             leader,
             encumbered,
             bind,
+            char_level,
+            char_class,
+            char_guild,
         )
 
         return state
@@ -1223,7 +1235,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.5.5"
+    "version": "2.6.0"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
