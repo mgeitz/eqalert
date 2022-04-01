@@ -757,7 +757,9 @@ def action_who_player(system_q, state, line):
     try:
         if state.char.lower() in line.lower():
             if re.findall(r"\d+ [a-zA-Z\s]+", line) is not None:
-                char_level,char_class = re.findall(r"\d+ [a-zA-Z\s]+", line)[0].split(" ", 1)
+                char_level, char_class = re.findall(r"\d+ [a-zA-Z\s]+", line)[0].split(
+                    " ", 1
+                )
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),
