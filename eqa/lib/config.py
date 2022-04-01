@@ -449,7 +449,7 @@ def build_config(base_path):
     },
     "combat_you_receive_melee": {
       "alert": {},
-      "reaction": "false",
+      "reaction": "afk",
       "sound": "false"
     },
     "combat_you_stun_off": {
@@ -469,7 +469,7 @@ def build_config(base_path):
     },
     "ding_down": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "solo",
       "sound": "false"
     },
     "ding_up": {
@@ -544,7 +544,7 @@ def build_config(base_path):
     },
     "engage": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "solo",
       "sound": "false"
     },
     "experience_group": {
@@ -574,11 +574,15 @@ def build_config(base_path):
     },
     "group": {
       "alert": {
+        "invite": "raid",
+        "drop": "raid",
+        "help": "raid",
+        "invis": "raid",
         "inc": "true",
         "oom": "true"
       },
       "reaction": "true",
-      "sound": "watch out"
+      "sound": "look at group"
     },
     "group_created": {
       "alert": {},
@@ -602,7 +606,7 @@ def build_config(base_path):
     },
     "group_invite_you": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "solo",
       "sound": "false"
     },
     "group_joined": {
@@ -637,7 +641,7 @@ def build_config(base_path):
     },
     "group_removed": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "solo",
       "sound": "false"
     },
     "guild": {
@@ -687,7 +691,7 @@ def build_config(base_path):
     },
     "mob_enrage_off": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "group",
       "sound": "false"
     },
     "mob_enrage_on": {
@@ -707,12 +711,12 @@ def build_config(base_path):
     },
     "mob_slain_other": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "solo",
       "sound": "false"
     },
     "mob_slain_you": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "solo",
       "sound": "false"
     },
     "motd_game": {
@@ -727,7 +731,7 @@ def build_config(base_path):
     },
     "motd_welcome": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "solo",
       "sound": "false"
     },
     "ooc": {
@@ -777,7 +781,7 @@ def build_config(base_path):
     },
     "player_linkdead": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "group",
       "sound": "false"
     },
     "random": {
@@ -989,7 +993,7 @@ def build_config(base_path):
     },
     "spell_worn_off": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "solo",
       "sound": "false"
     },
     "summon_corpse": {
@@ -1004,7 +1008,7 @@ def build_config(base_path):
     },
     "tell": {
       "alert": {},
-      "reaction": "speak",
+      "reaction": "solo",
       "sound": "false"
     },
     "tell_npc": {
@@ -1235,7 +1239,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.6.1"
+    "version": "2.7.0"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
