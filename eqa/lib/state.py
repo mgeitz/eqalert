@@ -127,6 +127,6 @@ class EQA_State:
         """Set Class"""
         self.char_class = char_class
 
-    def set_char_guild(self, char_guild):
+    def set_guild(self, char_guild):
         """Set Guild"""
         self.char_guild = char_guild
