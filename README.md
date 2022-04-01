@@ -12,7 +12,7 @@ An Everquest Emulator Log Parser with NCurses Interface for Linux
 Install from pypi
 ```sh
 $ # Install Stable
-$ pip3 install eqalert==2.5.5
+$ pip3 install eqalert==2.6.1
 $
 $ # Install whatever I just pushed to pypi
 $ pip3 install eqalert
@@ -38,6 +38,7 @@ You should now see `~/.eqa/` with the following structure
 $HOME/.eqa
         ⎿ config.json
         ⎿ log/
+          ⎿ debug/
         ⎿ sound/
 ```
 
