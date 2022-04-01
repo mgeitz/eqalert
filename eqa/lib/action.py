@@ -61,13 +61,15 @@ def process(
                 line_rx = new_message.rx
                 check_line = new_message.payload
 
-                # Line specific checks
+                # Debug modes
                 if state.debug != "false":
                     if line_type == "undetermined":
                         action_undetermined(check_line, base_path)
                     if state.debug == "all":
                         action_matched(line_type, check_line, base_path)
-                elif line_type == "location":
+
+                # Line specific checks
+                if line_type == "location":
                     action_location(system_q, check_line)
                 elif line_type == "direction":
                     action_direction(system_q, check_line)
@@ -95,6 +97,8 @@ def process(
                     action_you_afk_off(system_q)
                 elif line_type == "you_afk_on":
                     action_you_afk_on(system_q)
+                elif line_type == "who_player":
+                    action_who_player(system_q, state, check_line)
                 elif line_type == "you_say":
                     if (
                         re.fullmatch(r"^You say, \'parser .+\'$", check_line)
@@ -747,6 +751,54 @@ def action_you_char_bound(system_q, check_line):
         )
 
 
+def action_who_player(system_q, state, line):
+    """Perform actions for who_player line types"""
+
+    try:
+        if state.char.lower() in line.lower():
+            if re.findall(r"\d+ [a-zA-Z\s]+", line) is not None:
+                char_level, char_class = re.findall(r"\d+ [a-zA-Z\s]+", line)[0].split(
+                    " ", 1
+                )
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "level",
+                        "null",
+                        char_level,
+                    )
+                )
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "class",
+                        "null",
+                        char_class,
+                    )
+                )
+            if re.findall(r"(?<=\<)[a-zA-Z\s]+", line) is not None:
+                char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0]
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "guild",
+                        "null",
+                        char_guild,
+                    )
+                )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action who player: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def action_you_new_zone(
     base_path, system_q, display_q, sound_q, state, config, check_line
 ):
@@ -812,9 +864,9 @@ def action_matched(line_type, line, base_path):
         if os.path.exists(matched_log):
             file_size = os.path.getsize(matched_log)
             if file_size > 5000000:
-                version = str(pkg_resources.get_distribution("eqalert").version).replace(
-                    ".", "-"
-                )
+                version = str(
+                    pkg_resources.get_distribution("eqalert").version
+                ).replace(".", "-")
                 archived_log = (
                     base_path
                     + "log/debug/matched-lines_"
@@ -825,7 +877,7 @@ def action_matched(line_type, line, base_path):
                 )
                 os.rename(matched_log, archived_log)
         matched_log_file = open(matched_log, "a")
-        matched_log_file.write('%-30s : %-70s\n' % (line_type, line))
+        matched_log_file.write("%-30s : %-70s\n" % (line_type, line))
         matched_log_file.close()
 
     except Exception as e:
@@ -846,9 +898,9 @@ def action_undetermined(line, base_path):
         if os.path.exists(undetermined_log):
             file_size = os.path.getsize(undetermined_log)
             if file_size > 5000000:
-                version = str(pkg_resources.get_distribution("eqalert").version).replace(
-                    ".", "-"
-                )
+                version = str(
+                    pkg_resources.get_distribution("eqalert").version
+                ).replace(".", "-")
                 archived_log = (
                     base_path
                     + "log/debug/undetermined-lines_"

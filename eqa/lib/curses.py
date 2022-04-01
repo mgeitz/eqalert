@@ -301,65 +301,80 @@ def draw_state(stdscr, state):
         stdscr.addstr(7, 16, ": ", curses.color_pair(1))
         stdscr.addstr(7, 18, state.char.title(), curses.color_pair(3))
 
-        # zone
-        stdscr.addstr(9, 5, "Zone", curses.color_pair(2))
+        # bind state
+        stdscr.addstr(9, 5, "Bind", curses.color_pair(2))
         stdscr.addstr(9, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(9, 18, state.zone.title(), curses.color_pair(3))
+        stdscr.addstr(9, 18, state.bind.title(), curses.color_pair(3))
 
-        # loc
-        stdscr.addstr(11, 5, "Location", curses.color_pair(2))
+        # class
+        stdscr.addstr(11, 5, "Class", curses.color_pair(2))
         stdscr.addstr(11, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(11, 18, str(state.loc[0]), curses.color_pair(3))
-        stdscr.addstr(11, 24, " : ", curses.color_pair(2))
-        stdscr.addstr(11, 26, str(state.loc[1]), curses.color_pair(3))
-        stdscr.addstr(11, 32, " : ", curses.color_pair(2))
-        stdscr.addstr(11, 34, str(state.loc[2]), curses.color_pair(3))
+        stdscr.addstr(11, 18, state.char_class.title(), curses.color_pair(3))
 
-        # direction
-        stdscr.addstr(13, 5, "Direction", curses.color_pair(2))
+        # level
+        stdscr.addstr(13, 5, "Level", curses.color_pair(2))
         stdscr.addstr(13, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(13, 18, state.direction.title(), curses.color_pair(3))
+        stdscr.addstr(13, 18, state.char_level.title(), curses.color_pair(3))
 
-        # raid state
-        stdscr.addstr(15, 5, "Raid", curses.color_pair(2))
+        # guild
+        stdscr.addstr(15, 5, "Guild", curses.color_pair(2))
         stdscr.addstr(15, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(15, 18, state.raid.title(), curses.color_pair(3))
-
-        # afk state
-        stdscr.addstr(17, 5, "AFK", curses.color_pair(2))
-        stdscr.addstr(17, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(17, 18, state.afk.title(), curses.color_pair(3))
-
-        # debug state
-        stdscr.addstr(19, 5, "Debug", curses.color_pair(2))
-        stdscr.addstr(19, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(19, 18, state.debug.title(), curses.color_pair(3))
-
-        # mute state
-        stdscr.addstr(21, 5, "Mute", curses.color_pair(2))
-        stdscr.addstr(21, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(21, 18, state.mute.title(), curses.color_pair(3))
+        stdscr.addstr(15, 18, state.char_guild.title(), curses.color_pair(3))
 
         # encumbered state
-        stdscr.addstr(23, 5, "Encumbered", curses.color_pair(2))
-        stdscr.addstr(23, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(23, 18, state.encumbered.title(), curses.color_pair(3))
-
-        # bind state
-        stdscr.addstr(25, 5, "Bind", curses.color_pair(2))
-        stdscr.addstr(25, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(25, 18, state.bind.title(), curses.color_pair(3))
+        stdscr.addstr(17, 5, "Encumbered", curses.color_pair(2))
+        stdscr.addstr(17, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(17, 18, state.encumbered.title(), curses.color_pair(3))
 
         # group state
-        stdscr.addstr(27, 5, "Group", curses.color_pair(2))
-        stdscr.addstr(27, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(27, 18, state.group.title(), curses.color_pair(3))
+        stdscr.addstr(19, 5, "Group", curses.color_pair(2))
+        stdscr.addstr(19, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(19, 18, state.group.title(), curses.color_pair(3))
 
         # leader state
         if state.group == "true":
-            stdscr.addstr(29, 5, "Leader", curses.color_pair(2))
-            stdscr.addstr(29, 16, ": ", curses.color_pair(1))
-            stdscr.addstr(29, 18, state.leader.title(), curses.color_pair(3))
+            stdscr.addstr(19, 25, "Leader", curses.color_pair(2))
+            stdscr.addstr(19, 32, ": ", curses.color_pair(1))
+            stdscr.addstr(19, 34, state.leader.title(), curses.color_pair(3))
+
+        # zone
+        stdscr.addstr(21, 5, "Zone", curses.color_pair(2))
+        stdscr.addstr(21, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(21, 18, state.zone.title(), curses.color_pair(3))
+
+        # loc
+        stdscr.addstr(23, 5, "Location", curses.color_pair(2))
+        stdscr.addstr(23, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(23, 18, str(state.loc[0]), curses.color_pair(3))
+        stdscr.addstr(23, 24, " : ", curses.color_pair(2))
+        stdscr.addstr(23, 26, str(state.loc[1]), curses.color_pair(3))
+        stdscr.addstr(23, 32, " : ", curses.color_pair(2))
+        stdscr.addstr(23, 34, str(state.loc[2]), curses.color_pair(3))
+
+        # direction
+        stdscr.addstr(25, 5, "Direction", curses.color_pair(2))
+        stdscr.addstr(25, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(25, 18, state.direction.title(), curses.color_pair(3))
+
+        # raid state
+        stdscr.addstr(27, 5, "Raid", curses.color_pair(2))
+        stdscr.addstr(27, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(27, 18, state.raid.title(), curses.color_pair(3))
+
+        # afk state
+        stdscr.addstr(29, 5, "AFK", curses.color_pair(2))
+        stdscr.addstr(29, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(29, 18, state.afk.title(), curses.color_pair(3))
+
+        # debug state
+        stdscr.addstr(31, 5, "Debug", curses.color_pair(2))
+        stdscr.addstr(31, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(31, 18, state.debug.title(), curses.color_pair(3))
+
+        # mute state
+        stdscr.addstr(33, 5, "Mute", curses.color_pair(2))
+        stdscr.addstr(33, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(33, 18, state.mute.title(), curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(
@@ -489,28 +504,36 @@ def draw_help(stdscr):
     stdscr.addstr(17, 15, ":", curses.color_pair(1))
     stdscr.addstr(17, 17, "Toggle raid mode", curses.color_pair(3))
 
+    stdscr.addstr(18, 9, "d", curses.color_pair(2))
+    stdscr.addstr(18, 15, ":", curses.color_pair(1))
+    stdscr.addstr(18, 17, "Toggle debug modes", curses.color_pair(3))
+
+    stdscr.addstr(19, 9, "m", curses.color_pair(2))
+    stdscr.addstr(19, 15, ":", curses.color_pair(1))
+    stdscr.addstr(19, 17, "Toggle mute", curses.color_pair(3))
+
     # Settings commands
-    stdscr.addstr(19, 7, "Settings", curses.color_pair(1))
+    stdscr.addstr(21, 7, "Settings", curses.color_pair(1))
 
-    stdscr.addstr(20, 9, "up", curses.color_pair(2))
-    stdscr.addstr(20, 15, ":", curses.color_pair(1))
-    stdscr.addstr(20, 17, "Cycle up in selection", curses.color_pair(3))
-
-    stdscr.addstr(21, 9, "down", curses.color_pair(2))
-    stdscr.addstr(21, 15, ":", curses.color_pair(1))
-    stdscr.addstr(21, 17, "Cycle down in selection", curses.color_pair(3))
-
-    stdscr.addstr(22, 9, "right", curses.color_pair(2))
+    stdscr.addstr(22, 9, "up", curses.color_pair(2))
     stdscr.addstr(22, 15, ":", curses.color_pair(1))
-    stdscr.addstr(22, 17, "Toggle selection on", curses.color_pair(3))
+    stdscr.addstr(22, 17, "Cycle up in selection", curses.color_pair(3))
 
-    stdscr.addstr(23, 9, "left", curses.color_pair(2))
+    stdscr.addstr(23, 9, "down", curses.color_pair(2))
     stdscr.addstr(23, 15, ":", curses.color_pair(1))
-    stdscr.addstr(23, 17, "Toggle selection off", curses.color_pair(3))
+    stdscr.addstr(23, 17, "Cycle down in selection", curses.color_pair(3))
 
-    stdscr.addstr(24, 9, "space", curses.color_pair(2))
+    stdscr.addstr(24, 9, "right", curses.color_pair(2))
     stdscr.addstr(24, 15, ":", curses.color_pair(1))
-    stdscr.addstr(24, 17, "Cycle selection", curses.color_pair(3))
+    stdscr.addstr(24, 17, "Toggle selection on", curses.color_pair(3))
+
+    stdscr.addstr(25, 9, "left", curses.color_pair(2))
+    stdscr.addstr(25, 15, ":", curses.color_pair(1))
+    stdscr.addstr(25, 17, "Toggle selection off", curses.color_pair(3))
+
+    stdscr.addstr(26, 9, "space", curses.color_pair(2))
+    stdscr.addstr(26, 15, ":", curses.color_pair(1))
+    stdscr.addstr(26, 17, "Cycle selection", curses.color_pair(3))
 
 
 def draw_toosmall(stdscr):
