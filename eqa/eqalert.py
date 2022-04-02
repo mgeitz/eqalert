@@ -152,9 +152,9 @@ def main():
 
     # Read in config and state
     config = eqa_config.read_config(base_path)
-    state = eqa_config.get_last_state(base_path)
     server = config["last_state"]["server"]
     char = config["last_state"]["character"]
+    state = eqa_config.get_last_state(base_path, char, server)
     char_log = (
         config["settings"]["paths"]["char_log"]
         + config["char_logs"][char + "_" + server]["file_name"]
@@ -326,14 +326,32 @@ def main():
                         )
                         # Ensure char/server combo exists as file
                         if os.path.exists(new_char_log):
+                            # Record old char state before swapping
+                            eqa_config.set_last_state(state, base_path)
                             # Stop watch on current log
                             log_reload.set()
                             process_log.join()
                             log_reload.clear()
                             # Set new character
                             char_name, char_server = new_message.payload.split("_")
+                            new_state = eqa_config.get_last_state(
+                                base_path, char_name, char_server
+                            )
                             state.set_char(char_name)
                             state.set_server(char_server)
+                            state.set_chars(new_state.chars)
+                            state.set_zone(new_state.zone)
+                            state.set_loc(new_state.loc)
+                            state.set_direction(new_state.direction)
+                            state.set_afk(new_state.afk)
+                            state.set_raid(new_state.raid)
+                            state.set_group(new_state.group)
+                            state.set_leader(new_state.leader)
+                            state.set_encumbered(new_state.encumbered)
+                            state.set_bind(new_state.bind)
+                            state.set_level(new_state.char_level)
+                            state.set_class(new_state.char_class)
+                            state.set_guild(new_state.char_guild)
                             eqa_config.set_last_state(state, base_path)
                             char_log = new_char_log
                             # Start new log watch
@@ -378,9 +396,25 @@ def main():
                         # Reload config
                         eqa_config.update_logs(base_path)
                         config = eqa_config.read_config(base_path)
-                        state = eqa_config.get_last_state(base_path)
                         # Reread characters
+                        new_state = eqa_config.get_last_state(
+                            base_path, state.char, state.server
+                        )
+                        state.set_char(char_name)
+                        state.set_server(char_server)
                         state.set_chars(eqa_config.get_config_chars(config))
+                        state.set_zone(new_state.zone)
+                        state.set_loc(new_state.loc)
+                        state.set_direction(new_state.direction)
+                        state.set_afk(new_state.afk)
+                        state.set_raid(new_state.raid)
+                        state.set_group(new_state.group)
+                        state.set_leader(new_state.leader)
+                        state.set_encumbered(new_state.encumbered)
+                        state.set_bind(new_state.bind)
+                        state.set_level(new_state.char_level)
+                        state.set_class(new_state.char_class)
+                        state.set_guild(new_state.char_guild)
                         # Stop state dependent processes
                         cfg_reload.set()
                         process_action.join()

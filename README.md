@@ -12,7 +12,7 @@ An Everquest Emulator Log Parser with NCurses Interface for Linux
 Install from pypi
 ```sh
 $ # Install Stable
-$ pip3 install eqalert==2.6.1
+$ pip3 install eqalert==2.7.11
 $
 $ # Install whatever I just pushed to pypi
 $ pip3 install eqalert
@@ -150,38 +150,94 @@ There is a configuration entry for all lines matched by the parser.  If a new on
 
 #### Reaction Values
 
+##### General
 - `false`: Disable alerting for this line type
-- `true`: Alert for matching strings under `alert` for the line type, using the set sound
-- `speak`: Full text-to-speech for the entire line (probably don't enable this for `combat_other_melee`)
+- `alert`: Alert for matching strings under `alerts` for the line type, using the set sound
 - `all`: Alert for all lines of a given line type, using the set sound
+
+##### Context Driven
+- 'solo': Alert when solo, group, and raid
+- 'solo_only': Alert only when solo
+- 'group': Alert when group and raid
+- 'group_only': Alert only when group
+- 'raid': Alert when raid
+- 'afk': Alert in afk
 
 #### Alert Keys
 
 `Alert` can be populated with key, values pairs.  The key here is any arbitrary string you would like an alert for within that line type.
 
-For instance, the following example will alert for the word `hey` when someone else `/says` it:
+##### Examples
+
+###### Example 1
+Alert for the word `hey` when someone else `/says` it:
 
 ```
     "say": {
       "alert": {
         "hey": "true"
       },
-      "reaction": "true",
+      "reaction": "alert",
       "sound": "hey"
+    },
+```
+
+###### Example 2
+Alert for the word `run` when someone else `/says` it and you are grouped or in a raid:
+
+```
+    "say": {
+      "alert": {
+        "run": "group"
+      },
+      "reaction": "alert",
+      "sound": "oh god run"
+    },
+```
+
+###### Example 4
+Alert for a spell not taking hold only when grouped:
+
+```
+    "spell_not_hold": {
+      "alert": {},
+      "reaction": "group_only",
+      "sound": "true"
+    },
+```
+
+###### Example 4
+Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is selling:
+
+```
+    "auction_wts": {
+      "alert": {
+        "Hand Made Backpack": "true"
+      },
+      "reaction": "alert",
+      "sound": "wow buy that"
     },
 ```
 
 #### Alert Values
 
+##### General
 - `false`: Disable alerting for the given string of a line type
-- `true`: Alert for the given string of a line type
-- `raid`: Alert for the given string of a line type when raid mode is enabled
+- `true`: Alert for the given string of a line type - use keyword as sound alert
+
+##### Context Driven
+- 'solo': Alert when solo, group, and raid
+- 'solo_only': Alert only when solo
+- 'group': Alert when group and raid
+- 'group_only': Alert only when group
+- 'raid': Alert when raid
+- 'afk': Alert in afk
 
 #### Sound Values
+- `true`: When an alert is raised, speak the entire line type
+- `false`: Play no sound when an alert is raised
 
-- You can type anything you want as the value here and it will be the text-to-speech alert you hear when an enabled alert is found in the line type and reaction is set to true.
-
-> One exception to this, `false` cannot be used as a text-to-speech alert, it indicates you don't want a sound alert.  This is useful if you only want something to show as an event on the display and make no sound.
+> Any other sound value will be spoken as the audio trigger for that line type
 
 ### Zones
 

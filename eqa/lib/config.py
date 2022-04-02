@@ -244,7 +244,7 @@ def set_last_state(state, base_path):
         )
 
 
-def get_last_state(base_path):
+def get_last_state(base_path, char_name, char_server):
     """Load state from config"""
 
     try:
@@ -256,24 +256,40 @@ def get_last_state(base_path):
         # Populate State
         server = data["last_state"]["server"]
         char = data["last_state"]["character"]
-        zone = data["char_logs"][char + "_" + server]["char_state"]["zone"]
+        zone = data["char_logs"][char_name + "_" + char_server]["char_state"]["zone"]
         location = [
             float(
-                data["char_logs"][char + "_" + server]["char_state"]["location"]["y"]
+                data["char_logs"][char_name + "_" + char_server]["char_state"][
+                    "location"
+                ]["y"]
             ),
             float(
-                data["char_logs"][char + "_" + server]["char_state"]["location"]["x"]
+                data["char_logs"][char_name + "_" + char_server]["char_state"][
+                    "location"
+                ]["x"]
             ),
             float(
-                data["char_logs"][char + "_" + server]["char_state"]["location"]["z"]
+                data["char_logs"][char_name + "_" + char_server]["char_state"][
+                    "location"
+                ]["z"]
             ),
         ]
-        direction = data["char_logs"][char + "_" + server]["char_state"]["direction"]
-        encumbered = data["char_logs"][char + "_" + server]["char_state"]["encumbered"]
-        bind = data["char_logs"][char + "_" + server]["char_state"]["bind"]
-        char_level = data["char_logs"][char + "_" + server]["char_state"]["level"]
-        char_class = data["char_logs"][char + "_" + server]["char_state"]["class"]
-        char_guild = data["char_logs"][char + "_" + server]["char_state"]["guild"]
+        direction = data["char_logs"][char_name + "_" + char_server]["char_state"][
+            "direction"
+        ]
+        encumbered = data["char_logs"][char_name + "_" + char_server]["char_state"][
+            "encumbered"
+        ]
+        bind = data["char_logs"][char_name + "_" + char_server]["char_state"]["bind"]
+        char_level = data["char_logs"][char_name + "_" + char_server]["char_state"][
+            "level"
+        ]
+        char_class = data["char_logs"][char_name + "_" + char_server]["char_state"][
+            "class"
+        ]
+        char_guild = data["char_logs"][char_name + "_" + char_server]["char_state"][
+            "guild"
+        ]
         afk = data["last_state"]["afk"]
         raid = data["last_state"]["raid"]
         debug = data["last_state"]["debug"]
@@ -389,7 +405,7 @@ def build_config(base_path):
       "alert": {
         "shiny brass idol": "true"
       },
-      "reaction": "true",
+      "reaction": "alert",
       "sound": "look at auction"
     },
     "combat_other_melee": {
@@ -449,8 +465,8 @@ def build_config(base_path):
     },
     "combat_you_receive_melee": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "afk",
+      "sound": "danger will robinson"
     },
     "combat_you_stun_off": {
       "alert": {},
@@ -469,8 +485,8 @@ def build_config(base_path):
     },
     "ding_down": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "true"
     },
     "ding_up": {
       "alert": {},
@@ -544,8 +560,8 @@ def build_config(base_path):
     },
     "engage": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "true"
     },
     "experience_group": {
       "alert": {},
@@ -574,11 +590,15 @@ def build_config(base_path):
     },
     "group": {
       "alert": {
+        "invite": "raid",
+        "drop": "raid",
+        "help": "raid",
+        "invis": "raid",
         "inc": "true",
         "oom": "true"
       },
-      "reaction": "true",
-      "sound": "watch out"
+      "reaction": "alert",
+      "sound": "look at group"
     },
     "group_created": {
       "alert": {},
@@ -602,8 +622,8 @@ def build_config(base_path):
     },
     "group_invite_you": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "true"
     },
     "group_joined": {
       "alert": {},
@@ -627,8 +647,8 @@ def build_config(base_path):
     },
     "group_leader_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "true"
     },
     "group_leave_other": {
       "alert": {},
@@ -637,12 +657,13 @@ def build_config(base_path):
     },
     "group_removed": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "true"
     },
     "guild": {
       "alert": {
         "help": "true",
+        "quake": "group_only",
         "assist": "raid",
         "fixated": "raid",
         "fixation": "raid",
@@ -657,7 +678,7 @@ def build_config(base_path):
         "sunder": "raid",
         "tash": "raid"
       },
-      "reaction": "true",
+      "reaction": "alert",
       "sound": "look at guild"
     },
     "location": {
@@ -687,33 +708,33 @@ def build_config(base_path):
     },
     "mob_enrage_off": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "true"
     },
     "mob_enrage_on": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "group",
       "sound": "enrage"
     },
     "mob_out_of_range": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "out of range"
     },
     "mob_rampage_on": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "group",
       "sound": "rampage"
     },
     "mob_slain_other": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "true"
     },
     "mob_slain_you": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "true"
     },
     "motd_game": {
       "alert": {},
@@ -727,8 +748,8 @@ def build_config(base_path):
     },
     "motd_welcome": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "true"
     },
     "ooc": {
       "alert": {},
@@ -742,7 +763,7 @@ def build_config(base_path):
     },
     "pet_dead": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "solo",
       "sound": "pet dead"
     },
     "pet_follow": {
@@ -777,8 +798,8 @@ def build_config(base_path):
     },
     "player_linkdead": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "true"
     },
     "random": {
       "alert": {},
@@ -789,7 +810,7 @@ def build_config(base_path):
       "alert": {
         "help": "true"
       },
-      "reaction": "true",
+      "reaction": "alert",
       "sound": "look at say"
     },
     "say_npc": {
@@ -884,7 +905,7 @@ def build_config(base_path):
     },
     "spell_invis_dropping_you": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "solo",
       "sound": "invis is dropping"
     },
     "spell_invis_off_you": {
@@ -899,7 +920,7 @@ def build_config(base_path):
     },
     "spell_levitate_dropping_you": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "solo",
       "sound": "levitate is dropping"
     },
     "spell_levitate_off_you": {
@@ -959,7 +980,7 @@ def build_config(base_path):
     },
     "spell_resist_you": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "solo",
       "sound": "resist"
     },
     "spell_sitting": {
@@ -969,7 +990,7 @@ def build_config(base_path):
     },
     "spell_slow_on": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "solo",
       "sound": "slowed"
     },
     "spell_sow_off_you": {
@@ -984,13 +1005,13 @@ def build_config(base_path):
     },
     "spell_summoned_you": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "group",
       "sound": "you have been summoned"
     },
     "spell_worn_off": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "true"
     },
     "summon_corpse": {
       "alert": {},
@@ -1004,8 +1025,8 @@ def build_config(base_path):
     },
     "tell": {
       "alert": {},
-      "reaction": "speak",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "true"
     },
     "tell_npc": {
       "alert": {},
@@ -1170,7 +1191,7 @@ def build_config(base_path):
     "you_new_zone": {
       "alert": {},
       "reaction": "all",
-      "sound": "false"
+      "sound": "true"
     },
     "you_ooc": {
       "alert": {},
@@ -1235,7 +1256,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.6.1"
+    "version": "2.7.11"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
