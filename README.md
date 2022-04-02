@@ -12,7 +12,7 @@ An Everquest Emulator Log Parser with NCurses Interface for Linux
 Install from pypi
 ```sh
 $ # Install Stable
-$ pip3 install eqalert==2.6.1
+$ pip3 install eqalert==2.7.3
 $
 $ # Install whatever I just pushed to pypi
 $ pip3 install eqalert
@@ -150,16 +150,27 @@ There is a configuration entry for all lines matched by the parser.  If a new on
 
 #### Reaction Values
 
+##### Global
 - `false`: Disable alerting for this line type
 - `true`: Alert for matching strings under `alert` for the line type, using the set sound
-- `speak`: Full text-to-speech for the entire line (probably don't enable this for `combat_other_melee`)
 - `all`: Alert for all lines of a given line type, using the set sound
+
+##### Context
+- 'solo': Alert when solo, group, and raid - speak entire line
+- 'solo_only': Alert only when solo - speak entire line
+- 'group': Alert when group and raid - speak entire line
+- 'group_only': Alert only when group - speak entire line
+- 'raid': Alert when raid - speak entire line
+- 'afk': Alert in afk - speak entire line
 
 #### Alert Keys
 
 `Alert` can be populated with key, values pairs.  The key here is any arbitrary string you would like an alert for within that line type.
 
-For instance, the following example will alert for the word `hey` when someone else `/says` it:
+##### Examples
+
+###### Example 1
+Alert for the word `hey` when someone else `/says` it:
 
 ```
     "say": {
@@ -171,17 +182,51 @@ For instance, the following example will alert for the word `hey` when someone e
     },
 ```
 
+###### Example 2
+Alert for the word `run` when someone else `/says` it and you are grouped or in a raid:
+
+```
+    "say": {
+      "alert": {
+        "run": "group"
+      },
+      "reaction": "true",
+      "sound": "run"
+    },
+```
+
+###### Example 3
+Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is selling:
+
+```
+    "auction_wts": {
+      "alert": {
+        "Hand Made Backpack": "true"
+      },
+      "reaction": "true",
+      "sound": "wow buy that"
+    },
+```
 #### Alert Values
 
+##### Global
 - `false`: Disable alerting for the given string of a line type
 - `true`: Alert for the given string of a line type
-- `raid`: Alert for the given string of a line type when raid mode is enabled
+
+##### Context
+- 'solo': Alert when solo, group, and raid
+- 'solo_only': Alert only when solo
+- 'group': Alert when group and raid
+- 'group_only': Alert only when group
+- 'raid': Alert when raid
+- 'afk': Alert in afk
 
 #### Sound Values
 
 - You can type anything you want as the value here and it will be the text-to-speech alert you hear when an enabled alert is found in the line type and reaction is set to true.
 
-> One exception to this, `false` cannot be used as a text-to-speech alert, it indicates you don't want a sound alert.  This is useful if you only want something to show as an event on the display and make no sound.
+> A "false" value is ignored here
+> Sound value is ignored when using a context or all reaction that reads the full line
 
 ### Zones
 
