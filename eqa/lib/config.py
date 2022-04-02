@@ -244,7 +244,7 @@ def set_last_state(state, base_path):
         )
 
 
-def get_last_state(base_path):
+def get_last_state(base_path, char_name, char_server):
     """Load state from config"""
 
     try:
@@ -256,24 +256,40 @@ def get_last_state(base_path):
         # Populate State
         server = data["last_state"]["server"]
         char = data["last_state"]["character"]
-        zone = data["char_logs"][char + "_" + server]["char_state"]["zone"]
+        zone = data["char_logs"][char_name + "_" + char_server]["char_state"]["zone"]
         location = [
             float(
-                data["char_logs"][char + "_" + server]["char_state"]["location"]["y"]
+                data["char_logs"][char_name + "_" + char_server]["char_state"][
+                    "location"
+                ]["y"]
             ),
             float(
-                data["char_logs"][char + "_" + server]["char_state"]["location"]["x"]
+                data["char_logs"][char_name + "_" + char_server]["char_state"][
+                    "location"
+                ]["x"]
             ),
             float(
-                data["char_logs"][char + "_" + server]["char_state"]["location"]["z"]
+                data["char_logs"][char_name + "_" + char_server]["char_state"][
+                    "location"
+                ]["z"]
             ),
         ]
-        direction = data["char_logs"][char + "_" + server]["char_state"]["direction"]
-        encumbered = data["char_logs"][char + "_" + server]["char_state"]["encumbered"]
-        bind = data["char_logs"][char + "_" + server]["char_state"]["bind"]
-        char_level = data["char_logs"][char + "_" + server]["char_state"]["level"]
-        char_class = data["char_logs"][char + "_" + server]["char_state"]["class"]
-        char_guild = data["char_logs"][char + "_" + server]["char_state"]["guild"]
+        direction = data["char_logs"][char_name + "_" + char_server]["char_state"][
+            "direction"
+        ]
+        encumbered = data["char_logs"][char_name + "_" + char_server]["char_state"][
+            "encumbered"
+        ]
+        bind = data["char_logs"][char_name + "_" + char_server]["char_state"]["bind"]
+        char_level = data["char_logs"][char_name + "_" + char_server]["char_state"][
+            "level"
+        ]
+        char_class = data["char_logs"][char_name + "_" + char_server]["char_state"][
+            "class"
+        ]
+        char_guild = data["char_logs"][char_name + "_" + char_server]["char_state"][
+            "guild"
+        ]
         afk = data["last_state"]["afk"]
         raid = data["last_state"]["raid"]
         debug = data["last_state"]["debug"]
@@ -1240,7 +1256,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.7.6"
+    "version": "2.7.7"
   },
   "zones": {
     "An Arena (PVP) Area": "false",

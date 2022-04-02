@@ -152,9 +152,9 @@ def main():
 
     # Read in config and state
     config = eqa_config.read_config(base_path)
-    state = eqa_config.get_last_state(base_path)
     server = config["last_state"]["server"]
     char = config["last_state"]["character"]
+    state = eqa_config.get_last_state(base_path, char, server)
     char_log = (
         config["settings"]["paths"]["char_log"]
         + config["char_logs"][char + "_" + server]["file_name"]
@@ -326,16 +326,19 @@ def main():
                         )
                         # Ensure char/server combo exists as file
                         if os.path.exists(new_char_log):
+                            # Record old char state before swapping
+                            eqa_config.set_last_state(state, base_path)
                             # Stop watch on current log
                             log_reload.set()
                             process_log.join()
                             log_reload.clear()
                             # Set new character
                             char_name, char_server = new_message.payload.split("_")
-                            state.set_char(char_name)
-                            state.set_server(char_server)
-                            eqa_config.set_last_state(state, base_path)
-                            state = eqa_config.get_last_state(base_path)
+                            eqa_config.set_char(char_name)
+                            eqa_config.set_server(char_server)
+                            state = eqa_config.get_last_state(
+                                base_path, char_name, char_server
+                            )
                             char_log = new_char_log
                             # Start new log watch
                             process_log = threading.Thread(
@@ -379,7 +382,9 @@ def main():
                         # Reload config
                         eqa_config.update_logs(base_path)
                         config = eqa_config.read_config(base_path)
-                        state = eqa_config.get_last_state(base_path)
+                        state = eqa_config.get_last_state(
+                            base_path, state.char, state.server
+                        )
                         # Reread characters
                         state.set_chars(eqa_config.get_config_chars(config))
                         # Stop state dependent processes
