@@ -334,8 +334,8 @@ def main():
                             log_reload.clear()
                             # Set new character
                             char_name, char_server = new_message.payload.split("_")
-                            eqa_config.set_char(char_name)
-                            eqa_config.set_server(char_server)
+                            state.set_char(char_name)
+                            state.set_server(char_server)
                             state = eqa_config.get_last_state(
                                 base_path, char_name, char_server
                             )
