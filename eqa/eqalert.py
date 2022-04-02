@@ -334,11 +334,12 @@ def main():
                             log_reload.clear()
                             # Set new character
                             char_name, char_server = new_message.payload.split("_")
-                            state.set_char(char_name)
-                            state.set_server(char_server)
                             state = eqa_config.get_last_state(
                                 base_path, char_name, char_server
                             )
+                            state.set_char(char_name)
+                            state.set_server(char_server)
+                            eqa_config.set_last_state(state, base_path)
                             char_log = new_char_log
                             # Start new log watch
                             process_log = threading.Thread(
