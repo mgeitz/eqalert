@@ -494,8 +494,6 @@ def action_notify(display_q, sound_q, check_line):
             + str(e)
         )
 
-    sys.exit(0)
-
 
 def action_motd_welcome(system_q):
     """Perform actions for motd welcome line types"""
