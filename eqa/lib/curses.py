@@ -22,6 +22,7 @@ import curses
 import os
 import sys
 import time
+import pkg_resources
 
 import eqa.lib.struct as eqa_struct
 import eqa.lib.state as eqa_state
@@ -297,84 +298,90 @@ def draw_state(stdscr, state):
         stdscr.addstr(5, 18, state.server.title(), curses.color_pair(3))
 
         # char
-        stdscr.addstr(7, 5, "Character", curses.color_pair(2))
-        stdscr.addstr(7, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(7, 18, state.char.title(), curses.color_pair(3))
-
-        # bind state
-        stdscr.addstr(8, 5, "Bind", curses.color_pair(2))
-        stdscr.addstr(8, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(8, 18, state.bind.title(), curses.color_pair(3))
+        stdscr.addstr(6, 5, "Character", curses.color_pair(2))
+        stdscr.addstr(6, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(6, 18, state.char.title(), curses.color_pair(3))
 
         # class
-        stdscr.addstr(9, 5, "Class", curses.color_pair(2))
-        stdscr.addstr(9, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(9, 18, state.char_class.title(), curses.color_pair(3))
+        stdscr.addstr(8, 5, "Class", curses.color_pair(2))
+        stdscr.addstr(8, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(8, 18, state.char_class.title(), curses.color_pair(3))
 
         # level
-        stdscr.addstr(10, 5, "Level", curses.color_pair(2))
-        stdscr.addstr(10, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(10, 18, state.char_level.title(), curses.color_pair(3))
+        stdscr.addstr(9, 5, "Level", curses.color_pair(2))
+        stdscr.addstr(9, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(9, 18, state.char_level.title(), curses.color_pair(3))
 
         # guild
-        stdscr.addstr(11, 5, "Guild", curses.color_pair(2))
-        stdscr.addstr(11, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(11, 18, state.char_guild.title(), curses.color_pair(3))
+        stdscr.addstr(10, 5, "Guild", curses.color_pair(2))
+        stdscr.addstr(10, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(10, 18, state.char_guild.title(), curses.color_pair(3))
+
+        # bind state
+        stdscr.addstr(12, 5, "Bind", curses.color_pair(2))
+        stdscr.addstr(12, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(12, 18, state.bind.title(), curses.color_pair(3))
 
         # encumbered state
         stdscr.addstr(13, 5, "Encumbered", curses.color_pair(2))
         stdscr.addstr(13, 16, ": ", curses.color_pair(1))
         stdscr.addstr(13, 18, state.encumbered.title(), curses.color_pair(3))
 
-        # group state
-        stdscr.addstr(14, 5, "Group", curses.color_pair(2))
+        # afk state
+        stdscr.addstr(14, 5, "AFK", curses.color_pair(2))
         stdscr.addstr(14, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(14, 18, state.group.title(), curses.color_pair(3))
+        stdscr.addstr(14, 18, state.afk.title(), curses.color_pair(3))
+
+        # group state
+        stdscr.addstr(16, 5, "Group", curses.color_pair(2))
+        stdscr.addstr(16, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(16, 18, state.group.title(), curses.color_pair(3))
 
         # leader state
         if state.group == "true":
-            stdscr.addstr(14, 25, "Leader", curses.color_pair(2))
-            stdscr.addstr(14, 32, ": ", curses.color_pair(1))
-            stdscr.addstr(14, 34, state.leader.title(), curses.color_pair(3))
+            stdscr.addstr(16, 25, "Leader", curses.color_pair(2))
+            stdscr.addstr(16, 32, ": ", curses.color_pair(1))
+            stdscr.addstr(16, 34, state.leader.title(), curses.color_pair(3))
 
         # raid state
-        stdscr.addstr(15, 5, "Raid", curses.color_pair(2))
-        stdscr.addstr(15, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(15, 18, state.raid.title(), curses.color_pair(3))
-
-        # afk state
-        stdscr.addstr(16, 5, "AFK", curses.color_pair(2))
-        stdscr.addstr(16, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(16, 18, state.afk.title(), curses.color_pair(3))
+        stdscr.addstr(17, 5, "Raid", curses.color_pair(2))
+        stdscr.addstr(17, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(17, 18, state.raid.title(), curses.color_pair(3))
 
         # zone
-        stdscr.addstr(18, 5, "Zone", curses.color_pair(2))
-        stdscr.addstr(18, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(18, 18, state.zone.title(), curses.color_pair(3))
+        stdscr.addstr(19, 5, "Zone", curses.color_pair(2))
+        stdscr.addstr(19, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(19, 18, state.zone.title(), curses.color_pair(3))
 
         # loc
-        stdscr.addstr(19, 5, "Location", curses.color_pair(2))
-        stdscr.addstr(19, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(19, 18, str(state.loc[0]), curses.color_pair(3))
-        stdscr.addstr(19, 24, " : ", curses.color_pair(2))
-        stdscr.addstr(19, 26, str(state.loc[1]), curses.color_pair(3))
-        stdscr.addstr(19, 32, " : ", curses.color_pair(2))
-        stdscr.addstr(19, 34, str(state.loc[2]), curses.color_pair(3))
+        stdscr.addstr(20, 5, "Location", curses.color_pair(2))
+        stdscr.addstr(20, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(20, 18, str(state.loc[0]), curses.color_pair(3))
+        stdscr.addstr(20, 24, " : ", curses.color_pair(2))
+        stdscr.addstr(20, 26, str(state.loc[1]), curses.color_pair(3))
+        stdscr.addstr(20, 32, " : ", curses.color_pair(2))
+        stdscr.addstr(20, 34, str(state.loc[2]), curses.color_pair(3))
 
         # direction
-        stdscr.addstr(20, 5, "Direction", curses.color_pair(2))
-        stdscr.addstr(20, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(20, 18, state.direction.title(), curses.color_pair(3))
+        stdscr.addstr(21, 5, "Direction", curses.color_pair(2))
+        stdscr.addstr(21, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(21, 18, state.direction.title(), curses.color_pair(3))
 
         # debug state
-        stdscr.addstr(22, 5, "Debug", curses.color_pair(2))
-        stdscr.addstr(22, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(22, 18, state.debug.title(), curses.color_pair(3))
+        stdscr.addstr(23, 5, "Debug", curses.color_pair(2))
+        stdscr.addstr(23, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(23, 18, state.debug.title(), curses.color_pair(3))
 
         # mute state
-        stdscr.addstr(23, 5, "Mute", curses.color_pair(2))
-        stdscr.addstr(23, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(23, 18, state.mute.title(), curses.color_pair(3))
+        stdscr.addstr(24, 5, "Mute", curses.color_pair(2))
+        stdscr.addstr(24, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(24, 18, state.mute.title(), curses.color_pair(3))
+
+        # eqalert version
+        version = str(pkg_resources.get_distribution("eqalert").version)
+        stdscr.addstr(26, 5, "Version", curses.color_pair(2))
+        stdscr.addstr(26, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(26, 18, version, curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(

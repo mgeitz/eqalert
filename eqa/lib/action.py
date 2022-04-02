@@ -23,6 +23,7 @@ import sys
 import time
 import re
 import os
+import pkg_resources
 from datetime import datetime
 
 import eqa.lib.config as eqa_config
@@ -1031,7 +1032,7 @@ def action_who_player(system_q, state, line):
                         char_class,
                     )
                 )
-            if re.findall(r"(?<=\<)[a-zA-Z\s]+", line) is not None:
+            if re.fullmatch(r".+\<[a-zA-Z\s]+\>(.+|)", line) is not None:
                 char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0]
                 system_q.put(
                     eqa_struct.message(
