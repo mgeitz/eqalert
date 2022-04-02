@@ -156,16 +156,16 @@ There is a configuration entry for all lines matched by the parser.  If a new on
 - `all`: Alert for all lines of a given line type, using the set sound
 
 ##### Context Driven
-- 'solo': Alert when solo, group, and raid
-- 'solo_only': Alert only when solo
-- 'group': Alert when group and raid
-- 'group_only': Alert only when group
-- 'raid': Alert when raid
-- 'afk': Alert in afk
+- `solo`: Alert when solo, group, and raid
+- `solo_only`: Alert only when solo
+- `group`: Alert when group and raid
+- `group_only`: Alert only when group
+- `raid`: Alert when raid
+- `afk`: Alert in afk
 
 #### Alert Keys
 
-`Alert` can be populated with key, values pairs.  The key here is any arbitrary string you would like an alert for within that line type.
+`alerts` can be populated with key, values pairs.  The key here is any arbitrary string you would like an alert for within that line type.
 
 ##### Examples
 
@@ -226,12 +226,12 @@ Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is 
 - `true`: Alert for the given string of a line type - use keyword as sound alert
 
 ##### Context Driven
-- 'solo': Alert when solo, group, and raid
-- 'solo_only': Alert only when solo
-- 'group': Alert when group and raid
-- 'group_only': Alert only when group
-- 'raid': Alert when raid
-- 'afk': Alert in afk
+- `solo`: Alert when solo, group, and raid
+- `solo_only`: Alert only when solo
+- `group`: Alert when group and raid
+- `group_only`: Alert only when group
+- `raid`: Alert when raid
+- `afk`: Alert in afk
 
 #### Sound Values
 - `true`: When an alert is raised, speak the entire line type
