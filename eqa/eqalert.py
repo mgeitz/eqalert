@@ -335,6 +335,7 @@ def main():
                             state.set_char(char_name)
                             state.set_server(char_server)
                             eqa_config.set_last_state(state, base_path)
+                            state = eqa_config.get_last_state(base_path)
                             char_log = new_char_log
                             # Start new log watch
                             process_log = threading.Thread(
