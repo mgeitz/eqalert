@@ -389,7 +389,7 @@ def build_config(base_path):
       "alert": {
         "shiny brass idol": "true"
       },
-      "reaction": "true",
+      "reaction": "alert",
       "sound": "look at auction"
     },
     "combat_other_melee": {
@@ -450,7 +450,7 @@ def build_config(base_path):
     "combat_you_receive_melee": {
       "alert": {},
       "reaction": "afk",
-      "sound": "false"
+      "sound": "danger will robinson"
     },
     "combat_you_stun_off": {
       "alert": {},
@@ -469,8 +469,8 @@ def build_config(base_path):
     },
     "ding_down": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "true"
     },
     "ding_up": {
       "alert": {},
@@ -544,8 +544,8 @@ def build_config(base_path):
     },
     "engage": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "true"
     },
     "experience_group": {
       "alert": {},
@@ -581,7 +581,7 @@ def build_config(base_path):
         "inc": "true",
         "oom": "true"
       },
-      "reaction": "true",
+      "reaction": "alert",
       "sound": "look at group"
     },
     "group_created": {
@@ -607,7 +607,7 @@ def build_config(base_path):
     "group_invite_you": {
       "alert": {},
       "reaction": "solo",
-      "sound": "false"
+      "sound": "true"
     },
     "group_joined": {
       "alert": {},
@@ -631,8 +631,8 @@ def build_config(base_path):
     },
     "group_leader_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "true"
     },
     "group_leave_other": {
       "alert": {},
@@ -642,11 +642,12 @@ def build_config(base_path):
     "group_removed": {
       "alert": {},
       "reaction": "solo",
-      "sound": "false"
+      "sound": "true"
     },
     "guild": {
       "alert": {
         "help": "true",
+        "quake": "group_only",
         "assist": "raid",
         "fixated": "raid",
         "fixation": "raid",
@@ -661,7 +662,7 @@ def build_config(base_path):
         "sunder": "raid",
         "tash": "raid"
       },
-      "reaction": "true",
+      "reaction": "alert",
       "sound": "look at guild"
     },
     "location": {
@@ -692,32 +693,32 @@ def build_config(base_path):
     "mob_enrage_off": {
       "alert": {},
       "reaction": "group",
-      "sound": "false"
+      "sound": "true"
     },
     "mob_enrage_on": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "group",
       "sound": "enrage"
     },
     "mob_out_of_range": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "out of range"
     },
     "mob_rampage_on": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "group",
       "sound": "rampage"
     },
     "mob_slain_other": {
       "alert": {},
       "reaction": "solo",
-      "sound": "false"
+      "sound": "true"
     },
     "mob_slain_you": {
       "alert": {},
       "reaction": "solo",
-      "sound": "false"
+      "sound": "true"
     },
     "motd_game": {
       "alert": {},
@@ -731,8 +732,8 @@ def build_config(base_path):
     },
     "motd_welcome": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "false"
+      "reaction": "all",
+      "sound": "true"
     },
     "ooc": {
       "alert": {},
@@ -746,7 +747,7 @@ def build_config(base_path):
     },
     "pet_dead": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "solo",
       "sound": "pet dead"
     },
     "pet_follow": {
@@ -782,7 +783,7 @@ def build_config(base_path):
     "player_linkdead": {
       "alert": {},
       "reaction": "group",
-      "sound": "false"
+      "sound": "true"
     },
     "random": {
       "alert": {},
@@ -793,7 +794,7 @@ def build_config(base_path):
       "alert": {
         "help": "true"
       },
-      "reaction": "true",
+      "reaction": "alert",
       "sound": "look at say"
     },
     "say_npc": {
@@ -888,7 +889,7 @@ def build_config(base_path):
     },
     "spell_invis_dropping_you": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "solo",
       "sound": "invis is dropping"
     },
     "spell_invis_off_you": {
@@ -903,7 +904,7 @@ def build_config(base_path):
     },
     "spell_levitate_dropping_you": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "solo",
       "sound": "levitate is dropping"
     },
     "spell_levitate_off_you": {
@@ -963,7 +964,7 @@ def build_config(base_path):
     },
     "spell_resist_you": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "solo",
       "sound": "resist"
     },
     "spell_sitting": {
@@ -973,7 +974,7 @@ def build_config(base_path):
     },
     "spell_slow_on": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "solo",
       "sound": "slowed"
     },
     "spell_sow_off_you": {
@@ -988,13 +989,13 @@ def build_config(base_path):
     },
     "spell_summoned_you": {
       "alert": {},
-      "reaction": "all",
+      "reaction": "group",
       "sound": "you have been summoned"
     },
     "spell_worn_off": {
       "alert": {},
       "reaction": "solo",
-      "sound": "false"
+      "sound": "true"
     },
     "summon_corpse": {
       "alert": {},
@@ -1009,7 +1010,7 @@ def build_config(base_path):
     "tell": {
       "alert": {},
       "reaction": "solo",
-      "sound": "false"
+      "sound": "true"
     },
     "tell_npc": {
       "alert": {},
@@ -1174,7 +1175,7 @@ def build_config(base_path):
     "you_new_zone": {
       "alert": {},
       "reaction": "all",
-      "sound": "false"
+      "sound": "true"
     },
     "you_ooc": {
       "alert": {},
@@ -1239,7 +1240,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.7.4"
+    "version": "2.7.5"
   },
   "zones": {
     "An Arena (PVP) Area": "false",

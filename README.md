@@ -12,7 +12,7 @@ An Everquest Emulator Log Parser with NCurses Interface for Linux
 Install from pypi
 ```sh
 $ # Install Stable
-$ pip3 install eqalert==2.7.3
+$ pip3 install eqalert==2.7.5
 $
 $ # Install whatever I just pushed to pypi
 $ pip3 install eqalert
@@ -195,7 +195,18 @@ Alert for the word `run` when someone else `/says` it and you are grouped or in 
     },
 ```
 
-###### Example 3
+###### Example 4
+Alert for a spell not taking hold only when grouped:
+
+```
+    "spell_not_hold": {
+      "alert": {},
+      "reaction": "group_only",
+      "sound": "true"
+    },
+```
+
+###### Example 4
 Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is selling:
 
 ```
@@ -207,6 +218,7 @@ Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is 
       "sound": "wow buy that"
     },
 ```
+
 #### Alert Values
 
 ##### Global
