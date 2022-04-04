@@ -80,6 +80,8 @@ def process(
                     action_group_join_notify(system_q, check_line)
                 elif line_type == "group_removed":
                     action_group_removed(system_q)
+                elif line_type == "group_disbanded":
+                    action_group_disbanded(system_q)
                 elif line_type == "group_created":
                     action_group_created(system_q)
                 elif line_type == "group_leader_you":
@@ -667,6 +669,38 @@ def action_group_removed(system_q):
     except Exception as e:
         eqa_settings.log(
             "action group removed: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_group_disbanded(system_q):
+    """Perform actions for group disbanded line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "group",
+                "null",
+                "false",
+            )
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "leader",
+                "null",
+                "false",
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action group disbanded: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
