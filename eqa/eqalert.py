@@ -176,14 +176,35 @@ def main():
     # Initialize curses
     screen = eqa_curses.init(state)
 
+    # Read Log File
+    ## Consume char_log
+    ## Produce log_q
+    process_log = threading.Thread(
+        target=eqa_log.process,
+        args=(log_reload, exit_flag, char_log, log_q),
+    )
+    process_log.daemon = True
+    process_log.start()
+
+    # Parse Log Lines to Determine Line Type
+    ## Process log_q
+    ## Produce action_q
+    process_parse = threading.Thread(
+        target=eqa_parser.process, args=(exit_flag, log_q, action_q)
+    )
+    process_parse.daemon = True
+    process_parse.start()
+
+    # Read Keyboard Events
     ## Consume keyboard events
-    ## Produce keyoard_q
+    ## Produce keyboard_q
     read_keys = threading.Thread(
         target=eqa_keys.read, args=(exit_flag, keyboard_q, screen)
     )
     read_keys.daemon = True
     read_keys.start()
 
+    # Act on Keyboard Events
     ## Process keyboard_q
     ## Produce display_q, sound_q, system_q
     process_keys = threading.Thread(
@@ -200,23 +221,7 @@ def main():
     process_keys.daemon = True
     process_keys.start()
 
-    ## Consume char_log
-    ## Produce log_q
-    process_log = threading.Thread(
-        target=eqa_log.process,
-        args=(log_reload, exit_flag, char_log, log_q),
-    )
-    process_log.daemon = True
-    process_log.start()
-
-    ## Process log_q
-    ## Produce action_q
-    process_parse = threading.Thread(
-        target=eqa_parser.process, args=(exit_flag, log_q, action_q)
-    )
-    process_parse.daemon = True
-    process_parse.start()
-
+    # Act on Parsed Log Lines
     ## Consume action_q
     ## Produce display_q, sound_q, system_q
     process_action = threading.Thread(
@@ -236,6 +241,7 @@ def main():
     process_action.daemon = True
     process_action.start()
 
+    # Produce Sound
     ## Consume sound_q
     process_sound = threading.Thread(
         target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload)
@@ -243,6 +249,7 @@ def main():
     process_sound.daemon = True
     process_sound.start()
 
+    # Do something to the TUI
     ## Consume display_q
     process_display = threading.Thread(
         target=eqa_curses.display, args=(screen, display_q, state, exit_flag)
@@ -250,13 +257,14 @@ def main():
     process_display.daemon = True
     process_display.start()
 
-    # And we're on
+    # Signal Startup Complete
     display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "events", "null"))
     display_q.put(
         eqa_struct.display(eqa_settings.eqa_time(), "event", "events", "Initialized")
     )
     sound_q.put(eqa_struct.sound("speak", "initialized"))
 
+    # Manage State and Config
     ## Consume system_q
     try:
         while not exit_flag.is_set():

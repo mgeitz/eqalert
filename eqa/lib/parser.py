@@ -35,7 +35,7 @@ def process(exit_flag, log_q, action_q):
 
     try:
         while not exit_flag.is_set():
-            time.sleep(0.001)
+            time.sleep(0.01)
             if not log_q.empty():
                 # Read raw log line
                 log_line = log_q.get()
