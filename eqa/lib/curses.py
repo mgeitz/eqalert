@@ -159,8 +159,8 @@ def draw_tabs(stdscr, tab):
         stdscr.addch(2, c + 1, curses.ACS_HLINE)
 
     # Events tab
-    stdscr.addstr(1, 2, "F1", curses.color_pair(3))
-    stdscr.addstr(1, 4, ":", curses.color_pair(1))
+    stdscr.addstr(1, 2, "1", curses.color_pair(3))
+    stdscr.addstr(1, 3, ":", curses.color_pair(1))
     if tab == "events":
         stdscr.addstr(1, 6, "events", curses.color_pair(4))
     else:
@@ -170,8 +170,8 @@ def draw_tabs(stdscr, tab):
     stdscr.addch(2, 13, curses.ACS_BTEE)
 
     # State tab
-    stdscr.addstr(1, 15, "F2", curses.color_pair(3))
-    stdscr.addstr(1, 17, ":", curses.color_pair(1))
+    stdscr.addstr(1, 15, "2", curses.color_pair(3))
+    stdscr.addstr(1, 16, ":", curses.color_pair(1))
     if tab == "state":
         stdscr.addstr(1, 19, "state", curses.color_pair(4))
     else:
@@ -181,8 +181,8 @@ def draw_tabs(stdscr, tab):
     stdscr.addch(2, 25, curses.ACS_BTEE)
 
     # Settings tab
-    stdscr.addstr(1, x - 25, "F3", curses.color_pair(3))
-    stdscr.addstr(1, x - 23, ":", curses.color_pair(1))
+    stdscr.addstr(1, x - 25, "3", curses.color_pair(3))
+    stdscr.addstr(1, x - 22, ":", curses.color_pair(1))
     if tab == "settings":
         stdscr.addstr(1, x - 21, "settings", curses.color_pair(4))
     else:
@@ -192,8 +192,8 @@ def draw_tabs(stdscr, tab):
     stdscr.addch(2, x - 27, curses.ACS_BTEE)
 
     # Help tab
-    stdscr.addstr(1, x - 10, "F4", curses.color_pair(3))
-    stdscr.addstr(1, x - 8, ":", curses.color_pair(1))
+    stdscr.addstr(1, x - 10, "4", curses.color_pair(3))
+    stdscr.addstr(1, x - 9, ":", curses.color_pair(1))
     if tab == "help":
         stdscr.addstr(1, x - 6, "help", curses.color_pair(4))
     else:
@@ -550,19 +550,19 @@ def draw_help(stdscr):
     # Global commands
     stdscr.addstr(7, 7, "Global", curses.color_pair(1))
 
-    stdscr.addstr(8, 9, "F1", curses.color_pair(2))
+    stdscr.addstr(8, 9, "1", curses.color_pair(2))
     stdscr.addstr(8, 15, ":", curses.color_pair(1))
     stdscr.addstr(8, 17, "Events", curses.color_pair(3))
 
-    stdscr.addstr(9, 9, "F2", curses.color_pair(2))
+    stdscr.addstr(9, 9, "2", curses.color_pair(2))
     stdscr.addstr(9, 15, ":", curses.color_pair(1))
     stdscr.addstr(9, 17, "State", curses.color_pair(3))
 
-    stdscr.addstr(10, 9, "F3", curses.color_pair(2))
+    stdscr.addstr(10, 9, "3", curses.color_pair(2))
     stdscr.addstr(10, 15, ":", curses.color_pair(1))
     stdscr.addstr(10, 17, "Settings", curses.color_pair(3))
 
-    stdscr.addstr(11, 9, "F4", curses.color_pair(2))
+    stdscr.addstr(11, 9, "4", curses.color_pair(2))
     stdscr.addstr(11, 15, ":", curses.color_pair(1))
     stdscr.addstr(11, 17, "Help", curses.color_pair(3))
 
@@ -570,7 +570,7 @@ def draw_help(stdscr):
     stdscr.addstr(12, 15, ":", curses.color_pair(1))
     stdscr.addstr(12, 17, "Quit", curses.color_pair(3))
 
-    stdscr.addstr(13, 9, "F12", curses.color_pair(2))
+    stdscr.addstr(13, 9, "0", curses.color_pair(2))
     stdscr.addstr(13, 15, ":", curses.color_pair(1))
     stdscr.addstr(13, 17, "Reload config", curses.color_pair(3))
 

@@ -65,35 +65,35 @@ def process(
                     )
 
                 # Handle tab keys
-                if key == curses.KEY_F1:
+                if key == ord("1"):
                     display_q.put(
                         eqa_struct.display(
                             eqa_settings.eqa_time(), "draw", "events", "null"
                         )
                     )
                     page = "events"
-                elif key == curses.KEY_F2:
+                elif key == ord("2"):
                     display_q.put(
                         eqa_struct.display(
                             eqa_settings.eqa_time(), "draw", "state", "null"
                         )
                     )
                     page = "state"
-                elif key == curses.KEY_F3:
+                elif key == ord("3"):
                     display_q.put(
                         eqa_struct.display(
                             eqa_settings.eqa_time(), "draw", "settings", "null"
                         )
                     )
                     page = "settings"
-                elif key == curses.KEY_F4:
+                elif key == ord("4"):
                     display_q.put(
                         eqa_struct.display(
                             eqa_settings.eqa_time(), "draw", "help", "null"
                         )
                     )
                     page = "help"
-                elif key == curses.KEY_F12:
+                elif key == ord("0"):
                     system_q.put(
                         eqa_struct.message(
                             eqa_settings.eqa_time(),

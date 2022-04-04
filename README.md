@@ -60,11 +60,11 @@ Spot check these default paths generated in `config.json`
 ### Keyboard Controls
 
 #### Global
-  - F1      : Events
-  - F2      : State
-  - F3      : Settings
-  - F4      : Help
-  - F12     : Reload config
+  - 1      : Events
+  - 2      : State
+  - 3      : Settings
+  - 4      : Help
+  - 0     : Reload config
   - q / esc : Quit
 
 #### Events
