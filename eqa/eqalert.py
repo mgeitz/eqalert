@@ -270,14 +270,17 @@ def main():
                     if new_message.tx == "zone":
                         state.set_zone(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                     # Update location
                     elif new_message.tx == "loc":
                         state.set_loc(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                     # Update direction
                     elif new_message.tx == "direction":
                         state.set_direction(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                     # Update afk status
                     elif new_message.tx == "afk":
                         system_afk(base_path, state, display_q, new_message)
@@ -291,30 +294,37 @@ def main():
                     elif new_message.tx == "group":
                         state.set_group(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                     # Update group leader status
                     elif new_message.tx == "leader":
                         state.set_leader(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                     # Update encumbered status
                     elif new_message.tx == "encumbered":
                         state.set_encumbered(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                     # Update bind status
                     elif new_message.tx == "bind":
                         state.set_bind(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                     # Update level status
                     elif new_message.tx == "level":
                         state.set_level(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                     # Update class status
                     elif new_message.tx == "class":
                         state.set_class(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                     # Update guild status
                     elif new_message.tx == "guild":
                         state.set_guild(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
+                        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                     # Update mute status
                     elif new_message.tx == "mute":
                         system_mute(base_path, state, display_q, sound_q, new_message)
@@ -381,6 +391,7 @@ def main():
                                     + state.server,
                                 )
                             )
+                            display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
                         else:
                             display_q.put(
                                 eqa_struct.display(
@@ -551,6 +562,7 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
                 )
             )
             sound_q.put(eqa_struct.sound("speak", new_message.payload))
+        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
 
     except Exception as e:
         eqa_settings.log(
@@ -585,6 +597,8 @@ def system_afk(base_path, state, display_q, new_message):
                     "You are no longer AFK",
                 )
             )
+        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
+
 
     except Exception as e:
         eqa_settings.log(
@@ -635,6 +649,7 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
                 )
             )
             sound_q.put(eqa_struct.sound("speak", "Debug mode disabled"))
+        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
 
     except Exception as e:
         eqa_settings.log(
@@ -779,6 +794,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
                     )
                 )
                 sound_q.put(eqa_struct.sound("speak", "Mute disabled"))
+        display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null"))
 
     except Exception as e:
         eqa_settings.log(
