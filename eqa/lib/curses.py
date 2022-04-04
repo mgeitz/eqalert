@@ -22,6 +22,7 @@ import curses
 import os
 import sys
 import time
+import math
 import pkg_resources
 
 import eqa.lib.struct as eqa_struct
@@ -99,7 +100,7 @@ def draw_page(stdscr, page, events, state, setting, selected_char):
     try:
         if x >= 80 and y >= 40:
             if page == "events":
-                draw_events_frame(stdscr, state.char, state.zone, events)
+                draw_events_frame(stdscr, state, events)
             elif page == "state":
                 draw_state(stdscr, state)
             elif page == "settings":
@@ -132,7 +133,7 @@ def init(state):
     curses.init_pair(3, curses.COLOR_CYAN, -1)  # Subtext
     curses.init_pair(4, curses.COLOR_MAGENTA, -1)  # Highlight
     curses.init_pair(5, curses.COLOR_GREEN, -1)  # Dunno
-    draw_events_frame(stdscr, state.char, state.zone, [])
+    draw_events_frame(stdscr, state, [])
     return stdscr
 
 
@@ -202,10 +203,12 @@ def draw_tabs(stdscr, tab):
     stdscr.addch(2, x - 12, curses.ACS_BTEE)
 
     # Center title
-    stdscr.addstr(1, center_x - 4, "EQ ALERT", curses.color_pair(2))
+    version = str(pkg_resources.get_distribution("eqalert").version)
+    offset = math.ceil(len(version) / 2)
+    stdscr.addstr(1, center_x - 4 - offset, "EQ ALERT " + version, curses.color_pair(2))
 
 
-def draw_events_frame(stdscr, char, zone, events):
+def draw_events_frame(stdscr, state, events):
     """Draw events"""
     y, x = stdscr.getmaxyx()
     center_y = int(y / 2)
@@ -218,17 +221,86 @@ def draw_events_frame(stdscr, char, zone, events):
     # Draw tabs
     draw_tabs(stdscr, "events")
 
-    # Bottom of  events
-    stdscr.addch(center_y, 0, curses.ACS_LTEE)
-    stdscr.addch(center_y, x - 1, curses.ACS_RTEE)
+    # Top of stats bar
+    stdscr.addch(center_y - 1, 0, curses.ACS_LTEE)
+    stdscr.addch(center_y - 1, x - 1, curses.ACS_RTEE)
     for c in range(x - 2):
-        stdscr.addch(center_y, c + 1, curses.ACS_HLINE)
+        stdscr.addch(center_y - 1, c + 1, curses.ACS_HLINE)
 
     # Character
-    stdscr.addstr(center_y + 1, 2, char.title(), curses.color_pair(2))
+    stdscr.addstr(center_y, 2, state.char.title(), curses.color_pair(2))
+
+    # Guild
+    if state.char_guild != "unavailable":
+        stdscr.addstr(
+            center_y,
+            3 + len(state.char),
+            state.char_guild.title(),
+            curses.color_pair(2),
+        )
+
+    # Level
+    if state.char_level != "unavailable":
+        stdscr.addstr(center_y + 1, 2, state.char_level, curses.color_pair(2))
+
+    # Class
+    if state.char_class != "unavailable":
+        stdscr.addstr(
+            center_y + 1,
+            3 + len(state.char_level),
+            state.char_class.title(),
+            curses.color_pair(2),
+        )
 
     # Zone
-    stdscr.addstr(center_y + 1, x - len(zone) - 2, zone, curses.color_pair(2))
+    if state.zone != "unavailable":
+        stdscr.addstr(
+            center_y, x - len(state.zone) - 2, state.zone.title(), curses.color_pair(2)
+        )
+
+    # Direction
+    if state.direction != "unavailable":
+        stdscr.addstr(
+            center_y + 1,
+            x - len(state.direction) - 2,
+            state.direction.title(),
+            curses.color_pair(2),
+        )
+
+    # Location
+    if state.direction != "unavailable":
+        offset = (
+            len(state.direction)
+            + len(str(state.loc[0]))
+            + len(str(state.loc[1]))
+            + len(str(state.loc[2]))
+        )
+        stdscr.addstr(
+            center_y + 1,
+            x - offset - 7,
+            str(state.loc[0]) + ", " + str(state.loc[1]) + ", " + str(state.loc[2]),
+            curses.color_pair(2),
+        )
+
+    # Server
+    offset = math.ceil(len(str(state.server)) / 2)
+    stdscr.addstr(center_y, center_x - offset, state.server, curses.color_pair(2))
+
+    # Context
+    if state.afk == "true":
+        stdscr.addstr(center_y + 1, center_x - 1, "AFK", curses.color_pair(2))
+    elif state.group == "false" and state.raid == "false":
+        stdscr.addstr(center_y + 1, center_x - 2, "Solo", curses.color_pair(2))
+    elif state.group == "true" and state.raid == "false":
+        stdscr.addstr(center_y + 1, center_x - 3, "Group", curses.color_pair(2))
+    elif state.raid == "Raid":
+        stdscr.addstr(center_y + 1, center_x - 2, "Raid", curses.color_pair(2))
+
+    # Bottom of stats bar
+    stdscr.addch(center_y + 2, 0, curses.ACS_LTEE)
+    stdscr.addch(center_y + 2, x - 1, curses.ACS_RTEE)
+    for c in range(x - 2):
+        stdscr.addch(center_y + 2, c + 1, curses.ACS_HLINE)
 
     # Draw events
     draw_events(stdscr, events)
@@ -238,10 +310,11 @@ def draw_events(stdscr, events):
     """Draw events window component of events"""
     y, x = stdscr.getmaxyx()
     center_y = int(y / 2)
-    bottom_y = center_y - 4
+    bottom_y = center_y - 5
     top_y = 2
+    max_x = x - 20
 
-    eventscr = stdscr.derwin(center_y - 3, x - 4, 3, 2)
+    eventscr = stdscr.derwin(center_y - 4, x - 4, 3, 2)
     eventscr.clear()
 
     try:
@@ -252,8 +325,9 @@ def draw_events(stdscr, events):
             c_y = bottom_y - count
             draw_ftime(eventscr, event.timestamp, c_y)
             eventscr.addch(c_y, 14, curses.ACS_VLINE)
-            eventscr.addstr(c_y, 16, str(event.payload), curses.color_pair(1))
+            eventscr.addstr(c_y, 16, str(event.payload)[:max_x], curses.color_pair(1))
             count += 1
+
     except Exception as e:
         eqa_settings.log(
             "draw events: Error on line "

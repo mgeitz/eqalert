@@ -157,7 +157,7 @@ def check_melee(line):
         # Melee Combat
         if (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ (hits|crushes|slashes|pierces|bashes|backstabs|bites|kicks|claws|gores|punches|strikes|slices) [a-zA-Z\s]+ for \d+ point(s|) of damage\.$",
+                r"^[a-zA-Z\s]+ (mauls|hits|crushes|slashes|pierces|bashes|backstabs|bites|kicks|claws|gores|punches|strikes|slices) [a-zA-Z\s]+ for \d+ point(s|) of damage\.$",
                 line,
             )
             is not None
@@ -165,7 +165,7 @@ def check_melee(line):
             return "combat_other_melee"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ tries to (hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but misses\!$",
+                r"^[a-zA-Z\s]+ tries to (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but misses\!$",
                 line,
             )
             is not None
@@ -173,7 +173,7 @@ def check_melee(line):
             return "combat_other_melee_miss"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ tries to (hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but [a-zA-Z\s]+ dodges\!$",
+                r"^[a-zA-Z\s]+ tries to (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but [a-zA-Z\s]+ dodges\!$",
                 line,
             )
             is not None
@@ -181,7 +181,7 @@ def check_melee(line):
             return "combat_other_melee_dodge"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ tries to (hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but [a-zA-Z\s]+ parries\!$",
+                r"^[a-zA-Z\s]+ tries to (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but [a-zA-Z\s]+ parries\!$",
                 line,
             )
             is not None
@@ -189,7 +189,7 @@ def check_melee(line):
             return "combat_other_melee_parry"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ tries to (hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but [a-zA-Z\s]+ blocks\!$",
+                r"^[a-zA-Z\s]+ tries to (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but [a-zA-Z\s]+ blocks\!$",
                 line,
             )
             is not None
@@ -197,7 +197,7 @@ def check_melee(line):
             return "combat_other_melee_block"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ tries to (hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but [a-zA-Z\s]+ ripostes\!$",
+                r"^[a-zA-Z\s]+ tries to (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but [a-zA-Z\s]+ ripostes\!$",
                 line,
             )
             is not None
@@ -205,7 +205,7 @@ def check_melee(line):
             return "combat_other_melee_reposte"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ (hits|crushes|slashes|pierces|bashes|backstabs|bites|kicks|claws|gores|punches|strikes|slices) you for \d+ points of damage\.$",
+                r"^[a-zA-Z\s]+ (mauls|hits|crushes|slashes|pierces|bashes|backstabs|bites|kicks|claws|gores|punches|strikes|slices) you for \d+ points of damage\.$",
                 line,
             )
             is not None
@@ -213,7 +213,7 @@ def check_melee(line):
             return "combat_you_receive_melee"
         elif (
             re.fullmatch(
-                r"^You (hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+ for \d+ point(s|) of damage\.$",
+                r"^You (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+ for \d+ point(s|) of damage\.$",
                 line,
             )
             is not None
@@ -221,7 +221,7 @@ def check_melee(line):
             return "combat_you_melee"
         elif (
             re.fullmatch(
-                r"^You try to (hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but miss\!$",
+                r"^You try to (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but miss\!$",
                 line,
             )
             is not None
