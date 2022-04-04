@@ -182,7 +182,7 @@ def draw_tabs(stdscr, tab):
 
     # Settings tab
     stdscr.addstr(1, x - 25, "3", curses.color_pair(3))
-    stdscr.addstr(1, x - 22, ":", curses.color_pair(1))
+    stdscr.addstr(1, x - 24, ":", curses.color_pair(1))
     if tab == "settings":
         stdscr.addstr(1, x - 21, "settings", curses.color_pair(4))
     else:
