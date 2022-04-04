@@ -269,6 +269,8 @@ def main():
                     # Update zone
                     if new_message.tx == "zone":
                         state.set_zone(new_message.payload)
+                        state.set_direction("unavailable")
+                        state.set_loc([0.00, 0.00, 0.00])
                         eqa_config.set_last_state(state, base_path)
                         display_q.put(
                             eqa_struct.display(
