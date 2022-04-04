@@ -260,7 +260,7 @@ def main():
     ## Consume system_q
     try:
         while not exit_flag.is_set():
-            time.sleep(0.001)
+            time.sleep(0.01)
             if not system_q.empty():
                 new_message = system_q.get()
                 system_q.task_done()
