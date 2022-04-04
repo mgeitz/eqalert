@@ -457,8 +457,8 @@ def main():
                         new_state = eqa_config.get_last_state(
                             base_path, state.char, state.server
                         )
-                        state.set_char(char_name)
-                        state.set_server(char_server)
+                        state.set_char(state.char)
+                        state.set_server(state.server)
                         state.set_chars(eqa_config.get_config_chars(config))
                         state.set_zone(new_state.zone)
                         state.set_loc(new_state.loc)

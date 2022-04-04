@@ -1256,7 +1256,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.9.2"
+    "version": "2.9.3"
   },
   "zones": {
     "An Arena (PVP) Area": "false",

@@ -162,45 +162,45 @@ def draw_tabs(stdscr, tab):
     stdscr.addstr(1, 2, "1", curses.color_pair(3))
     stdscr.addstr(1, 3, ":", curses.color_pair(1))
     if tab == "events":
-        stdscr.addstr(1, 6, "events", curses.color_pair(4))
+        stdscr.addstr(1, 5, "events", curses.color_pair(4))
     else:
-        stdscr.addstr(1, 6, "events", curses.color_pair(2))
-    stdscr.addch(0, 13, curses.ACS_TTEE)
-    stdscr.addch(1, 13, curses.ACS_VLINE)
-    stdscr.addch(2, 13, curses.ACS_BTEE)
+        stdscr.addstr(1, 5, "events", curses.color_pair(2))
+    stdscr.addch(0, 12, curses.ACS_TTEE)
+    stdscr.addch(1, 12, curses.ACS_VLINE)
+    stdscr.addch(2, 12, curses.ACS_BTEE)
 
     # State tab
-    stdscr.addstr(1, 15, "2", curses.color_pair(3))
-    stdscr.addstr(1, 16, ":", curses.color_pair(1))
+    stdscr.addstr(1, 14, "2", curses.color_pair(3))
+    stdscr.addstr(1, 15, ":", curses.color_pair(1))
     if tab == "state":
-        stdscr.addstr(1, 19, "state", curses.color_pair(4))
+        stdscr.addstr(1, 17, "state", curses.color_pair(4))
     else:
-        stdscr.addstr(1, 19, "state", curses.color_pair(2))
-    stdscr.addch(0, 25, curses.ACS_TTEE)
-    stdscr.addch(1, 25, curses.ACS_VLINE)
-    stdscr.addch(2, 25, curses.ACS_BTEE)
+        stdscr.addstr(1, 17, "state", curses.color_pair(2))
+    stdscr.addch(0, 23, curses.ACS_TTEE)
+    stdscr.addch(1, 23, curses.ACS_VLINE)
+    stdscr.addch(2, 23, curses.ACS_BTEE)
 
     # Settings tab
-    stdscr.addstr(1, x - 25, "3", curses.color_pair(3))
-    stdscr.addstr(1, x - 24, ":", curses.color_pair(1))
+    stdscr.addstr(1, x - 23, "3", curses.color_pair(3))
+    stdscr.addstr(1, x - 22, ":", curses.color_pair(1))
     if tab == "settings":
-        stdscr.addstr(1, x - 21, "settings", curses.color_pair(4))
+        stdscr.addstr(1, x - 20, "settings", curses.color_pair(4))
     else:
-        stdscr.addstr(1, x - 21, "settings", curses.color_pair(2))
-    stdscr.addch(0, x - 27, curses.ACS_TTEE)
-    stdscr.addch(1, x - 27, curses.ACS_VLINE)
-    stdscr.addch(2, x - 27, curses.ACS_BTEE)
+        stdscr.addstr(1, x - 20, "settings", curses.color_pair(2))
+    stdscr.addch(0, x - 25, curses.ACS_TTEE)
+    stdscr.addch(1, x - 25, curses.ACS_VLINE)
+    stdscr.addch(2, x - 25, curses.ACS_BTEE)
 
     # Help tab
-    stdscr.addstr(1, x - 10, "4", curses.color_pair(3))
-    stdscr.addstr(1, x - 9, ":", curses.color_pair(1))
+    stdscr.addstr(1, x - 9, "4", curses.color_pair(3))
+    stdscr.addstr(1, x - 8, ":", curses.color_pair(1))
     if tab == "help":
         stdscr.addstr(1, x - 6, "help", curses.color_pair(4))
     else:
         stdscr.addstr(1, x - 6, "help", curses.color_pair(2))
-    stdscr.addch(0, x - 12, curses.ACS_TTEE)
-    stdscr.addch(1, x - 12, curses.ACS_VLINE)
-    stdscr.addch(2, x - 12, curses.ACS_BTEE)
+    stdscr.addch(0, x - 11, curses.ACS_TTEE)
+    stdscr.addch(1, x - 11, curses.ACS_VLINE)
+    stdscr.addch(2, x - 11, curses.ACS_BTEE)
 
     # Center title
     version = str(pkg_resources.get_distribution("eqalert").version)
