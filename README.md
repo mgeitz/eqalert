@@ -12,7 +12,7 @@ A Configurable and Context Driven Everquest Emulator Log Parser with NCurses Int
 Install from pypi
 ```sh
 $ # Install Stable
-$ pip3 install eqalert==2.8.19
+$ pip3 install eqalert==2.9.3
 $
 $ # Install whatever I just pushed to pypi
 $ pip3 install eqalert
@@ -60,11 +60,11 @@ Spot check these default paths generated in `config.json`
 ### Keyboard Controls
 
 #### Global
-  - F1      : Events
-  - F2      : State
-  - F3      : Settings
-  - F4      : Help
-  - F12     : Reload config
+  - 1      : Events
+  - 2      : State
+  - 3      : Settings
+  - 4      : Help
+  - 0     : Reload config
   - q / esc : Quit
 
 #### Events
