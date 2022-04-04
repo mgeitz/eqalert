@@ -293,7 +293,7 @@ def draw_events_frame(stdscr, state, events):
         stdscr.addstr(center_y + 1, center_x - 2, "Solo", curses.color_pair(2))
     elif state.group == "true" and state.raid == "false":
         stdscr.addstr(center_y + 1, center_x - 3, "Group", curses.color_pair(2))
-    elif state.raid == "Raid":
+    elif state.raid == "true":
         stdscr.addstr(center_y + 1, center_x - 2, "Raid", curses.color_pair(2))
 
     # Bottom of stats bar
