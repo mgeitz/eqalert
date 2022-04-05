@@ -12,7 +12,7 @@ A Configurable and Context Driven Everquest Emulator Log Parser with NCurses Int
 Install from pypi
 ```sh
 $ # Install Stable
-$ pip3 install eqalert==2.9.3
+$ pip3 install eqalert==2.9.4
 $
 $ # Install whatever I just pushed to pypi
 $ pip3 install eqalert
@@ -52,7 +52,7 @@ Spot check these default paths generated in `config.json`
             "tmp_sound": "/tmp/eqa/sound/"
         },
 ```
-> Press `F12` to reload your config or restart the program if any changes were made to the config
+> Press `0` to reload your config or restart the program if any changes were made to the config
 
 
 ## Controls
