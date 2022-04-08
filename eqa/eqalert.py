@@ -90,7 +90,6 @@ def startup(base_path):
 
         # Make the tmp sound directory
         if not os.path.exists(tmp_sound_path):
-            print("    - making some sounds")
             os.makedirs(tmp_sound_path)
 
         # Update config char_logs
@@ -633,9 +632,9 @@ def system_afk(base_path, state, display_q, new_message):
     """Perform system tasks for afk behavior"""
 
     try:
-        state.set_afk(new_message.payload)
-        eqa_config.set_last_state(state, base_path)
-        if new_message.payload == "true":
+        if new_message.payload == "true" and state.afk == "false":
+            state.set_afk(new_message.payload)
+            eqa_config.set_last_state(state, base_path)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -644,7 +643,9 @@ def system_afk(base_path, state, display_q, new_message):
                     "You are now AFK",
                 )
             )
-        elif new_message.payload == "false":
+        elif new_message.payload == "false" and state.afk == "true":
+            state.set_afk(new_message.payload)
+            eqa_config.set_last_state(state, base_path)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),

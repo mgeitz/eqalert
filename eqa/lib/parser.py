@@ -644,6 +644,10 @@ def check_system_messages(line):
             return "tracking_player_off"
         elif re.fullmatch(r"^Track players \* ON \*$", line) is not None:
             return "tracking_player_on"
+        elif re.fullmatch(r"^The Gods of Norrath emit a sinister laugh as they toy with their creations\. They are reanimating creatures to provide a greater challenge to the mortals$", line) is not None:
+            return "earthquake"
+        elif re.fullmatch(r"^You feel the need to get somewhere safe quickly\.$", line) is not None:
+            return "earthquake"
 
         return None
 

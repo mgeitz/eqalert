@@ -508,6 +508,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "earthquake": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "earthquake!"
+    },
     "emote_bonk_other": {
       "alert": {},
       "reaction": "false",
@@ -663,7 +668,6 @@ def build_config(base_path):
     "guild": {
       "alert": {
         "help": "true",
-        "quake": "group_only",
         "assist": "raid",
         "fixated": "raid",
         "fixation": "raid",
@@ -719,7 +723,7 @@ def build_config(base_path):
     "mob_out_of_range": {
       "alert": {},
       "reaction": "group",
-      "sound": "out of range"
+      "sound": "range"
     },
     "mob_rampage_on": {
       "alert": {},
@@ -1256,7 +1260,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.9.5"
+    "version": "2.9.6"
   },
   "zones": {
     "An Arena (PVP) Area": "false",

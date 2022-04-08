@@ -1179,6 +1179,15 @@ def action_you_new_zone(
                 current_zone[0],
             )
         )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "afk",
+                "null",
+                "false",
+            )
+        )
         if current_zone[0] not in config["zones"].keys():
             eqa_config.add_zone(current_zone[0], base_path)
         elif current_zone[0] in config["zones"].keys() and not state.raid == "true":
