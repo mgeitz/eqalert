@@ -11,10 +11,6 @@ A Configurable and Context Driven Everquest Emulator Log Parser with NCurses Int
 
 Install from pypi
 ```sh
-$ # Install Stable
-$ pip3 install eqalert==2.9.4
-$
-$ # Install whatever I just pushed to pypi
 $ pip3 install eqalert
 ```
 
@@ -22,7 +18,7 @@ _or_ install manually from github
 ```sh
 $ git clone git@github.com:mgeitz/eqalert.git
 $ cd eqalert
-$ pip3 setup.py install
+$ python3 setup.py install --user
 ```
 
 

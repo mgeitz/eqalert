@@ -36,6 +36,8 @@ def display(stdscr, display_q, state, exit_flag):
     Produce: display event
     """
     events = []
+    undetermined = []
+    matched = []
     page = "events"
     setting = "character"
     selected_char = 0
@@ -60,14 +62,31 @@ def display(stdscr, display_q, state, exit_flag):
                         zone = display_event.payload
                     elif display_event.screen == "char":
                         state.char = display_event.payload
-                    draw_page(stdscr, page, events, undetermined, matched, state, setting, selected_char)
+                    draw_page(
+                        stdscr,
+                        page,
+                        events,
+                        undetermined,
+                        matched,
+                        state,
+                        setting,
+                        selected_char,
+                    )
 
                 # Display Draw
                 elif display_event.type == "draw":
                     if display_event.screen != "redraw":
                         page = display_event.screen
-                    draw_page(stdscr, page, events, state, setting, selected_char)
-                        draw_page(stdscr, page, events, undetermined, matched, state, setting, selected_char)
+                    draw_page(
+                        stdscr,
+                        page,
+                        events,
+                        undetermined,
+                        matched,
+                        state,
+                        setting,
+                        selected_char,
+                    )
 
                 # Draw Update
                 elif display_event.type == "event":
@@ -75,22 +94,53 @@ def display(stdscr, display_q, state, exit_flag):
                         events.append(display_event)
                         if page == "events":
                             draw_page(
-                                stdscr, page, events, state, setting, selected_char
+                                stdscr,
+                                page,
+                                events,
+                                undetermined,
+                                matched,
+                                state,
+                                setting,
+                                selected_char,
                             )
-                        draw_page(stdscr, page, events, undetermined, matched, state, setting, selected_char)
                     elif display_event.screen == "undetermined":
                         undetermined.append(display_event)
-                        draw_page(stdscr, page, events, state, setting, selected_char)
-                        draw_page(stdscr, page, events, undetermined, matched, state, setting, selected_char)
+                        draw_page(
+                            stdscr,
+                            page,
+                            events,
+                            undetermined,
+                            matched,
+                            state,
+                            setting,
+                            selected_char,
+                        )
                     elif display_event.screen == "matched":
                         matched.append(display_event)
-                        draw_page(stdscr, page, events, state, setting, selected_char)
-                        draw_page(stdscr, page, events, undetermined, matched, state, setting, selected_char)
+                        draw_page(
+                            stdscr,
+                            page,
+                            events,
+                            undetermined,
+                            matched,
+                            state,
+                            setting,
+                            selected_char,
+                        )
                     elif display_event.screen == "clear":
                         events = []
                         undetermined = []
                         matched = []
-                        draw_page(stdscr, page, events, undetermined, matched, state, setting, selected_char)
+                        draw_page(
+                            stdscr,
+                            page,
+                            events,
+                            undetermined,
+                            matched,
+                            state,
+                            setting,
+                            selected_char,
+                        )
 
     except Exception as e:
         eqa_settings.log(
@@ -103,7 +153,9 @@ def display(stdscr, display_q, state, exit_flag):
     sys.exit()
 
 
-def draw_page(stdscr, page, events, state, setting, selected_char):
+def draw_page(
+    stdscr, page, events, undetermined, matched, state, setting, selected_char
+):
     y, x = stdscr.getmaxyx()
     try:
         if x >= 80 and y >= 40:
@@ -326,7 +378,7 @@ def draw_events_status_bar(stdscr, state):
             )
 
         ## Location
-        if state.location != ["0.00", "0.00", "0.00"]:
+        if state.loc != ["0.00", "0.00", "0.00"]:
             offset = (
                 len(state.direction)
                 + len(str(state.loc[0]))
@@ -382,7 +434,7 @@ def draw_events(stdscr, events):
 
         count = 1
         max_event_string_x = event_win_x - 16
-        while count < event_win_y and count < len(events):
+        while (count - 1) < event_win_y and count < len(events):
             event = events[-count]
             draw_ftime(eventscr, event.timestamp, event_win_y - count)
             eventscr.addch(event_win_y - count, 14, curses.ACS_VLINE)
