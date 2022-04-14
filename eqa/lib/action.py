@@ -63,11 +63,16 @@ def process(
                 check_line = new_message.payload
 
                 # Debug modes
-                if state.debug != "false":
-                    if line_type == "undetermined":
-                        action_undetermined(check_line, base_path)
-                    if state.debug == "all":
-                        action_matched(line_type, check_line, base_path)
+                if state.debug == "true":
+                    action_matched(line_type, check_line, base_path)
+                    display_q.put(
+                        eqa_struct.display(
+                            eqa_settings.eqa_time(),
+                            "event",
+                            "debug",
+                            (line_type, check_line),
+                        )
+                    )
 
                 # Line specific checks
                 if line_type == "location":
@@ -1250,40 +1255,6 @@ def action_matched(line_type, line, base_path):
     except Exception as e:
         eqa_settings.log(
             "action matched: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-
-
-def action_undetermined(line, base_path):
-    """Debug function to log unmatched log lines"""
-
-    try:
-
-        undetermined_log = base_path + "log/debug/undetermined-lines.txt"
-        if os.path.exists(undetermined_log):
-            file_size = os.path.getsize(undetermined_log)
-            if file_size > 5000000:
-                version = str(
-                    pkg_resources.get_distribution("eqalert").version
-                ).replace(".", "-")
-                archived_log = (
-                    base_path
-                    + "log/debug/undetermined-lines_"
-                    + version
-                    + "_"
-                    + str(datetime.now().date())
-                    + ".txt"
-                )
-                os.rename(undetermined_log, archived_log)
-        undetermined_log_file = open(undetermined_log, "a")
-        undetermined_log_file.write(line + "\n")
-        undetermined_log_file.close()
-
-    except Exception as e:
-        eqa_settings.log(
-            "action undetermined: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)

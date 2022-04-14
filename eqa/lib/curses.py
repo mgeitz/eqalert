@@ -36,8 +36,7 @@ def display(stdscr, display_q, state, exit_flag):
     Produce: display event
     """
     events = []
-    undetermined = []
-    matched = []
+    debug_events = []
     page = "events"
     setting = "character"
     selected_char = 0
@@ -66,8 +65,7 @@ def display(stdscr, display_q, state, exit_flag):
                         stdscr,
                         page,
                         events,
-                        undetermined,
-                        matched,
+                        debug_events,
                         state,
                         setting,
                         selected_char,
@@ -81,8 +79,7 @@ def display(stdscr, display_q, state, exit_flag):
                         stdscr,
                         page,
                         events,
-                        undetermined,
-                        matched,
+                        debug_events,
                         state,
                         setting,
                         selected_char,
@@ -97,46 +94,30 @@ def display(stdscr, display_q, state, exit_flag):
                                 stdscr,
                                 page,
                                 events,
-                                undetermined,
-                                matched,
+                                debug_events,
                                 state,
                                 setting,
                                 selected_char,
                             )
-                    elif display_event.screen == "undetermined":
-                        undetermined.append(display_event)
+                    elif display_event.screen == "debug":
+                        debug_events.append(display_event)
                         draw_page(
                             stdscr,
                             page,
                             events,
-                            undetermined,
-                            matched,
-                            state,
-                            setting,
-                            selected_char,
-                        )
-                    elif display_event.screen == "matched":
-                        matched.append(display_event)
-                        draw_page(
-                            stdscr,
-                            page,
-                            events,
-                            undetermined,
-                            matched,
+                            debug_events,
                             state,
                             setting,
                             selected_char,
                         )
                     elif display_event.screen == "clear":
                         events = []
-                        undetermined = []
-                        matched = []
+                        debug_events = []
                         draw_page(
                             stdscr,
                             page,
                             events,
-                            undetermined,
-                            matched,
+                            debug_events,
                             state,
                             setting,
                             selected_char,
@@ -153,14 +134,12 @@ def display(stdscr, display_q, state, exit_flag):
     sys.exit()
 
 
-def draw_page(
-    stdscr, page, events, undetermined, matched, state, setting, selected_char
-):
+def draw_page(stdscr, page, events, debug_events, state, setting, selected_char):
     y, x = stdscr.getmaxyx()
     try:
         if x >= 80 and y >= 40:
             if page == "events":
-                draw_events_frame(stdscr, state, events)
+                draw_events_frame(stdscr, state, events, debug_events)
             elif page == "state":
                 draw_state(stdscr, state)
             elif page == "settings":
@@ -195,7 +174,7 @@ def init(state):
         curses.init_pair(3, curses.COLOR_CYAN, -1)  # Subtext
         curses.init_pair(4, curses.COLOR_MAGENTA, -1)  # Highlight
         curses.init_pair(5, curses.COLOR_GREEN, -1)  # Dunno
-        draw_events_frame(stdscr, state, [])
+        draw_events_frame(stdscr, state, [], [])
         return stdscr
 
     except Exception as e:
@@ -290,7 +269,7 @@ def draw_tabs(stdscr, tab):
         )
 
 
-def draw_events_frame(stdscr, state, events):
+def draw_events_frame(stdscr, state, events, debug_events):
     """Draw events"""
 
     try:
@@ -308,7 +287,8 @@ def draw_events_frame(stdscr, state, events):
         draw_events(stdscr, events)
 
         # Draw lower panel
-        # draw_events_secondary(stdscr, pane, undetermined, matched, state)
+        if state.debug == "true":
+            draw_events_debug(stdscr, debug_events)
 
     except Exception as e:
         eqa_settings.log(
@@ -433,7 +413,7 @@ def draw_events(stdscr, events):
         eventscr.clear()
 
         count = 1
-        max_event_string_x = event_win_x - 16
+        max_event_string_x = event_win_x - 17
         while (count - 1) < event_win_y and count < len(events):
             event = events[-count]
             draw_ftime(eventscr, event.timestamp, event_win_y - count)
@@ -449,6 +429,44 @@ def draw_events(stdscr, events):
     except Exception as e:
         eqa_settings.log(
             "draw events: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def draw_events_debug(stdscr, debug_events):
+    """Draw events window component of events"""
+
+    try:
+        y, x = stdscr.getmaxyx()
+        center_y = int(y / 2)
+        debug_win_y = center_y - 4
+        debug_win_x = x - 4
+        debugscr = stdscr.derwin(debug_win_y, debug_win_x, center_y + 3, 2)
+        debugscr.clear()
+
+        count = 1
+        max_debug_string_x = debug_win_x - 34
+        while (count - 1) < debug_win_y and count < len(debug_events):
+            event = debug_events[-count]
+            line_type = event.payload[0]
+            line = event.payload[1]
+            debugscr.addstr(
+                debug_win_y - count, 1, line_type[:29], curses.color_pair(3)
+            )
+            debugscr.addch(debug_win_y - count, 31, curses.ACS_VLINE)
+            debugscr.addstr(
+                debug_win_y - count,
+                33,
+                str(line)[:max_debug_string_x],
+                curses.color_pair(1),
+            )
+            count += 1
+
+    except Exception as e:
+        eqa_settings.log(
+            "draw debug events: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
