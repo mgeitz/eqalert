@@ -682,7 +682,7 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
                     "Debug mode enabled",
                 )
             )
-            sound_q.put(eqa_struct.sound("speak", "Logging all unmatched lines"))
+            sound_q.put(eqa_struct.sound("speak", "Displaying all line matches"))
         elif state.debug == "true" and new_message.rx == "toggle":
             state.set_debug("false")
             eqa_config.set_last_state(state, base_path)
