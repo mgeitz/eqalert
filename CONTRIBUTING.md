@@ -23,4 +23,6 @@ Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com
 * **Checkout** a new branch - `feature/my-branch-name`
 * **Commit** your change [accordingly](https://github.com/torvalds/subsurface-for-dirk/blob/master/README#L92)
 * **Push** your change to your remote fork
+* Rebase your branch as needed
+* Add an appropriate gif - this step is critical
 * Submit a **Pull request** against the master branch

@@ -90,7 +90,6 @@ def startup(base_path):
 
         # Make the tmp sound directory
         if not os.path.exists(tmp_sound_path):
-            print("    - making some sounds")
             os.makedirs(tmp_sound_path)
 
         # Update config char_logs
@@ -176,14 +175,35 @@ def main():
     # Initialize curses
     screen = eqa_curses.init(state)
 
+    # Read Log File
+    ## Consume char_log
+    ## Produce log_q
+    process_log = threading.Thread(
+        target=eqa_log.process,
+        args=(log_reload, exit_flag, char_log, log_q),
+    )
+    process_log.daemon = True
+    process_log.start()
+
+    # Parse Log Lines to Determine Line Type
+    ## Process log_q
+    ## Produce action_q
+    process_parse = threading.Thread(
+        target=eqa_parser.process, args=(exit_flag, log_q, action_q)
+    )
+    process_parse.daemon = True
+    process_parse.start()
+
+    # Read Keyboard Events
     ## Consume keyboard events
-    ## Produce keyoard_q
+    ## Produce keyboard_q
     read_keys = threading.Thread(
         target=eqa_keys.read, args=(exit_flag, keyboard_q, screen)
     )
     read_keys.daemon = True
     read_keys.start()
 
+    # Act on Keyboard Events
     ## Process keyboard_q
     ## Produce display_q, sound_q, system_q
     process_keys = threading.Thread(
@@ -200,23 +220,7 @@ def main():
     process_keys.daemon = True
     process_keys.start()
 
-    ## Consume char_log
-    ## Produce log_q
-    process_log = threading.Thread(
-        target=eqa_log.process,
-        args=(log_reload, exit_flag, char_log, log_q),
-    )
-    process_log.daemon = True
-    process_log.start()
-
-    ## Process log_q
-    ## Produce action_q
-    process_parse = threading.Thread(
-        target=eqa_parser.process, args=(exit_flag, log_q, action_q)
-    )
-    process_parse.daemon = True
-    process_parse.start()
-
+    # Act on Parsed Log Lines
     ## Consume action_q
     ## Produce display_q, sound_q, system_q
     process_action = threading.Thread(
@@ -236,6 +240,7 @@ def main():
     process_action.daemon = True
     process_action.start()
 
+    # Produce Sound
     ## Consume sound_q
     process_sound = threading.Thread(
         target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload)
@@ -243,6 +248,7 @@ def main():
     process_sound.daemon = True
     process_sound.start()
 
+    # Do something to the TUI
     ## Consume display_q
     process_display = threading.Thread(
         target=eqa_curses.display, args=(screen, display_q, state, exit_flag)
@@ -250,13 +256,14 @@ def main():
     process_display.daemon = True
     process_display.start()
 
-    # And we're on
+    # Signal Startup Complete
     display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "events", "null"))
     display_q.put(
         eqa_struct.display(eqa_settings.eqa_time(), "event", "events", "Initialized")
     )
     sound_q.put(eqa_struct.sound("speak", "initialized"))
 
+    # Manage State and Config
     ## Consume system_q
     try:
         while not exit_flag.is_set():
@@ -625,9 +632,9 @@ def system_afk(base_path, state, display_q, new_message):
     """Perform system tasks for afk behavior"""
 
     try:
-        state.set_afk(new_message.payload)
-        eqa_config.set_last_state(state, base_path)
-        if new_message.payload == "true":
+        if new_message.payload == "true" and state.afk == "false":
+            state.set_afk(new_message.payload)
+            eqa_config.set_last_state(state, base_path)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -636,7 +643,9 @@ def system_afk(base_path, state, display_q, new_message):
                     "You are now AFK",
                 )
             )
-        elif new_message.payload == "false":
+        elif new_message.payload == "false" and state.afk == "true":
+            state.set_afk(new_message.payload)
+            eqa_config.set_last_state(state, base_path)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -670,23 +679,11 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
                     eqa_settings.eqa_time(),
                     "event",
                     "events",
-                    "Logging all unmatched lines",
+                    "Debug mode enabled",
                 )
             )
-            sound_q.put(eqa_struct.sound("speak", "Logging all unmatched lines"))
+            sound_q.put(eqa_struct.sound("speak", "Displaying all line matches"))
         elif state.debug == "true" and new_message.rx == "toggle":
-            state.set_debug("all")
-            eqa_config.set_last_state(state, base_path)
-            display_q.put(
-                eqa_struct.display(
-                    eqa_settings.eqa_time(),
-                    "event",
-                    "events",
-                    "Logging all line types",
-                )
-            )
-            sound_q.put(eqa_struct.sound("speak", "Logging all line types"))
-        elif state.debug == "all" and new_message.rx == "toggle":
             state.set_debug("false")
             eqa_config.set_last_state(state, base_path)
             display_q.put(
