@@ -148,20 +148,20 @@ There is a configuration entry for all lines matched by the parser.  If a new on
 
 ##### General
 - `false`: Disable alerting for this line type
-- `alert`: Alert for matching strings under `alerts` for the line type, using the set sound
-- `all`: Alert for all lines of a given line type, using the set sound
+- `alert`: Alert for matching strings in `alert` for the line type using the set sound
+- `all`: Alert for all lines of a given line type using the set sound
 
 ##### Context Driven
 - `solo`: Alert when solo, grouped, and raiding
 - `solo_only`: Alert only when solo
 - `group`: Alert when in a group and raiding
-- `group_only`: Alert only when group
-- `raid`: Alert when in raid mode
+- `group_only`: Alert only when grouped
+- `raid`: Alert when in a raid
 - `afk`: Alert only when afk
 
 #### Alert Keys
 
-`alert` can be populated with key, values pairs.  The key here is any arbitrary string you would like an alert for within that line type.
+`alert` can be populated with key value pairs.  The key here is any string you would like an alert for within that line type.
 
 ##### Examples
 
@@ -215,29 +215,29 @@ Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is 
     },
 ```
 
+> More examples can be referenced in the default config
+
 #### Alert Values
 
 ##### General
-- `false`: Disable alerting for the given string of a line type
-- `true`: Alert for the given string of a line type - use keyword as sound alert
+- `false`: Disable alerting for the string (does not negate line type reactions)
+- `true`: Alert for the string
 
 ##### Context Driven
 - `solo`: Alert when solo, grouped, and raiding
 - `solo_only`: Alert only when solo
 - `group`: Alert when in a group and raiding
-- `group_only`: Alert only when group
-- `raid`: Alert when in raid mode
+- `group_only`: Alert only when grouped
+- `raid`: Alert when in a raid
 - `afk`: Alert only when afk
 
 #### Sound Values
-- `true`: When an alert is raised, speak the entire line type
+- `true`: When an alert is raised speak the entire line
 - `false`: Play no sound when an alert is raised
 
 > Any other sound value will be spoken as the audio trigger for that line type
 
 ### Zones
 
-Right now, there are only two valid settings for a zones value:
-
 - `false`: Considered a non-raid zone
-- `raid`: A raid zone, parser raid mode will auto-enable when this zone is detected
+- `raid`: Parser raid mode will auto-enable in this zone
