@@ -395,10 +395,16 @@ def check_received_chat(line):
     try:
         if re.fullmatch(r"^\w+ tells you, \'(.+|)\'$", line) is not None:
             return "tell"
+        elif re.fullmatch(r"^[a-zA-Z\s]+ tells you, \'.+\'$", line) is not None:
+            return "tell_npc"
         elif re.fullmatch(r"^\w+ says, \'.+\'$", line) is not None:
             return "say"
+        elif re.fullmatch(r"^[a-zA-Z\s]+ says, \'.+\'$", line) is not None:
+            return "say_npc"
         elif re.fullmatch(r"^\w+ shouts, \'.+\'$", line) is not None:
             return "shout"
+        elif re.fullmatch(r"^[a-zA-Z\s]+ shouts, \'.+\'$", line) is not None:
+            return "shout_npc"
         elif re.fullmatch(r"^\w+ tells the guild, \'.+\'$", line) is not None:
             return "guild"
         elif re.fullmatch(r"^\w+ tells the group, \'.+\'$", line) is not None:
@@ -417,10 +423,6 @@ def check_received_chat(line):
             return "auction_wtb"
         elif re.fullmatch(r"^\w+ auctions, \'.+\'$", line) is not None:
             return "auction"
-        elif re.fullmatch(r"^[a-zA-Z\s]+ tells you, \'.+\'$", line) is not None:
-            return "tell_npc"
-        elif re.fullmatch(r"^[a-zA-Z\s]+ says, \'.+\'$", line) is not None:
-            return "say_npc"
 
         return None
 
@@ -440,19 +442,19 @@ def check_sent_chat(line):
 
     try:
         if re.fullmatch(r"^You told \w+(, \'| \'\[queued\],).+\'$", line) is not None:
-            return "you_tell"
+            return "tell_you"
         elif re.fullmatch(r"^You say, \'.+\'$", line) is not None:
-            return "you_say"
+            return "say_you"
         elif re.fullmatch(r"^You shout, \'.+\'$", line) is not None:
-            return "you_shout"
+            return "shout_you"
         elif re.fullmatch(r"^You say to your guild, \'.+\'$", line) is not None:
-            return "you_guild"
+            return "guild_you"
         elif re.fullmatch(r"^You tell your party, \'.+\'$", line) is not None:
-            return "you_group"
+            return "group_you"
         elif re.fullmatch(r"^You say out of character, \'.+\'$", line) is not None:
-            return "you_ooc"
+            return "ooc_you"
         elif re.fullmatch(r"^You auction, \'.+\'$", line) is not None:
-            return "you_auction"
+            return "auction_you"
 
         return None
 
