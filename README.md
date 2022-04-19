@@ -1,6 +1,6 @@
 # EQAlert
 
-A Configurable and Context Driven Everquest Emulator Log Parser with NCurses Interface for Linux
+A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface for Linux
 
 ![img](https://i.imgur.com/Kau1J6z.png)
 
