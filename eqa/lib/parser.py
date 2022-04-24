@@ -396,7 +396,7 @@ def check_received_chat(line):
     """
 
     try:
-        if re.fullmatch(r"^\w+ tells you, \'(.+|)\'$", line) is not None:
+        if re.fullmatch(r"^[a-zA-Z\.]+ tells you, \'(.+|)\'$", line) is not None:
             return "tell"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ tells you, \'.+\'$", line) is not None:
             return "tell_npc"
