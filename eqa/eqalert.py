@@ -574,26 +574,26 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
                         eqa_settings.eqa_time(),
                         "event",
                         "events",
-                        "Disable debug mode before enabling raid mode",
+                        "Parser performance may be delayed in raid conditions with debug enabled",
                     )
                 )
                 sound_q.put(
                     eqa_struct.sound(
-                        "speak", "Disable debug mode before enabling raid mode"
+                        "speak",
+                        "Parser performance may be delayed in raid conditions with debug enabled",
                     )
                 )
-            else:
-                state.set_raid("true")
-                eqa_config.set_last_state(state, base_path)
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        "Raid mode enabled",
-                    )
+            state.set_raid("true")
+            eqa_config.set_last_state(state, base_path)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Raid mode enabled",
                 )
-                sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
+            )
+            sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
         elif state.raid == "true" and new_message.rx == "toggle":
             state.set_raid("false")
             eqa_config.set_last_state(state, base_path)
@@ -613,26 +613,26 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
                         eqa_settings.eqa_time(),
                         "event",
                         "events",
-                        "Disable debug mode before enabling raid mode",
+                        "Parser performance may be delayed in raid conditions with debug enabled",
                     )
                 )
                 sound_q.put(
                     eqa_struct.sound(
-                        "speak", "Disable debug mode before enabling raid mode"
+                        "speak",
+                        "Parser performance may be delayed in raid conditions with debug enabled",
                     )
                 )
-            else:
-                state.set_raid("true")
-                eqa_config.set_last_state(state, base_path)
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        new_message.payload,
-                    )
+            state.set_raid("true")
+            eqa_config.set_last_state(state, base_path)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    new_message.payload,
                 )
-                sound_q.put(eqa_struct.sound("speak", new_message.payload))
+            )
+            sound_q.put(eqa_struct.sound("speak", new_message.payload))
         elif state.raid == "true" and new_message.rx == "false":
             state.set_raid("false")
             eqa_config.set_last_state(state, base_path)
