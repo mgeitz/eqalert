@@ -567,7 +567,11 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
     """Perform system tasks for raid behavior"""
 
     try:
-        if state.raid == "false" and new_message.rx == "toggle" and state.debug == "false":
+        if (
+            state.raid == "false"
+            and new_message.rx == "toggle"
+            and state.debug == "false"
+        ):
             state.set_raid("true")
             eqa_config.set_last_state(state, base_path)
             display_q.put(
@@ -591,7 +595,11 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
                 )
             )
             sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
-        elif state.raid == "false" and new_message.rx == "true" and state.debug == "false":
+        elif (
+            state.raid == "false"
+            and new_message.rx == "true"
+            and state.debug == "false"
+        ):
             state.set_raid("true")
             eqa_config.set_last_state(state, base_path)
             display_q.put(
@@ -694,7 +702,9 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
                     "Debug mode enabled",
                 )
             )
-            sound_q.put(eqa_struct.sound("speak", "Displaying and logging all line matches"))
+            sound_q.put(
+                eqa_struct.sound("speak", "Displaying and logging all line matches")
+            )
         elif state.debug == "true" and new_message.rx == "toggle":
             state.set_debug("false")
             eqa_config.set_last_state(state, base_path)
