@@ -703,17 +703,14 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
     try:
         if state.debug == "false" and new_message.rx == "toggle":
             if state.raid == "true":
-                state.set_raid("false")
-                eqa_config.set_last_state(state, base_path)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
                         "event",
                         "events",
-                        "Raid mode has been disabled and will remain disabled while debug mode is enabled",
+                        "Parser performance may be delayed in raid conditions with debug enabled",
                     )
                 )
-                sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
             state.set_debug("true")
             eqa_config.set_last_state(state, base_path)
             display_q.put(
