@@ -107,7 +107,7 @@ def process(
                     action_you_afk_on(system_q)
                 elif line_type == "who_player":
                     action_who_player(system_q, state, check_line)
-                elif line_type == "you_say":
+                elif line_type == "say_you":
                     if (
                         re.fullmatch(r"^You say, \'parser .+\'$", check_line)
                         is not None
