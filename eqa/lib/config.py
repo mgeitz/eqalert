@@ -408,6 +408,11 @@ def build_config(base_path):
       "reaction": "alert",
       "sound": "look at auction"
     },
+    "auction_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_other_melee": {
       "alert": {},
       "reaction": "false",
@@ -665,25 +670,43 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "true"
     },
+    "group_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "guild": {
       "alert": {
         "help": "true",
         "assist": "raid",
+        "crippled": "raid",
+        "dispelled": "raid",
+        "feared": "raid",
+        "harmony": "raid",
         "fixated": "raid",
         "fixation": "raid",
         "incoming": "raid",
+        "log": "raid",
+        "logs": "raid",
         "malo": "raid",
         "malosini": "raid",
         "occlusion": "raid",
         "off-tanking": "raid",
         "rampage": "raid",
         "rune": "raid",
+        "sieve": "raid",
         "slow": "raid",
+        "snare": "raid",
         "sunder": "raid",
         "tash": "raid"
       },
       "reaction": "alert",
       "sound": "look at guild"
+    },
+    "guild_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "location": {
       "alert": {},
@@ -760,6 +783,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "ooc_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "pet_back": {
       "alert": {},
       "reaction": "false",
@@ -822,7 +850,22 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "say_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "shout": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "shout_npc": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "shout_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -1037,6 +1080,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "tell_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "time_earth": {
       "alert": {},
       "reaction": "false",
@@ -1142,11 +1190,6 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "you_auction": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
     "you_camping": {
       "alert": {},
       "reaction": "false",
@@ -1163,16 +1206,6 @@ def build_config(base_path):
       "sound": "false"
     },
     "you_char_bound": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_group": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_guild": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -1196,11 +1229,6 @@ def build_config(base_path):
       "alert": {},
       "reaction": "all",
       "sound": "true"
-    },
-    "you_ooc": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
     },
     "you_outdrink": {
       "alert": {},
@@ -1227,21 +1255,6 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "you_say": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_shout": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_tell": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
     "you_thirsty": {
       "alert": {},
       "reaction": "false",
@@ -1260,7 +1273,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.10.0"
+    "version": "2.10.1"
   },
   "zones": {
     "An Arena (PVP) Area": "false",

@@ -1,6 +1,6 @@
 # EQAlert
 
-A Configurable and Context Driven Everquest Emulator Log Parser with NCurses Interface for Linux
+A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface for Linux
 
 ![img](https://i.imgur.com/Kau1J6z.png)
 
@@ -80,49 +80,27 @@ Spot check these default paths generated in `config.json`
 
 You can control some parser settings using `/say` in-game.  This is better suited for one monitor setups.
 
-```
-/say parser raid
-```
-Toggle raid mode.
+`/say parser raid` - Toggle raid mode
 
-```
-/say parser debug
-```
-Toggle debug mode (logging of unmatched lines).
+`/say parser debug` - Toggle debug mode
 
-```
-/say parser mute
-```
-Toggle global mute/unmute on all audio alerts.
+`/say parser mute/unmute` - Toggle global mute/unmute
 
-```
-/say parser mute speak
-```
-Toggle mute/unmute on all `speak` alerts.
+`/say parser mute/unmute speak` - Toggle mute/unmute on all `speak` alerts.
 
-```
-/say parser mute alert
-```
-Toggle mute/unmute on all `alert` alerts.
+`/say parser mute/unmute alert` - Toggle mute/unmute on all `alert` alerts.
 
-```
-/say parser mute speak line playername
-```
-Mute messages from playername on line type.  Provided the line type given is valid and has a reaction setting of `speak`.
+`/say parser mute/unmute line` - Mute all sound alerts from a type of line
 
-> example: /say parser mute speak tell indef
+> example: /say parser mute engage
 
-```
-/say parser unmute speak line playername
-```
-Unmute messages from playername on line type.
+`/say parser mute/unmute line player` - Mute all sound alerts of a given line type from a specific source
 
-> example: /say parser unmute speak tell indef
+> example: /say parser mute tell indef
 
-```
-/say parser mute list clear
-```
-clear all line type, playername entries from mute list
+`/say parser mute clear` - Clear all muted line types and players
+
+> Does not effect global mute
 
 
 ## Custom Alerting
