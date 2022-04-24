@@ -302,7 +302,9 @@ def check_spell(line):
             return "spell_cast_other"
         elif re.fullmatch(r"^You begin casting [a-zA-Z\:`\s\']+\.$", line) is not None:
             return "spell_cast_you"
-        elif re.fullmatch(r"^Your [a-zA-Z\s`\:\']+ begins to glow\.$", line) is not None:
+        elif (
+            re.fullmatch(r"^Your [a-zA-Z\s`\:\']+ begins to glow\.$", line) is not None
+        ):
             return "spell_cast_item_you"
         elif re.fullmatch(r"^\w+\'s spell fizzles\!$", line) is not None:
             return "spell_fizzle_other"
@@ -315,7 +317,8 @@ def check_spell(line):
         ):
             return "spell_cast_oom"
         elif (
-            re.fullmatch(r"^[a-zA-Z`\s]+\'s casting is interrupted\!$", line) is not None
+            re.fullmatch(r"^[a-zA-Z`\s]+\'s casting is interrupted\!$", line)
+            is not None
         ):
             return "spell_interrupt_other"
         elif re.fullmatch(r"^Your spell is interrupted\.$", line) is not None:
@@ -739,10 +742,14 @@ def check_loot_trade(line):
     """
 
     try:
-        if re.fullmatch(r"^\-\-\w+ has looted [a-zA-Z`\s\:\']+\.\-\-$", line) is not None:
+        if (
+            re.fullmatch(r"^\-\-\w+ has looted [a-zA-Z`\s\:\']+\.\-\-$", line)
+            is not None
+        ):
             return "looted_item_other"
         elif (
-            re.fullmatch(r"^\-\-You have looted [a-zA-Z`\s\:\']+\.\-\-$", line) is not None
+            re.fullmatch(r"^\-\-You have looted [a-zA-Z`\s\:\']+\.\-\-$", line)
+            is not None
         ):
             return "looted_item_you"
         elif (
@@ -767,7 +774,8 @@ def check_loot_trade(line):
         ):
             return "trade_money"
         elif (
-            re.fullmatch(r"^[a-zA-Z]+ has offered you [a-zA-Z`\s\:\']+\.$", line) is not None
+            re.fullmatch(r"^[a-zA-Z]+ has offered you [a-zA-Z`\s\:\']+\.$", line)
+            is not None
         ):
             return "trade_item"
 

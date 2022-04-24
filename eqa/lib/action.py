@@ -1170,20 +1170,6 @@ def action_you_new_zone(
 
     try:
         current_zone = re.findall("(?<=You have entered )[a-zA-Z\s]+", check_line)
-        display_q.put(
-            eqa_struct.display(
-                eqa_settings.eqa_time(), "update", "zone", current_zone[0]
-            )
-        )
-        system_q.put(
-            eqa_struct.message(
-                eqa_settings.eqa_time(),
-                "system",
-                "zone",
-                "null",
-                current_zone[0],
-            )
-        )
         system_q.put(
             eqa_struct.message(
                 eqa_settings.eqa_time(),
@@ -1193,6 +1179,23 @@ def action_you_new_zone(
                 "false",
             )
         )
+
+        if current_zone[0] != state.zone:
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(), "update", "zone", current_zone[0]
+                )
+            )
+            system_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(),
+                    "system",
+                    "zone",
+                    "null",
+                    current_zone[0],
+                )
+            )
+
         if current_zone[0] not in config["zones"].keys():
             eqa_config.add_zone(current_zone[0], base_path)
         elif current_zone[0] in config["zones"].keys() and not state.raid == "true":
