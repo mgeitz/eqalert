@@ -903,7 +903,7 @@ def action_you_say_commands(
 
     try:
         if re.findall(r"(?<=You say, \'parser )[a-zA-Z\s]+", check_line) is not None:
-            args = re.findall(r"(?<=You say, \'parser )[a-zA-Z\s]+", line)[0].split(" ")
+            args = re.findall(r"(?<=You say, \'parser )[a-zA-Z\s]+", check_line)[0].split(" ")
             if args[0] == "mute":
                 if len(args) == 1:
                     system_q.put(
