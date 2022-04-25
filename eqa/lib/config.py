@@ -686,7 +686,6 @@ def build_config(base_path):
         "fixated": "raid",
         "fixation": "raid",
         "incoming": "raid",
-        "log": "raid",
         "logs": "raid",
         "malo": "raid",
         "malosini": "raid",
