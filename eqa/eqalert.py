@@ -796,7 +796,6 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
                     new_message.payload,
                 )
             )
-            sound_q.put(eqa_struct.sound("speak", new_message.payload))
         elif state.raid == "true" and new_message.rx == "false":
             state.set_raid("false")
             eqa_config.set_last_state(state, base_path)
@@ -808,7 +807,6 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
                     new_message.payload,
                 )
             )
-            sound_q.put(eqa_struct.sound("speak", new_message.payload))
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
         )
