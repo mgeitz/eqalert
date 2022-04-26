@@ -44,10 +44,19 @@ def process(config, sound_q, exit_flag, cfg_reload):
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
-            time.sleep(0.01)
+
+            # Sleep between empty checks
+            queue_size = sound_q.qsize()
+            if queue_size < 2:
+                time.sleep(0.01)
+            else:
+                time.sleep(0.001)
+                eqa_settings.log("sound_q depth: " + str(queue_size))
+
+            # Check queue for message
             if not sound_q.empty():
+                ## Read new message
                 sound_event = sound_q.get()
-                sound_q.task_done()
 
                 if sound_event.sound == "mute_speak":
                     mute_speak = sound_event.payload
@@ -57,6 +66,8 @@ def process(config, sound_q, exit_flag, cfg_reload):
                     speak(sound_event.payload, "true", tmp_sound_file_path)
                 elif sound_event.sound == "alert" and not mute_alert == "true":
                     alert(config, sound_event.payload)
+
+                sound_q.task_done()
 
     except Exception as e:
         eqa_settings.log(
