@@ -46,12 +46,10 @@ def display(stdscr, display_q, state, exit_flag):
 
             # Sleep between empty checks
             queue_size = display_q.qsize()
-            if queue_size < 4:
+            if queue_size < 2:
                 time.sleep(0.01)
             else:
                 time.sleep(0.001)
-                if state.debug == "true":
-                    eqa_settings.log("display_q depth: " + str(queue_size))
 
             # Check queue for message
             if not display_q.empty():
