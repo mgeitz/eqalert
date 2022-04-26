@@ -774,8 +774,8 @@ def build_config(base_path):
     },
     "motd_welcome": {
       "alert": {},
-      "reaction": "all",
-      "sound": "true"
+      "reaction": "false",
+      "sound": "false"
     },
     "ooc": {
       "alert": {},
@@ -1272,7 +1272,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.10.2"
+    "version": "2.10.3"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
