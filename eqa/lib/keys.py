@@ -44,19 +44,27 @@ def process(
     settings = "character"
     selected_char = 0
 
-    while not exit_flag.is_set() and not cfg_reload.is_set():
-        try:
-            # Get key
-            time.sleep(0.01)
-            if not keyboard_q.empty():
-                key = keyboard_q.get()
-                keyboard_q.task_done()
+    try:
+        while not exit_flag.is_set() and not cfg_reload.is_set():
 
-                # Check for quit event
+            # Sleep between empty checks
+            queue_size = keyboard_q.qsize()
+            if queue_size < 10:
+                time.sleep(0.01)
+            else:
+                time.sleep(0.001)
+                eqa_settings.log("keyboard_q depth: " + str(queue_size))
+
+            # Check queue for message
+            if not keyboard_q.empty():
+                ## Read new message
+                key = keyboard_q.get()
+
+                ## Check for quit event
                 if key == ord("q") or key == 27:
                     exit_flag.set()
 
-                # Handle resize event
+                ## Handle resize event
                 if key == curses.KEY_RESIZE:
                     display_q.put(
                         eqa_struct.display(
@@ -64,7 +72,7 @@ def process(
                         )
                     )
 
-                # Handle tab keys
+                ## Handle tab keys
                 if key == ord("1"):
                     display_q.put(
                         eqa_struct.display(
@@ -104,7 +112,7 @@ def process(
                         )
                     )
 
-                # Events keys
+                ## Events keys
                 if page == "events":
                     if key == ord("c"):
                         display_q.put(
@@ -143,11 +151,11 @@ def process(
                             )
                         )
 
-                # State keys
+                ## State keys
                 elif page == "state":
                     pass
 
-                # Settings keys
+                ## Settings keys
                 elif page == "settings":
                     if settings == "character":
                         if key == curses.KEY_UP or key == ord("w"):
@@ -192,17 +200,18 @@ def process(
                             )
                         elif key == ord(" "):
                             pass
-                            # cycle to next setting
 
-                # Help keys
+                ## Help keys
                 elif page == "help":
                     pass
 
-        except Exception as e:
-            eqa_settings.log("process keys: " + str(e))
-            eqa_settings.log("setting exit_flag")
-            exit_flag.set()
-            sys.exit()
+                keyboard_q.task_done()
+
+    except Exception as e:
+        eqa_settings.log("process keys: " + str(e))
+        eqa_settings.log("setting exit_flag")
+        exit_flag.set()
+        sys.exit()
 
     sys.exit(0)
 

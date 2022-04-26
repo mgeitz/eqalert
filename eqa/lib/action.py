@@ -31,8 +31,6 @@ import eqa.lib.settings as eqa_settings
 import eqa.lib.sound as eqa_sound
 import eqa.lib.struct as eqa_struct
 
-mute_list = []
-
 
 def process(
     config,
@@ -44,6 +42,7 @@ def process(
     sound_q,
     exit_flag,
     cfg_reload,
+    mute_list,
 ):
     """
     Process: action_q
@@ -52,17 +51,27 @@ def process(
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
-            time.sleep(0.01)
+
+            # Sleep between empty checks
+            queue_size = action_q.qsize()
+            if queue_size < 4:
+                time.sleep(0.01)
+            else:
+                time.sleep(0.001)
+                if state.debug == "true":
+                    eqa_settings.log("action_q depth: " + str(queue_size))
+
+            # Check queue for message
             if not action_q.empty():
+                ## Read new message
                 new_message = action_q.get()
-                action_q.task_done()
                 line_type = new_message.type
                 line_time = new_message.timestamp
                 line_tx = new_message.tx
                 line_rx = new_message.rx
                 check_line = new_message.payload
 
-                # Debug modes
+                ## Debug: Log line match type
                 if state.debug == "true":
                     action_matched(line_type, check_line, base_path)
                     display_q.put(
@@ -74,7 +83,7 @@ def process(
                         )
                     )
 
-                # Line specific checks
+                ## State Building Line Types
                 if line_type == "location":
                     action_location(system_q, check_line)
                 elif line_type == "direction":
@@ -126,10 +135,11 @@ def process(
                         check_line,
                     )
 
-                # If line_type exists in the config
+                ## If line_type exists in the config
                 if line_type in config["line"].keys():
-                    # If line_type reaction is true
+                    ### If this line_type is alert
                     if config["line"][line_type]["reaction"] == "alert":
+                        #### Check for any alerts
                         for keyphrase, value in config["line"][line_type][
                             "alert"
                         ].items():
@@ -575,6 +585,8 @@ def process(
                             "null",
                         )
                     )
+
+                action_q.task_done()
 
     except Exception as e:
         eqa_settings.log(

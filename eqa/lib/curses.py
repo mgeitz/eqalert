@@ -43,12 +43,22 @@ def display(stdscr, display_q, state, exit_flag):
 
     try:
         while not exit_flag.is_set():
-            time.sleep(0.01)
-            if not display_q.empty():
-                display_event = display_q.get()
-                display_q.task_done()
 
-                # Display Var Update
+            # Sleep between empty checks
+            queue_size = display_q.qsize()
+            if queue_size < 4:
+                time.sleep(0.01)
+            else:
+                time.sleep(0.001)
+                if state.debug == "true":
+                    eqa_settings.log("display_q depth: " + str(queue_size))
+
+            # Check queue for message
+            if not display_q.empty():
+                ## Read new message
+                display_event = display_q.get()
+
+                ## Display Var Update
                 if display_event.type == "update":
                     if display_event.screen == "setting":
                         setting = display_event.payload
@@ -71,7 +81,7 @@ def display(stdscr, display_q, state, exit_flag):
                         selected_char,
                     )
 
-                # Display Draw
+                ## Display Draw
                 elif display_event.type == "draw":
                     if display_event.screen != "redraw":
                         page = display_event.screen
@@ -85,7 +95,7 @@ def display(stdscr, display_q, state, exit_flag):
                         selected_char,
                     )
 
-                # Draw Update
+                ## Draw Update
                 elif display_event.type == "event":
                     if display_event.screen == "events":
                         events.append(display_event)
@@ -122,6 +132,8 @@ def display(stdscr, display_q, state, exit_flag):
                             setting,
                             selected_char,
                         )
+
+                display_q.task_done()
 
     except Exception as e:
         eqa_settings.log(

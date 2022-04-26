@@ -35,13 +35,21 @@ def process(exit_flag, log_q, action_q):
 
     try:
         while not exit_flag.is_set():
-            time.sleep(0.01)
+
+            # Sleep between empty checks
+            queue_size = log_q.qsize()
+            if queue_size < 4:
+                time.sleep(0.01)
+            else:
+                time.sleep(0.001)
+
+            # Check queue for message
             if not log_q.empty():
-                # Read raw log line
+                ## Read new message
                 log_line = log_q.get()
-                log_q.task_done()
-                # Strip line of any trailing space
+                ## Strip line of any trailing space
                 line = log_line.strip()
+                ## If line fits assumed log line structure
                 if (
                     re.fullmatch(
                         r"^\[(?:Fri|Mon|S(?:at|un)|T(?:hu|ue)|Wed) (?:A(?:pr|ug)|Dec|Feb|J(?:an|u[ln])|Ma[ry]|Nov|Oct|Sep) [0-9]{2} [0-9]{2}\:[0-9]{2}\:[0-9]{2} [0-9]{4}\] .+",
@@ -49,18 +57,20 @@ def process(exit_flag, log_q, action_q):
                     )
                     is not None
                 ):
-                    # Split timestamp and message payload
+                    ### Split timestamp and message payload
                     timestamp, payload = line[1:].split("] ", 1)
                     timestamp = timestamp.split(" ")[3] + ".00"
-                    # Determine line type
+                    ### Determine line type
                     line_type = determine(payload)
-                    # Build and queue action
+                    ### Build and queue action
                     new_message = eqa_struct.message(
                         timestamp, line_type, "null", "null", payload
                     )
                     action_q.put(new_message)
                 else:
                     eqa_settings.log("process_log: Cannot process: " + line)
+
+                log_q.task_done()
 
     except Exception as e:
         eqa_settings.log(
