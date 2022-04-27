@@ -397,7 +397,8 @@ def check_spell(line):
         ):
             return "spell_no_target"
         elif (
-            re.fullmatch(r"^A missed note brings \w+'s song to a close\!$", line) is not None
+            re.fullmatch(r"^A missed note brings \w+'s song to a close\!$", line)
+            is not None
         ):
             return "song_interrupted_other"
 
@@ -692,7 +693,13 @@ def check_system_messages(line):
             return "command_error"
         elif re.fullmatch(r"^\w+ is not online at this time\.$", line) is not None:
             return "tell_offline"
-        elif re.fullmatch(r"^(Also, auto-follow works best in wide open areas with low lag\.  Twisty areas, lag, and other factors may cause auto-follow to fail\.|\*WARNING\*\: Do NOT use around lava, water, cliffs, or other dangerous areas because you WILL fall into them\. You have been warned\.)$", line) is not None:
+        elif (
+            re.fullmatch(
+                r"^(Also, auto-follow works best in wide open areas with low lag\.  Twisty areas, lag, and other factors may cause auto-follow to fail\.|\*WARNING\*\: Do NOT use around lava, water, cliffs, or other dangerous areas because you WILL fall into them\. You have been warned\.)$",
+                line,
+            )
+            is not None
+        ):
             return "autofollow_advice"
 
         return None
@@ -810,7 +817,12 @@ def check_loot_trade(line):
             is not None
         ):
             return "trade_item"
-        elif re.fullmatch(r"^You give \d+ (platinum|gold|silver|copper) to [a-zA-Z`\s]+\.$", line) is not None:
+        elif (
+            re.fullmatch(
+                r"^You give \d+ (platinum|gold|silver|copper) to [a-zA-Z`\s]+\.$", line
+            )
+            is not None
+        ):
             return "trade_npc_payment"
 
         return None

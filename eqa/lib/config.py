@@ -711,6 +711,7 @@ def build_config(base_path):
         "sieve": "raid",
         "slow": "raid",
         "snare": "raid",
+        "stand": "raid",
         "sunder": "raid",
         "tash": "raid"
       },
@@ -1026,8 +1027,8 @@ def build_config(base_path):
     },
     "spell_not_hold": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "did not hold"
     },
     "spell_recover_other": {
       "alert": {},
@@ -1312,7 +1313,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.10.3"
+    "version": "2.11.0"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
