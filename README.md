@@ -134,6 +134,7 @@ There is a configuration entry for all lines matched by the parser.  If a new on
 - `solo_only`: Alert only when solo
 - `group`: Alert when in a group and raiding
 - `group_only`: Alert only when grouped
+- `solo_group_only`: Alert only when not raiding
 - `raid`: Alert when in a raid
 - `afk`: Alert only when afk
 
@@ -206,6 +207,7 @@ Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is 
 - `solo_only`: Alert only when solo
 - `group`: Alert when in a group and raiding
 - `group_only`: Alert only when grouped
+- `solo_group_only`: Alert only when not raiding
 - `raid`: Alert when in a raid
 - `afk`: Alert only when afk
 

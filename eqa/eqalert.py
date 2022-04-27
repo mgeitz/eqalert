@@ -355,13 +355,24 @@ def main():
     ## Consume system_q
     try:
         while not exit_flag.is_set():
-            time.sleep(0.01)
-            if not system_q.empty():
-                new_message = system_q.get()
-                system_q.task_done()
 
+            # Sleep between empty checks
+            queue_size = system_q.qsize()
+            if queue_size < 4:
+                time.sleep(0.01)
+            else:
+                time.sleep(0.001)
+                if state.debug == "true":
+                    eqa_settings.log("system_q depth: " + str(queue_size))
+
+            # Check queue for message
+            if not system_q.empty():
+                ## Read new message
+                new_message = system_q.get()
+
+                ## If system message
                 if new_message.type == "system":
-                    # Update zone
+                    ### Update zone
                     if new_message.tx == "zone":
                         state.set_zone(new_message.payload)
                         state.set_direction("unavailable")
@@ -372,7 +383,7 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
-                    # Update location
+                    ### Update location
                     elif new_message.tx == "loc":
                         state.set_loc(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
@@ -381,7 +392,7 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
-                    # Update direction
+                    ### Update direction
                     elif new_message.tx == "direction":
                         state.set_direction(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
@@ -390,16 +401,16 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
-                    # Update afk status
+                    ### Update afk status
                     elif new_message.tx == "afk":
                         system_afk(base_path, state, display_q, new_message)
-                    # Update raid status
+                    ### Update raid status
                     elif new_message.tx == "raid":
                         system_raid(base_path, state, display_q, sound_q, new_message)
-                    # Update debug status
+                    ### Update debug status
                     elif new_message.tx == "debug":
                         system_debug(base_path, state, display_q, sound_q, new_message)
-                    # Update group status
+                    ### Update group status
                     elif new_message.tx == "group":
                         state.set_group(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
@@ -408,7 +419,7 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
-                    # Update group leader status
+                    ### Update group leader status
                     elif new_message.tx == "leader":
                         state.set_leader(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
@@ -417,7 +428,7 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
-                    # Update encumbered status
+                    ### Update encumbered status
                     elif new_message.tx == "encumbered":
                         state.set_encumbered(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
@@ -426,7 +437,7 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
-                    # Update bind status
+                    ### Update bind status
                     elif new_message.tx == "bind":
                         state.set_bind(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
@@ -435,7 +446,7 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
-                    # Update level status
+                    ### Update level status
                     elif new_message.tx == "level":
                         state.set_level(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
@@ -444,7 +455,7 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
-                    # Update class status
+                    ### Update class status
                     elif new_message.tx == "class":
                         state.set_class(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
@@ -453,7 +464,7 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
-                    # Update guild status
+                    ### Update guild status
                     elif new_message.tx == "guild":
                         state.set_guild(new_message.payload)
                         eqa_config.set_last_state(state, base_path)
@@ -462,16 +473,16 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
-                    # Update mute status
+                    ### Update mute status
                     elif new_message.tx == "mute":
                         system_mute(base_path, state, display_q, sound_q, new_message)
-                    # Update character
+                    ### Update character
                     elif new_message.tx == "new_character":
                         new_char_log = (
                             config["settings"]["paths"]["char_log"]
                             + config["char_logs"][new_message.payload]["file_name"]
                         )
-                        # Ensure char/server combo exists as file
+                        #### Ensure char/server combo exists as file
                         if os.path.exists(new_char_log):
                             # Record old char state before swapping
                             eqa_config.set_last_state(state, base_path)
@@ -543,12 +554,12 @@ def main():
                                 )
                             )
                             eqa_settings.log("Could not find file: " + new_char_log)
-                    # Reload config
+                    ### Reload config
                     elif new_message.tx == "reload_config":
-                        # Reload config
+                        #### Reload config
                         eqa_config.update_logs(base_path)
                         config = eqa_config.read_config(base_path)
-                        # Reread characters
+                        #### Reread characters
                         new_state = eqa_config.get_last_state(
                             base_path, state.char, state.server
                         )
@@ -567,7 +578,7 @@ def main():
                         state.set_level(new_state.char_level)
                         state.set_class(new_state.char_class)
                         state.set_guild(new_state.char_guild)
-                        # Stop state dependent processes
+                        #### Stop state dependent processes
                         cfg_reload.set()
                         process_action_1.join()
                         process_action_2.join()
@@ -578,7 +589,8 @@ def main():
                         process_sound_3.join()
                         process_keys.join()
                         cfg_reload.clear()
-                        # Restart process_keys
+
+                        #### Restart process_keys
                         process_keys = threading.Thread(
                             target=eqa_keys.process,
                             args=(
@@ -592,9 +604,10 @@ def main():
                         )
                         process_keys.daemon = True
                         process_keys.start()
-                        # Restart process_action
 
-                        ## Thread 1
+                        #### Restart process_action
+
+                        ##### Thread 1
                         process_action_1 = threading.Thread(
                             target=eqa_action.process,
                             args=(
@@ -613,7 +626,7 @@ def main():
                         process_action_1.daemon = True
                         process_action_1.start()
 
-                        ## Thread 2
+                        ##### Thread 2
                         process_action_2 = threading.Thread(
                             target=eqa_action.process,
                             args=(
@@ -632,7 +645,7 @@ def main():
                         process_action_2.daemon = True
                         process_action_2.start()
 
-                        ## Thread 3
+                        ##### Thread 3
                         process_action_3 = threading.Thread(
                             target=eqa_action.process,
                             args=(
@@ -651,7 +664,7 @@ def main():
                         process_action_3.daemon = True
                         process_action_3.start()
 
-                        ## Thread 4
+                        ##### Thread 4
                         process_action_4 = threading.Thread(
                             target=eqa_action.process,
                             args=(
@@ -670,9 +683,9 @@ def main():
                         process_action_4.daemon = True
                         process_action_4.start()
 
-                        # Restart process_sound
+                        #### Restart process_sound
 
-                        ## Thread 1
+                        ##### Thread 1
                         process_sound_1 = threading.Thread(
                             target=eqa_sound.process,
                             args=(config, sound_q, exit_flag, cfg_reload),
@@ -680,7 +693,7 @@ def main():
                         process_sound_1.daemon = True
                         process_sound_1.start()
 
-                        ## Thread 2
+                        ##### Thread 2
                         process_sound_2 = threading.Thread(
                             target=eqa_sound.process,
                             args=(config, sound_q, exit_flag, cfg_reload),
@@ -688,7 +701,7 @@ def main():
                         process_sound_2.daemon = True
                         process_sound_2.start()
 
-                        ## Thread 3
+                        ##### Thread 3
                         process_sound_3 = threading.Thread(
                             target=eqa_sound.process,
                             args=(config, sound_q, exit_flag, cfg_reload),
@@ -696,7 +709,7 @@ def main():
                         process_sound_3.daemon = True
                         process_sound_3.start()
 
-                        # Notify successful configuration reload
+                        #### Notify successful configuration reload
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(),
@@ -715,6 +728,8 @@ def main():
                             new_message.type + ": " + new_message.payload,
                         )
                     )
+
+                system_q.task_done()
 
     except Exception as e:
         eqa_settings.log(
@@ -781,7 +796,6 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
                     new_message.payload,
                 )
             )
-            sound_q.put(eqa_struct.sound("speak", new_message.payload))
         elif state.raid == "true" and new_message.rx == "false":
             state.set_raid("false")
             eqa_config.set_last_state(state, base_path)
@@ -793,7 +807,6 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
                     new_message.payload,
                 )
             )
-            sound_q.put(eqa_struct.sound("speak", new_message.payload))
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
         )

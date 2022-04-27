@@ -413,6 +413,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "autofollow_advice": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_other_melee": {
       "alert": {},
       "reaction": "false",
@@ -458,6 +463,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_other_rune_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_you_melee": {
       "alert": {},
       "reaction": "false",
@@ -484,6 +494,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "command_block": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "command_error": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -754,12 +769,12 @@ def build_config(base_path):
     },
     "mob_slain_other": {
       "alert": {},
-      "reaction": "solo",
+      "reaction": "solo_group_only",
       "sound": "true"
     },
     "mob_slain_you": {
       "alert": {},
-      "reaction": "solo",
+      "reaction": "solo_group_only",
       "sound": "true"
     },
     "motd_game": {
@@ -774,8 +789,8 @@ def build_config(base_path):
     },
     "motd_welcome": {
       "alert": {},
-      "reaction": "all",
-      "sound": "true"
+      "reaction": "false",
+      "sound": "false"
     },
     "ooc": {
       "alert": {},
@@ -854,6 +869,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "server_message": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "true"
+    },
     "shout": {
       "alert": {},
       "reaction": "false",
@@ -870,6 +890,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "skill_up": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "song_interrupted_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -1079,6 +1104,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "tell_offline": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "tell_you": {
       "alert": {},
       "reaction": "false",
@@ -1115,6 +1145,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "trade_money": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "trade_npc_payment": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -1259,6 +1294,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "zone_message": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "true"
+    },
     "zoning": {
       "alert": {},
       "reaction": "false",
@@ -1272,7 +1312,7 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.10.2"
+    "version": "2.10.3"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
