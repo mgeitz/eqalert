@@ -253,6 +253,22 @@ def process(
                                         "Group: " + line_type + ": " + check_line,
                                     )
                                 )
+                            # If the alert value is solo_group_only
+                            elif (
+                                str(keyphrase).lower() in check_line.lower()
+                                and value == "solo_group_only"
+                                and state.raid == "false"
+                            ):
+                                if config["line"][line_type]["sound"] != "false":
+                                    sound_q.put(eqa_struct.sound("speak", keyphrase))
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "event",
+                                        "events",
+                                        "Solo/Group: " + line_type + ": " + check_line,
+                                    )
+                                )
                             # If the alert value is raid
                             elif (
                                 str(keyphrase).lower() in check_line.lower()
@@ -390,6 +406,29 @@ def process(
                     elif (
                         config["line"][line_type]["reaction"] == "solo"
                         and state.group == "true"
+                        and state.raid == "false"
+                    ):
+                        sender = re.findall(r"^\w+", check_line)
+                        if (
+                            config["line"][line_type]["sound"] == "true"
+                            and not (line_type, sender[0].lower()) in mute_list
+                            and not (line_type, "all") in mute_list
+                        ):
+                            sound_q.put(eqa_struct.sound("speak", check_line))
+                        elif config["line"][line_type]["sound"] != "false":
+                            sound_q.put(eqa_struct.sound("alert", line_type))
+                        display_q.put(
+                            eqa_struct.display(
+                                eqa_settings.eqa_time(),
+                                "event",
+                                "events",
+                                check_line,
+                            )
+                        )
+
+                    # Or if line_type reaction is solo_group_only and you are not in a raid
+                    elif (
+                        config["line"][line_type]["reaction"] == "solo_group_only"
                         and state.raid == "false"
                     ):
                         sender = re.findall(r"^\w+", check_line)
