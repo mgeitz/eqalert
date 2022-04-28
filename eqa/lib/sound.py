@@ -46,12 +46,8 @@ def process(config, sound_q, exit_flag, cfg_reload):
         while not exit_flag.is_set() and not cfg_reload.is_set():
 
             # Sleep between empty checks
-            queue_size = sound_q.qsize()
-            if queue_size < 2:
+            if sound_q.qsize() < 1:
                 time.sleep(0.01)
-            else:
-                time.sleep(0.001)
-                eqa_settings.log("sound_q depth: " + str(queue_size))
 
             # Check queue for message
             if not sound_q.empty():

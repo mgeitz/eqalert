@@ -54,10 +54,9 @@ def process(
 
             # Sleep between empty checks
             queue_size = action_q.qsize()
-            if queue_size < 2:
+            if queue_size < 1:
                 time.sleep(0.01)
             else:
-                time.sleep(0.001)
                 if state.debug == "true":
                     eqa_settings.log("action_q depth: " + str(queue_size))
 

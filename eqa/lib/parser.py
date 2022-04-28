@@ -38,10 +38,8 @@ def process(exit_flag, log_q, action_q):
 
             # Sleep between empty checks
             queue_size = log_q.qsize()
-            if queue_size < 4:
+            if queue_size < 1:
                 time.sleep(0.01)
-            else:
-                time.sleep(0.001)
 
             # Check queue for message
             if not log_q.empty():

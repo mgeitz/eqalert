@@ -45,11 +45,8 @@ def display(stdscr, display_q, state, exit_flag):
         while not exit_flag.is_set():
 
             # Sleep between empty checks
-            queue_size = display_q.qsize()
-            if queue_size < 2:
+            if display_q.qsize() < 1:
                 time.sleep(0.01)
-            else:
-                time.sleep(0.001)
 
             # Check queue for message
             if not display_q.empty():
