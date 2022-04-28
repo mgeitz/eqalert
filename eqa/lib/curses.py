@@ -603,11 +603,16 @@ def draw_state(stdscr, state):
         stdscr.addstr(24, 16, ": ", curses.color_pair(1))
         stdscr.addstr(24, 18, state.mute.title(), curses.color_pair(3))
 
+        # enounter parse state
+        stdscr.addstr(25, 5, "Encounter", curses.color_pair(2))
+        stdscr.addstr(25, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(25, 18, state.encounter_parse.title(), curses.color_pair(3))
+
         # eqalert version
         version = str(pkg_resources.get_distribution("eqalert").version)
-        stdscr.addstr(26, 5, "Version", curses.color_pair(2))
-        stdscr.addstr(26, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(26, 18, version, curses.color_pair(3))
+        stdscr.addstr(28, 5, "Version", curses.color_pair(2))
+        stdscr.addstr(28, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(28, 18, version, curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(
@@ -750,34 +755,38 @@ def draw_help(stdscr):
 
         stdscr.addstr(18, 9, "d", curses.color_pair(2))
         stdscr.addstr(18, 15, ":", curses.color_pair(1))
-        stdscr.addstr(18, 17, "Toggle debug modes", curses.color_pair(3))
+        stdscr.addstr(18, 17, "Toggle debug mode", curses.color_pair(3))
 
-        stdscr.addstr(19, 9, "m", curses.color_pair(2))
+        stdscr.addstr(19, 9, "e", curses.color_pair(2))
         stdscr.addstr(19, 15, ":", curses.color_pair(1))
-        stdscr.addstr(19, 17, "Toggle mute", curses.color_pair(3))
+        stdscr.addstr(19, 17, "Toggle encounter parsing", curses.color_pair(3))
+
+        stdscr.addstr(20, 9, "m", curses.color_pair(2))
+        stdscr.addstr(20, 15, ":", curses.color_pair(1))
+        stdscr.addstr(20, 17, "Toggle mute", curses.color_pair(3))
 
         # Settings commands
-        stdscr.addstr(21, 7, "Settings", curses.color_pair(1))
+        stdscr.addstr(22, 7, "Settings", curses.color_pair(1))
 
-        stdscr.addstr(22, 9, "up", curses.color_pair(2))
-        stdscr.addstr(22, 15, ":", curses.color_pair(1))
-        stdscr.addstr(22, 17, "Cycle up in selection", curses.color_pair(3))
-
-        stdscr.addstr(23, 9, "down", curses.color_pair(2))
+        stdscr.addstr(23, 9, "up", curses.color_pair(2))
         stdscr.addstr(23, 15, ":", curses.color_pair(1))
-        stdscr.addstr(23, 17, "Cycle down in selection", curses.color_pair(3))
+        stdscr.addstr(23, 17, "Cycle up in selection", curses.color_pair(3))
 
-        stdscr.addstr(24, 9, "right", curses.color_pair(2))
+        stdscr.addstr(24, 9, "down", curses.color_pair(2))
         stdscr.addstr(24, 15, ":", curses.color_pair(1))
-        stdscr.addstr(24, 17, "Toggle selection on", curses.color_pair(3))
+        stdscr.addstr(24, 17, "Cycle down in selection", curses.color_pair(3))
 
-        stdscr.addstr(25, 9, "left", curses.color_pair(2))
+        stdscr.addstr(25, 9, "right", curses.color_pair(2))
         stdscr.addstr(25, 15, ":", curses.color_pair(1))
-        stdscr.addstr(25, 17, "Toggle selection off", curses.color_pair(3))
+        stdscr.addstr(25, 17, "Toggle selection on", curses.color_pair(3))
 
-        stdscr.addstr(26, 9, "space", curses.color_pair(2))
+        stdscr.addstr(26, 9, "left", curses.color_pair(2))
         stdscr.addstr(26, 15, ":", curses.color_pair(1))
-        stdscr.addstr(26, 17, "Cycle selection", curses.color_pair(3))
+        stdscr.addstr(26, 17, "Toggle selection off", curses.color_pair(3))
+
+        stdscr.addstr(27, 9, "space", curses.color_pair(2))
+        stdscr.addstr(27, 15, ":", curses.color_pair(1))
+        stdscr.addstr(27, 17, "Cycle selection", curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(

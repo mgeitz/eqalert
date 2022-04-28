@@ -67,6 +67,7 @@ Spot check these default paths generated in `config.json`
   - c     : Clear event box
   - r     : Toggle raid mode
   - d     : Toggle debug mode
+  - e     : Toggle encounter parsing
   - m     : Toggle audio mute
 
 #### Settings
@@ -216,6 +217,24 @@ Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is 
 - `false`: Play no sound when an alert is raised
 
 > Any other sound value will be spoken as the audio trigger for that line type
+
+#### The all Line Type
+
+This line type behaves the same as any specific line type configuration, but configuration here will be used against all log lines.
+
+For example, the below configuration will alert if the word `help` is found in any line while in a raid context, even if that line isn't matched to a type by the parser.
+
+```
+    "all": {
+      "alert": {
+        "help": raid
+      },
+      "reaction": "alert",
+      "sound": "help is needed"
+    },
+```
+
+This can be helpful if you would like to alert for something not yet matched by the parser, though your [contribution](CONTRIBUTING.md#pull-requests) to a new line type match in the parser would also be welcome!
 
 ### Zones
 

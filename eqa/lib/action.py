@@ -82,6 +82,18 @@ def process(
                         )
                     )
 
+                ## Encounter Parsing
+                if state.encounter_parse == "true":
+                    if line_type.startswith("combat_"):
+                        # encounter_parse_combat(line_type, check_line, other, things)
+                        pass
+                    elif line_type.startswith("spell_"):
+                        # encounter_parse_spell(line_type, check_line, other, things)
+                        pass
+                    elif line_type == "spell_heal_you":
+                        # encounter_parse_heal(line_type, check_line, other, things)
+                        pass
+
                 ## State Building Line Types
                 if line_type == "location":
                     action_location(system_q, check_line)
@@ -136,475 +148,62 @@ def process(
 
                 ## If line_type exists in the config
                 if line_type in config["line"].keys():
-                    ### If this line_type is alert
-                    if config["line"][line_type]["reaction"] == "alert":
-                        #### Check for any alerts
-                        for keyphrase, value in config["line"][line_type][
-                            "alert"
-                        ].items():
-                            # If the alert value is true
-                            if (
-                                str(keyphrase).lower() in check_line.lower()
-                                and value == "true"
-                            ):
-                                if config["line"][line_type]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("alert", line_type))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        line_type + ": " + check_line,
-                                    )
-                                )
-                            # If the alert value is solo_only
-                            elif (
-                                str(keyphrase).lower() in check_line.lower()
-                                and value == "solo_only"
-                                and state.group == "false"
-                                and state.raid == "false"
-                            ):
-                                if config["line"][line_type]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("speak", keyphrase))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        "Solo: " + line_type + ": " + check_line,
-                                    )
-                                )
-                            # If the alert value is solo
-                            elif (
-                                str(keyphrase).lower() in check_line.lower()
-                                and value == "solo"
-                                and state.group == "false"
-                                and state.raid == "false"
-                            ):
-                                if config["line"][line_type]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("speak", keyphrase))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        "Solo: " + line_type + ": " + check_line,
-                                    )
-                                )
-                            # If the alert value is group
-                            elif (
-                                str(keyphrase).lower() in check_line.lower()
-                                and value == "group"
-                                and state.group == "true"
-                                and state.raid == "false"
-                            ):
-                                if keyphrase == "assist" or keyphrase == "rampage":
-                                    target = re.findall("^([\w\-]+)", check_line)
-                                    payload = keyphrase + " on " + target[0]
-                                else:
-                                    payload = keyphrase
-                                if config["line"][line_type]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("speak", payload))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        "Group: " + line_type + ": " + check_line,
-                                    )
-                                )
-                            # If the alert value is group_only
-                            elif (
-                                str(keyphrase).lower() in check_line.lower()
-                                and value == "group_only"
-                                and state.group == "true"
-                                and state.raid == "false"
-                            ):
-                                if keyphrase == "assist" or keyphrase == "rampage":
-                                    target = re.findall("^([\w\-]+)", check_line)
-                                    payload = keyphrase + " on " + target[0]
-                                else:
-                                    payload = keyphrase
-                                if config["line"][line_type]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("speak", payload))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        "Group: " + line_type + ": " + check_line,
-                                    )
-                                )
-                            # If the alert value is solo, but you are grouped
-                            elif (
-                                str(keyphrase).lower() in check_line.lower()
-                                and value == "solo"
-                                and state.group == "true"
-                                and state.raid == "false"
-                            ):
-                                if config["line"][line_type]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("speak", keyphrase))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        "Group: " + line_type + ": " + check_line,
-                                    )
-                                )
-                            # If the alert value is solo_group_only
-                            elif (
-                                str(keyphrase).lower() in check_line.lower()
-                                and value == "solo_group_only"
-                                and state.raid == "false"
-                            ):
-                                if config["line"][line_type]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("speak", keyphrase))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        "Solo/Group: " + line_type + ": " + check_line,
-                                    )
-                                )
-                            # If the alert value is raid
-                            elif (
-                                str(keyphrase).lower() in check_line.lower()
-                                and value == "raid"
-                                and state.raid == "true"
-                            ):
-                                if keyphrase == "assist" or keyphrase == "rampage":
-                                    target = re.findall("^([\w\-]+)", check_line)
-                                    payload = keyphrase + " on " + target[0]
-                                else:
-                                    payload = keyphrase
-                                if config["line"][line_type]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("speak", payload))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        line_type + ": " + check_line,
-                                    )
-                                )
-                            # If the alert value is group, but you are in a raid
-                            elif (
-                                str(keyphrase).lower() in check_line.lower()
-                                and value == "group"
-                                and state.raid == "true"
-                            ):
-                                if keyphrase == "assist" or keyphrase == "rampage":
-                                    target = re.findall("^([\w\-]+)", check_line)
-                                    payload = keyphrase + " on " + target[0]
-                                else:
-                                    payload = keyphrase
-                                if config["line"][line_type]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("speak", payload))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        line_type + ": " + check_line,
-                                    )
-                                )
-                            # If the alert value is solo, but you are in a raid
-                            elif (
-                                str(keyphrase).lower() in check_line.lower()
-                                and value == "solo"
-                                and state.raid == "true"
-                            ):
-                                if keyphrase == "assist" or keyphrase == "rampage":
-                                    target = re.findall("^([\w\-]+)", check_line)
-                                    payload = keyphrase + " on " + target[0]
-                                else:
-                                    payload = keyphrase
-                                if config["line"][line_type]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("speak", payload))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        line_type + ": " + check_line,
-                                    )
-                                )
 
-                    # Or if line_type reaction is all
-                    elif config["line"][line_type]["reaction"] == "all":
+                    reaction = config["line"][line_type]["reaction"]
 
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                line_type + ": " + check_line,
-                            )
+                    ### Handle Alert Reactions
+                    if reaction == "alert":
+                        reaction_alert(
+                            line_type,
+                            check_line,
+                            config,
+                            sound_q,
+                            display_q,
+                            state,
+                            mute_list,
                         )
 
-                    # Or if line_type reaction is solo_only and you are solo and not in a raid
-                    elif (
-                        config["line"][line_type]["reaction"] == "solo_only"
-                        and state.group == "false"
-                        and state.raid == "false"
-                    ):
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                check_line,
-                            )
+                    ### Handle Context Reactions
+                    elif reaction != "false":
+                        reaction_context(
+                            line_type,
+                            check_line,
+                            config,
+                            sound_q,
+                            display_q,
+                            state,
+                            mute_list,
+                            reaction,
                         )
 
-                    # Or if line_type reaction is solo and you are solo and not in a raid
-                    elif (
-                        config["line"][line_type]["reaction"] == "solo"
-                        and state.group == "false"
-                        and state.raid == "false"
-                    ):
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                check_line,
-                            )
+                    ### Handle alert reactions for all lines
+                    if config["line"]["all"]["reaction"] == "alert":
+                        reaction_alert(
+                            "all",
+                            check_line,
+                            config,
+                            sound_q,
+                            display_q,
+                            state,
+                            mute_list,
                         )
 
-                    # Or if line_type reaction is solo and you are grouped but not in a raid
-                    elif (
-                        config["line"][line_type]["reaction"] == "solo"
-                        and state.group == "true"
-                        and state.raid == "false"
-                    ):
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                check_line,
-                            )
+                    ### Handle context reaction for all lines
+                    elif config["line"]["all"]["reaction"] != "false":
+                        reaction_context(
+                            "all",
+                            check_line,
+                            config,
+                            sound_q,
+                            display_q,
+                            state,
+                            mute_list,
+                            config["line"]["all"]["reaction"],
                         )
 
-                    # Or if line_type reaction is solo_group_only and you are not in a raid
-                    elif (
-                        config["line"][line_type]["reaction"] == "solo_group_only"
-                        and state.raid == "false"
-                    ):
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                check_line,
-                            )
-                        )
-
-                    # Or if line_type reaction group_only and you are grouped but not in a raid
-                    elif (
-                        config["line"][line_type]["reaction"] == "group_only"
-                        and state.group == "true"
-                        and state.raid == "false"
-                    ):
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                check_line,
-                            )
-                        )
-
-                    # Or if line_type reaction is group and you are grouped but not in a raid
-                    elif (
-                        config["line"][line_type]["reaction"] == "group"
-                        and state.group == "true"
-                        and state.raid == "false"
-                    ):
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                check_line,
-                            )
-                        )
-
-                    # Or if line_type reaction is solo regardless of group state and in a raid
-                    elif (
-                        config["line"][line_type]["reaction"] == "solo"
-                        and state.raid == "true"
-                    ):
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                check_line,
-                            )
-                        )
-
-                    # Or if line_type reaction is group regardless of group state and in a raid
-                    elif (
-                        config["line"][line_type]["reaction"] == "group"
-                        and state.raid == "true"
-                    ):
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                check_line,
-                            )
-                        )
-
-                    # Or if line_type reaction is raid regardless of group state and in a raid
-                    elif (
-                        config["line"][line_type]["reaction"] == "raid"
-                        and state.raid == "true"
-                    ):
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                check_line,
-                            )
-                        )
-
-                    # Or if line_type reaction is afk and you are afk
-                    elif (
-                        config["line"][line_type]["reaction"] == "afk"
-                        and state.afk == "true"
-                    ):
-                        sender = re.findall(r"^\w+", check_line)
-                        if (
-                            config["line"][line_type]["sound"] == "true"
-                            and not (line_type, sender[0].lower()) in mute_list
-                            and not (line_type, "all") in mute_list
-                        ):
-                            sound_q.put(eqa_struct.sound("speak", check_line))
-                        elif config["line"][line_type]["sound"] != "false":
-                            sound_q.put(eqa_struct.sound("alert", line_type))
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                check_line,
-                            )
-                        )
-
-                    # For alerts for all matched lines
-                    if config["line"]["all"]["reaction"] == "true":
-                        for keyphrase, value in config["alert"]["all"].items():
-                            if keyphrase in check_line.lower():
-                                if config["line"]["all"]["sound"] != "false":
-                                    sound_q.put(eqa_struct.sound("alert", line_type))
-                                display_q.put(
-                                    eqa_struct.display(
-                                        eqa_settings.eqa_time(),
-                                        "event",
-                                        "events",
-                                        line_type + ": " + check_line,
-                                    )
-                                )
-
-                # If line_type is not in the config
+                ## If line_type is not in the config
                 else:
+                    ### Add new line type
                     eqa_config.add_type(line_type, base_path)
                     display_q.put(
                         eqa_struct.display(
@@ -635,6 +234,391 @@ def process(
         )
 
     sys.exit(0)
+
+
+def send_alerts(
+    line_type, check_line, config, sound_q, display_q, keyphrase, mute_list
+):
+    """Send messages to sound and display queues"""
+
+    try:
+        # Check Sender
+        sender = re.findall(r"^([\w\-]+)", check_line)
+
+        if config["line"][line_type]["sound"] == "true":
+            if keyphrase != "false":
+                if (
+                    keyphrase == "assist"
+                    or keyphrase == "rampage"
+                    or keyphrase == "spot"
+                ):
+                    payload = keyphrase + " on " + sender[0]
+                else:
+                    payload = keyphrase
+                if (
+                    not (line_type, sender[0].lower()) in mute_list
+                    and not (line_type, "all") in mute_list
+                ):
+                    sound_q.put(eqa_struct.sound("speak", payload))
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        line_type + ": [" + payload + "] " + check_line,
+                    )
+                )
+            else:
+                if (
+                    not (line_type, sender[0].lower()) in mute_list
+                    and not (line_type, "all") in mute_list
+                ):
+                    sound_q.put(eqa_struct.sound("speak", check_line))
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        line_type + ": " + check_line,
+                    )
+                )
+
+        elif config["line"][line_type]["sound"] != "false":
+            if keyphrase != "false":
+                if (
+                    keyphrase == "assist"
+                    or keyphrase == "rampage"
+                    or keyphrase == "spot"
+                ):
+                    payload = keyphrase + " on " + sender[0]
+                else:
+                    payload = keyphrase
+                if (
+                    not (line_type, sender[0].lower()) in mute_list
+                    and not (line_type, "all") in mute_list
+                ):
+                    sound_q.put(eqa_struct.sound("speak", payload))
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        line_type + ": [" + payload + "] " + check_line,
+                    )
+                )
+            else:
+                if (
+                    not (line_type, sender[0].lower()) in mute_list
+                    and not (line_type, "all") in mute_list
+                ):
+                    sound_q.put(eqa_struct.sound("alert", line_type))
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        line_type + ": " + check_line,
+                    )
+                )
+
+    except Exception as e:
+        eqa_settings.log(
+            "send alerts: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def reaction_context(
+    line_type, check_line, config, sound_q, display_q, state, mute_list, reaction
+):
+    """Reactions for when reaction is a context"""
+
+    try:
+        # Or if line_type reaction is all
+        if reaction == "all":
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+        # Or if line_type reaction is solo_only and you are solo and not in a raid
+        elif (
+            reaction == "solo_only" and state.group == "false" and state.raid == "false"
+        ):
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+        # Or if line_type reaction is solo and you are solo and not in a raid
+        elif reaction == "solo" and state.group == "false" and state.raid == "false":
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+        # Or if line_type reaction is solo and you are grouped but not in a raid
+        elif reaction == "solo" and state.group == "true" and state.raid == "false":
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+        # Or if line_type reaction is solo_group_only and you are not in a raid
+        elif reaction == "solo_group_only" and state.raid == "false":
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+        # Or if line_type reaction group_only and you are grouped but not in a raid
+        elif (
+            reaction == "group_only" and state.group == "true" and state.raid == "false"
+        ):
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+        # Or if line_type reaction is group and you are grouped but not in a raid
+        elif reaction == "group" and state.group == "true" and state.raid == "false":
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+        # Or if line_type reaction is solo regardless of group state and in a raid
+        elif reaction == "solo" and state.raid == "true":
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+        # Or if line_type reaction is group regardless of group state and in a raid
+        elif reaction == "group" and state.raid == "true":
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+        # Or if line_type reaction is raid regardless of group state and in a raid
+        elif reaction == "raid" and state.raid == "true":
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+        # Or if line_type reaction is afk and you are afk
+        elif reaction == "afk" and state.afk == "true":
+            send_alerts(
+                line_type,
+                check_line,
+                config,
+                sound_q,
+                display_q,
+                "false",
+                mute_list,
+            )
+
+    except Exception as e:
+        eqa_settings.log(
+            "reaction context: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mute_list):
+    """Reactions for when reaction is alert"""
+
+    try:
+        for keyphrase, value in config["line"][line_type]["alert"].items():
+            # If the alert value is true
+            if str(keyphrase).lower() in check_line.lower():
+                if value == "true":
+                    send_alerts(
+                        line_type,
+                        check_line,
+                        config,
+                        sound_q,
+                        display_q,
+                        keyphrase,
+                        mute_list,
+                    )
+                # If the alert value is solo_only
+                elif (
+                    value == "solo_only"
+                    and state.group == "false"
+                    and state.raid == "false"
+                ):
+                    send_alerts(
+                        line_type,
+                        check_line,
+                        config,
+                        sound_q,
+                        display_q,
+                        keyphrase,
+                        mute_list,
+                    )
+                # If the alert value is solo
+                elif (
+                    value == "solo" and state.group == "false" and state.raid == "false"
+                ):
+                    send_alerts(
+                        line_type,
+                        check_line,
+                        config,
+                        sound_q,
+                        display_q,
+                        keyphrase,
+                        mute_list,
+                    )
+                # If the alert value is group
+                elif (
+                    value == "group" and state.group == "true" and state.raid == "false"
+                ):
+                    send_alerts(
+                        line_type,
+                        check_line,
+                        config,
+                        sound_q,
+                        display_q,
+                        keyphrase,
+                        mute_list,
+                    )
+                # If the alert value is group_only
+                elif (
+                    value == "group_only"
+                    and state.group == "true"
+                    and state.raid == "false"
+                ):
+                    send_alerts(
+                        line_type,
+                        check_line,
+                        config,
+                        sound_q,
+                        display_q,
+                        keyphrase,
+                        mute_list,
+                    )
+                # If the alert value is solo, but you are grouped
+                elif (
+                    value == "solo" and state.group == "true" and state.raid == "false"
+                ):
+                    send_alerts(
+                        line_type,
+                        check_line,
+                        config,
+                        sound_q,
+                        display_q,
+                        keyphrase,
+                        mute_list,
+                    )
+                # If the alert value is solo_group_only
+                elif value == "solo_group_only" and state.raid == "false":
+                    send_alerts(
+                        line_type,
+                        check_line,
+                        config,
+                        sound_q,
+                        display_q,
+                        keyphrase,
+                        mute_list,
+                    )
+                # If the alert value is raid
+                elif value == "raid" and state.raid == "true":
+                    send_alerts(
+                        line_type,
+                        check_line,
+                        config,
+                        sound_q,
+                        display_q,
+                        keyphrase,
+                        mute_list,
+                    )
+                # If the alert value is group, but you are in a raid
+                elif value == "group" and state.raid == "true":
+                    send_alerts(
+                        line_type,
+                        check_line,
+                        config,
+                        sound_q,
+                        display_q,
+                        keyphrase,
+                        mute_list,
+                    )
+                # If the alert value is solo, but you are in a raid
+                elif value == "solo" and state.raid == "true":
+                    send_alerts(
+                        line_type,
+                        check_line,
+                        config,
+                        sound_q,
+                        display_q,
+                        keyphrase,
+                        mute_list,
+                    )
+
+    except Exception as e:
+        eqa_settings.log(
+            "reaction alert: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
 
 
 def action_motd_welcome(system_q):
@@ -1101,6 +1085,16 @@ def action_you_say_commands(
                         "system",
                         "reload_config",
                         "null",
+                        "null",
+                    )
+                )
+            elif args[0] == "encounter":
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "encounter",
+                        "toggle",
                         "null",
                     )
                 )

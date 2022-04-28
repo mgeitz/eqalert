@@ -136,6 +136,16 @@ def process(
                                 "null",
                             )
                         )
+                    elif key == ord("e"):
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "encounter",
+                                "toggle",
+                                "null",
+                            )
+                        )
                     elif key == ord("m"):
                         system_q.put(
                             eqa_struct.message(

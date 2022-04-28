@@ -152,6 +152,7 @@ def bootstrap_state(base_path, char, server):
                 "mute": "false",
                 "group": "false",
                 "leader": "false",
+                "encounter_parse": "false",
             }
         )
         json_data = open(base_path + "config.json", "w", encoding="utf-8")
@@ -203,6 +204,7 @@ def set_last_state(state, base_path):
                 "mute": str(state.mute),
                 "group": str(state.group),
                 "leader": str(state.leader),
+                "encounter_parse": str(state.encounter_parse),
             }
         )
         data["char_logs"][state.char + "_" + state.server].update(
@@ -296,6 +298,7 @@ def get_last_state(base_path, char_name, char_server):
         mute = data["last_state"]["mute"]
         group = data["last_state"]["group"]
         leader = data["last_state"]["leader"]
+        encounter_parse = data["last_state"]["encounter_parse"]
 
         # Get chars
         chars = get_config_chars(data)
@@ -319,6 +322,7 @@ def get_last_state(base_path, char_name, char_server):
             char_level,
             char_class,
             char_guild,
+            encounter_parse,
         )
 
         return state
@@ -855,7 +859,8 @@ def build_config(base_path):
     },
     "say": {
       "alert": {
-        "help": "true"
+        "help": "true",
+        "spot": "raid"
       },
       "reaction": "alert",
       "sound": "look at say"

@@ -409,6 +409,11 @@ def main():
                     ### Update debug status
                     elif new_message.tx == "debug":
                         system_debug(base_path, state, display_q, sound_q, new_message)
+                    ### Update encounter parse status
+                    elif new_message.tx == "encounter":
+                        system_encounter(
+                            base_path, state, display_q, sound_q, new_message
+                        )
                     ### Update group status
                     elif new_message.tx == "group":
                         state.set_group(new_message.payload)
@@ -874,7 +879,7 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
                 )
             )
             sound_q.put(
-                eqa_struct.sound("speak", "Displaying and logging all line matches")
+                eqa_struct.sound("speak", "Displaying and logging all parser output")
             )
         elif state.debug == "true" and new_message.rx == "toggle":
             state.set_debug("false")
@@ -895,6 +900,47 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
     except Exception as e:
         eqa_settings.log(
             "system debug: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def system_encounter(base_path, state, display_q, sound_q, new_message):
+    """Perform system tasks for encounter parse behavior"""
+
+    try:
+        if state.encounter_parse == "false" and new_message.rx == "toggle":
+            state.set_encounter_parse("true")
+            eqa_config.set_last_state(state, base_path)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Encounter Parse Enabled",
+                )
+            )
+            sound_q.put(eqa_struct.sound("speak", "Encounter Parse Enabled"))
+        elif state.encounter_parse == "true" and new_message.rx == "toggle":
+            state.set_encounter_parse("false")
+            eqa_config.set_last_state(state, base_path)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Encounter Parse Disabled",
+                )
+            )
+            sound_q.put(eqa_struct.sound("speak", "Encounter Parse Disabled"))
+        display_q.put(
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "system encounter: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
