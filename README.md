@@ -74,8 +74,6 @@ Spot check these default paths generated in `config.json`
   - up    : Cycle up in selection
   - down  : Cycle down in selection
   - right : Toggle selection on
-  - left  : Toggle selection off
-  - space : Cycle selection
 
 ### Say Controls
 

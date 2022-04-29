@@ -31,6 +31,7 @@ import queue
 import eqa.lib.action as eqa_action
 import eqa.lib.config as eqa_config
 import eqa.lib.curses as eqa_curses
+import eqa.lib.encounter as eqa_encounter
 import eqa.lib.keys as eqa_keys
 import eqa.lib.log as eqa_log
 import eqa.lib.parser as eqa_parser
@@ -59,6 +60,7 @@ def startup(base_path):
         # Read config paths
         config = eqa_config.read_config(base_path)
         log_path = config["settings"]["paths"]["alert_log"]
+        data_path = config["settings"]["paths"]["data"]
         sound_path = config["settings"]["paths"]["sound"]
         tmp_sound_path = config["settings"]["paths"]["tmp_sound"]
         char_log_path = config["settings"]["paths"]["char_log"]
@@ -91,6 +93,11 @@ def startup(base_path):
         # Make the tmp sound directory
         if not os.path.exists(tmp_sound_path):
             os.makedirs(tmp_sound_path)
+
+        # Make the data directory
+        if not os.path.exists(data_path):
+            print("    - making a place for data")
+            os.makedirs(data_path)
 
         # Update config char_logs
         eqa_config.update_logs(base_path)
@@ -135,6 +142,7 @@ def startup(base_path):
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
+            + "# Sometimes this is solved by allowing config regeneration"
         )
         exit(1)
 
@@ -171,6 +179,7 @@ def main():
     sound_q = queue.Queue()
     system_q = queue.Queue()
     log_q = queue.Queue()
+    encounter_q = queue.Queue()
 
     # Initialize curses
     screen = eqa_curses.init(state)
@@ -244,6 +253,7 @@ def main():
             base_path,
             state,
             action_q,
+            encounter_q,
             system_q,
             display_q,
             sound_q,
@@ -263,6 +273,7 @@ def main():
             base_path,
             state,
             action_q,
+            encounter_q,
             system_q,
             display_q,
             sound_q,
@@ -282,6 +293,7 @@ def main():
             base_path,
             state,
             action_q,
+            encounter_q,
             system_q,
             display_q,
             sound_q,
@@ -301,6 +313,7 @@ def main():
             base_path,
             state,
             action_q,
+            encounter_q,
             system_q,
             display_q,
             sound_q,
@@ -311,6 +324,25 @@ def main():
     )
     process_action_4.daemon = True
     process_action_4.start()
+
+    # Produce display_q, system_q
+    ## Consume encounter_q
+
+    process_encounter = threading.Thread(
+        target=eqa_encounter.process,
+        args=(
+            config,
+            base_path,
+            encounter_q,
+            system_q,
+            display_q,
+            exit_flag,
+            cfg_reload,
+            state,
+        ),
+    )
+    process_encounter.daemon = True
+    process_encounter.start()
 
     # Produce Sound
     ## Consume sound_q
@@ -588,6 +620,7 @@ def main():
                         process_action_2.join()
                         process_action_3.join()
                         process_action_4.join()
+                        process_encounter.join()
                         process_sound_1.join()
                         process_sound_2.join()
                         process_sound_3.join()
@@ -619,6 +652,7 @@ def main():
                                 base_path,
                                 state,
                                 action_q,
+                                encounter_q,
                                 system_q,
                                 display_q,
                                 sound_q,
@@ -638,6 +672,7 @@ def main():
                                 base_path,
                                 state,
                                 action_q,
+                                encounter_q,
                                 system_q,
                                 display_q,
                                 sound_q,
@@ -657,6 +692,7 @@ def main():
                                 base_path,
                                 state,
                                 action_q,
+                                encounter_q,
                                 system_q,
                                 display_q,
                                 sound_q,
@@ -676,6 +712,7 @@ def main():
                                 base_path,
                                 state,
                                 action_q,
+                                encounter_q,
                                 system_q,
                                 display_q,
                                 sound_q,
@@ -686,6 +723,23 @@ def main():
                         )
                         process_action_4.daemon = True
                         process_action_4.start()
+
+                        #### Restart process_encounter
+                        process_encounter = threading.Thread(
+                            target=eqa_encounter.process,
+                            args=(
+                                config,
+                                base_path,
+                                encounter_q,
+                                system_q,
+                                display_q,
+                                exit_flag,
+                                cfg_reload,
+                                state,
+                            ),
+                        )
+                        process_encounter.daemon = True
+                        process_encounter.start()
 
                         #### Restart process_sound
 
@@ -754,6 +808,7 @@ def main():
     process_action_2.join()
     process_action_3.join()
     process_action_4.join()
+    process_encounter.join()
     process_sound_1.join()
     process_sound_2.join()
     process_sound_3.join()

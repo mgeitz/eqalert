@@ -93,6 +93,16 @@ def determine(line):
         if line_type is not None:
             return line_type
 
+        # Spell Specific
+        line_type = check_spell_specific(line)
+        if line_type is not None:
+            return line_type
+
+        # Pets
+        line_type = check_pets(line)
+        if line_type is not None:
+            return line_type
+
         # Received Player Chat
         line_type = check_received_chat(line)
         if line_type is not None:
@@ -100,11 +110,6 @@ def determine(line):
 
         # Sent Player Chat
         line_type = check_sent_chat(line)
-        if line_type is not None:
-            return line_type
-
-        # Spell Specific
-        line_type = check_spell_specific(line)
         if line_type is not None:
             return line_type
 
@@ -135,11 +140,6 @@ def determine(line):
 
         # Who
         line_type = check_who(line)
-        if line_type is not None:
-            return line_type
-
-        # Pets
-        line_type = check_pets(line)
         if line_type is not None:
             return line_type
 
@@ -187,6 +187,14 @@ def check_melee(line):
             is not None
         ):
             return "combat_other_melee_dodge"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z`\s]+ tries to (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but [a-zA-Z`\s]+ is INVULNERABLE\!$",
+                line,
+            )
+            is not None
+        ):
+            return "combat_other_melee_invulnerable"
         elif (
             re.fullmatch(
                 r"^[a-zA-Z`\s]+ tries to (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z`\s]+, but [a-zA-Z`\s]+ parries\!$",
@@ -293,10 +301,6 @@ def check_melee(line):
             return "experience_group"
         elif re.fullmatch(r"^You have lost experience\.$", line) is not None:
             return "experience_lost"
-        elif re.fullmatch(r"^You are stunned\!$", line) is not None:
-            return "combat_you_stun_on"
-        elif re.fullmatch(r"^You are unstunned\.$", line) is not None:
-            return "combat_you_stun_off"
 
         return None
 
@@ -383,6 +387,14 @@ def check_spell(line):
             return "spell_forget"
         elif re.fullmatch(r"^Your [a-zA-Z\s]+ spell has worn off\.$", line) is not None:
             return "spell_worn_off"
+        elif (
+            re.fullmatch(
+                r"^You try to cast a spell on [a-zA-Z`\s]+, but they are protected\.$",
+                line,
+            )
+            is not None
+        ):
+            return "spell_protected"
         elif re.fullmatch(r"^You haven't recovered yet\.\.\.$", line) is not None:
             return "spell_cooldown_active"
         elif (
@@ -562,7 +574,17 @@ def check_command_output(line):
             re.fullmatch(r"^You can\'t use that command while casting\.\.\.$", line)
             is not None
         ):
+            return "command_block_casting"
+        elif (
+            re.fullmatch(r"^You can\'t use that command right now\.\.\.$", line)
+            is not None
+        ):
             return "command_block"
+        elif (
+            re.fullmatch(r"^That is not a valid command\.  Please use \/help\.$", line)
+            is not None
+        ):
+            return "command_invalid"
 
         return None
 
@@ -691,6 +713,16 @@ def check_system_messages(line):
             return "command_error"
         elif re.fullmatch(r"^\w+ is not online at this time\.$", line) is not None:
             return "tell_offline"
+        elif re.fullmatch(r"^Consider whom\?$", line) is not None:
+            return "consider_no_target"
+        elif re.fullmatch(r"^Auto attack off\.$", line) is not None:
+            return "you_auto_attack_off"
+        elif re.fullmatch(r"^Auto attack on\.$", line) is not None:
+            return "you_auto_attack_on"
+        elif re.fullmatch(r"^You are stunned\!$", line) is not None:
+            return "you_stun_on"
+        elif re.fullmatch(r"^You are unstunned\.$", line) is not None:
+            return "you_stun_off"
         elif (
             re.fullmatch(
                 r"^(Also, auto-follow works best in wide open areas with low lag\.  Twisty areas, lag, and other factors may cause auto-follow to fail\.|\*WARNING\*\: Do NOT use around lava, water, cliffs, or other dangerous areas because you WILL fall into them\. You have been warned\.)$",
@@ -953,7 +985,7 @@ def check_who(line):
             return "who_line_friends"
         elif (
             re.fullmatch(
-                r"^( AFK |\<LINKDEAD\>| AFK  <LINKDEAD>|)\[(\d+ [a-zA-Z\s]+|ANONYMOUS)\] \w+( \([a-zA-Z\s]+\)|)( \<[a-zA-Z\s]+\>|  \<[a-zA-Z\s]+\>|)( ZONE\: \w+|  ZONE\: \w+|)( LFG|)$",
+                r"^( AFK |\<LINKDEAD\>| AFK  <LINKDEAD>|)\[(\d+ [a-zA-Z\s]+|ANONYMOUS)\] \w+( \([a-zA-Z\s]+\)|)( \<[a-zA-Z\s]+\>|  \<[a-zA-Z\s]+\>|)( ZONE\: \w+|  ZONE\: \w+|)( LFG|  LFG|)$",
                 line,
             )
             is not None

@@ -452,6 +452,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_other_melee_invulnerable": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_other_melee_miss": {
       "alert": {},
       "reaction": "false",
@@ -487,22 +492,27 @@ def build_config(base_path):
       "reaction": "afk",
       "sound": "danger will robinson"
     },
-    "combat_you_stun_off": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_you_stun_on": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
     "command_block": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
+    "command_block_casting": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "command_invalid": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "command_error": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "consider_no_target": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -1035,6 +1045,11 @@ def build_config(base_path):
       "reaction": "raid",
       "sound": "did not hold"
     },
+    "spell_protected": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spell_recover_other": {
       "alert": {},
       "reaction": "false",
@@ -1230,6 +1245,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "you_auto_attack_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_auto_attack_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "you_camping": {
       "alert": {},
       "reaction": "false",
@@ -1300,6 +1325,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "you_stun_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_stun_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "zone_message": {
       "alert": {},
       "reaction": "all",
@@ -1314,6 +1349,7 @@ def build_config(base_path):
   "settings": {
     "paths": {
       "alert_log": "%slog/",
+      "data": "%sdata/",
       "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
@@ -1427,7 +1463,7 @@ def build_config(base_path):
 
     try:
         f = open(base_path + "config.json", "w", encoding="utf-8")
-        f.write(new_config % (base_path, home, base_path))
+        f.write(new_config % (base_path, base_path, home, base_path))
         f.close()
 
     except Exception as e:

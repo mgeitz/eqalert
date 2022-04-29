@@ -37,6 +37,7 @@ def process(
     base_path,
     state,
     action_q,
+    encounter_q,
     system_q,
     display_q,
     sound_q,
@@ -46,7 +47,7 @@ def process(
 ):
     """
     Process: action_q
-    Produce: sound_q, display_q, system_q
+    Produce: sound_q, display_q, system_q, encounter_q
     """
 
     try:
@@ -85,14 +86,75 @@ def process(
                 ## Encounter Parsing
                 if state.encounter_parse == "true":
                     if line_type.startswith("combat_"):
-                        # encounter_parse_combat(line_type, check_line, other, things)
-                        pass
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "combat",
+                                "null",
+                                check_line,
+                            )
+                        )
+                    elif line_type.startswith("you_auto_attack_"):
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "combat",
+                                "null",
+                                check_line,
+                            )
+                        )
+                    elif line_type.startswith("mob_slain_"):
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "stop",
+                                "null",
+                                check_line,
+                            )
+                        )
+                    elif line_type == "engage":
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "combat",
+                                "null",
+                                check_line,
+                            )
+                        )
+                    elif line_type == "you_new_zone":
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "stop",
+                                "null",
+                                check_line,
+                            )
+                        )
+                    elif line_type == "faction_line":
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "stop",
+                                "null",
+                                check_line,
+                            )
+                        )
                     elif line_type.startswith("spell_"):
-                        # encounter_parse_spell(line_type, check_line, other, things)
-                        pass
-                    elif line_type == "spell_heal_you":
-                        # encounter_parse_heal(line_type, check_line, other, things)
-                        pass
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "spell",
+                                "null",
+                                check_line,
+                            )
+                        )
 
                 ## State Building Line Types
                 if line_type == "location":
@@ -133,7 +195,13 @@ def process(
                         is not None
                     ):
                         action_you_say_commands(
-                            system_q, sound_q, display_q, check_line, config, mute_list
+                            system_q,
+                            sound_q,
+                            display_q,
+                            check_line,
+                            config,
+                            mute_list,
+                            state,
                         )
                 elif line_type == "you_new_zone":
                     action_you_new_zone(
@@ -145,6 +213,9 @@ def process(
                         config,
                         check_line,
                     )
+                # elif line_type.startswith("pet_"):
+                #    action_pet()
+                # elif line_type == "who_player":
 
                 ## If line_type exists in the config
                 if line_type in config["line"].keys():
@@ -236,9 +307,7 @@ def process(
     sys.exit(0)
 
 
-def send_alerts(
-    line_type, check_line, config, sound_q, display_q, keyphrase, mute_list
-):
+def send_alerts(line_type, check_line, config, sound_q, display_q, mute_list):
     """Send messages to sound and display queues"""
 
     try:
@@ -246,84 +315,136 @@ def send_alerts(
         sender = re.findall(r"^([\w\-]+)", check_line)
 
         if config["line"][line_type]["sound"] == "true":
-            if keyphrase != "false":
-                if (
-                    keyphrase == "assist"
-                    or keyphrase == "rampage"
-                    or keyphrase == "spot"
-                ):
-                    payload = keyphrase + " on " + sender[0]
-                else:
-                    payload = keyphrase
-                if (
-                    not (line_type, sender[0].lower()) in mute_list
-                    and not (line_type, "all") in mute_list
-                ):
-                    sound_q.put(eqa_struct.sound("speak", payload))
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        line_type + ": [" + payload + "] " + check_line,
-                    )
-                )
-            else:
-                if (
-                    not (line_type, sender[0].lower()) in mute_list
-                    and not (line_type, "all") in mute_list
-                ):
-                    sound_q.put(eqa_struct.sound("speak", check_line))
+            if (
+                not (line_type, sender[0].lower()) in mute_list
+                and not (line_type, "all") in mute_list
+            ):
+                sound_q.put(eqa_struct.sound("speak", check_line))
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
                         "event",
                         "events",
                         line_type + ": " + check_line,
+                    )
+                )
+            else:
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        line_type + " (MUTED): " + check_line,
                     )
                 )
 
         elif config["line"][line_type]["sound"] != "false":
-            if keyphrase != "false":
-                if (
-                    keyphrase == "assist"
-                    or keyphrase == "rampage"
-                    or keyphrase == "spot"
-                ):
-                    payload = keyphrase + " on " + sender[0]
-                else:
-                    payload = keyphrase
-                if (
-                    not (line_type, sender[0].lower()) in mute_list
-                    and not (line_type, "all") in mute_list
-                ):
-                    sound_q.put(eqa_struct.sound("speak", payload))
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        line_type + ": [" + payload + "] " + check_line,
-                    )
-                )
-            else:
-                if (
-                    not (line_type, sender[0].lower()) in mute_list
-                    and not (line_type, "all") in mute_list
-                ):
-                    sound_q.put(eqa_struct.sound("alert", line_type))
+            if (
+                not (line_type, sender[0].lower()) in mute_list
+                and not (line_type, "all") in mute_list
+            ):
+                sound_q.put(eqa_struct.sound("alert", line_type))
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
                         "event",
                         "events",
                         line_type + ": " + check_line,
+                    )
+                )
+            else:
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        line_type + " (MUTED): " + check_line,
                     )
                 )
 
     except Exception as e:
         eqa_settings.log(
             "send alerts: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def send_keyphrase_alerts(
+    line_type, check_line, config, sound_q, display_q, keyphrase, context, mute_list
+):
+    """Send keyphrase messages to sound and display queues"""
+
+    try:
+        # Check Sender
+        sender = re.findall(r"^([\w\-]+)", check_line)
+
+        if config["line"][line_type]["sound"] == "true":
+            if keyphrase == "assist" or keyphrase == "rampage" or keyphrase == "spot":
+                payload = keyphrase + " on " + sender[0]
+            else:
+                payload = keyphrase
+            if (
+                not (line_type, sender[0].lower()) in mute_list
+                and not (line_type, "all") in mute_list
+            ):
+                if context == "true":
+                    sound_q.put(eqa_struct.sound("speak", check_line))
+                elif context != "false":
+                    sound_q.put(eqa_struct.sound("speak", payload))
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        line_type + ": [" + payload + "] " + check_line,
+                    )
+                )
+            else:
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        line_type + " (MUTED): [" + payload + "] " + check_line,
+                    )
+                )
+
+        elif config["line"][line_type]["sound"] != "false":
+            if keyphrase == "assist" or keyphrase == "rampage" or keyphrase == "spot":
+                payload = keyphrase + " on " + sender[0]
+            else:
+                payload = keyphrase
+            if (
+                not (line_type, sender[0].lower()) in mute_list
+                and not (line_type, "all") in mute_list
+            ):
+                if context == "true":
+                    sound_q.put(eqa_struct.sound("alert", line_type))
+                elif context != "false":
+                    sound_q.put(eqa_struct.sound("speak", payload))
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        line_type + ": [" + payload + "] " + check_line,
+                    )
+                )
+            else:
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        line_type + " (MUTED): [" + payload + "] " + check_line,
+                    )
+                )
+
+    except Exception as e:
+        eqa_settings.log(
+            "send keyphrase alerts: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
@@ -344,7 +465,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -358,7 +478,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -370,7 +489,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -382,7 +500,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -394,7 +511,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -408,7 +524,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -420,7 +535,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -432,7 +546,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -444,7 +557,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -456,7 +568,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -468,7 +579,6 @@ def reaction_context(
                 config,
                 sound_q,
                 display_q,
-                "false",
                 mute_list,
             )
 
@@ -489,13 +599,14 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
             # If the alert value is true
             if str(keyphrase).lower() in check_line.lower():
                 if value == "true":
-                    send_alerts(
+                    send_keyphrase_alerts(
                         line_type,
                         check_line,
                         config,
                         sound_q,
                         display_q,
                         keyphrase,
+                        value,
                         mute_list,
                     )
                 # If the alert value is solo_only
@@ -504,39 +615,42 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     and state.group == "false"
                     and state.raid == "false"
                 ):
-                    send_alerts(
+                    send_keyphrase_alerts(
                         line_type,
                         check_line,
                         config,
                         sound_q,
                         display_q,
                         keyphrase,
+                        value,
                         mute_list,
                     )
                 # If the alert value is solo
                 elif (
                     value == "solo" and state.group == "false" and state.raid == "false"
                 ):
-                    send_alerts(
+                    send_keyphrase_alerts(
                         line_type,
                         check_line,
                         config,
                         sound_q,
                         display_q,
                         keyphrase,
+                        value,
                         mute_list,
                     )
                 # If the alert value is group
                 elif (
                     value == "group" and state.group == "true" and state.raid == "false"
                 ):
-                    send_alerts(
+                    send_keyphrase_alerts(
                         line_type,
                         check_line,
                         config,
                         sound_q,
                         display_q,
                         keyphrase,
+                        value,
                         mute_list,
                     )
                 # If the alert value is group_only
@@ -545,70 +659,76 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     and state.group == "true"
                     and state.raid == "false"
                 ):
-                    send_alerts(
+                    send_keyphrase_alerts(
                         line_type,
                         check_line,
                         config,
                         sound_q,
                         display_q,
                         keyphrase,
+                        value,
                         mute_list,
                     )
                 # If the alert value is solo, but you are grouped
                 elif (
                     value == "solo" and state.group == "true" and state.raid == "false"
                 ):
-                    send_alerts(
+                    send_keyphrase_alerts(
                         line_type,
                         check_line,
                         config,
                         sound_q,
                         display_q,
                         keyphrase,
+                        value,
                         mute_list,
                     )
                 # If the alert value is solo_group_only
                 elif value == "solo_group_only" and state.raid == "false":
-                    send_alerts(
+                    send_keyphrase_alerts(
                         line_type,
                         check_line,
                         config,
                         sound_q,
                         display_q,
                         keyphrase,
+                        value,
                         mute_list,
                     )
                 # If the alert value is raid
                 elif value == "raid" and state.raid == "true":
-                    send_alerts(
+                    send_keyphrase_alerts(
                         line_type,
                         check_line,
                         config,
                         sound_q,
                         display_q,
                         keyphrase,
+                        value,
                         mute_list,
                     )
                 # If the alert value is group, but you are in a raid
                 elif value == "group" and state.raid == "true":
-                    send_alerts(
+                    send_keyphrase_alerts(
                         line_type,
                         check_line,
                         config,
                         sound_q,
                         display_q,
                         keyphrase,
+                        value,
                         mute_list,
                     )
                 # If the alert value is solo, but you are in a raid
                 elif value == "solo" and state.raid == "true":
-                    send_alerts(
+                    send_keyphrase_alerts(
                         line_type,
                         check_line,
                         config,
                         sound_q,
                         display_q,
                         keyphrase,
+                        value,
                         mute_list,
                     )
 
@@ -931,7 +1051,7 @@ def action_location(system_q, check_line):
 
 
 def action_you_say_commands(
-    system_q, sound_q, display_q, check_line, config, mute_list
+    system_q, sound_q, display_q, check_line, config, mute_list, state
 ):
     """Perform actions for parser say commands"""
 
@@ -1098,6 +1218,101 @@ def action_you_say_commands(
                         "null",
                     )
                 )
+            elif args[0] == "what":
+                if len(args) == 1:
+                    sound_q.put(eqa_struct.sound("speak", "What what?"))
+                elif args[1] == "state":
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "Current State: Playing on: "
+                            + state.server
+                            + " as "
+                            + state.char
+                            + " level "
+                            + state.char_level
+                            + " "
+                            + state.char_class
+                            + " of "
+                            + state.char_guild
+                            + ". Bound in "
+                            + state.bind
+                            + " and currently in "
+                            + state.zone
+                            + " facing "
+                            + state.direction
+                            + " around "
+                            + str(state.loc)
+                            + ". Group state is "
+                            + state.group
+                            + ". Leader state is "
+                            + state.leader
+                            + ". Raid state is "
+                            + state.raid
+                            + ". AFK state is "
+                            + state.afk
+                            + ". Encumbered state is "
+                            + state.encumbered
+                            + ". Debug state is "
+                            + state.debug
+                            + ". Encounter parser state is "
+                            + state.encounter_parse,
+                        )
+                    )
+            elif args[0] == "test":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "The Enrichment Center promises to always provide a safe testing environment.",
+                        )
+                    )
+            elif args[0] == "hello":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "Hello! Thank you for using this parser. I hope it is useful and fun :P",
+                        )
+                    )
+            elif args[0] == "thanks":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "No, no. Thank you!",
+                        )
+                    )
+            elif args[0] == "where":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "I think you're still in "
+                            + state.zone
+                            + ", but considering the circumstances you could be anywhere.",
+                        )
+                    )
+            elif args[0] == "who":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "You are " + state.char + ", right?",
+                        )
+                    )
+            elif args[0] == "why":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "Did you choose the "
+                            + state.char_class
+                            + " life, or did the "
+                            + state.char_class
+                            + " life choose you?",
+                        )
+                    )
             else:
                 display_q.put(
                     eqa_struct.display(
@@ -1267,7 +1482,7 @@ def action_you_new_zone(
     """Perform actions for you new zone line types"""
 
     try:
-        current_zone = re.findall("(?<=You have entered )[a-zA-Z\s]+", check_line)
+        current_zone = re.findall("(?<=You have entered )[a-zA-Z\-'\s]+", check_line)
         system_q.put(
             eqa_struct.message(
                 eqa_settings.eqa_time(),
