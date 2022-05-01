@@ -23,6 +23,7 @@
 import re
 import sys
 import time
+from datetime import datetime
 
 import eqa.lib.settings as eqa_settings
 
@@ -54,25 +55,33 @@ def process(
                 interaction = new_message.tx
                 line = new_message.payload
 
+                ## If not an active encounter
                 if active_encounter == False:
+                    ### And we see a line that indicates an encounter
                     if (
                         interaction == "combat"
                         or line_type == "spell_damage"
                         or line_type == "spell_resist_you"
                         or line_type == "you_auto_attack_on"
                         or line_type == "you_auto_attack_off"
-                        or line_type == "engage"
                     ):
+                        #### Set active encounter
                         active_encounter = True
+                ## Or if active encounter
                 else:
+                    ### And we see a line that indicates an encounter ends
                     if interaction == "stop" or line_type == "you_new_zone":
+                        #### Disable active encounter
                         active_encounter = False
+                        #### Generate combat report and reset encounter stack
                         encounter_report(
                             line_type, line_time, line, encounter_stack, state
                         )
                         encounter_stack.clear()
 
+                ## If we're in an encounter
                 if active_encounter == True:
+                    ### Add combat or spell events to the stack
                     if interaction == "combat":
                         encounter_combat(
                             line_type, line_time, line, encounter_stack, state
@@ -286,8 +295,6 @@ def encounter_combat(line_type, line_time, line, encounter_stack, state):
         elif line_type == "you_auto_attack_off":
             pass
         elif line_type == "you_auto_attack_on":
-            pass
-        elif line_type == "engage":
             pass
         elif line_type == "combat_other_melee_dodge":
             mode = "damage"
@@ -1065,9 +1072,15 @@ def encounter_spell(line_type, line_time, line, encounter_stack, state):
             target, extra = sans_source.split(" for ")
             result = extra.split(" ")[0]
         elif line_type == "spell_cast_other":
-            pass
+            mode = "spell"
+            source, sans_source = line.split(" begins to cast ")
+            target = "unknown"
+            result = "cast"
         elif line_type == "spell_cast_you":
-            pass
+            mode = "spell"
+            source = state.char
+            target = "unknown"
+            result = "cast"
         elif line_type == "spell_cast_item_you":
             pass
         elif line_type == "spell_fizzle_other":
@@ -1179,8 +1192,6 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
 
     try:
 
-        eqa_settings.log("--- encounter stack contents ---")
-        eqa_settings.log("Total events: " + str(len(encounter_stack)))
         if line_type == "mob_slain_other":
             line_clean = re.sub(r"[^\w\s\,\-\'\`]", "", line)
             target, source = line_clean.split(" has been slain by ")
@@ -1197,17 +1208,14 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
         elif line_type == "faction_line":
             pass
 
-        # Generate Encounter log
-        if len(encounter_stack) > 10:
+        # Encounter Report
+        encounter_events = len(encounter_stack)
+        if encounter_events > 20:
             target_count = {}
-            target_damage = {}
 
-            ## Determine Encounter Target
+            ## Assess Encounter Targets
             for event in encounter_stack:
                 time, source, target, mode, result = event
-                eqa_settings.log(
-                    time + " [" + source + " -> " + target + "] " + mode + " " + result
-                )
 
                 ### Build target count
                 if target not in target_count.keys():
@@ -1217,57 +1225,330 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
                     targetted += 1
                     target_count[target] = targetted
 
-            ## Read target count
+            ## Determine Encounter Target
             high_count = 0
             for target in target_count.keys():
                 if high_count < int(target_count.get(str(target))):
                     high_count = int(target_count.get(str(target)))
                     encounter_target = str(target)
 
-            ## Encounter Target
-            if state.debug == "true":
-                eqa_settings.log("Target: " + encounter_target)
+            ## Determine Encounter Duration
+            ### Tragically this cuts off milliseconds, for now
+            (
+                first_time,
+                first_source,
+                first_target,
+                first_mode,
+                first_result,
+            ) = encounter_stack[0]
+            (
+                last_time,
+                last_source,
+                last_target,
+                last_mode,
+                last_result,
+            ) = encounter_stack[-1]
 
-            ## Encounter Report
+            first_hour, first_minute, first_second_m = first_time.split(":")
+            first_second, first_milli = first_second_m.split(".")
+            last_hour, last_minute, last_second_m = last_time.split(":")
+            last_second, last_milli = last_second_m.split(".")
+
+            encounter_start_time = datetime(
+                2020, 12, 30, int(first_hour), int(first_minute), int(first_second)
+            )
+            encounter_end_time = datetime(
+                2020, 12, 30, int(last_hour), int(last_minute), int(last_second)
+            )
+
+            encounter_duration = int(
+                (encounter_end_time - encounter_start_time).total_seconds()
+            )
+            if int(encounter_duration) < 0:
+                first_half = (
+                    datetime(2020, 12, 30, 23, 59, 59) - encounter_start_time
+                ).total_seconds()
+                last_half = encounter_end_time.total_seconds()
+                encounter_duration = int(first_half + last_half)
+
+            ## Generate Encounter Report
+            target_melee_damage_recieved = {}
+            target_melee_damage_done = {}
+            target_spell_damage_recieved = {}
+            target_spell_damage_done = {}
+            encounter_target_damage_total = {}
+            target_block = {}
+            target_dodge = {}
+            target_invulnerable = {}
+            target_miss = {}
+            target_parry = {}
+            target_riposte = {}
+            target_rune = {}
+            source_block = {}
+            source_dodge = {}
+            source_invulnerable = {}
+            source_miss = {}
+            source_parry = {}
+            source_riposte = {}
+            source_rune = {}
+            encounter_activity = {}
+            encounter_heals = {}
+            encounter_casts = {}
+
             for event in encounter_stack:
                 time, source, target, mode, result = event
-                ### If event targets encounter target
-                if target == encounter_target:
-                    if source not in target_damage.keys():
-                        if mode == "damage" or mode == "spell":
-                            if not (
-                                result == "block"
-                                or result == "dodge"
-                                or result == "invulnerable"
-                                or result == "miss"
-                                or result == "parry"
-                                or result == "riposte"
-                                or result == "rune"
-                            ):
-                                target_damage[source] = int(result)
+
+                # Track activity for source
+                if source not in encounter_activity.keys():
+                    encounter_activity[source] = 1
+                else:
+                    encounter_activity[source] += 1
+
+                ### If mode is damage
+                if mode == "damage":
+                    if target == encounter_target:
+                        if result == "block":
+                            if target not in target_block.keys():
+                                target_block[target] = 1
+                            else:
+                                target_block[target] += 1
+                        elif result == "dodge":
+                            if target not in target_dodge.keys():
+                                target_dodge[target] = 1
+                            else:
+                                target_dodge[target] += 1
+                        elif result == "invulnerable":
+                            if target not in target_invulnerable.keys():
+                                target_invulnerable[target] = 1
+                            else:
+                                target_invulnerable[target] += 1
+                        elif result == "miss":
+                            if source not in source_miss.keys():
+                                source_miss[source] = 1
+                            else:
+                                source_miss[source] += 1
+                        elif result == "parry":
+                            if target not in target_parry.keys():
+                                target_parry[target] = 1
+                            else:
+                                target_parry[target] += 1
+                        elif result == "riposte":
+                            if target not in target_riposte.keys():
+                                target_riposte[target] = 1
+                            else:
+                                target_riposte[target] += 1
+                        elif result == "rune":
+                            if target not in target_rune.keys():
+                                target_rune[target] = 1
+                            else:
+                                target_rune[target] += 1
+                        else:
+                            if target not in encounter_target_damage_total.keys():
+                                encounter_target_damage_total[target] = int(result)
+                            else:
+                                encounter_target_damage_total[target] += int(result)
+                            if source not in target_melee_damage_recieved.keys():
+                                target_melee_damage_recieved[source] = int(result)
+                            else:
+                                target_melee_damage_recieved[source] += int(result)
+                    elif source == encounter_target:
+                        if result == "block":
+                            if source not in source_block.keys():
+                                source_block[source] = 1
+                            else:
+                                source_block[source] += 1
+                        elif result == "dodge":
+                            if source not in source_dodge.keys():
+                                source_dodge[source] = 1
+                            else:
+                                source_dodge[source] += 1
+                        elif result == "invulnerable":
+                            if source not in source_invulnerable.keys():
+                                source_invulnerable[source] = 1
+                            else:
+                                source_invulnerable[source] += 1
+                        elif result == "miss":
+                            if target not in target_miss.keys():
+                                target_miss[target] = 1
+                            else:
+                                target_miss[target] += 1
+                        elif result == "parry":
+                            if source not in source_parry.keys():
+                                source_parry[source] = 1
+                            else:
+                                source_parry[source] += 1
+                        elif result == "riposte":
+                            if source not in source_riposte.keys():
+                                source_riposte[source] = 1
+                            else:
+                                source_riposte[source] += 1
+                        elif result == "rune":
+                            if source not in source_rune.keys():
+                                source_rune[source] = 1
+                            else:
+                                source_rune[source] += 1
+                        else:
+                            if target not in target_melee_damage_done.keys():
+                                target_melee_damage_done[target] = int(result)
+                            else:
+                                target_melee_damage_done[target] += int(result)
+                ### If mode is spell
+                elif mode == "spell":
+                    if result == "cast":
+                        if source not in encounter_casts.keys():
+                            encounter_casts[source] = 1
+                        else:
+                            encounter_casts[source] += 1
                     else:
-                        if mode == "damage" or mode == "spell":
-                            if not (
-                                result == "block"
-                                or result == "dodge"
-                                or result == "invulnerable"
-                                or result == "miss"
-                                or result == "parry"
-                                or result == "riposte"
-                                or result == "rune"
-                            ):
-                                total_dmg = int(target_damage.get(source)) + int(result)
-                                target_damage[source] = total_dmg
+                        if target == encounter_target:
+                            if source not in target_spell_damage_recieved.keys():
+                                target_spell_damage_recieved[source] = int(result)
+                            else:
+                                target_spell_damage_recieved[source] += int(result)
+                        elif source == encounter_target:
+                            if target not in target_spell_damage_done.keys():
+                                target_spell_damage_done[target] = int(result)
+                            else:
+                                target_spell_damage_done[target] += int(result)
+                ### If mode is heal
+                elif mode == "heal":
+                    if source not in encounter_heals.keys():
+                        encounter_heals[source] = int(result)
+                    else:
+                        encounter_heals[source] += int(results)
 
-            eqa_settings.log("--- encounter summary ---")
-            for attacker in target_damage.keys():
-                eqa_settings.log(attacker + ": " + str(target_damage.get(attacker)))
+            ## Send Encounter Report
+            eqa_settings.log(" --- ENCOUNTER SUMMARY ---")
+            eqa_settings.log("## Target ##")
+            eqa_settings.log("Name: " + encounter_target)
+            eqa_settings.log("Encounter Events: " + str(encounter_events))
+            eqa_settings.log(
+                "Encounter Duration: " + str(encounter_duration) + " seconds"
+            )
+            if encounter_target in encounter_target_damage_total.keys():
+                eqa_settings.log(
+                    "Damage Taken: "
+                    + str(encounter_target_damage_total[encounter_target])
+                )
+            else:
+                eqa_settings.log("Damage Taken: 0")
+            eqa_settings.log(
+                "Activity: "
+                + str(int(encounter_activity[encounter_target]) / encounter_events)
+            )
+            if encounter_target in target_block.keys():
+                eqa_settings.log(
+                    "Attacks Blocked: " + str(target_block[encounter_target])
+                )
+            if encounter_target in target_dodge.keys():
+                eqa_settings.log(
+                    "Attacks Dodged: " + str(target_dodge[encounter_target])
+                )
+            if encounter_target in target_invulnerable.keys():
+                eqa_settings.log(
+                    "Attacks Invuln: " + str(target_invulnerable[encounter_target])
+                )
+            if encounter_target in target_miss.keys():
+                eqa_settings.log(
+                    "Attacks Missed: " + str(target_miss[encounter_target])
+                )
+            if encounter_target in target_parry.keys():
+                eqa_settings.log(
+                    "Attacks Parried: " + str(target_parry[encounter_target])
+                )
+            if encounter_target in target_riposte.keys():
+                eqa_settings.log(
+                    "Attacks Riposted: " + str(target_riposte[encounter_target])
+                )
+            if encounter_target in target_rune.keys():
+                eqa_settings.log("Attacks Runed: " + str(target_rune[encounter_target]))
+            if encounter_target in encounter_casts.keys():
+                eqa_settings.log(
+                    "Spells cast: " + str(encounter_casts[encounter_target])
+                )
+            eqa_settings.log("## Participants ##")
+            for participant in encounter_activity.keys():
+                if participant != encounter_target:
+                    total_damage = 0
+                    eqa_settings.log("Name: " + participant)
+                    eqa_settings.log(
+                        "Activity: "
+                        + str(int(encounter_activity[participant]) / encounter_events)
+                    )
+                    if participant in target_melee_damage_recieved.keys():
+                        total_damage += int(target_melee_damage_recieved[participant])
+                        eqa_settings.log(
+                            "Melee damage to target: "
+                            + str(target_melee_damage_recieved[participant])
+                        )
+                    if participant in target_spell_damage_recieved.keys():
+                        total_damage += int(target_spell_damage_recieved[participant])
+                        eqa_settings.log(
+                            "Spell damage to target: "
+                            + str(target_spell_damage_recieved[participant])
+                        )
+                    if total_damage > 0:
+                        eqa_settings.log(
+                            "DPS: " + str(total_damage / int(encounter_duration))
+                        )
+                    total_damage = 0
+                    if participant in target_melee_damage_done.keys():
+                        total_damage += int(target_melee_damage_done[participant])
+                        eqa_settings.log(
+                            "Melee damage from target: "
+                            + str(target_melee_damage_done[participant])
+                        )
+                    if participant in target_spell_damage_done.keys():
+                        total_damage += int(target_spell_damage_done[participant])
+                        eqa_settings.log(
+                            "Spell damage from target: "
+                            + str(target_spell_damage_done[participant])
+                        )
+                    if total_damage > 0:
+                        eqa_settings.log(
+                            "DPS: " + str(total_damage / int(encounter_duration))
+                        )
+                    if participant in source_block.keys():
+                        eqa_settings.log(
+                            "Attacks Blocked: " + str(source_block[participant])
+                        )
+                    if participant in source_dodge.keys():
+                        eqa_settings.log(
+                            "Attacks Dodged: " + str(source_dodge[participant])
+                        )
+                    if participant in source_invulnerable.keys():
+                        eqa_settings.log(
+                            "Attacks Invuln: " + str(source_invulnerable[participant])
+                        )
+                    if participant in source_miss.keys():
+                        eqa_settings.log(
+                            "Attacks Missed: " + str(source_miss[participant])
+                        )
+                    if participant in source_parry.keys():
+                        eqa_settings.log(
+                            "Attacks Parried: " + str(source_parry[participant])
+                        )
+                    if participant in source_riposte.keys():
+                        eqa_settings.log(
+                            "Attacks Riposted: " + str(source_riposte[participant])
+                        )
+                    if participant in source_rune.keys():
+                        eqa_settings.log(
+                            "Attacks Runed: " + str(source_rune[participant])
+                        )
+                    if participant in encounter_casts.keys():
+                        eqa_settings.log(
+                            "Spells cast: " + str(encounter_casts[participant])
+                        )
+                    eqa_settings.log(" ---")
 
-        encounter_stack.clear()
+            eqa_settings.log("## Heals ##")
+            for healer in encounter_heals.keys():
+                eqa_settings.log(healer + ": " + str(encounter_heals.get(healer)))
 
     except Exception as e:
         eqa_settings.log(
-            "encounter stop: Error on line "
+            "encounter report: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)

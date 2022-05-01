@@ -115,17 +115,37 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type == "engage":
+                    elif line_type == "spell_cast_other":
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
                                 line_type,
-                                "combat",
+                                "spell",
+                                "null",
+                                check_line,
+                            )
+                        )
+                    elif line_type == "spell_cast_you":
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "spell",
                                 "null",
                                 check_line,
                             )
                         )
                     elif line_type == "you_new_zone":
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "stop",
+                                "null",
+                                check_line,
+                            )
+                        )
+                    elif line_type.startswith("experience_"):
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
