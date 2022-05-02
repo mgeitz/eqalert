@@ -74,10 +74,21 @@ def process(
                         #### Disable active encounter
                         active_encounter = False
                         #### Generate combat report and reset encounter stack
+                        if line_type == "mob_slain_other":
+                            line_clean = re.sub(r"[^\w\s\,\-\'\`]", "", line)
+                            target, source = line_clean.split(" has been slain by ")
+                            if len(target.split()) > 1:
+                                encounter_report(
+                                    line_type, line_time, line, encounter_stack, state
+                                )
+                        else:
+                            encounter_report(
+                                line_type, line_time, line, encounter_stack, state
+                            )
+                    if line_type == "you_new_zone":
                         encounter_report(
                             line_type, line_time, line, encounter_stack, state
                         )
-                    if line_type == "you_new_zone":
                         encounter_stack.clear()
 
                 ## If we're in an encounter
