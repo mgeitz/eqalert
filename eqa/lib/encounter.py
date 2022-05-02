@@ -23,9 +23,12 @@
 import re
 import sys
 import time
+import os
+import json
 from datetime import datetime
 
 import eqa.lib.settings as eqa_settings
+import eqa.lib.struct as eqa_struct
 
 
 def process(
@@ -74,20 +77,39 @@ def process(
                         #### Disable active encounter
                         active_encounter = False
                         #### Generate combat report and reset encounter stack
+                        ##### Only care about this end trigger if we know its an NPC
                         if line_type == "mob_slain_other":
                             line_clean = re.sub(r"[^\w\s\,\-\'\`]", "", line)
                             target, source = line_clean.split(" has been slain by ")
                             if len(target.split()) > 1:
                                 encounter_report(
-                                    line_type, line_time, line, encounter_stack, state
+                                    line_type,
+                                    line_time,
+                                    line,
+                                    encounter_stack,
+                                    state,
+                                    config,
+                                    display_q,
                                 )
                         else:
                             encounter_report(
-                                line_type, line_time, line, encounter_stack, state
+                                line_type,
+                                line_time,
+                                line,
+                                encounter_stack,
+                                state,
+                                config,
+                                display_q,
                             )
                     if line_type == "you_new_zone":
                         encounter_report(
-                            line_type, line_time, line, encounter_stack, state
+                            line_type,
+                            line_time,
+                            line,
+                            encounter_stack,
+                            state,
+                            config,
+                            display_q,
                         )
                         encounter_stack.clear()
 
@@ -1199,7 +1221,9 @@ def encounter_spell(line_type, line_time, line, encounter_stack, state):
         )
 
 
-def encounter_report(line_type, line_time, line, encounter_stack, state):
+def encounter_report(
+    line_type, line_time, line, encounter_stack, state, config, display_q
+):
     """Report encounter stats"""
 
     try:
@@ -1220,14 +1244,15 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
             pass
 
         # Encounter Report
-        encounter_events = len(encounter_stack)
-        if encounter_events > 20:
+        encounter_stack_events = len(encounter_stack)
+        if encounter_stack_events > 20:
             target_count = {}
+            this_encounter = []
 
             ## Either Know the Encounter Target
             if slain_encounter_target is not None:
                 encounter_target = slain_encounter_target
-            ## Or Assess Encounter Targets
+            ## Or Determine Encounter Target
             else:
                 for event in encounter_stack:
                     time, source, target, mode, result = event
@@ -1243,24 +1268,38 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
                 ## Determine Encounter Target
                 high_count = 0
                 for target in target_count.keys():
-                    if target != "unknown":
+                    if target != "unknown" and target != state.char:
                         if high_count < int(target_count.get(str(target))):
                             high_count = int(target_count.get(str(target)))
                             encounter_target = str(target)
 
+            ## Check / Set Encounter Parse Directory
+            encounter_parse_time = datetime.now().strftime("%H-%M-%s")
+            encounter_parse_date = datetime.now().strftime("%Y-%m-%d")
+
+            encounter_path = config["settings"]["paths"]["encounter"]
+            if not os.path.exists(encounter_path):
+                os.makedirs(encounter_path)
+            encounter_zone_path = (
+                encounter_path + state.zone.lower().replace(" ", "-") + "/"
+            )
+            if not os.path.exists(encounter_zone_path):
+                os.makedirs(encounter_zone_path)
+            encounter_zone_date_path = encounter_zone_path + encounter_parse_date + "/"
+            if not os.path.exists(encounter_zone_date_path):
+                os.makedirs(encounter_zone_date_path)
+
+            ## Set Encounter Parse Filename
+            encounter_filename = (
+                encounter_target.lower().replace(" ", "-")
+                + "_"
+                + encounter_parse_time
+                + ".json"
+            )
+
             ## Determine Encounter Duration
             ### Tragically this cuts off milliseconds, for now
-            for event in encounter_stack:
-                time, source, target, mode, result = event
-                if source == encounter_target or target == encounter_target:
-                    (
-                        first_time,
-                        first_source,
-                        first_target,
-                        first_mode,
-                        first_result,
-                    ) = event
-                    break
+            found_time = False
             (
                 last_time,
                 last_source,
@@ -1268,18 +1307,52 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
                 last_mode,
                 last_result,
             ) = encounter_stack[-1]
-
-            first_hour, first_minute, first_second_m = first_time.split(":")
-            first_second, first_milli = first_second_m.split(".")
             last_hour, last_minute, last_second_m = last_time.split(":")
             last_second, last_milli = last_second_m.split(".")
-
-            encounter_start_time = datetime(
-                2020, 12, 30, int(first_hour), int(first_minute), int(first_second)
-            )
             encounter_end_time = datetime(
                 2020, 12, 30, int(last_hour), int(last_minute), int(last_second)
             )
+            for event in encounter_stack:
+                time, source, target, mode, result = event
+                if (
+                    not found_time
+                    and source == encounter_target
+                    or not found_time
+                    and target == encounter_target
+                ):
+                    found_time = True
+                    (
+                        first_time,
+                        first_source,
+                        first_target,
+                        first_mode,
+                        first_result,
+                    ) = event
+                    first_hour, first_minute, first_second_m = first_time.split(":")
+                    first_second, first_milli = first_second_m.split(".")
+                    encounter_start_time = datetime(
+                        2020,
+                        12,
+                        30,
+                        int(first_hour),
+                        int(first_minute),
+                        int(first_second),
+                    )
+                ### Build list of events after first encounter, remove them from encounter_stack
+                elif (
+                    found_time
+                    and source == encounter_target
+                    or found_time
+                    and target == encounter_target
+                    or found_time
+                    and source == "Unknown"
+                    or found_time
+                    and target == "Unknown"
+                ):
+                    this_encounter.append(
+                        (time, source, target, mode, result)
+                    )
+                    encounter_stack.remove(event)
 
             encounter_duration = int(
                 (encounter_end_time - encounter_start_time).total_seconds()
@@ -1291,7 +1364,8 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
                 last_half = encounter_end_time.total_seconds()
                 encounter_duration = int(first_half + last_half)
 
-            ## Generate Encounter Report
+            ## Scrape This Encounter Events
+            this_encounter_events = len(this_encounter)
             target_melee_damage_recieved = {}
             target_melee_damage_done = {}
             target_spell_damage_recieved = {}
@@ -1314,11 +1388,9 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
             encounter_activity = {}
             encounter_heals = {}
             encounter_casts = {}
-            last_message_time = ""
 
-            for event in encounter_stack:
+            for event in this_encounter:
                 time, source, target, mode, result = event
-                last_message_time = time
 
                 # Track activity for source
                 if source not in encounter_activity.keys():
@@ -1422,6 +1494,8 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
                         else:
                             encounter_casts[source] += 1
                     else:
+                        if source == "Unknown":
+                            source = encounter_target
                         if target == encounter_target:
                             if source not in target_spell_damage_recieved.keys():
                                 target_spell_damage_recieved[source] = int(result)
@@ -1439,170 +1513,193 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
                     else:
                         encounter_heals[source] += int(results)
 
-            ## Send Encounter Report
-            eqa_settings.log(" --- ENCOUNTER SUMMARY ---")
-            eqa_settings.log("## Target ##")
-            eqa_settings.log("Name: " + encounter_target)
-            eqa_settings.log("Encounter Events: " + str(encounter_events))
-            eqa_settings.log(
-                "Encounter Duration: " + str(encounter_duration) + " seconds"
+            ## Sort Encounter Activity from Most to Least Active
+            sorted_encounter_activity = dict(
+                sorted(encounter_activity.items(), key=lambda x: x[1], reverse=True)
             )
+
+            ## Build Encounter Report
+            ### Encounter Summary
+            encounter_report = {
+                "encounter_summary": {},
+                "target": {},
+                "participants": {},
+            }
+            encounter_report["encounter_summary"]["date"] = str(encounter_parse_date)
+            encounter_report["encounter_summary"]["time"] = str(encounter_parse_time)
+            encounter_report["encounter_summary"]["character"] = str(state.char)
+            encounter_report["encounter_summary"]["server"] = str(state.server)
+            encounter_report["encounter_summary"]["zone"] = str(state.zone)
+            encounter_report["encounter_summary"]["target"] = str(encounter_target)
+            encounter_report["encounter_summary"]["total_events"] = str(
+                this_encounter_events
+            )
+            encounter_report["encounter_summary"]["duration"] = str(encounter_duration)
+
+            ### Encounter Target
+            encounter_report["target"]["name"] = str(encounter_target)
             if encounter_target in encounter_target_damage_total.keys():
-                eqa_settings.log(
-                    "Damage Taken: "
-                    + str(encounter_target_damage_total[encounter_target])
+                encounter_report["target"]["damage_taken"] = str(
+                    encounter_target_damage_total[encounter_target]
                 )
-            else:
-                eqa_settings.log("Damage Taken: 0")
-            eqa_settings.log(
-                "Activity: "
-                + str(int(encounter_activity[encounter_target]) / encounter_events)
-            )
+            if encounter_target in sorted_encounter_activity.keys():
+                encounter_report["target"]["activity"] = str(
+                    int(
+                        (
+                            sorted_encounter_activity[encounter_target]
+                            / this_encounter_events
+                        )
+                        * 100
+                    )
+                )
             if encounter_target in target_block.keys():
-                eqa_settings.log(
-                    "Attacks Blocked: " + str(target_block[encounter_target])
+                encounter_report["target"]["attacks_blocked"] = str(
+                    target_block[encounter_target]
                 )
             if encounter_target in target_dodge.keys():
-                eqa_settings.log(
-                    "Attacks Dodged: " + str(target_dodge[encounter_target])
+                encounter_report["target"]["attacks_dodged"] = str(
+                    target_dodge[encounter_target]
                 )
             if encounter_target in target_invulnerable.keys():
-                eqa_settings.log(
-                    "Attacks Invuln: " + str(target_invulnerable[encounter_target])
+                encounter_report["target"]["attacks_invuln"] = str(
+                    target_invulnerable[encounter_target]
                 )
             if encounter_target in target_miss.keys():
-                eqa_settings.log(
-                    "Attacks Missed: " + str(target_miss[encounter_target])
+                encounter_report["target"]["attacks_missed"] = str(
+                    target_miss[encounter_target]
                 )
             if encounter_target in target_parry.keys():
-                eqa_settings.log(
-                    "Attacks Parried: " + str(target_parry[encounter_target])
+                encounter_report["target"]["attacks_parried"] = str(
+                    target_parry[encounter_target]
                 )
             if encounter_target in target_riposte.keys():
-                eqa_settings.log(
-                    "Attacks Riposted: " + str(target_riposte[encounter_target])
+                encounter_report["target"]["attacks_riposted"] = str(
+                    target_riposte[encounter_target]
                 )
             if encounter_target in target_rune.keys():
-                eqa_settings.log("Attacks Runed: " + str(target_rune[encounter_target]))
-            if encounter_target in encounter_casts.keys():
-                eqa_settings.log(
-                    "Spells cast: " + str(encounter_casts[encounter_target])
+                encounter_report["target"]["attacks_runed"] = str(
+                    target_rune[encounter_target]
                 )
-            eqa_settings.log("## Participants ##")
-            for participant in encounter_activity.keys():
+            if encounter_target in encounter_casts.keys():
+                encounter_report["target"]["spell_casts"] = str(
+                    encounter_casts[encounter_target]
+                )
+
+            ### Encounter Participants
+            for participant in sorted_encounter_activity.keys():
                 if participant != encounter_target:
+                    l_part = str(participant.lower())
+                    encounter_report["participants"][l_part] = {}
+                    activity = (
+                        int(sorted_encounter_activity[participant])
+                        / int(this_encounter_events)
+                    ) * 100
+                    encounter_report["participants"][l_part]["activity"] = str(activity)
                     total_damage = 0
-                    eqa_settings.log("Name: " + participant)
-                    eqa_settings.log(
-                        "Activity: "
-                        + str(int(encounter_activity[participant]) / encounter_events)
-                    )
                     if participant in target_melee_damage_recieved.keys():
+                        encounter_report["participants"][l_part][
+                            "melee_damage_done"
+                        ] = str(target_melee_damage_recieved[participant])
                         total_damage += int(target_melee_damage_recieved[participant])
-                        eqa_settings.log(
-                            "Melee damage to target: "
-                            + str(target_melee_damage_recieved[participant])
-                        )
                     if participant in target_spell_damage_recieved.keys():
+                        encounter_report["participants"][l_part][
+                            "spell_damage_done"
+                        ] = str(target_spell_damage_recieved[participant])
                         total_damage += int(target_spell_damage_recieved[participant])
-                        eqa_settings.log(
-                            "Spell damage to target: "
-                            + str(target_spell_damage_recieved[participant])
-                        )
-                    if total_damage > 0:
-                        eqa_settings.log(
-                            "DPS: " + str(total_damage / int(encounter_duration))
+                    if total_damage > 0 and int(encounter_duration) > 0:
+                        encounter_report["participants"][l_part]["dps_done"] = str(
+                            total_damage / int(encounter_duration)
                         )
                     total_damage = 0
                     if participant in target_melee_damage_done.keys():
+                        encounter_report["participants"][l_part][
+                            "melee_damage_taken"
+                        ] = str(target_melee_damage_done[participant])
                         total_damage += int(target_melee_damage_done[participant])
-                        eqa_settings.log(
-                            "Melee damage from target: "
-                            + str(target_melee_damage_done[participant])
-                        )
                     if participant in target_spell_damage_done.keys():
+                        encounter_report["participants"][l_part][
+                            "spell_damage_taken"
+                        ] = str(target_spell_damage_done[participant])
                         total_damage += int(target_spell_damage_done[participant])
-                        eqa_settings.log(
-                            "Spell damage from target: "
-                            + str(target_spell_damage_done[participant])
-                        )
-                    if total_damage > 0:
-                        eqa_settings.log(
-                            "DPS: " + str(total_damage / int(encounter_duration))
+                    if total_damage > 0 and int(encounter_duration) > 0:
+                        encounter_report["participants"][l_part]["dps_taken"] = str(
+                            total_damage / int(encounter_duration)
                         )
                     if participant in source_block.keys():
-                        eqa_settings.log(
-                            "Attacks Blocked: " + str(source_block[participant])
-                        )
+                        encounter_report["participants"][l_part][
+                            "attacks_blocked"
+                        ] = str(source_block[participant])
                     if participant in source_dodge.keys():
-                        eqa_settings.log(
-                            "Attacks Dodged: " + str(source_dodge[participant])
-                        )
+                        encounter_report["participants"][l_part][
+                            "attacks_dodged"
+                        ] = str(source_dodge[participant])
                     if participant in source_invulnerable.keys():
-                        eqa_settings.log(
-                            "Attacks Invuln: " + str(source_invulnerable[participant])
-                        )
+                        encounter_report["participants"][l_part][
+                            "attacks_invuln"
+                        ] = str(source_invulnerable[participant])
                     if participant in source_miss.keys():
-                        eqa_settings.log(
-                            "Attacks Missed: " + str(source_miss[participant])
-                        )
+                        encounter_report["participants"][l_part][
+                            "attacks_missed"
+                        ] = str(source_miss[participant])
                     if participant in source_parry.keys():
-                        eqa_settings.log(
-                            "Attacks Parried: " + str(source_parry[participant])
-                        )
+                        encounter_report["participants"][l_part][
+                            "attacks_parried"
+                        ] = str(source_parry[participant])
                     if participant in source_riposte.keys():
-                        eqa_settings.log(
-                            "Attacks Riposted: " + str(source_riposte[participant])
-                        )
+                        encounter_report["participants"][l_part][
+                            "attacks_riposted"
+                        ] = str(source_riposte[participant])
                     if participant in source_rune.keys():
-                        eqa_settings.log(
-                            "Attacks Runed: " + str(source_rune[participant])
+                        encounter_report["participants"][l_part]["attacks_runed"] = str(
+                            source_rune[participant]
                         )
                     if participant in encounter_casts.keys():
-                        eqa_settings.log(
-                            "Spells cast: " + str(encounter_casts[participant])
+                        encounter_report["participants"][l_part]["spell_casts"] = str(
+                            encounter_casts[participant]
                         )
-                    eqa_settings.log(" ---")
+                    if participant in encounter_heals.keys():
+                        encounter_report["participants"][l_part]["healing"] = str(
+                            encounter_heals.get(participant)
+                        )
 
-            ## Prune Events
-            count = 0
+            ## Send Report to Display
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(), "update", "encounter", encounter_report
+                )
+            )
+
+            ## Write Encounter to File
+            encounter_report_json_string = json.dumps(encounter_report, indent=2)
+            encounter_report_file = open(
+                encounter_zone_date_path + encounter_filename, "w"
+            )
+            encounter_report_file.write(encounter_report_json_string)
+            encounter_report_file.close()
+
+            ## Prune Old Events in encounter_stack
             for event in encounter_stack:
                 time, source, target, mode, result = event
-                if (
-                    source == encounter_target
-                    or target == encounter_target
-                    or target == "unknown"
-                ):
-                    del encounter_stack[count]
-                else:
-                    last_hour, last_minute, last_second_m = last_message_time.split(":")
-                    last_second, last_milli = last_second_m.split(".")
-                    last_message_time = datetime(
-                        2020, 12, 30, int(last_hour), int(last_minute), int(last_second)
+                this_hour, this_minute, this_second_m = time.split(":")
+                this_second, this_milli = last_second_m.split(".")
+                this_message_time = datetime(
+                    2020, 12, 30, int(this_hour), int(this_minute), int(this_second)
+                )
+                message_age = int(
+                    (encounter_end_time - this_message_time).total_seconds()
+                )
+                if message_age < 0:
+                    first_half = int(
+                        (
+                            datetime(2020, 12, 30, 23, 59, 59) - this_message_time
+                        ).total_seconds()
                     )
-                    this_hour, this_minute, this_second_m = this_message_time.split(":")
-                    this_second, this_milli = last_second_m.split(".")
-                    this_message_time = datetime(
-                        2020, 12, 30, int(this_hour), int(this_minute), int(this_second)
-                    )
-                    message_age = int(
-                        (last_message_time - this_message_time).total_seconds()
-                    )
-                    if message_age < 0:
-                        first_half = int(
-                            (
-                                datetime(2020, 12, 30, 23, 59, 59) - this_message_time
-                            ).total_seconds()
-                        )
-                        second_half = int(last_message_time.total_seconds())
-                        message_age = int(first_half + second_half)
-                    if message_age > 600:
-                        del encounter_stack[count]
-                count += 1
+                    second_half = int(encounter_end_time.total_seconds())
+                    message_age = int(first_half + second_half)
 
-            eqa_settings.log("## Heals ##")
-            for healer in encounter_heals.keys():
-                eqa_settings.log(healer + ": " + str(encounter_heals.get(healer)))
+                # If an event is more than 30 minutes old and still hasn't been used in an encounter log, remove it
+                if message_age > 18000:
+                    encounter_stack.remove(event)
 
     except Exception as e:
         eqa_settings.log(

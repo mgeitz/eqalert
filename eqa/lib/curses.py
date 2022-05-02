@@ -66,6 +66,8 @@ def display(stdscr, display_q, state, exit_flag):
                         zone = display_event.payload
                     elif display_event.screen == "char":
                         state.char = display_event.payload
+                    elif display_event.screen == "encounter":
+                        encounter_report = display_event.payload
                     draw_page(
                         stdscr,
                         page,

@@ -61,6 +61,7 @@ def startup(base_path):
         config = eqa_config.read_config(base_path)
         log_path = config["settings"]["paths"]["alert_log"]
         data_path = config["settings"]["paths"]["data"]
+        encounter_path = config["settings"]["paths"]["encounter"]
         sound_path = config["settings"]["paths"]["sound"]
         tmp_sound_path = config["settings"]["paths"]["tmp_sound"]
         char_log_path = config["settings"]["paths"]["char_log"]
@@ -75,15 +76,20 @@ def startup(base_path):
         # Make the log directory
         if not os.path.exists(log_path):
             print("    - making a place for logs")
-            os.makedirs(base_path + "log/")
+            os.makedirs(log_path)
 
         # Set log file
         logging.basicConfig(filename=log_path + "eqalert.log", level=logging.INFO)
 
         # Make the debug directory
-        if not os.path.exists(base_path + "log/debug/"):
+        if not os.path.exists(log_path + "debug/"):
             print("    - making a place for optional debug logs")
-            os.makedirs(base_path + "log/debug/")
+            os.makedirs(log_path + "debug/")
+
+        # Make the encounter directory
+        if not os.path.exists(encounter_path):
+            print("    - making a place for encounter logs")
+            os.makedirs(encounter_path)
 
         # Make the sound directory
         if not os.path.exists(sound_path):

@@ -1350,6 +1350,7 @@ def build_config(base_path):
     "paths": {
       "alert_log": "%slog/",
       "data": "%sdata/",
+      "encounter": "%sencounters/",
       "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
@@ -1463,7 +1464,7 @@ def build_config(base_path):
 
     try:
         f = open(base_path + "config.json", "w", encoding="utf-8")
-        f.write(new_config % (base_path, base_path, home, base_path))
+        f.write(new_config % (base_path, base_path, base_path, home, base_path))
         f.close()
 
     except Exception as e:
