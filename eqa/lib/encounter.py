@@ -70,13 +70,14 @@ def process(
                 ## Or if active encounter
                 else:
                     ### And we see a line that indicates an encounter ends
-                    if interaction == "stop" or line_type == "you_new_zone":
+                    if interaction == "stop":
                         #### Disable active encounter
                         active_encounter = False
                         #### Generate combat report and reset encounter stack
                         encounter_report(
                             line_type, line_time, line, encounter_stack, state
                         )
+                    if line_type == "you_new_zone":
                         encounter_stack.clear()
 
                 ## If we're in an encounter
@@ -1192,17 +1193,16 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
 
     try:
 
+        slain_encounter_target = None
+
         if line_type == "mob_slain_other":
             line_clean = re.sub(r"[^\w\s\,\-\'\`]", "", line)
             target, source = line_clean.split(" has been slain by ")
-            mode = "slain"
-            result = "dead"
+            slain_encounter_target = target.title()
         elif line_type == "mob_slain_you":
             line_clean = re.sub(r"[^\w\s\,\-\'\`]", "", line)
             source, target = line_clean.split(" have slain ")
-            source = state.char
-            mode = "slain"
-            result = "dead"
+            slain_encounter_target = target.title()
         elif line_type == "you_new_zone":
             pass
         elif line_type == "faction_line":
@@ -1213,34 +1213,43 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
         if encounter_events > 20:
             target_count = {}
 
-            ## Assess Encounter Targets
-            for event in encounter_stack:
-                time, source, target, mode, result = event
+            ## Either Know the Encounter Target
+            if slain_encounter_target is not None:
+                encounter_target = slain_encounter_target
+            ## Or Assess Encounter Targets
+            else:
+                for event in encounter_stack:
+                    time, source, target, mode, result = event
 
-                ### Build target count
-                if target not in target_count.keys():
-                    target_count[target] = 0
-                else:
-                    targetted = int(target_count.get(str(target)))
-                    targetted += 1
-                    target_count[target] = targetted
+                    ### Build target count
+                    if target not in target_count.keys():
+                        target_count[target] = 0
+                    else:
+                        targetted = int(target_count.get(str(target)))
+                        targetted += 1
+                        target_count[target] = targetted
 
-            ## Determine Encounter Target
-            high_count = 0
-            for target in target_count.keys():
-                if high_count < int(target_count.get(str(target))):
-                    high_count = int(target_count.get(str(target)))
-                    encounter_target = str(target)
+                ## Determine Encounter Target
+                high_count = 0
+                for target in target_count.keys():
+                    if target != "unknown":
+                        if high_count < int(target_count.get(str(target))):
+                            high_count = int(target_count.get(str(target)))
+                            encounter_target = str(target)
 
             ## Determine Encounter Duration
             ### Tragically this cuts off milliseconds, for now
-            (
-                first_time,
-                first_source,
-                first_target,
-                first_mode,
-                first_result,
-            ) = encounter_stack[0]
+            for event in encounter_stack:
+                time, source, target, mode, result = event
+                if source == encounter_target or target == encounter_target:
+                    (
+                        first_time,
+                        first_source,
+                        first_target,
+                        first_mode,
+                        first_result,
+                    ) = event
+                    break
             (
                 last_time,
                 last_source,
@@ -1294,9 +1303,11 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
             encounter_activity = {}
             encounter_heals = {}
             encounter_casts = {}
+            last_message_time = ""
 
             for event in encounter_stack:
                 time, source, target, mode, result = event
+                last_message_time = time
 
                 # Track activity for source
                 if source not in encounter_activity.keys():
@@ -1541,6 +1552,42 @@ def encounter_report(line_type, line_time, line, encounter_stack, state):
                             "Spells cast: " + str(encounter_casts[participant])
                         )
                     eqa_settings.log(" ---")
+
+            ## Prune Events
+            count = 0
+            for event in encounter_stack:
+                time, source, target, mode, result = event
+                if (
+                    source == encounter_target
+                    or target == encounter_target
+                    or target == "unknown"
+                ):
+                    del encounter_stack[count]
+                else:
+                    last_hour, last_minute, last_second_m = last_message_time.split(":")
+                    last_second, last_milli = last_second_m.split(".")
+                    last_message_time = datetime(
+                        2020, 12, 30, int(last_hour), int(last_minute), int(last_second)
+                    )
+                    this_hour, this_minute, this_second_m = this_message_time.split(":")
+                    this_second, this_milli = last_second_m.split(".")
+                    this_message_time = datetime(
+                        2020, 12, 30, int(this_hour), int(this_minute), int(this_second)
+                    )
+                    message_age = int(
+                        (last_message_time - this_message_time).total_seconds()
+                    )
+                    if message_age < 0:
+                        first_half = int(
+                            (
+                                datetime(2020, 12, 30, 23, 59, 59) - this_message_time
+                            ).total_seconds()
+                        )
+                        second_half = int(last_message_time.total_seconds())
+                        message_age = int(first_half + second_half)
+                    if message_age > 600:
+                        del encounter_stack[count]
+                count += 1
 
             eqa_settings.log("## Heals ##")
             for healer in encounter_heals.keys():
