@@ -1349,9 +1349,7 @@ def encounter_report(
                     or found_time
                     and target == "Unknown"
                 ):
-                    this_encounter.append(
-                        (time, source, target, mode, result)
-                    )
+                    this_encounter.append((time, source, target, mode, result))
                     encounter_stack.remove(event)
 
             encounter_duration = int(
@@ -1365,6 +1363,7 @@ def encounter_report(
                 encounter_duration = int(first_half + last_half)
 
             ## Scrape This Encounter Events
+            pet_and_target_same = False
             this_encounter_events = len(this_encounter)
             target_melee_damage_recieved = {}
             target_melee_damage_done = {}
@@ -1401,6 +1400,8 @@ def encounter_report(
                 ### If mode is damage
                 if mode == "damage":
                     if target == encounter_target:
+                        if target == source:
+                            pet_and_target_same = True
                         if result == "block":
                             if target not in target_block.keys():
                                 target_block[target] = 1
@@ -1535,6 +1536,10 @@ def encounter_report(
                 this_encounter_events
             )
             encounter_report["encounter_summary"]["duration"] = str(encounter_duration)
+            if pet_and_target_same:
+                encounter_report["encounter_summary"][
+                    "warning"
+                ] = "This encounter likely includes one or more pets with the same name as the target.  All pet data in the encounter stack were attributed to the target."
 
             ### Encounter Target
             encounter_report["target"]["name"] = str(encounter_target)
