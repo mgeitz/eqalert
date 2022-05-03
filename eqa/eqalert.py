@@ -450,7 +450,12 @@ def main():
                     ### Update encounter parse status
                     elif new_message.tx == "encounter":
                         system_encounter(
-                            base_path, state, display_q, sound_q, new_message
+                            base_path,
+                            state,
+                            display_q,
+                            sound_q,
+                            encounter_q,
+                            new_message,
                         )
                     ### Update group status
                     elif new_message.tx == "group":
@@ -967,7 +972,7 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
         )
 
 
-def system_encounter(base_path, state, display_q, sound_q, new_message):
+def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_message):
     """Perform system tasks for encounter parse behavior"""
 
     try:
