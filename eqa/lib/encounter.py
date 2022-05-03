@@ -42,7 +42,6 @@ def process(
 
     encounter_stack = []
     active_encounter = False
-    detect_encounter = True
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
