@@ -101,6 +101,20 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 > Does not effect global mute
 
+`/say parser encounter` - Toggle encounter parsing
+
+`/say parser encounter clear` - Clear the encounter stack
+
+`/say parser encounter end` - Sometimes, your logs don't catch an encounter end.  Use this command to fix that!
+
+`/say parser hello`
+
+`/say parser who`
+
+`/say parser where`
+
+`/say parser what state`
+
 
 ## Custom Alerting
 
