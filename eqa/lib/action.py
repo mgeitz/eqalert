@@ -1229,15 +1229,26 @@ def action_you_say_commands(
                     )
                 )
             elif args[0] == "encounter":
-                system_q.put(
-                    eqa_struct.message(
-                        eqa_settings.eqa_time(),
-                        "system",
-                        "encounter",
-                        "toggle",
-                        "null",
+                if len(args) == 1:
+                    system_q.put(
+                        eqa_struct.message(
+                            eqa_settings.eqa_time(),
+                            "system",
+                            "encounter",
+                            "toggle",
+                            "null",
+                        )
                     )
-                )
+                elif args[1] == "clear":
+                    system_q.put(
+                        eqa_struct.message(
+                            eqa_settings.eqa_time(),
+                            "system",
+                            "encounter",
+                            "clear",
+                            "null",
+                        )
+                    )
             elif args[0] == "what":
                 if len(args) == 1:
                     sound_q.put(eqa_struct.sound("speak", "What what?"))

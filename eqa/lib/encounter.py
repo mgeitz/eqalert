@@ -58,6 +58,10 @@ def process(
                 interaction = new_message.tx
                 line = new_message.payload
 
+                ## Check for encounter_stack clear
+                if interaction == "clear":
+                    encounter_stack = []
+
                 ## If not an active encounter
                 if active_encounter == False:
                     ### And we see a line that indicates an encounter

@@ -995,6 +995,12 @@ def system_encounter(base_path, state, display_q, sound_q, new_message):
                 )
             )
             sound_q.put(eqa_struct.sound("speak", "Encounter Parse Disabled"))
+        elif new_message.rx == "clear":
+            encounter_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(), "null", "clear", "null", "null"
+                )
+            )
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
         )
