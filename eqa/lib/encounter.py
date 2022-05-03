@@ -70,7 +70,6 @@ def process(
                         or line_type == "spell_damage"
                         or line_type == "spell_resist_you"
                         or line_type == "you_auto_attack_on"
-                        or line_type == "you_auto_attack_off"
                     ):
                         #### Set active encounter
                         active_encounter = True
