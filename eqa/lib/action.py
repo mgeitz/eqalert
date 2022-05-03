@@ -1077,7 +1077,8 @@ def action_you_say_commands(
 
     try:
         if re.findall(r"(?<=You say, \'parser )[a-zA-Z\s]+", check_line) is not None:
-            args = re.findall(r"(?<=You say, \'parser )[a-zA-Z\s]+", check_line)[
+            check_line_clean = re.sub(r"[^\w\s\,]", "", check_line)
+            args = re.findall(r"(?<=You say, parser )[a-zA-Z\s]+", check_line_clean)[
                 0
             ].split(" ")
             if args[0] == "mute":
@@ -1124,7 +1125,7 @@ def action_you_say_commands(
                 elif args[1] in config["line"]:
                     if len(args) == 2:
                         if not (args[1], "all") in mute_list:
-                            mute_list.append(args[1], "all")
+                            mute_list.append((args[1], "all"))
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -1135,7 +1136,7 @@ def action_you_say_commands(
                             )
                     elif len(args) == 3:
                         if not (args[1], args[2]) in mute_list:
-                            mute_list.append(args[1], args[2])
+                            mute_list.append((args[1], args[2]))
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -1178,7 +1179,7 @@ def action_you_say_commands(
                 elif args[1] in config["line"]:
                     if len(args) == 2:
                         if (args[1], "all") in mute_list:
-                            mute_list.remove(args[1], "all")
+                            mute_list.remove((args[1], "all"))
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -1189,7 +1190,7 @@ def action_you_say_commands(
                             )
                     elif len(args) == 3:
                         if (args[1], args[2]) in mute_list:
-                            mute_list.remove(args[1], args[2])
+                            mute_list.remove((args[1], args[2]))
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -1246,6 +1247,16 @@ def action_you_say_commands(
                             "system",
                             "encounter",
                             "clear",
+                            "null",
+                        )
+                    )
+                elif args[1] == "end":
+                    system_q.put(
+                        eqa_struct.message(
+                            eqa_settings.eqa_time(),
+                            "system",
+                            "encounter",
+                            "end",
                             "null",
                         )
                     )

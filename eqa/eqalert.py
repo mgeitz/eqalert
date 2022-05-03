@@ -1006,6 +1006,12 @@ def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_mess
                     eqa_settings.eqa_time(), "null", "clear", "null", "null"
                 )
             )
+        elif new_message.rx == "end":
+            encounter_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(), "null", "end", "null", "null"
+                )
+            )
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
         )

@@ -26,6 +26,7 @@ import time
 import os
 import json
 from datetime import datetime
+import pkg_resources
 
 import eqa.lib.settings as eqa_settings
 import eqa.lib.struct as eqa_struct
@@ -105,7 +106,11 @@ def process(
                                 config,
                                 display_q,
                             )
+
                     if line_type == "you_new_zone":
+                        encounter_stack.clear()
+
+                    elif interaction == "end":
                         encounter_report(
                             line_type,
                             line_time,
@@ -115,7 +120,6 @@ def process(
                             config,
                             display_q,
                         )
-                        encounter_stack.clear()
 
                 ## If we're in an encounter
                 if active_encounter == True:
@@ -1272,7 +1276,7 @@ def encounter_report(
                 ## Determine Encounter Target
                 high_count = 0
                 for target in target_count.keys():
-                    if target != "unknown" and target != state.char:
+                    if target != "Unknown" and target != state.char:
                         if high_count < int(target_count.get(str(target))):
                             high_count = int(target_count.get(str(target)))
                             encounter_target = str(target)
@@ -1295,9 +1299,9 @@ def encounter_report(
 
             ## Set Encounter Parse Filename
             encounter_filename = (
-                encounter_target.lower().replace(" ", "-")
+                encounter_parse_time
                 + "_"
-                + encounter_parse_time
+                + encounter_target.lower().replace(" ", "-")
                 + ".json"
             )
 
@@ -1374,6 +1378,9 @@ def encounter_report(
             target_spell_damage_recieved = {}
             target_spell_damage_done = {}
             encounter_target_damage_total = {}
+            encounter_target_damage_done_total = {}
+            encounter_target_spell_total = {}
+            encounter_target_spell_done_total
             target_block = {}
             target_dodge = {}
             target_invulnerable = {}
@@ -1450,6 +1457,18 @@ def encounter_report(
                                 target_melee_damage_recieved[source] = int(result)
                             else:
                                 target_melee_damage_recieved[source] += int(result)
+                            if source == encounter_target:
+                                if (
+                                    source
+                                    not in encounter_target_damage_done_total.keys()
+                                ):
+                                    encounter_target_damage_done_total[source] = int(
+                                        result
+                                    )
+                                else:
+                                    encounter_target_damage_done_total[source] += int(
+                                        result
+                                    )
                     elif source == encounter_target:
                         if result == "block":
                             if source not in source_block.keys():
@@ -1499,18 +1518,26 @@ def encounter_report(
                         else:
                             encounter_casts[source] += 1
                     else:
-                        if source == "Unknown":
+                        if source == "Unknown" and target != encounter_target:
                             source = encounter_target
                         if target == encounter_target:
                             if source not in target_spell_damage_recieved.keys():
                                 target_spell_damage_recieved[source] = int(result)
-                            else:
+                            elif source in target_spell_damage_recieved.keys():
                                 target_spell_damage_recieved[source] += int(result)
+                            if target not in encounter_target_spell_total.keys():
+                                encounter_target_spell_total[target] = int(result)
+                            elif target in encounter_target_spell_total.keys():
+                                encounter_target_spell_total[target] += int(result)
                         elif source == encounter_target:
                             if target not in target_spell_damage_done.keys():
                                 target_spell_damage_done[target] = int(result)
                             else:
                                 target_spell_damage_done[target] += int(result)
+                            if source not in encounter_target_spell_done_total.keys():
+                                encounter_target_spell_done_total[source] = int(result)
+                            else:
+                                encounter_target_spell_done_total[source] += int(result)
                 ### If mode is heal
                 elif mode == "heal":
                     if source not in encounter_heals.keys():
@@ -1530,11 +1557,24 @@ def encounter_report(
                 "target": {},
                 "participants": {},
             }
+            encounter_report["encounter_summary"]["version"] = str(
+                pkg_resources.get_distribution("eqalert").version
+            )
             encounter_report["encounter_summary"]["date"] = str(encounter_parse_date)
             encounter_report["encounter_summary"]["time"] = str(encounter_parse_time)
             encounter_report["encounter_summary"]["character"] = str(state.char)
             encounter_report["encounter_summary"]["server"] = str(state.server)
             encounter_report["encounter_summary"]["zone"] = str(state.zone)
+            if state.loc != ["0.00", "0.00", "0.00"]:
+                encounter_report["encounter_summary"]["location"] = str(state.loc)
+            if state.afk == "true":
+                encounter_report["encounter_summary"]["context"] = "afk"
+            elif state.group == "false" and state.raid == "false":
+                encounter_report["encounter_summary"]["context"] = "solo"
+            elif state.group == "true" and state.raid == "false":
+                encounter_report["encounter_summary"]["context"] = "group"
+            elif state.group == "true" and state.raid == "true":
+                encounter_report["encounter_summary"]["context"] = "raid"
             encounter_report["encounter_summary"]["target"] = str(encounter_target)
             encounter_report["encounter_summary"]["total_events"] = str(
                 this_encounter_events
@@ -1542,15 +1582,11 @@ def encounter_report(
             encounter_report["encounter_summary"]["duration"] = str(encounter_duration)
             if pet_and_target_same:
                 encounter_report["encounter_summary"][
-                    "warning"
+                    "pet_warning"
                 ] = "This encounter likely includes one or more pets with the same name as the target.  All pet data in the encounter stack were attributed to the target."
 
             ### Encounter Target
             encounter_report["target"]["name"] = str(encounter_target)
-            if encounter_target in encounter_target_damage_total.keys():
-                encounter_report["target"]["damage_taken"] = str(
-                    encounter_target_damage_total[encounter_target]
-                )
             if encounter_target in sorted_encounter_activity.keys():
                 encounter_report["target"]["activity"] = str(
                     int(
@@ -1561,6 +1597,72 @@ def encounter_report(
                         * 100
                     )
                 )
+            if encounter_target in encounter_target_damage_total.keys():
+                encounter_report["target"]["melee_damage_taken"] = str(
+                    encounter_target_damage_total[encounter_target]
+                )
+                if encounter_duration > 0:
+                    melee_dps_taken = int(
+                        encounter_target_damage_total[encounter_target]
+                    ) / int(encounter_duration)
+                    encounter_report["target"]["melee_dps_taken"] = str(melee_dps_taken)
+            if encounter_target in encounter_target_spell_total.keys():
+                encounter_report["target"]["spell_damage_taken"] = str(
+                    encounter_target_spell_total[encounter_target]
+                )
+                if encounter_duration > 0:
+                    spell_dps_taken = int(
+                        encounter_target_spell_total[encounter_target]
+                    ) / int(encounter_duration)
+                    encounter_report["target"]["spell_dps_taken"] = str(spell_dps_taken)
+            if (
+                encounter_target in encounter_target_damage_total.keys()
+                and encounter_target in encounter_target_spell_total.keys()
+            ):
+                combined_damage_taken = int(
+                    encounter_target_damage_total[encounter_target]
+                ) + int(encounter_target_spell_total[encounter_target])
+                encounter_report["target"]["combined_damage_taken"] = str(
+                    combined_damage_taken
+                )
+                if encounter_duration > 0:
+                    combined_dps_taken = combined_damage_taken / int(encounter_duration)
+                    encounter_report["target"]["combined_dps_taken"] = str(
+                        combined_dps_taken
+                    )
+            if encounter_target in encounter_target_damage_done_total.keys():
+                encounter_report["target"]["melee_damage_done"] = str(
+                    encounter_target_damage_done_total[encounter_target]
+                )
+                if encounter_duration > 0:
+                    melee_dps_done = int(
+                        encounter_target_damage_done_total[encounter_target]
+                    ) / int(encounter_duration)
+                    encounter_report["target"]["melee_dps_done"] = str(melee_dps_done)
+            if encounter_target in encounter_target_spell_done_total.keys():
+                encounter_report["target"]["spell_damage_done"] = str(
+                    encounter_target_spell_done_total[encounter_target]
+                )
+                if encounter_duration > 0:
+                    spell_dps_done = int(
+                        encounter_target_spell_done_total[encounter_target]
+                    ) / int(encounter_duration)
+                    encounter_report["target"]["spell_dps_done"] = str(spell_dps_done)
+            if (
+                encounter_target in encounter_target_damage_done_total.keys()
+                and encounter_target in encounter_target_spell_done_total.keys()
+            ):
+                combined_damage_done = int(
+                    encounter_target_damage_done_total[encounter_target]
+                ) + int(encounter_target_spell_done_total[encounter_target])
+                encounter_report["target"]["combined_damage_done"] = str(
+                    combined_damage_done
+                )
+                if encounter_duration > 0:
+                    combined_dps_done = combined_damage_done / int(encounter_duration)
+                    encounter_report["target"]["combined_dps_done"] = str(
+                        combined_dps_done
+                    )
             if encounter_target in target_block.keys():
                 encounter_report["target"]["attacks_blocked"] = str(
                     target_block[encounter_target]
