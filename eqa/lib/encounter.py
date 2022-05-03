@@ -1286,10 +1286,11 @@ def encounter_report(
             encounter_parse_date = datetime.now().strftime("%Y-%m-%d")
 
             encounter_path = config["settings"]["paths"]["encounter"]
+            clean_zone = re.sub(r"[^\w\s]", "", state.zone)
             if not os.path.exists(encounter_path):
                 os.makedirs(encounter_path)
             encounter_zone_path = (
-                encounter_path + state.zone.lower().replace(" ", "-") + "/"
+                encounter_path + clean_zone.lower().replace(" ", "-") + "/"
             )
             if not os.path.exists(encounter_zone_path):
                 os.makedirs(encounter_zone_path)
@@ -1380,7 +1381,7 @@ def encounter_report(
             encounter_target_damage_total = {}
             encounter_target_damage_done_total = {}
             encounter_target_spell_total = {}
-            encounter_target_spell_done_total
+            encounter_target_spell_done_total = {}
             target_block = {}
             target_dodge = {}
             target_invulnerable = {}
