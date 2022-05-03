@@ -1458,18 +1458,6 @@ def encounter_report(
                                 target_melee_damage_recieved[source] = int(result)
                             else:
                                 target_melee_damage_recieved[source] += int(result)
-                            if source == encounter_target:
-                                if (
-                                    source
-                                    not in encounter_target_damage_done_total.keys()
-                                ):
-                                    encounter_target_damage_done_total[source] = int(
-                                        result
-                                    )
-                                else:
-                                    encounter_target_damage_done_total[source] += int(
-                                        result
-                                    )
                     elif source == encounter_target:
                         if result == "block":
                             if source not in source_block.keys():
@@ -1511,6 +1499,12 @@ def encounter_report(
                                 target_melee_damage_done[target] = int(result)
                             else:
                                 target_melee_damage_done[target] += int(result)
+                            if source not in encounter_target_damage_done_total.keys():
+                                encounter_target_damage_done_total[source] = int(result)
+                            else:
+                                encounter_target_damage_done_total[source] += int(
+                                    result
+                                )
                 ### If mode is spell
                 elif mode == "spell":
                     if result == "cast":
