@@ -1347,6 +1347,8 @@ def encounter_report(
                         int(first_minute),
                         int(first_second),
                     )
+                    this_encounter.append((time, source, target, mode, result))
+                    encounter_stack.remove(event)
                 ### Build list of events after first encounter, remove them from encounter_stack
                 elif (
                     found_time
