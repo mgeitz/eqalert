@@ -60,7 +60,7 @@ def process(
 
                 ## Check for encounter_stack clear
                 if interaction == "clear":
-                    encounter_stack = []
+                    encounter_stack.clear()
 
                 ## If not an active encounter
                 if active_encounter == False:
