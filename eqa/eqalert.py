@@ -987,6 +987,11 @@ def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_mess
                     "Encounter Parse Enabled",
                 )
             )
+            encounter_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(), "null", "clear", "null", "null"
+                )
+            )
             sound_q.put(eqa_struct.sound("speak", "Encounter Parse Enabled"))
         elif state.encounter_parse == "true" and new_message.rx == "toggle":
             state.set_encounter_parse("false")
