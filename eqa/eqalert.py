@@ -205,18 +205,11 @@ def main():
     ## Produce action_q
 
     ### Thread 1
-    process_parse_1 = threading.Thread(
+    process_parse = threading.Thread(
         target=eqa_parser.process, args=(exit_flag, log_q, action_q)
     )
-    process_parse_1.daemon = True
-    process_parse_1.start()
-
-    ### Thread 2
-    process_parse_2 = threading.Thread(
-        target=eqa_parser.process, args=(exit_flag, log_q, action_q)
-    )
-    process_parse_2.daemon = True
-    process_parse_2.start()
+    process_parse.daemon = True
+    process_parse.start()
 
     # Read Keyboard Events
     ## Consume keyboard events
@@ -248,11 +241,11 @@ def main():
     ## Consume action_q
     ## Produce display_q, sound_q, system_q
 
-    ### Shared Mute List
+    ### Mute List
     mute_list = []
 
     ### Thread 1
-    process_action_1 = threading.Thread(
+    process_action = threading.Thread(
         target=eqa_action.process,
         args=(
             config,
@@ -268,68 +261,8 @@ def main():
             mute_list,
         ),
     )
-    process_action_1.daemon = True
-    process_action_1.start()
-
-    ### Thread 2
-    process_action_2 = threading.Thread(
-        target=eqa_action.process,
-        args=(
-            config,
-            base_path,
-            state,
-            action_q,
-            encounter_q,
-            system_q,
-            display_q,
-            sound_q,
-            exit_flag,
-            cfg_reload,
-            mute_list,
-        ),
-    )
-    process_action_2.daemon = True
-    process_action_2.start()
-
-    ### Thread 3
-    process_action_3 = threading.Thread(
-        target=eqa_action.process,
-        args=(
-            config,
-            base_path,
-            state,
-            action_q,
-            encounter_q,
-            system_q,
-            display_q,
-            sound_q,
-            exit_flag,
-            cfg_reload,
-            mute_list,
-        ),
-    )
-    process_action_3.daemon = True
-    process_action_3.start()
-
-    ### Thread 4
-    process_action_4 = threading.Thread(
-        target=eqa_action.process,
-        args=(
-            config,
-            base_path,
-            state,
-            action_q,
-            encounter_q,
-            system_q,
-            display_q,
-            sound_q,
-            exit_flag,
-            cfg_reload,
-            mute_list,
-        ),
-    )
-    process_action_4.daemon = True
-    process_action_4.start()
+    process_action.daemon = True
+    process_action.start()
 
     # Produce display_q, system_q
     ## Consume encounter_q
@@ -627,10 +560,7 @@ def main():
                         state.set_guild(new_state.char_guild)
                         #### Stop state dependent processes
                         cfg_reload.set()
-                        process_action_1.join()
-                        process_action_2.join()
-                        process_action_3.join()
-                        process_action_4.join()
+                        process_action.join()
                         process_encounter.join()
                         process_sound_1.join()
                         process_sound_2.join()
@@ -656,7 +586,7 @@ def main():
                         #### Restart process_action
 
                         ##### Thread 1
-                        process_action_1 = threading.Thread(
+                        process_action = threading.Thread(
                             target=eqa_action.process,
                             args=(
                                 config,
@@ -672,68 +602,8 @@ def main():
                                 mute_list,
                             ),
                         )
-                        process_action_1.daemon = True
-                        process_action_1.start()
-
-                        ##### Thread 2
-                        process_action_2 = threading.Thread(
-                            target=eqa_action.process,
-                            args=(
-                                config,
-                                base_path,
-                                state,
-                                action_q,
-                                encounter_q,
-                                system_q,
-                                display_q,
-                                sound_q,
-                                exit_flag,
-                                cfg_reload,
-                                mute_list,
-                            ),
-                        )
-                        process_action_2.daemon = True
-                        process_action_2.start()
-
-                        ##### Thread 3
-                        process_action_3 = threading.Thread(
-                            target=eqa_action.process,
-                            args=(
-                                config,
-                                base_path,
-                                state,
-                                action_q,
-                                encounter_q,
-                                system_q,
-                                display_q,
-                                sound_q,
-                                exit_flag,
-                                cfg_reload,
-                                mute_list,
-                            ),
-                        )
-                        process_action_3.daemon = True
-                        process_action_3.start()
-
-                        ##### Thread 4
-                        process_action_4 = threading.Thread(
-                            target=eqa_action.process,
-                            args=(
-                                config,
-                                base_path,
-                                state,
-                                action_q,
-                                encounter_q,
-                                system_q,
-                                display_q,
-                                sound_q,
-                                exit_flag,
-                                cfg_reload,
-                                mute_list,
-                            ),
-                        )
-                        process_action_4.daemon = True
-                        process_action_4.start()
+                        process_action.daemon = True
+                        process_action.start()
 
                         #### Restart process_encounter
                         process_encounter = threading.Thread(
@@ -812,13 +682,9 @@ def main():
     )
     read_keys.join()
     process_log.join()
-    process_parse_1.join()
-    process_parse_2.join()
+    process_parse.join()
     process_keys.join()
-    process_action_1.join()
-    process_action_2.join()
-    process_action_3.join()
-    process_action_4.join()
+    process_action.join()
     process_encounter.join()
     process_sound_1.join()
     process_sound_2.join()
