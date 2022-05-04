@@ -94,6 +94,16 @@ def process(
                                     config,
                                     display_q,
                                 )
+                            else:
+                                encounter_stack.append(
+                                    (
+                                        line_time,
+                                        source.title(),
+                                        target.title(),
+                                        "slain",
+                                        "other",
+                                    )
+                                )
                         else:
                             encounter_report(
                                 line_type,
@@ -1401,6 +1411,8 @@ def encounter_report(
             encounter_activity = {}
             encounter_heals = {}
             encounter_casts = {}
+            target_killed = {}
+            killed_by_target = {}
 
             for event in this_encounter:
                 time, source, target, mode, result = event
@@ -1541,6 +1553,12 @@ def encounter_report(
                         encounter_heals[source] = int(result)
                     else:
                         encounter_heals[source] += int(results)
+                ### If mode is slain
+                elif mode == "slain":
+                    if target not in target_killed.keys():
+                        target_killed[target] = 1
+                    else:
+                        target_killed[target] += 1
 
             ## Sort Encounter Activity from Most to Least Active
             sorted_encounter_activity = dict(
@@ -1692,6 +1710,13 @@ def encounter_report(
                 encounter_report["target"]["spell_casts"] = str(
                     encounter_casts[encounter_target]
                 )
+            if target_killed:
+                encounter_report["target"]["killed"] = {}
+                for victim in target_killed.keys():
+                    v_low = victim.lower()
+                    encounter_report["target"]["killed"][v_low] = str(
+                        target_killed[victim]
+                    )
 
             ### Encounter Participants
             for participant in sorted_encounter_activity.keys():
@@ -1768,6 +1793,10 @@ def encounter_report(
                     if participant in encounter_heals.keys():
                         encounter_report["participants"][l_part]["healing"] = str(
                             encounter_heals.get(participant)
+                        )
+                    if participant in target_killed.keys():
+                        encounter_report["participants"][l_part]["killed"] = str(
+                            target_killed.keys
                         )
 
             ## Send Report to Display
