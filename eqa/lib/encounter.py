@@ -1569,15 +1569,16 @@ def encounter_report(
             ## Build Encounter Report
             ### Encounter Summary
             encounter_report = {
+                "header": {},
                 "encounter_summary": {},
                 "target": {},
                 "participants": {},
             }
-            encounter_report["encounter_summary"]["version"] = str(
+            encounter_report["header"]["version"] = str(
                 pkg_resources.get_distribution("eqalert").version
             )
-            encounter_report["encounter_summary"]["date"] = str(encounter_parse_date)
-            encounter_report["encounter_summary"]["time"] = str(encounter_parse_time)
+            encounter_report["header"]["date"] = str(encounter_parse_date)
+            encounter_report["header"]["time"] = str(encounter_parse_time)
             encounter_report["encounter_summary"]["character"] = str(state.char)
             encounter_report["encounter_summary"]["server"] = str(state.server)
             encounter_report["encounter_summary"]["zone"] = str(state.zone)
