@@ -1555,10 +1555,11 @@ def encounter_report(
                         encounter_heals[source] += int(results)
                 ### If mode is slain
                 elif mode == "slain":
-                    if target not in target_killed.keys():
-                        target_killed[target] = 1
-                    else:
-                        target_killed[target] += 1
+                    if source == encounter_target:
+                        if target not in target_killed.keys():
+                            target_killed[target] = 1
+                        else:
+                            target_killed[target] += 1
 
             ## Sort Encounter Activity from Most to Least Active
             sorted_encounter_activity = dict(
