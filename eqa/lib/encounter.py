@@ -1305,7 +1305,7 @@ def encounter_report(
             )
 
             ## Determine Encounter Duration
-            ### Tragically this cuts off milliseconds, for now
+            ### Find end time
             found_time = False
             (
                 last_time,
@@ -1319,6 +1319,8 @@ def encounter_report(
             encounter_end_time = datetime(
                 2020, 12, 30, int(last_hour), int(last_minute), int(last_second)
             )
+
+            ## Find start time and build this_encounter
             for event in encounter_stack:
                 time, source, target, mode, result = event
                 if (
@@ -1347,7 +1349,6 @@ def encounter_report(
                     )
                     this_encounter.append((time, source, target, mode, result))
                     encounter_stack.remove(event)
-                ### Build list of events after first encounter, remove them from encounter_stack
                 elif (
                     found_time
                     and source == encounter_target
@@ -1364,6 +1365,7 @@ def encounter_report(
             encounter_duration = int(
                 (encounter_end_time - encounter_start_time).total_seconds()
             )
+            ### Spot check duration weirdness over midnight
             if int(encounter_duration) < 0:
                 first_half = (
                     datetime(2020, 12, 30, 23, 59, 59) - encounter_start_time
