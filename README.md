@@ -56,24 +56,25 @@ Spot check these default paths generated in `config.json`
 ### Keyboard Controls
 
 #### Global
-  - 1      : Events
-  - 2      : State
-  - 3      : Settings
-  - 4      : Help
-  - 0     : Reload config
+  - 1       : Events
+  - 2       : State
+  - 3       : Parse
+  - 4       : Settings
+  - 0       : Reload config
   - q / esc : Quit
+  - h       : Help
 
 #### Events
-  - c     : Clear event box
-  - r     : Toggle raid mode
-  - d     : Toggle debug mode
-  - e     : Toggle encounter parsing
-  - m     : Toggle audio mute
+  - c       : Clear event box
+  - r       : Toggle raid mode
+  - d       : Toggle debug mode
+  - e       : Toggle encounter parsing
+  - m       : Toggle audio mute
 
 #### Settings
-  - up    : Cycle up in selection
-  - down  : Cycle down in selection
-  - right : Toggle selection on
+  - up      : Cycle up in selection
+  - down    : Cycle down in selection
+  - right   : Toggle selection on
 
 ### Say Controls
 
