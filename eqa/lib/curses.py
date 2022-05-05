@@ -503,18 +503,47 @@ def draw_events_encounter(stdscr, encounter_report):
         center_y = int(y / 2)
         encounter_win_y = center_y - 4
         encounter_win_x = x - 4
+        mid_encounter_win_x = int(encounter_win_x / 2)
         encounterscr = stdscr.derwin(encounter_win_y, encounter_win_x, center_y + 3, 2)
         encounterscr.clear()
 
-        count = 1
+        # Center Line
+        center_line = 0
+        while center_line < encounter_win_y:
+            encounterscr.addch(center_line, mid_encounter_win_x, curses.ACS_VLINE)
+            center_line += 1
+
+        # Target Title
+        name_padding = int(mid_encounter_win_x / 2) - int(
+            len(encounter_report["target"]["name"]) / 2
+        )
+        encounterscr.addstr(
+            0, name_padding, encounter_report["target"]["name"], curses.color_pair(5)
+        )
+
+        # Target Underline
+        underline = 4
+        while underline < (mid_encounter_win_x - 4):
+            encounterscr.addch(1, underline, curses.ACS_HLINE, curses.color_pair(3))
+            underline += 1
+
+        # Target Mid-line
+        first_quarter = int(mid_encounter_win_x / 2)
+        midline = 2
+        while midline < (encounter_win_y - 6):
+            encounterscr.addch(midline, first_quarter, curses.ACS_VLINE, curses.color_pair(3))
+            midline += 1
+
+        # Target Stats
+        count = 2
         max_encounter_string_x = encounter_win_x - 34
         for entry in encounter_report["target"]:
-            encounterscr.addstr(count, 1, entry, curses.color_pair(3))
-            encounterscr.addch(count, 23, curses.ACS_VLINE)
-            encounterscr.addstr(
-                count, 25, encounter_report["target"][entry], curses.color_pair(1)
-            )
-            count += 1
+            if entry != "name":
+                encounterscr.addstr(count, 1, entry, curses.color_pair(3))
+                encounterscr.addstr(
+                    count, first_quarter + 2, encounter_report["target"][entry], curses.color_pair(1)
+                )
+                count += 1
 
     except Exception as e:
         eqa_settings.log(
