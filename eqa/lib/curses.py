@@ -536,12 +536,12 @@ def draw_events_encounter(stdscr, encounter_report):
 
         # Target Stats
         count = 2
-        max_encounter_string_x = encounter_win_x - 34
+        seven_g = int(first_quarter / 2)
         for entry in encounter_report["target"]:
             if entry != "name":
-                encounterscr.addstr(count, 1, entry, curses.color_pair(3))
+                encounterscr.addstr(count, 1, entry.title(), curses.color_pair(3))
                 encounterscr.addstr(
-                    count, first_quarter + 2, encounter_report["target"][entry], curses.color_pair(1)
+                    count, first_quarter + 2, str(encounter_report["target"][entry])[:seven_g].title(), curses.color_pair(1)
                 )
                 count += 1
 
