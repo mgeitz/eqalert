@@ -504,6 +504,7 @@ def draw_events_encounter(stdscr, encounter_report):
         encounter_win_y = center_y - 4
         encounter_win_x = x - 4
         mid_encounter_win_x = int(encounter_win_x / 2)
+        mid_encounter_win_y = int(encounter_win_y / 2)
         encounterscr = stdscr.derwin(encounter_win_y, encounter_win_x, center_y + 3, 2)
         encounterscr.clear()
 
@@ -530,30 +531,134 @@ def draw_events_encounter(stdscr, encounter_report):
         # Target Mid-line
         first_quarter = int(mid_encounter_win_x / 2)
         midline = 2
-        while midline < (encounter_win_y - 6):
-            encounterscr.addch(midline, first_quarter, curses.ACS_VLINE, curses.color_pair(3))
+        while midline < (encounter_win_y - 4):
+            encounterscr.addch(
+                midline, first_quarter, curses.ACS_VLINE, curses.color_pair(3)
+            )
             midline += 1
 
         # Target Stats
         count = 2
-        seven_g = int(first_quarter / 2)
         for entry in encounter_report["target"]:
-            if entry != "name" and not entry == "killed":
-                encounterscr.addstr(count, 1, entry.title(), curses.color_pair(5))
+            if entry != "name" and entry != "killed":
                 encounterscr.addstr(
-                    count, first_quarter + 2, str(encounter_report["target"][entry])[:seven_g].replace("_", " ").title(), curses.color_pair(1)
+                    count,
+                    1,
+                    str(entry.title())[:first_quarter].replace("_", " ").title(),
+                    curses.color_pair(5),
+                )
+                encounterscr.addstr(
+                    count,
+                    first_quarter + 2,
+                    str(encounter_report["target"][entry])[:first_quarter]
+                    .replace("_", " ")
+                    .title(),
+                    curses.color_pair(1),
                 )
                 count += 1
 
         # Participant Stats
         participant = 0
         third_quarter = first_quarter + mid_encounter_win_x
+        players = list(encounter_report["participants"].keys())
 
-        # P1 Underline
-        underline = mid_encounter_win_x - 2
-        while underline < (mid_encounter_win_x - 6):
-            encounterscr.addch(third_quarter, underline, curses.ACS_HLINE, curses.color_pair(3))
-            underline += 1
+        if len(players) > 0:
+
+            # Top P1 Title
+            name_padding = third_quarter - int(len(players[0]) / 2)
+            encounterscr.addstr(
+                0, name_padding, players[0].title(), curses.color_pair(5)
+            )
+
+            # Top P1 Underline
+            underline = mid_encounter_win_x + 4
+            while underline < (encounter_win_x - 4):
+                encounterscr.addch(1, underline, curses.ACS_HLINE, curses.color_pair(3))
+                underline += 1
+
+            # Top P1 Mid-line
+            midline = 2
+            while midline < (mid_encounter_win_y - 4):
+                encounterscr.addch(
+                    midline, third_quarter, curses.ACS_VLINE, curses.color_pair(3)
+                )
+                midline += 1
+
+            # Top P1 Stats
+            count = 2
+            for entry in encounter_report["participants"][players[0]]:
+                if count >= mid_encounter_win_y:
+                    break
+                encounterscr.addstr(
+                    count,
+                    mid_encounter_win_x + 2,
+                    str(entry)[:first_quarter].replace("_", " ").title(),
+                    curses.color_pair(5),
+                )
+                encounterscr.addstr(
+                    count,
+                    third_quarter + 2,
+                    str(encounter_report["participants"][players[0]][entry])[
+                        :first_quarter
+                    ]
+                    .replace("_", " ")
+                    .title(),
+                    curses.color_pair(1),
+                )
+                count += 1
+
+        if len(players) > 1:
+
+            # Top P2 Title
+            name_padding = third_quarter - int(len(players[1]) / 2)
+            encounterscr.addstr(
+                mid_encounter_win_y,
+                name_padding,
+                players[1].title(),
+                curses.color_pair(5),
+            )
+
+            # Top P2 Underline
+            underline = mid_encounter_win_x + 4
+            while underline < (encounter_win_x - 4):
+                encounterscr.addch(
+                    mid_encounter_win_y + 1,
+                    underline,
+                    curses.ACS_HLINE,
+                    curses.color_pair(3),
+                )
+                underline += 1
+
+            # Top P2 Mid-line
+            midline = mid_encounter_win_y + 2
+            while midline < (encounter_win_y - 4):
+                encounterscr.addch(
+                    midline, third_quarter, curses.ACS_VLINE, curses.color_pair(3)
+                )
+                midline += 1
+
+            # Top P2 Stats
+            count = mid_encounter_win_y + 2
+            for entry in encounter_report["participants"][players[1]]:
+                if count >= encounter_win_y - 1:
+                    break
+                encounterscr.addstr(
+                    count,
+                    mid_encounter_win_x + 2,
+                    str(entry)[:first_quarter].replace("_", " ").title(),
+                    curses.color_pair(5),
+                )
+                encounterscr.addstr(
+                    count,
+                    third_quarter + 2,
+                    str(encounter_report["participants"][players[1]][entry])[
+                        :first_quarter
+                    ]
+                    .replace("_", " ")
+                    .title(),
+                    curses.color_pair(1),
+                )
+                count += 1
 
     except Exception as e:
         eqa_settings.log(
