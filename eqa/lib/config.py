@@ -1235,6 +1235,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "wrong_key": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "wrong key or place"
+    },
     "you_afk_off": {
       "alert": {},
       "reaction": "false",

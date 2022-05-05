@@ -538,12 +538,22 @@ def draw_events_encounter(stdscr, encounter_report):
         count = 2
         seven_g = int(first_quarter / 2)
         for entry in encounter_report["target"]:
-            if entry != "name":
-                encounterscr.addstr(count, 1, entry.title(), curses.color_pair(3))
+            if entry != "name" and not entry == "killed":
+                encounterscr.addstr(count, 1, entry.title(), curses.color_pair(5))
                 encounterscr.addstr(
-                    count, first_quarter + 2, str(encounter_report["target"][entry])[:seven_g].title(), curses.color_pair(1)
+                    count, first_quarter + 2, str(encounter_report["target"][entry])[:seven_g].replace("_", " ").title(), curses.color_pair(1)
                 )
                 count += 1
+
+        # Participant Stats
+        participant = 0
+        third_quarter = first_quarter + mid_encounter_win_x
+
+        # P1 Underline
+        underline = mid_encounter_win_x - 2
+        while underline < (mid_encounter_win_x - 6):
+            encounterscr.addch(third_quarter, underline, curses.ACS_HLINE, curses.color_pair(3))
+            underline += 1
 
     except Exception as e:
         eqa_settings.log(

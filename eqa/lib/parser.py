@@ -719,6 +719,8 @@ def check_system_messages(line):
             return "you_auto_attack_off"
         elif re.fullmatch(r"^Auto attack on\.$", line) is not None:
             return "you_auto_attack_on"
+        elif re.fullmatch(r"^You lack the proper key\.$", line) is not None:
+            return "wrong_key"
         elif re.fullmatch(r"^You are stunned\!$", line) is not None:
             return "you_stun_on"
         elif re.fullmatch(r"^You are unstunned\.$", line) is not None:
