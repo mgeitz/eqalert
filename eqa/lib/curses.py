@@ -541,7 +541,7 @@ def draw_events_encounter(stdscr, encounter_report):
 
         # Target Mid-line
         midline = 2
-        while midline < (encounter_win_y - 4):
+        while midline < (encounter_win_y - 1):
             encounterscr.addch(
                 midline, first_quarter, curses.ACS_VLINE, curses.color_pair(3)
             )
