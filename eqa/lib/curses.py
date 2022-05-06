@@ -527,9 +527,7 @@ def draw_events_encounter(stdscr, encounter_report):
             + " in "
             + encounter_report["encounter_summary"]["duration"]
         )
-        encounterscr.addstr(
-            0, name_padding, encounter_report["target"]["name"], curses.color_pair(5)
-        )
+        encounterscr.addstr(0, name_padding, target_title, curses.color_pair(5))
 
         # Target Underline
         first_quarter = int(mid_encounter_win_x / 2)
@@ -619,7 +617,8 @@ def draw_events_encounter(stdscr, encounter_report):
                 if "dps" in entry or "activity" in entry:
                     value = str(
                         format(
-                            float(encounter_report["participants"][players[0]][entry]), ".2f"
+                            float(encounter_report["participants"][players[0]][entry]),
+                            ".2f",
                         )
                     )
                 else:
@@ -685,7 +684,8 @@ def draw_events_encounter(stdscr, encounter_report):
                 if "dps" in entry or "activity" in entry:
                     value = str(
                         format(
-                            float(encounter_report["participants"][players[1]][entry]), ".2f"
+                            float(encounter_report["participants"][players[1]][entry]),
+                            ".2f",
                         )
                     )
                 else:
