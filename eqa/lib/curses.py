@@ -523,13 +523,16 @@ def draw_events_encounter(stdscr, encounter_report):
         )
 
         # Target Underline
+        first_quarter = int(mid_encounter_win_x / 2)
         underline = 4
         while underline < (mid_encounter_win_x - 4):
-            encounterscr.addch(1, underline, curses.ACS_HLINE, curses.color_pair(3))
+            if underline == first_quarter:
+                encounterscr.addch(1, underline, curses.ACS_TTEE, curses.color_pair(3))
+            else:
+                encounterscr.addch(1, underline, curses.ACS_HLINE, curses.color_pair(3))
             underline += 1
 
         # Target Mid-line
-        first_quarter = int(mid_encounter_win_x / 2)
         midline = 2
         while midline < (encounter_win_y - 4):
             encounterscr.addch(
@@ -573,12 +576,19 @@ def draw_events_encounter(stdscr, encounter_report):
             # Top P1 Underline
             underline = mid_encounter_win_x + 4
             while underline < (encounter_win_x - 4):
-                encounterscr.addch(1, underline, curses.ACS_HLINE, curses.color_pair(3))
+                if underline == third_quarter:
+                    encounterscr.addch(
+                        1, underline, curses.ACS_TTEE, curses.color_pair(3)
+                    )
+                else:
+                    encounterscr.addch(
+                        1, underline, curses.ACS_HLINE, curses.color_pair(3)
+                    )
                 underline += 1
 
             # Top P1 Mid-line
             midline = 2
-            while midline < (mid_encounter_win_y - 4):
+            while midline < (mid_encounter_win_y - 1):
                 encounterscr.addch(
                     midline, third_quarter, curses.ACS_VLINE, curses.color_pair(3)
                 )
@@ -621,17 +631,26 @@ def draw_events_encounter(stdscr, encounter_report):
             # Top P2 Underline
             underline = mid_encounter_win_x + 4
             while underline < (encounter_win_x - 4):
-                encounterscr.addch(
-                    mid_encounter_win_y + 1,
-                    underline,
-                    curses.ACS_HLINE,
-                    curses.color_pair(3),
-                )
+                if underline == third_quarter:
+                    pass
+                    encounterscr.addch(
+                        mid_encounter_win_y + 1,
+                        underline,
+                        curses.ACS_TTEE,
+                        curses.color_pair(3),
+                    )
+                else:
+                    encounterscr.addch(
+                        mid_encounter_win_y + 1,
+                        underline,
+                        curses.ACS_HLINE,
+                        curses.color_pair(3),
+                    )
                 underline += 1
 
             # Top P2 Mid-line
             midline = mid_encounter_win_y + 2
-            while midline < (encounter_win_y - 4):
+            while midline < (encounter_win_y - 1):
                 encounterscr.addch(
                     midline, third_quarter, curses.ACS_VLINE, curses.color_pair(3)
                 )
