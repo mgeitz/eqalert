@@ -193,6 +193,7 @@ def init(state):
         curses.init_pair(3, curses.COLOR_CYAN, -1)  # Subtext
         curses.init_pair(4, curses.COLOR_MAGENTA, -1)  # Highlight
         curses.init_pair(5, curses.COLOR_GREEN, -1)  # Dunno
+        curses.init_pair(6, curses.COLOR_RED, -1)  # Dunno
         draw_events_frame(stdscr, state, [], [], None)
         return stdscr
 
@@ -515,8 +516,16 @@ def draw_events_encounter(stdscr, encounter_report):
             center_line += 1
 
         # Target Title
-        name_padding = int(mid_encounter_win_x / 2) - int(
-            len(encounter_report["target"]["name"]) / 2
+        name_padding = (
+            int(mid_encounter_win_x / 2)
+            - int(len(encounter_report["target"]["name"]) / 2)
+            - len(encounter_report["encounter_summary"]["duration"])
+            - 2
+        )
+        target_title = (
+            encounter_report["target"]["name"]
+            + " in "
+            + encounter_report["encounter_summary"]["duration"]
         )
         encounterscr.addstr(
             0, name_padding, encounter_report["target"]["name"], curses.color_pair(5)
@@ -546,16 +555,18 @@ def draw_events_encounter(stdscr, encounter_report):
             if entry != "name" and entry != "killed":
                 encounterscr.addstr(
                     count,
-                    1,
+                    4,
                     str(entry.title())[:first_quarter].replace("_", " ").title(),
                     curses.color_pair(5),
                 )
+                if "dps" in entry or "activity" in entry:
+                    value = str(format(float(encounter_report["target"][entry]), ".2f"))
+                else:
+                    value = str(encounter_report["target"][entry])
                 encounterscr.addstr(
                     count,
                     first_quarter + 2,
-                    str(encounter_report["target"][entry])[:first_quarter]
-                    .replace("_", " ")
-                    .title(),
+                    value[:first_quarter].replace("_", " ").title(),
                     curses.color_pair(1),
                 )
                 count += 1
@@ -601,18 +612,22 @@ def draw_events_encounter(stdscr, encounter_report):
                     break
                 encounterscr.addstr(
                     count,
-                    mid_encounter_win_x + 2,
+                    mid_encounter_win_x + 4,
                     str(entry)[:first_quarter].replace("_", " ").title(),
                     curses.color_pair(5),
                 )
+                if "dps" in entry or "activity" in entry:
+                    value = str(
+                        format(
+                            float(encounter_report["participants"][players[0]][entry]), ".2f"
+                        )
+                    )
+                else:
+                    value = str(encounter_report["participants"][players[0]][entry])
                 encounterscr.addstr(
                     count,
                     third_quarter + 2,
-                    str(encounter_report["participants"][players[0]][entry])[
-                        :first_quarter
-                    ]
-                    .replace("_", " ")
-                    .title(),
+                    str(value)[:first_quarter].replace("_", " ").title(),
                     curses.color_pair(1),
                 )
                 count += 1
@@ -663,18 +678,22 @@ def draw_events_encounter(stdscr, encounter_report):
                     break
                 encounterscr.addstr(
                     count,
-                    mid_encounter_win_x + 2,
+                    mid_encounter_win_x + 4,
                     str(entry)[:first_quarter].replace("_", " ").title(),
                     curses.color_pair(5),
                 )
+                if "dps" in entry or "activity" in entry:
+                    value = str(
+                        format(
+                            float(encounter_report["participants"][players[1]][entry]), ".2f"
+                        )
+                    )
+                else:
+                    value = str(encounter_report["participants"][players[1]][entry])
                 encounterscr.addstr(
                     count,
                     third_quarter + 2,
-                    str(encounter_report["participants"][players[1]][entry])[
-                        :first_quarter
-                    ]
-                    .replace("_", " ")
-                    .title(),
+                    value[:first_quarter].replace("_", " ").title(),
                     curses.color_pair(1),
                 )
                 count += 1
