@@ -288,21 +288,21 @@ def main():
 
     ### Thread 1
     process_sound_1 = threading.Thread(
-        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload)
+        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload, state)
     )
     process_sound_1.daemon = True
     process_sound_1.start()
 
     ### Thread 2
     process_sound_2 = threading.Thread(
-        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload)
+        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload, state)
     )
     process_sound_2.daemon = True
     process_sound_2.start()
 
     ### Thread 3
     process_sound_3 = threading.Thread(
-        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload)
+        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload, state)
     )
     process_sound_3.daemon = True
     process_sound_3.start()
@@ -627,7 +627,7 @@ def main():
                         ##### Thread 1
                         process_sound_1 = threading.Thread(
                             target=eqa_sound.process,
-                            args=(config, sound_q, exit_flag, cfg_reload),
+                            args=(config, sound_q, exit_flag, cfg_reload, state),
                         )
                         process_sound_1.daemon = True
                         process_sound_1.start()
@@ -635,7 +635,7 @@ def main():
                         ##### Thread 2
                         process_sound_2 = threading.Thread(
                             target=eqa_sound.process,
-                            args=(config, sound_q, exit_flag, cfg_reload),
+                            args=(config, sound_q, exit_flag, cfg_reload, state),
                         )
                         process_sound_2.daemon = True
                         process_sound_2.start()
@@ -643,7 +643,7 @@ def main():
                         ##### Thread 3
                         process_sound_3 = threading.Thread(
                             target=eqa_sound.process,
-                            args=(config, sound_q, exit_flag, cfg_reload),
+                            args=(config, sound_q, exit_flag, cfg_reload, state),
                         )
                         process_sound_3.daemon = True
                         process_sound_3.start()

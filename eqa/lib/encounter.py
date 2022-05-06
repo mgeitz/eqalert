@@ -26,6 +26,7 @@ import time
 import os
 import json
 from datetime import datetime
+from collections import deque
 import pkg_resources
 
 import eqa.lib.settings as eqa_settings
@@ -40,7 +41,7 @@ def process(
     Produce: display_q, system_q
     """
 
-    encounter_stack = []
+    encounter_stack = deque([])
     active_encounter = False
 
     try:
@@ -1263,7 +1264,8 @@ def encounter_report(
         encounter_stack_events = len(encounter_stack)
         if encounter_stack_events > 20:
             target_count = {}
-            this_encounter = []
+            this_encounter = deque([])
+            not_this_encounter = deque([])
 
             ## Either Know the Encounter Target
             if slain_encounter_target is not None:
@@ -1331,7 +1333,9 @@ def encounter_report(
             )
 
             ## Find start time and build this_encounter
-            for event in encounter_stack:
+            count = 0
+            while count < len(encounter_stack):
+                event = encounter_stack.popleft()
                 time, source, target, mode, result = event
                 if (
                     not found_time
@@ -1357,9 +1361,10 @@ def encounter_report(
                         int(first_minute),
                         int(first_second),
                     )
-                    this_encounter.append((time, source, target, mode, result))
-                    encounter_stack.remove(event)
-                elif (
+                    this_encounter.append(event)
+                else:
+                    not_this_encounter.append(event)
+                if (
                     found_time
                     and source == encounter_target
                     or found_time
@@ -1369,9 +1374,11 @@ def encounter_report(
                     or found_time
                     and target == "Unknown"
                 ):
-                    this_encounter.append((time, source, target, mode, result))
-                    encounter_stack.remove(event)
+                    this_encounter.append(event)
+                else:
+                    not_this_encounter.append(event)
 
+            encounter_stack = not_this_encounter
             encounter_duration = int(
                 (encounter_end_time - encounter_start_time).total_seconds()
             )
