@@ -1742,9 +1742,9 @@ def encounter_report(
                         ] = str(target_spell_damage_recieved[participant])
                         total_damage += int(target_spell_damage_recieved[participant])
                     if total_damage > 0 and int(encounter_duration) > 0:
-                        encounter_report["participants"][l_part]["dps_done"] = str(
-                            total_damage / int(encounter_duration)
-                        )
+                        encounter_report["participants"][l_part][
+                            "melee_dps_done"
+                        ] = str(total_damage / int(encounter_duration))
                     total_damage = 0
                     if participant in target_melee_damage_done.keys():
                         encounter_report["participants"][l_part][
@@ -1757,9 +1757,9 @@ def encounter_report(
                         ] = str(target_spell_damage_done[participant])
                         total_damage += int(target_spell_damage_done[participant])
                     if total_damage > 0 and int(encounter_duration) > 0:
-                        encounter_report["participants"][l_part]["dps_taken"] = str(
-                            total_damage / int(encounter_duration)
-                        )
+                        encounter_report["participants"][l_part][
+                            "melee_dps_taken"
+                        ] = str(total_damage / int(encounter_duration))
                     if participant in source_block.keys():
                         encounter_report["participants"][l_part][
                             "attacks_blocked"
