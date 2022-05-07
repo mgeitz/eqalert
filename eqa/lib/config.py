@@ -1082,7 +1082,7 @@ def build_config(base_path):
     },
     "spell_slow_on": {
       "alert": {},
-      "reaction": "solo",
+      "reaction": "solo_group_only",
       "sound": "slowed"
     },
     "spell_sow_off_you": {
