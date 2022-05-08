@@ -1825,7 +1825,10 @@ def encounter_report(
                 encounter_report_file.close()
 
             ## Prune Old Events in encounter_stack
-            for event in encounter_stack:
+            count = 0
+            keep_encounter_stack = deque([])
+            while count < len(encounter_stack):
+                event = encounter_stack.popleft
                 time, source, target, mode, result = event
                 this_hour, this_minute, this_second_m = time.split(":")
                 this_second, this_milli = last_second_m.split(".")
@@ -1845,8 +1848,10 @@ def encounter_report(
                     message_age = int(first_half + second_half)
 
                 # If an event is more than 30 minutes old and still hasn't been used in an encounter log, remove it
-                if message_age > 18000:
-                    encounter_stack.remove(event)
+                if not message_age > 18000:
+                    keep_encounter_stack.append(event)
+
+            encounter_stack = keep_encounter_stack
 
     except Exception as e:
         eqa_settings.log(
