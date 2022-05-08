@@ -734,7 +734,7 @@ def draw_ftime(stdscr, timestamp, y):
 def draw_parse(stdscr, state, encounter_report):
     """Draw parse"""
     y, x = stdscr.getmaxyx()
-    encounter_y = y - 4
+    encounter_y = int(y / 2) - 3
     encounter_x = x - 2
     center_y = int(encounter_y / 2)
     center_x = int(encounter_x / 2)
@@ -753,11 +753,15 @@ def draw_parse(stdscr, state, encounter_report):
     try:
         encounterscr = stdscr.derwin(encounter_y, encounter_x, 3, 1)
         encounterscr.clear()
+        playerscr = stdscr.derwin(int(y / 2) - 1, encounter_x, int(y / 2), 1)
+        playerscr.clear()
 
+        # If we're parsing encounters
         if state.encounter_parse == "true":
+            ## If we have a report to show
             if encounter_report is not None:
 
-                # Target Title
+                ### Target Title
                 encounterscr.addstr(
                     1,
                     1,
@@ -765,7 +769,7 @@ def draw_parse(stdscr, state, encounter_report):
                     curses.color_pair(2),
                 )
 
-                # Target Stats
+                ### Target Stats
                 count = 2
                 for entry in encounter_report["target"]:
                     if entry != "name" and entry != "killed":
@@ -791,7 +795,7 @@ def draw_parse(stdscr, state, encounter_report):
                         )
                         count += 1
 
-                    # Killed
+                    #### Killed
                     elif entry == "killed":
                         encounterscr.addstr(
                             1,
@@ -815,7 +819,7 @@ def draw_parse(stdscr, state, encounter_report):
                             )
                             kill_count += 1
 
-                # Encounter Summary
+                ### Encounter Summary
                 encounterscr.addstr(
                     1,
                     center_x,
@@ -832,7 +836,9 @@ def draw_parse(stdscr, state, encounter_report):
                     )
                     if entry == "location":
                         value = re.sub(
-                            r"[^\d+\.\,\-\s]", "", encounter_report["encounter_summary"][entry]
+                            r"[^\d+\.\,\-\s]",
+                            "",
+                            encounter_report["encounter_summary"][entry],
                         )
                     else:
                         value = encounter_report["encounter_summary"][entry]
@@ -843,13 +849,65 @@ def draw_parse(stdscr, state, encounter_report):
                         curses.color_pair(1),
                     )
                     count += 1
+
+                ### Player Summary
+                playerscr.addstr(
+                    0, int(encounter_x / 2) - 4, "Players:", curses.color_pair(2)
+                )
+                player_x = 1
+                player_y = 1
+                for player in encounter_report["participants"].keys():
+                    playerscr.addstr(
+                        player_y, player_x, player.title() + ":", curses.color_pair(3)
+                    )
+                    player_y += 1
+                    for stat in encounter_report["participants"][player].keys():
+                        playerscr.addstr(
+                            player_y,
+                            player_x + 2,
+                            stat[:first_quarter].title().replace("_", " "),
+                            curses.color_pair(5),
+                        )
+                        if "dps" in stat or "activity" in stat:
+                            value = str(
+                                format(
+                                    float(
+                                        encounter_report["participants"][player][stat]
+                                    ),
+                                    ".2f",
+                                )
+                            )
+                        else:
+                            value = str(encounter_report["participants"][player][stat])
+                        playerscr.addstr(
+                            player_y,
+                            player_x + 22,
+                            value[:first_quarter].title().replace("_", " "),
+                            curses.color_pair(1),
+                        )
+                        player_y += 1
+                    if player_y > (int(y / 2) - 10):
+                        player_y = 1
+                        if player_x <= second_third:
+                            player_x += first_third
+                        else:
+                            # We're out of screen space
+                            break
+                    else:
+                        player_y += 1
             else:
                 encounterscr.addstr(
-                    5, 5, "no encounter parse yet", curses.color_pair(2)
+                    center_y,
+                    center_x - 11,
+                    "no encounter parse yet",
+                    curses.color_pair(2),
                 )
         else:
             encounterscr.addstr(
-                5, 5, "encounter parsing disabled", curses.color_pair(2)
+                center_y,
+                center_x - 13,
+                "encounter parsing disabled",
+                curses.color_pair(2),
             )
 
     except Exception as e:
