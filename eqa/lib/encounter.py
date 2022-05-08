@@ -1816,12 +1816,13 @@ def encounter_report(
             )
 
             ## Write Encounter to File
-            encounter_report_json_string = json.dumps(encounter_report, indent=2)
-            encounter_report_file = open(
-                encounter_zone_date_path + encounter_filename, "w"
-            )
-            encounter_report_file.write(encounter_report_json_string)
-            encounter_report_file.close()
+            if config["settings"]["encounter_parsing"]["auto_save"] == "true":
+                encounter_report_json_string = json.dumps(encounter_report, indent=2)
+                encounter_report_file = open(
+                    encounter_zone_date_path + encounter_filename, "w"
+                )
+                encounter_report_file.write(encounter_report_json_string)
+                encounter_report_file.close()
 
             ## Prune Old Events in encounter_stack
             for event in encounter_stack:

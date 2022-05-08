@@ -152,7 +152,7 @@ def bootstrap_state(base_path, char, server):
                 "mute": "false",
                 "group": "false",
                 "leader": "false",
-                "encounter_parse": "false",
+                "encounter_parse": "true",
             }
         )
         json_data = open(base_path + "config.json", "w", encoding="utf-8")
@@ -1360,7 +1360,10 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.11.0"
+    "encounter_parsing": {
+      "auto_save": "false"
+    },
+    "version": "2.11.1"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
