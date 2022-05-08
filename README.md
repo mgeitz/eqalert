@@ -33,6 +33,8 @@ You should now see `~/.eqa/` with the following structure
 ```
 $HOME/.eqa
         ⎿ config.json
+        ⎿ data/
+        ⎿ encounters/
         ⎿ log/
           ⎿ debug/
         ⎿ sound/
@@ -43,11 +45,23 @@ Spot check these default paths generated in `config.json`
     "settings": {
         "paths": {
             "alert_log": "[$HOME/.eqa/]log/",
+            "data": "[$HOME/.eqa/]data/",
+            "encounter": "[$HOME/.eqa/]encounters/",
             "char_log": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
             "sound": "[$HOME/.eqa/]sound/",
             "tmp_sound": "/tmp/eqa/sound/"
         },
 ```
+
+If you would like encounter parses saved, update the `auto_save` setting in `config.json` to `true` as shown below
+```
+  "settings": {
+    "encounter_parsing": {
+      "auto_save": "true"
+    },
+  },
+```
+
 > Press `0` to reload your config or restart the program if any changes were made to the config
 
 
@@ -69,7 +83,7 @@ Spot check these default paths generated in `config.json`
   - r       : Toggle raid mode
   - d       : Toggle debug mode
   - e       : Toggle encounter parsing
-  - m       : Toggle audio mute
+  - m       : Toggle global audio mute
 
 #### Settings
   - up      : Cycle up in selection
