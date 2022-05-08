@@ -24,6 +24,7 @@ import sys
 import time
 import math
 import pkg_resources
+import re
 
 import eqa.lib.struct as eqa_struct
 import eqa.lib.state as eqa_state
@@ -731,10 +732,16 @@ def draw_ftime(stdscr, timestamp, y):
 
 
 def draw_parse(stdscr, state, encounter_report):
-    """Draw state"""
+    """Draw parse"""
     y, x = stdscr.getmaxyx()
-    center_y = int(y / 2)
-    center_x = int(x / 2)
+    encounter_y = y - 4
+    encounter_x = x - 2
+    center_y = int(encounter_y / 2)
+    center_x = int(encounter_x / 2)
+    first_quarter = int(encounter_x / 4)
+    third_quarter = center_x + first_quarter
+    first_third = int(encounter_x / 3)
+    second_third = first_third + first_third
 
     # Clear and box
     stdscr.clear()
@@ -744,13 +751,106 @@ def draw_parse(stdscr, state, encounter_report):
     draw_tabs(stdscr, "parse")
 
     try:
+        encounterscr = stdscr.derwin(encounter_y, encounter_x, 3, 1)
+        encounterscr.clear()
+
         if state.encounter_parse == "true":
             if encounter_report is not None:
-                stdscr.addstr(5, 5, "show encounter parse", curses.color_pair(2))
+
+                # Target Title
+                encounterscr.addstr(
+                    1,
+                    1,
+                    encounter_report["target"]["name"].title() + ":",
+                    curses.color_pair(2),
+                )
+
+                # Target Stats
+                count = 2
+                for entry in encounter_report["target"]:
+                    if entry != "name" and entry != "killed":
+                        encounterscr.addstr(
+                            count,
+                            3,
+                            str(entry.title())[:first_quarter]
+                            .replace("_", " ")
+                            .title(),
+                            curses.color_pair(5),
+                        )
+                        if "dps" in entry or "activity" in entry:
+                            value = str(
+                                format(float(encounter_report["target"][entry]), ".2f")
+                            )
+                        else:
+                            value = str(encounter_report["target"][entry])
+                        encounterscr.addstr(
+                            count,
+                            22,
+                            value[:first_quarter].replace("_", " ").title(),
+                            curses.color_pair(1),
+                        )
+                        count += 1
+
+                    # Killed
+                    elif entry == "killed":
+                        encounterscr.addstr(
+                            1,
+                            first_third,
+                            "Killed:",
+                            curses.color_pair(6),
+                        )
+                        kill_count = 2
+                        for victim in encounter_report["target"]["killed"].keys():
+                            encounterscr.addstr(
+                                kill_count,
+                                first_third + 2,
+                                victim[:12].title(),
+                                curses.color_pair(3),
+                            )
+                            encounterscr.addstr(
+                                kill_count,
+                                first_third + 14,
+                                encounter_report["target"]["killed"][victim],
+                                curses.color_pair(1),
+                            )
+                            kill_count += 1
+
+                # Encounter Summary
+                encounterscr.addstr(
+                    1,
+                    center_x,
+                    "Encounter Summary:",
+                    curses.color_pair(2),
+                )
+                count = 2
+                for entry in encounter_report["encounter_summary"]:
+                    encounterscr.addstr(
+                        count,
+                        center_x + 2,
+                        str(entry.title())[:first_quarter].replace("_", " ").title(),
+                        curses.color_pair(5),
+                    )
+                    if entry == "location":
+                        value = re.sub(
+                            r"[^\d+\.\,\-\s]", "", encounter_report["encounter_summary"][entry]
+                        )
+                    else:
+                        value = encounter_report["encounter_summary"][entry]
+                    encounterscr.addstr(
+                        count,
+                        center_x + 21,
+                        str(value)[:first_quarter].replace("_", " ").title(),
+                        curses.color_pair(1),
+                    )
+                    count += 1
             else:
-                stdscr.addstr(5, 5, "no encounter parse yet", curses.color_pair(2))
+                encounterscr.addstr(
+                    5, 5, "no encounter parse yet", curses.color_pair(2)
+                )
         else:
-            stdscr.addstr(5, 5, "encounter parsing disabled", curses.color_pair(2))
+            encounterscr.addstr(
+                5, 5, "encounter parsing disabled", curses.color_pair(2)
+            )
 
     except Exception as e:
         eqa_settings.log(

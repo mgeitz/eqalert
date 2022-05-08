@@ -1804,8 +1804,8 @@ def encounter_report(
                             encounter_heals.get(participant)
                         )
                     if participant in target_killed.keys():
-                        encounter_report["participants"][l_part]["killed"] = str(
-                            target_killed.keys
+                        encounter_report["participants"][l_part]["died"] = str(
+                            target_killed[participant]
                         )
 
             ## Send Report to Display
