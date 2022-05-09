@@ -152,6 +152,7 @@ def bootstrap_state(base_path, char, server):
                 "mute": "false",
                 "group": "false",
                 "leader": "false",
+                "encounter_parse": "true",
             }
         )
         json_data = open(base_path + "config.json", "w", encoding="utf-8")
@@ -203,6 +204,7 @@ def set_last_state(state, base_path):
                 "mute": str(state.mute),
                 "group": str(state.group),
                 "leader": str(state.leader),
+                "encounter_parse": str(state.encounter_parse),
             }
         )
         data["char_logs"][state.char + "_" + state.server].update(
@@ -296,6 +298,7 @@ def get_last_state(base_path, char_name, char_server):
         mute = data["last_state"]["mute"]
         group = data["last_state"]["group"]
         leader = data["last_state"]["leader"]
+        encounter_parse = data["last_state"]["encounter_parse"]
 
         # Get chars
         chars = get_config_chars(data)
@@ -319,6 +322,7 @@ def get_last_state(base_path, char_name, char_server):
             char_level,
             char_class,
             char_guild,
+            encounter_parse,
         )
 
         return state
@@ -448,6 +452,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_other_melee_invulnerable": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_other_melee_miss": {
       "alert": {},
       "reaction": "false",
@@ -483,22 +492,27 @@ def build_config(base_path):
       "reaction": "afk",
       "sound": "danger will robinson"
     },
-    "combat_you_stun_off": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_you_stun_on": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
     "command_block": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
+    "command_block_casting": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "command_invalid": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "command_error": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "consider_no_target": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -711,6 +725,7 @@ def build_config(base_path):
         "sieve": "raid",
         "slow": "raid",
         "snare": "raid",
+        "stand": "raid",
         "sunder": "raid",
         "tash": "raid"
       },
@@ -854,7 +869,8 @@ def build_config(base_path):
     },
     "say": {
       "alert": {
-        "help": "true"
+        "help": "true",
+        "spot": "raid"
       },
       "reaction": "alert",
       "sound": "look at say"
@@ -1026,6 +1042,11 @@ def build_config(base_path):
     },
     "spell_not_hold": {
       "alert": {},
+      "reaction": "raid",
+      "sound": "did not hold"
+    },
+    "spell_protected": {
+      "alert": {},
       "reaction": "false",
       "sound": "false"
     },
@@ -1061,7 +1082,7 @@ def build_config(base_path):
     },
     "spell_slow_on": {
       "alert": {},
-      "reaction": "solo",
+      "reaction": "solo_group_only",
       "sound": "slowed"
     },
     "spell_sow_off_you": {
@@ -1214,12 +1235,27 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "wrong_key": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "wrong key or place"
+    },
     "you_afk_off": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
     "you_afk_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_auto_attack_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_auto_attack_on": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -1294,6 +1330,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "you_stun_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_stun_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "zone_message": {
       "alert": {},
       "reaction": "all",
@@ -1308,11 +1354,16 @@ def build_config(base_path):
   "settings": {
     "paths": {
       "alert_log": "%slog/",
+      "data": "%sdata/",
+      "encounter": "%sencounters/",
       "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "version": "2.10.3"
+    "encounter_parsing": {
+      "auto_save": "false"
+    },
+    "version": "2.11.1"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
@@ -1421,7 +1472,7 @@ def build_config(base_path):
 
     try:
         f = open(base_path + "config.json", "w", encoding="utf-8")
-        f.write(new_config % (base_path, home, base_path))
+        f.write(new_config % (base_path, base_path, base_path, home, base_path))
         f.close()
 
     except Exception as e:

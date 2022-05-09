@@ -31,6 +31,7 @@ import queue
 import eqa.lib.action as eqa_action
 import eqa.lib.config as eqa_config
 import eqa.lib.curses as eqa_curses
+import eqa.lib.encounter as eqa_encounter
 import eqa.lib.keys as eqa_keys
 import eqa.lib.log as eqa_log
 import eqa.lib.parser as eqa_parser
@@ -59,6 +60,8 @@ def startup(base_path):
         # Read config paths
         config = eqa_config.read_config(base_path)
         log_path = config["settings"]["paths"]["alert_log"]
+        data_path = config["settings"]["paths"]["data"]
+        encounter_path = config["settings"]["paths"]["encounter"]
         sound_path = config["settings"]["paths"]["sound"]
         tmp_sound_path = config["settings"]["paths"]["tmp_sound"]
         char_log_path = config["settings"]["paths"]["char_log"]
@@ -73,15 +76,20 @@ def startup(base_path):
         # Make the log directory
         if not os.path.exists(log_path):
             print("    - making a place for logs")
-            os.makedirs(base_path + "log/")
+            os.makedirs(log_path)
 
         # Set log file
         logging.basicConfig(filename=log_path + "eqalert.log", level=logging.INFO)
 
         # Make the debug directory
-        if not os.path.exists(base_path + "log/debug/"):
+        if not os.path.exists(log_path + "debug/"):
             print("    - making a place for optional debug logs")
-            os.makedirs(base_path + "log/debug/")
+            os.makedirs(log_path + "debug/")
+
+        # Make the encounter directory
+        if not os.path.exists(encounter_path):
+            print("    - making a place for encounter logs")
+            os.makedirs(encounter_path)
 
         # Make the sound directory
         if not os.path.exists(sound_path):
@@ -91,6 +99,11 @@ def startup(base_path):
         # Make the tmp sound directory
         if not os.path.exists(tmp_sound_path):
             os.makedirs(tmp_sound_path)
+
+        # Make the data directory
+        if not os.path.exists(data_path):
+            print("    - making a place for data")
+            os.makedirs(data_path)
 
         # Update config char_logs
         eqa_config.update_logs(base_path)
@@ -135,6 +148,7 @@ def startup(base_path):
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
+            + "# Sometimes this is solved by allowing config regeneration"
         )
         exit(1)
 
@@ -171,6 +185,7 @@ def main():
     sound_q = queue.Queue()
     system_q = queue.Queue()
     log_q = queue.Queue()
+    encounter_q = queue.Queue()
 
     # Initialize curses
     screen = eqa_curses.init(state)
@@ -190,18 +205,11 @@ def main():
     ## Produce action_q
 
     ### Thread 1
-    process_parse_1 = threading.Thread(
+    process_parse = threading.Thread(
         target=eqa_parser.process, args=(exit_flag, log_q, action_q)
     )
-    process_parse_1.daemon = True
-    process_parse_1.start()
-
-    ### Thread 2
-    process_parse_2 = threading.Thread(
-        target=eqa_parser.process, args=(exit_flag, log_q, action_q)
-    )
-    process_parse_2.daemon = True
-    process_parse_2.start()
+    process_parse.daemon = True
+    process_parse.start()
 
     # Read Keyboard Events
     ## Consume keyboard events
@@ -233,17 +241,18 @@ def main():
     ## Consume action_q
     ## Produce display_q, sound_q, system_q
 
-    ### Shared Mute List
+    ### Mute List
     mute_list = []
 
     ### Thread 1
-    process_action_1 = threading.Thread(
+    process_action = threading.Thread(
         target=eqa_action.process,
         args=(
             config,
             base_path,
             state,
             action_q,
+            encounter_q,
             system_q,
             display_q,
             sound_q,
@@ -252,86 +261,48 @@ def main():
             mute_list,
         ),
     )
-    process_action_1.daemon = True
-    process_action_1.start()
+    process_action.daemon = True
+    process_action.start()
 
-    ### Thread 2
-    process_action_2 = threading.Thread(
-        target=eqa_action.process,
-        args=(
-            config,
-            base_path,
-            state,
-            action_q,
-            system_q,
-            display_q,
-            sound_q,
-            exit_flag,
-            cfg_reload,
-            mute_list,
-        ),
-    )
-    process_action_2.daemon = True
-    process_action_2.start()
+    # Produce display_q, system_q
+    ## Consume encounter_q
 
-    ### Thread 3
-    process_action_3 = threading.Thread(
-        target=eqa_action.process,
+    process_encounter = threading.Thread(
+        target=eqa_encounter.process,
         args=(
             config,
             base_path,
-            state,
-            action_q,
+            encounter_q,
             system_q,
             display_q,
-            sound_q,
             exit_flag,
             cfg_reload,
-            mute_list,
-        ),
-    )
-    process_action_3.daemon = True
-    process_action_3.start()
-
-    ### Thread 4
-    process_action_4 = threading.Thread(
-        target=eqa_action.process,
-        args=(
-            config,
-            base_path,
             state,
-            action_q,
-            system_q,
-            display_q,
-            sound_q,
-            exit_flag,
-            cfg_reload,
-            mute_list,
         ),
     )
-    process_action_4.daemon = True
-    process_action_4.start()
+    process_encounter.daemon = True
+    process_encounter.start()
 
     # Produce Sound
     ## Consume sound_q
 
     ### Thread 1
     process_sound_1 = threading.Thread(
-        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload)
+        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload, state)
     )
     process_sound_1.daemon = True
     process_sound_1.start()
 
     ### Thread 2
     process_sound_2 = threading.Thread(
-        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload)
+        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload, state)
     )
     process_sound_2.daemon = True
     process_sound_2.start()
 
     ### Thread 3
     process_sound_3 = threading.Thread(
-        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload)
+        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload, state)
     )
     process_sound_3.daemon = True
     process_sound_3.start()
@@ -358,10 +329,9 @@ def main():
 
             # Sleep between empty checks
             queue_size = system_q.qsize()
-            if queue_size < 4:
+            if queue_size < 1:
                 time.sleep(0.01)
             else:
-                time.sleep(0.001)
                 if state.debug == "true":
                     eqa_settings.log("system_q depth: " + str(queue_size))
 
@@ -410,6 +380,16 @@ def main():
                     ### Update debug status
                     elif new_message.tx == "debug":
                         system_debug(base_path, state, display_q, sound_q, new_message)
+                    ### Update encounter parse status
+                    elif new_message.tx == "encounter":
+                        system_encounter(
+                            base_path,
+                            state,
+                            display_q,
+                            sound_q,
+                            encounter_q,
+                            new_message,
+                        )
                     ### Update group status
                     elif new_message.tx == "group":
                         state.set_group(new_message.payload)
@@ -580,10 +560,8 @@ def main():
                         state.set_guild(new_state.char_guild)
                         #### Stop state dependent processes
                         cfg_reload.set()
-                        process_action_1.join()
-                        process_action_2.join()
-                        process_action_3.join()
-                        process_action_4.join()
+                        process_action.join()
+                        process_encounter.join()
                         process_sound_1.join()
                         process_sound_2.join()
                         process_sound_3.join()
@@ -608,13 +586,14 @@ def main():
                         #### Restart process_action
 
                         ##### Thread 1
-                        process_action_1 = threading.Thread(
+                        process_action = threading.Thread(
                             target=eqa_action.process,
                             args=(
                                 config,
                                 base_path,
                                 state,
                                 action_q,
+                                encounter_q,
                                 system_q,
                                 display_q,
                                 sound_q,
@@ -623,72 +602,32 @@ def main():
                                 mute_list,
                             ),
                         )
-                        process_action_1.daemon = True
-                        process_action_1.start()
+                        process_action.daemon = True
+                        process_action.start()
 
-                        ##### Thread 2
-                        process_action_2 = threading.Thread(
-                            target=eqa_action.process,
+                        #### Restart process_encounter
+                        process_encounter = threading.Thread(
+                            target=eqa_encounter.process,
                             args=(
                                 config,
                                 base_path,
-                                state,
-                                action_q,
+                                encounter_q,
                                 system_q,
                                 display_q,
-                                sound_q,
                                 exit_flag,
                                 cfg_reload,
-                                mute_list,
-                            ),
-                        )
-                        process_action_2.daemon = True
-                        process_action_2.start()
-
-                        ##### Thread 3
-                        process_action_3 = threading.Thread(
-                            target=eqa_action.process,
-                            args=(
-                                config,
-                                base_path,
                                 state,
-                                action_q,
-                                system_q,
-                                display_q,
-                                sound_q,
-                                exit_flag,
-                                cfg_reload,
-                                mute_list,
                             ),
                         )
-                        process_action_3.daemon = True
-                        process_action_3.start()
-
-                        ##### Thread 4
-                        process_action_4 = threading.Thread(
-                            target=eqa_action.process,
-                            args=(
-                                config,
-                                base_path,
-                                state,
-                                action_q,
-                                system_q,
-                                display_q,
-                                sound_q,
-                                exit_flag,
-                                cfg_reload,
-                                mute_list,
-                            ),
-                        )
-                        process_action_4.daemon = True
-                        process_action_4.start()
+                        process_encounter.daemon = True
+                        process_encounter.start()
 
                         #### Restart process_sound
 
                         ##### Thread 1
                         process_sound_1 = threading.Thread(
                             target=eqa_sound.process,
-                            args=(config, sound_q, exit_flag, cfg_reload),
+                            args=(config, sound_q, exit_flag, cfg_reload, state),
                         )
                         process_sound_1.daemon = True
                         process_sound_1.start()
@@ -696,7 +635,7 @@ def main():
                         ##### Thread 2
                         process_sound_2 = threading.Thread(
                             target=eqa_sound.process,
-                            args=(config, sound_q, exit_flag, cfg_reload),
+                            args=(config, sound_q, exit_flag, cfg_reload, state),
                         )
                         process_sound_2.daemon = True
                         process_sound_2.start()
@@ -704,7 +643,7 @@ def main():
                         ##### Thread 3
                         process_sound_3 = threading.Thread(
                             target=eqa_sound.process,
-                            args=(config, sound_q, exit_flag, cfg_reload),
+                            args=(config, sound_q, exit_flag, cfg_reload, state),
                         )
                         process_sound_3.daemon = True
                         process_sound_3.start()
@@ -743,13 +682,10 @@ def main():
     )
     read_keys.join()
     process_log.join()
-    process_parse_1.join()
-    process_parse_2.join()
+    process_parse.join()
     process_keys.join()
-    process_action_1.join()
-    process_action_2.join()
-    process_action_3.join()
-    process_action_4.join()
+    process_action.join()
+    process_encounter.join()
     process_sound_1.join()
     process_sound_2.join()
     process_sound_3.join()
@@ -875,7 +811,7 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
                 )
             )
             sound_q.put(
-                eqa_struct.sound("speak", "Displaying and logging all line matches")
+                eqa_struct.sound("speak", "Displaying and logging all parser output")
             )
         elif state.debug == "true" and new_message.rx == "toggle":
             state.set_debug("false")
@@ -896,6 +832,64 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
     except Exception as e:
         eqa_settings.log(
             "system debug: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_message):
+    """Perform system tasks for encounter parse behavior"""
+
+    try:
+        if state.encounter_parse == "false" and new_message.rx == "toggle":
+            state.set_encounter_parse("true")
+            eqa_config.set_last_state(state, base_path)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Encounter Parse Enabled",
+                )
+            )
+            encounter_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(), "null", "clear", "null", "null"
+                )
+            )
+            sound_q.put(eqa_struct.sound("speak", "Encounter Parse Enabled"))
+        elif state.encounter_parse == "true" and new_message.rx == "toggle":
+            state.set_encounter_parse("false")
+            eqa_config.set_last_state(state, base_path)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Encounter Parse Disabled",
+                )
+            )
+            sound_q.put(eqa_struct.sound("speak", "Encounter Parse Disabled"))
+        elif new_message.rx == "clear":
+            encounter_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(), "null", "clear", "null", "null"
+                )
+            )
+        elif new_message.rx == "end":
+            encounter_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(), "null", "end", "null", "null"
+                )
+            )
+        display_q.put(
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "system encounter: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)

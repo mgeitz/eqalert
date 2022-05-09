@@ -43,6 +43,7 @@ class EQA_State:
         char_level,
         char_class,
         char_guild,
+        encounter_parse,
     ):
         """All States"""
         self.char = char
@@ -62,6 +63,7 @@ class EQA_State:
         self.char_level = char_level
         self.char_class = char_class
         self.char_guild = char_guild
+        self.encounter_parse = encounter_parse
 
     def set_char(self, char):
         """Set Character"""
@@ -130,3 +132,7 @@ class EQA_State:
     def set_guild(self, char_guild):
         """Set Guild"""
         self.char_guild = char_guild
+
+    def set_encounter_parse(self, encounter_parse):
+        """Set Encounter Parse"""
+        self.encounter_parse = encounter_parse

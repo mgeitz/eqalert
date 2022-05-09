@@ -29,7 +29,7 @@ import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
 
 
-def process(config, sound_q, exit_flag, cfg_reload):
+def process(config, sound_q, exit_flag, cfg_reload, state):
     """
     Process: sound_q
     Produce: sound event
@@ -46,12 +46,8 @@ def process(config, sound_q, exit_flag, cfg_reload):
         while not exit_flag.is_set() and not cfg_reload.is_set():
 
             # Sleep between empty checks
-            queue_size = sound_q.qsize()
-            if queue_size < 2:
+            if sound_q.qsize() < 1:
                 time.sleep(0.01)
-            else:
-                time.sleep(0.001)
-                eqa_settings.log("sound_q depth: " + str(queue_size))
 
             # Check queue for message
             if not sound_q.empty():
@@ -62,9 +58,17 @@ def process(config, sound_q, exit_flag, cfg_reload):
                     mute_speak = sound_event.payload
                 elif sound_event.sound == "mute_alert":
                     mute_alert = sound_event.payload
-                elif sound_event.sound == "speak" and not mute_speak == "true":
+                elif (
+                    sound_event.sound == "speak"
+                    and not mute_speak == "true"
+                    and not state.mute == "true"
+                ):
                     speak(sound_event.payload, "true", tmp_sound_file_path)
-                elif sound_event.sound == "alert" and not mute_alert == "true":
+                elif (
+                    sound_event.sound == "alert"
+                    and not mute_alert == "true"
+                    and not state.mute == "true"
+                ):
                     alert(config, sound_event.payload)
 
                 sound_q.task_done()

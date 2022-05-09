@@ -24,6 +24,7 @@ import sys
 import time
 import math
 import pkg_resources
+import re
 
 import eqa.lib.struct as eqa_struct
 import eqa.lib.state as eqa_state
@@ -40,16 +41,14 @@ def display(stdscr, display_q, state, exit_flag):
     page = "events"
     setting = "character"
     selected_char = 0
+    encounter_report = None
 
     try:
         while not exit_flag.is_set():
 
             # Sleep between empty checks
-            queue_size = display_q.qsize()
-            if queue_size < 2:
+            if display_q.qsize() < 1:
                 time.sleep(0.01)
-            else:
-                time.sleep(0.001)
 
             # Check queue for message
             if not display_q.empty():
@@ -69,6 +68,8 @@ def display(stdscr, display_q, state, exit_flag):
                         zone = display_event.payload
                     elif display_event.screen == "char":
                         state.char = display_event.payload
+                    elif display_event.screen == "encounter":
+                        encounter_report = display_event.payload
                     draw_page(
                         stdscr,
                         page,
@@ -77,6 +78,7 @@ def display(stdscr, display_q, state, exit_flag):
                         state,
                         setting,
                         selected_char,
+                        encounter_report,
                     )
 
                 ## Display Draw
@@ -91,6 +93,7 @@ def display(stdscr, display_q, state, exit_flag):
                         state,
                         setting,
                         selected_char,
+                        encounter_report,
                     )
 
                 ## Draw Update
@@ -106,6 +109,7 @@ def display(stdscr, display_q, state, exit_flag):
                                 state,
                                 setting,
                                 selected_char,
+                                encounter_report,
                             )
                     elif display_event.screen == "debug":
                         debug_events.append(display_event)
@@ -117,6 +121,7 @@ def display(stdscr, display_q, state, exit_flag):
                             state,
                             setting,
                             selected_char,
+                            encounter_report,
                         )
                     elif display_event.screen == "clear":
                         events = []
@@ -129,6 +134,7 @@ def display(stdscr, display_q, state, exit_flag):
                             state,
                             setting,
                             selected_char,
+                            encounter_report,
                         )
 
                 display_q.task_done()
@@ -144,18 +150,22 @@ def display(stdscr, display_q, state, exit_flag):
     sys.exit()
 
 
-def draw_page(stdscr, page, events, debug_events, state, setting, selected_char):
+def draw_page(
+    stdscr, page, events, debug_events, state, setting, selected_char, encounter_report
+):
     y, x = stdscr.getmaxyx()
     try:
         if x >= 80 and y >= 40:
             if page == "events":
-                draw_events_frame(stdscr, state, events, debug_events)
+                draw_events_frame(stdscr, state, events, debug_events, encounter_report)
             elif page == "state":
                 draw_state(stdscr, state)
             elif page == "settings":
                 draw_settings(stdscr, state, setting, selected_char)
             elif page == "help":
                 draw_help(stdscr)
+            elif page == "parse":
+                draw_parse(stdscr, state, encounter_report)
         else:
             draw_toosmall(stdscr)
     except Exception as e:
@@ -184,7 +194,8 @@ def init(state):
         curses.init_pair(3, curses.COLOR_CYAN, -1)  # Subtext
         curses.init_pair(4, curses.COLOR_MAGENTA, -1)  # Highlight
         curses.init_pair(5, curses.COLOR_GREEN, -1)  # Dunno
-        draw_events_frame(stdscr, state, [], [])
+        curses.init_pair(6, curses.COLOR_RED, -1)  # Dunno
+        draw_events_frame(stdscr, state, [], [], None)
         return stdscr
 
     except Exception as e:
@@ -241,27 +252,27 @@ def draw_tabs(stdscr, tab):
         stdscr.addch(1, 23, curses.ACS_VLINE)
         stdscr.addch(2, 23, curses.ACS_BTEE)
 
-        # Settings tab
-        stdscr.addstr(1, x - 23, "3", curses.color_pair(3))
-        stdscr.addstr(1, x - 22, ":", curses.color_pair(1))
-        if tab == "settings":
-            stdscr.addstr(1, x - 20, "settings", curses.color_pair(4))
+        # Parse tab
+        stdscr.addstr(1, x - 24, "3", curses.color_pair(3))
+        stdscr.addstr(1, x - 23, ":", curses.color_pair(1))
+        if tab == "parse":
+            stdscr.addstr(1, x - 21, "parse", curses.color_pair(4))
         else:
-            stdscr.addstr(1, x - 20, "settings", curses.color_pair(2))
-        stdscr.addch(0, x - 25, curses.ACS_TTEE)
-        stdscr.addch(1, x - 25, curses.ACS_VLINE)
-        stdscr.addch(2, x - 25, curses.ACS_BTEE)
+            stdscr.addstr(1, x - 21, "parse", curses.color_pair(2))
+        stdscr.addch(0, x - 26, curses.ACS_TTEE)
+        stdscr.addch(1, x - 26, curses.ACS_VLINE)
+        stdscr.addch(2, x - 26, curses.ACS_BTEE)
 
-        # Help tab
-        stdscr.addstr(1, x - 9, "4", curses.color_pair(3))
-        stdscr.addstr(1, x - 8, ":", curses.color_pair(1))
-        if tab == "help":
-            stdscr.addstr(1, x - 6, "help", curses.color_pair(4))
+        # Settings tab
+        stdscr.addstr(1, x - 13, "4", curses.color_pair(3))
+        stdscr.addstr(1, x - 12, ":", curses.color_pair(1))
+        if tab == "settings":
+            stdscr.addstr(1, x - 10, "settings", curses.color_pair(4))
         else:
-            stdscr.addstr(1, x - 6, "help", curses.color_pair(2))
-        stdscr.addch(0, x - 11, curses.ACS_TTEE)
-        stdscr.addch(1, x - 11, curses.ACS_VLINE)
-        stdscr.addch(2, x - 11, curses.ACS_BTEE)
+            stdscr.addstr(1, x - 10, "settings", curses.color_pair(2))
+        stdscr.addch(0, x - 15, curses.ACS_TTEE)
+        stdscr.addch(1, x - 15, curses.ACS_VLINE)
+        stdscr.addch(2, x - 15, curses.ACS_BTEE)
 
         # Center title
         version = str(pkg_resources.get_distribution("eqalert").version)
@@ -279,7 +290,7 @@ def draw_tabs(stdscr, tab):
         )
 
 
-def draw_events_frame(stdscr, state, events, debug_events):
+def draw_events_frame(stdscr, state, events, debug_events, encounter_report):
     """Draw events"""
 
     try:
@@ -299,6 +310,9 @@ def draw_events_frame(stdscr, state, events, debug_events):
         # Draw lower panel
         if state.debug == "true":
             draw_events_debug(stdscr, debug_events)
+        elif state.encounter_parse == "true":
+            if encounter_report is not None:
+                draw_events_encounter(stdscr, encounter_report)
 
     except Exception as e:
         eqa_settings.log(
@@ -446,7 +460,7 @@ def draw_events(stdscr, events):
 
 
 def draw_events_debug(stdscr, debug_events):
-    """Draw events window component of events"""
+    """Draw events lower panel as debugs"""
 
     try:
         y, x = stdscr.getmaxyx()
@@ -483,6 +497,217 @@ def draw_events_debug(stdscr, debug_events):
         )
 
 
+def draw_events_encounter(stdscr, encounter_report):
+    """Draw events lower panel as encounter"""
+
+    try:
+        y, x = stdscr.getmaxyx()
+        center_y = int(y / 2)
+        encounter_win_y = center_y - 4
+        encounter_win_x = x - 4
+        mid_encounter_win_x = int(encounter_win_x / 2)
+        mid_encounter_win_y = int(encounter_win_y / 2)
+        encounterscr = stdscr.derwin(encounter_win_y, encounter_win_x, center_y + 3, 2)
+        encounterscr.clear()
+
+        # Center Line
+        center_line = 0
+        while center_line < encounter_win_y:
+            encounterscr.addch(center_line, mid_encounter_win_x, curses.ACS_VLINE)
+            center_line += 1
+
+        # Target Title
+        name_padding = (
+            int(mid_encounter_win_x / 2)
+            - int(len(encounter_report["target"]["name"]) / 2)
+            - len(encounter_report["encounter_summary"]["duration"])
+            - 2
+        )
+        target_title = (
+            encounter_report["target"]["name"]
+            + " in "
+            + encounter_report["encounter_summary"]["duration"]
+        )
+        encounterscr.addstr(0, name_padding, target_title, curses.color_pair(5))
+
+        # Target Underline
+        first_quarter = int(mid_encounter_win_x / 2)
+        underline = 4
+        while underline < (mid_encounter_win_x - 4):
+            if underline == first_quarter:
+                encounterscr.addch(1, underline, curses.ACS_TTEE, curses.color_pair(3))
+            else:
+                encounterscr.addch(1, underline, curses.ACS_HLINE, curses.color_pair(3))
+            underline += 1
+
+        # Target Mid-line
+        midline = 2
+        while midline < (encounter_win_y - 1):
+            encounterscr.addch(
+                midline, first_quarter, curses.ACS_VLINE, curses.color_pair(3)
+            )
+            midline += 1
+
+        # Target Stats
+        count = 2
+        for entry in encounter_report["target"]:
+            if entry != "name" and entry != "killed":
+                encounterscr.addstr(
+                    count,
+                    4,
+                    str(entry.title())[:first_quarter].replace("_", " ").title(),
+                    curses.color_pair(5),
+                )
+                if "dps" in entry or "activity" in entry:
+                    value = str(format(float(encounter_report["target"][entry]), ".2f"))
+                else:
+                    value = str(encounter_report["target"][entry])
+                encounterscr.addstr(
+                    count,
+                    first_quarter + 2,
+                    value[:first_quarter].replace("_", " ").title(),
+                    curses.color_pair(1),
+                )
+                count += 1
+
+        # Participant Stats
+        participant = 0
+        third_quarter = first_quarter + mid_encounter_win_x
+        players = list(encounter_report["participants"].keys())
+
+        if len(players) > 0:
+
+            # Top P1 Title
+            name_padding = third_quarter - int(len(players[0]) / 2)
+            encounterscr.addstr(
+                0, name_padding, players[0].title(), curses.color_pair(5)
+            )
+
+            # Top P1 Underline
+            underline = mid_encounter_win_x + 4
+            while underline < (encounter_win_x - 4):
+                if underline == third_quarter:
+                    encounterscr.addch(
+                        1, underline, curses.ACS_TTEE, curses.color_pair(3)
+                    )
+                else:
+                    encounterscr.addch(
+                        1, underline, curses.ACS_HLINE, curses.color_pair(3)
+                    )
+                underline += 1
+
+            # Top P1 Mid-line
+            midline = 2
+            while midline < (mid_encounter_win_y - 1):
+                encounterscr.addch(
+                    midline, third_quarter, curses.ACS_VLINE, curses.color_pair(3)
+                )
+                midline += 1
+
+            # Top P1 Stats
+            count = 2
+            for entry in encounter_report["participants"][players[0]]:
+                if count >= mid_encounter_win_y:
+                    break
+                encounterscr.addstr(
+                    count,
+                    mid_encounter_win_x + 4,
+                    str(entry)[:first_quarter].replace("_", " ").title(),
+                    curses.color_pair(5),
+                )
+                if "dps" in entry or "activity" in entry:
+                    value = str(
+                        format(
+                            float(encounter_report["participants"][players[0]][entry]),
+                            ".2f",
+                        )
+                    )
+                else:
+                    value = str(encounter_report["participants"][players[0]][entry])
+                encounterscr.addstr(
+                    count,
+                    third_quarter + 2,
+                    str(value)[:first_quarter].replace("_", " ").title(),
+                    curses.color_pair(1),
+                )
+                count += 1
+
+        if len(players) > 1:
+
+            # Top P2 Title
+            name_padding = third_quarter - int(len(players[1]) / 2)
+            encounterscr.addstr(
+                mid_encounter_win_y,
+                name_padding,
+                players[1].title(),
+                curses.color_pair(5),
+            )
+
+            # Top P2 Underline
+            underline = mid_encounter_win_x + 4
+            while underline < (encounter_win_x - 4):
+                if underline == third_quarter:
+                    pass
+                    encounterscr.addch(
+                        mid_encounter_win_y + 1,
+                        underline,
+                        curses.ACS_TTEE,
+                        curses.color_pair(3),
+                    )
+                else:
+                    encounterscr.addch(
+                        mid_encounter_win_y + 1,
+                        underline,
+                        curses.ACS_HLINE,
+                        curses.color_pair(3),
+                    )
+                underline += 1
+
+            # Top P2 Mid-line
+            midline = mid_encounter_win_y + 2
+            while midline < (encounter_win_y - 1):
+                encounterscr.addch(
+                    midline, third_quarter, curses.ACS_VLINE, curses.color_pair(3)
+                )
+                midline += 1
+
+            # Top P2 Stats
+            count = mid_encounter_win_y + 2
+            for entry in encounter_report["participants"][players[1]]:
+                if count >= encounter_win_y - 1:
+                    break
+                encounterscr.addstr(
+                    count,
+                    mid_encounter_win_x + 4,
+                    str(entry)[:first_quarter].replace("_", " ").title(),
+                    curses.color_pair(5),
+                )
+                if "dps" in entry or "activity" in entry:
+                    value = str(
+                        format(
+                            float(encounter_report["participants"][players[1]][entry]),
+                            ".2f",
+                        )
+                    )
+                else:
+                    value = str(encounter_report["participants"][players[1]][entry])
+                encounterscr.addstr(
+                    count,
+                    third_quarter + 2,
+                    value[:first_quarter].replace("_", " ").title(),
+                    curses.color_pair(1),
+                )
+                count += 1
+
+    except Exception as e:
+        eqa_settings.log(
+            "draw encounter events: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def draw_ftime(stdscr, timestamp, y):
     """Draw formatted time for events"""
     try:
@@ -500,6 +725,194 @@ def draw_ftime(stdscr, timestamp, y):
     except Exception as e:
         eqa_settings.log(
             "draw ftime: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def draw_parse(stdscr, state, encounter_report):
+    """Draw parse"""
+    y, x = stdscr.getmaxyx()
+    encounter_y = int(y / 2) - 3
+    encounter_x = x - 2
+    center_y = int(encounter_y / 2)
+    center_x = int(encounter_x / 2)
+    first_quarter = int(encounter_x / 4)
+    third_quarter = center_x + first_quarter
+    first_third = int(encounter_x / 3)
+    second_third = first_third + first_third
+
+    # Clear and box
+    stdscr.clear()
+    stdscr.box()
+
+    # Draw tabs
+    draw_tabs(stdscr, "parse")
+
+    try:
+        encounterscr = stdscr.derwin(encounter_y, encounter_x, 3, 1)
+        encounterscr.clear()
+        playerscr = stdscr.derwin(int(y / 2) - 1, encounter_x, int(y / 2), 1)
+        playerscr.clear()
+
+        # If we're parsing encounters
+        if state.encounter_parse == "true":
+            ## If we have a report to show
+            if encounter_report is not None:
+
+                ### Target Title
+                encounterscr.addstr(
+                    1,
+                    1,
+                    encounter_report["target"]["name"].title() + ":",
+                    curses.color_pair(2),
+                )
+
+                ### Target Stats
+                count = 2
+                for entry in encounter_report["target"]:
+                    if entry != "name" and entry != "killed":
+                        encounterscr.addstr(
+                            count,
+                            3,
+                            str(entry.title())[:first_quarter]
+                            .replace("_", " ")
+                            .title(),
+                            curses.color_pair(5),
+                        )
+                        if "dps" in entry or "activity" in entry:
+                            value = str(
+                                format(float(encounter_report["target"][entry]), ".2f")
+                            )
+                        else:
+                            value = str(encounter_report["target"][entry])
+                        encounterscr.addstr(
+                            count,
+                            22,
+                            value[:first_quarter].replace("_", " ").title(),
+                            curses.color_pair(1),
+                        )
+                        count += 1
+
+                    #### Killed
+                    elif entry == "killed":
+                        encounterscr.addstr(
+                            1,
+                            first_third,
+                            "Killed:",
+                            curses.color_pair(6),
+                        )
+                        kill_count = 2
+                        for victim in encounter_report["target"]["killed"].keys():
+                            encounterscr.addstr(
+                                kill_count,
+                                first_third + 2,
+                                victim[:12].title(),
+                                curses.color_pair(3),
+                            )
+                            encounterscr.addstr(
+                                kill_count,
+                                first_third + 14,
+                                encounter_report["target"]["killed"][victim],
+                                curses.color_pair(1),
+                            )
+                            kill_count += 1
+
+                ### Encounter Summary
+                encounterscr.addstr(
+                    1,
+                    center_x,
+                    "Encounter Summary:",
+                    curses.color_pair(2),
+                )
+                count = 2
+                for entry in encounter_report["encounter_summary"]:
+                    encounterscr.addstr(
+                        count,
+                        center_x + 2,
+                        str(entry.title())[:first_quarter].replace("_", " ").title(),
+                        curses.color_pair(5),
+                    )
+                    if entry == "location":
+                        value = re.sub(
+                            r"[^\d+\.\,\-\s]",
+                            "",
+                            encounter_report["encounter_summary"][entry],
+                        )
+                    else:
+                        value = encounter_report["encounter_summary"][entry]
+                    encounterscr.addstr(
+                        count,
+                        center_x + 21,
+                        str(value)[:first_quarter].replace("_", " ").title(),
+                        curses.color_pair(1),
+                    )
+                    count += 1
+
+                ### Player Summary
+                playerscr.addstr(
+                    0, int(encounter_x / 2) - 4, "Players:", curses.color_pair(2)
+                )
+                player_x = 1
+                player_y = 1
+                for player in encounter_report["participants"].keys():
+                    playerscr.addstr(
+                        player_y, player_x, player.title() + ":", curses.color_pair(3)
+                    )
+                    player_y += 1
+                    for stat in encounter_report["participants"][player].keys():
+                        playerscr.addstr(
+                            player_y,
+                            player_x + 2,
+                            stat[:first_quarter].title().replace("_", " "),
+                            curses.color_pair(5),
+                        )
+                        if "dps" in stat or "activity" in stat:
+                            value = str(
+                                format(
+                                    float(
+                                        encounter_report["participants"][player][stat]
+                                    ),
+                                    ".2f",
+                                )
+                            )
+                        else:
+                            value = str(encounter_report["participants"][player][stat])
+                        playerscr.addstr(
+                            player_y,
+                            player_x + 22,
+                            value[:first_quarter].title().replace("_", " "),
+                            curses.color_pair(1),
+                        )
+                        player_y += 1
+                    if player_y > (int(y / 2) - 10):
+                        player_y = 1
+                        if player_x <= second_third:
+                            player_x += first_third
+                        else:
+                            # We're out of screen space
+                            break
+                    else:
+                        player_y += 1
+            else:
+                encounterscr.addstr(
+                    center_y,
+                    center_x - 11,
+                    "no encounter parse yet",
+                    curses.color_pair(2),
+                )
+        else:
+            encounterscr.addstr(
+                center_y,
+                center_x - 13,
+                "encounter parsing disabled",
+                curses.color_pair(2),
+            )
+
+    except Exception as e:
+        eqa_settings.log(
+            "draw parse: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
@@ -606,11 +1019,16 @@ def draw_state(stdscr, state):
         stdscr.addstr(24, 16, ": ", curses.color_pair(1))
         stdscr.addstr(24, 18, state.mute.title(), curses.color_pair(3))
 
+        # enounter parse state
+        stdscr.addstr(25, 5, "Encounter", curses.color_pair(2))
+        stdscr.addstr(25, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(25, 18, state.encounter_parse.title(), curses.color_pair(3))
+
         # eqalert version
         version = str(pkg_resources.get_distribution("eqalert").version)
-        stdscr.addstr(26, 5, "Version", curses.color_pair(2))
-        stdscr.addstr(26, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(26, 18, version, curses.color_pair(3))
+        stdscr.addstr(28, 5, "Version", curses.color_pair(2))
+        stdscr.addstr(28, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(28, 18, version, curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(
@@ -707,9 +1125,6 @@ def draw_help(stdscr):
         stdscr.clear()
         stdscr.box()
 
-        # Draw tabs
-        draw_tabs(stdscr, "help")
-
         # Commands
         stdscr.addstr(5, 5, "Commands:", curses.color_pair(1))
 
@@ -726,61 +1141,69 @@ def draw_help(stdscr):
 
         stdscr.addstr(10, 9, "3", curses.color_pair(2))
         stdscr.addstr(10, 15, ":", curses.color_pair(1))
-        stdscr.addstr(10, 17, "Settings", curses.color_pair(3))
+        stdscr.addstr(10, 17, "Parse", curses.color_pair(3))
 
         stdscr.addstr(11, 9, "4", curses.color_pair(2))
         stdscr.addstr(11, 15, ":", curses.color_pair(1))
-        stdscr.addstr(11, 17, "Help", curses.color_pair(3))
+        stdscr.addstr(11, 17, "Settings", curses.color_pair(3))
 
         stdscr.addstr(12, 9, "q", curses.color_pair(2))
         stdscr.addstr(12, 15, ":", curses.color_pair(1))
         stdscr.addstr(12, 17, "Quit", curses.color_pair(3))
 
-        stdscr.addstr(13, 9, "0", curses.color_pair(2))
+        stdscr.addstr(13, 9, "h", curses.color_pair(2))
         stdscr.addstr(13, 15, ":", curses.color_pair(1))
-        stdscr.addstr(13, 17, "Reload config", curses.color_pair(3))
+        stdscr.addstr(13, 17, "Help", curses.color_pair(3))
+
+        stdscr.addstr(14, 9, "0", curses.color_pair(2))
+        stdscr.addstr(14, 15, ":", curses.color_pair(1))
+        stdscr.addstr(14, 17, "Reload config", curses.color_pair(3))
 
         # Events commands
-        stdscr.addstr(15, 7, "Events", curses.color_pair(1))
+        stdscr.addstr(16, 7, "Events", curses.color_pair(1))
 
-        stdscr.addstr(16, 9, "c", curses.color_pair(2))
-        stdscr.addstr(16, 15, ":", curses.color_pair(1))
-        stdscr.addstr(16, 17, "Clear events", curses.color_pair(3))
-
-        stdscr.addstr(17, 9, "r", curses.color_pair(2))
+        stdscr.addstr(17, 9, "c", curses.color_pair(2))
         stdscr.addstr(17, 15, ":", curses.color_pair(1))
-        stdscr.addstr(17, 17, "Toggle raid mode", curses.color_pair(3))
+        stdscr.addstr(17, 17, "Clear events", curses.color_pair(3))
 
-        stdscr.addstr(18, 9, "d", curses.color_pair(2))
+        stdscr.addstr(18, 9, "r", curses.color_pair(2))
         stdscr.addstr(18, 15, ":", curses.color_pair(1))
-        stdscr.addstr(18, 17, "Toggle debug modes", curses.color_pair(3))
+        stdscr.addstr(18, 17, "Toggle raid mode", curses.color_pair(3))
 
-        stdscr.addstr(19, 9, "m", curses.color_pair(2))
+        stdscr.addstr(19, 9, "d", curses.color_pair(2))
         stdscr.addstr(19, 15, ":", curses.color_pair(1))
-        stdscr.addstr(19, 17, "Toggle mute", curses.color_pair(3))
+        stdscr.addstr(19, 17, "Toggle debug mode", curses.color_pair(3))
+
+        stdscr.addstr(20, 9, "e", curses.color_pair(2))
+        stdscr.addstr(20, 15, ":", curses.color_pair(1))
+        stdscr.addstr(20, 17, "Toggle encounter parsing", curses.color_pair(3))
+
+        stdscr.addstr(21, 9, "m", curses.color_pair(2))
+        stdscr.addstr(21, 15, ":", curses.color_pair(1))
+        stdscr.addstr(21, 17, "Toggle mute", curses.color_pair(3))
 
         # Settings commands
-        stdscr.addstr(21, 7, "Settings", curses.color_pair(1))
+        stdscr.addstr(23, 7, "Settings", curses.color_pair(1))
 
-        stdscr.addstr(22, 9, "up", curses.color_pair(2))
-        stdscr.addstr(22, 15, ":", curses.color_pair(1))
-        stdscr.addstr(22, 17, "Cycle up in selection", curses.color_pair(3))
-
-        stdscr.addstr(23, 9, "down", curses.color_pair(2))
-        stdscr.addstr(23, 15, ":", curses.color_pair(1))
-        stdscr.addstr(23, 17, "Cycle down in selection", curses.color_pair(3))
-
-        stdscr.addstr(24, 9, "right", curses.color_pair(2))
+        stdscr.addstr(24, 9, "up", curses.color_pair(2))
         stdscr.addstr(24, 15, ":", curses.color_pair(1))
-        stdscr.addstr(24, 17, "Toggle selection on", curses.color_pair(3))
+        stdscr.addstr(24, 17, "Cycle up in selection", curses.color_pair(3))
 
-        stdscr.addstr(25, 9, "left", curses.color_pair(2))
+        stdscr.addstr(25, 9, "down", curses.color_pair(2))
         stdscr.addstr(25, 15, ":", curses.color_pair(1))
-        stdscr.addstr(25, 17, "Toggle selection off", curses.color_pair(3))
+        stdscr.addstr(25, 17, "Cycle down in selection", curses.color_pair(3))
 
-        stdscr.addstr(26, 9, "space", curses.color_pair(2))
+        stdscr.addstr(26, 9, "right", curses.color_pair(2))
         stdscr.addstr(26, 15, ":", curses.color_pair(1))
-        stdscr.addstr(26, 17, "Cycle selection", curses.color_pair(3))
+        stdscr.addstr(26, 17, "Toggle selection on", curses.color_pair(3))
+
+        stdscr.addstr(27, 9, "left", curses.color_pair(2))
+        stdscr.addstr(27, 15, ":", curses.color_pair(1))
+        stdscr.addstr(27, 17, "Toggle selection off", curses.color_pair(3))
+
+        stdscr.addstr(28, 9, "space", curses.color_pair(2))
+        stdscr.addstr(28, 15, ":", curses.color_pair(1))
+        stdscr.addstr(28, 17, "Cycle selection", curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(

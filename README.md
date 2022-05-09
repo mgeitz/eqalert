@@ -2,7 +2,7 @@
 
 A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface for Linux
 
-![img](https://i.imgur.com/Kau1J6z.png)
+![img](https://i.imgur.com/MzLNgMN.png)
 
 > Best used with the [Linux EQ Launch Manager](https://gist.github.com/mgeitz/aa295061c51b26d53dd818d0ebb3e37a) to maintain reasonable log file size
 
@@ -33,6 +33,8 @@ You should now see `~/.eqa/` with the following structure
 ```
 $HOME/.eqa
         ⎿ config.json
+        ⎿ data/
+        ⎿ encounters/
         ⎿ log/
           ⎿ debug/
         ⎿ sound/
@@ -43,11 +45,23 @@ Spot check these default paths generated in `config.json`
     "settings": {
         "paths": {
             "alert_log": "[$HOME/.eqa/]log/",
+            "data": "[$HOME/.eqa/]data/",
+            "encounter": "[$HOME/.eqa/]encounters/",
             "char_log": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
             "sound": "[$HOME/.eqa/]sound/",
             "tmp_sound": "/tmp/eqa/sound/"
         },
 ```
+
+If you would like encounter parses saved, update the `auto_save` setting in `config.json` to `true` as shown below
+```
+  "settings": {
+    "encounter_parsing": {
+      "auto_save": "true"
+    },
+  },
+```
+
 > Press `0` to reload your config or restart the program if any changes were made to the config
 
 
@@ -56,25 +70,25 @@ Spot check these default paths generated in `config.json`
 ### Keyboard Controls
 
 #### Global
-  - 1      : Events
-  - 2      : State
-  - 3      : Settings
-  - 4      : Help
-  - 0     : Reload config
+  - 1       : Events
+  - 2       : State
+  - 3       : Parse
+  - 4       : Settings
+  - 0       : Reload config
   - q / esc : Quit
+  - h       : Help
 
 #### Events
-  - c     : Clear event box
-  - r     : Toggle raid mode
-  - d     : Toggle debug mode
-  - m     : Toggle audio mute
+  - c       : Clear event box
+  - r       : Toggle raid mode
+  - d       : Toggle debug mode
+  - e       : Toggle encounter parsing
+  - m       : Toggle global audio mute
 
 #### Settings
-  - up    : Cycle up in selection
-  - down  : Cycle down in selection
-  - right : Toggle selection on
-  - left  : Toggle selection off
-  - space : Cycle selection
+  - up      : Cycle up in selection
+  - down    : Cycle down in selection
+  - right   : Toggle selection on
 
 ### Say Controls
 
@@ -101,6 +115,20 @@ You can control some parser settings using `/say` in-game.  This is better suite
 `/say parser mute clear` - Clear all muted line types and players
 
 > Does not effect global mute
+
+`/say parser encounter` - Toggle encounter parsing
+
+`/say parser encounter clear` - Clear the encounter stack
+
+`/say parser encounter end` - Sometimes, your logs don't catch an encounter end.  Use this command to fix that!
+
+`/say parser hello`
+
+`/say parser who`
+
+`/say parser where`
+
+`/say parser what state`
 
 
 ## Custom Alerting
@@ -216,6 +244,24 @@ Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is 
 - `false`: Play no sound when an alert is raised
 
 > Any other sound value will be spoken as the audio trigger for that line type
+
+#### The all Line Type
+
+This line type behaves the same as any specific line type configuration, but configuration here will be used against all log lines.
+
+For example, the below configuration will alert if the word `help` is found in any line while in a raid context, even if that line isn't matched to a type by the parser.
+
+```
+    "all": {
+      "alert": {
+        "help": raid
+      },
+      "reaction": "alert",
+      "sound": "help is needed"
+    },
+```
+
+This can be helpful if you would like to alert for something not yet matched by the parser, though your [contribution](CONTRIBUTING.md#pull-requests) to a new line type match in the parser would also be welcome!
 
 ### Zones
 

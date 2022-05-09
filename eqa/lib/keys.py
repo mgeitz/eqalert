@@ -41,6 +41,7 @@ def process(
 
     key = ""
     page = "events"
+    last_page = None
     settings = "character"
     selected_char = 0
 
@@ -48,12 +49,8 @@ def process(
         while not exit_flag.is_set() and not cfg_reload.is_set():
 
             # Sleep between empty checks
-            queue_size = keyboard_q.qsize()
-            if queue_size < 10:
+            if keyboard_q.qsize() < 1:
                 time.sleep(0.01)
-            else:
-                time.sleep(0.001)
-                eqa_settings.log("keyboard_q depth: " + str(queue_size))
 
             # Check queue for message
             if not keyboard_q.empty():
@@ -90,17 +87,33 @@ def process(
                 elif key == ord("3"):
                     display_q.put(
                         eqa_struct.display(
+                            eqa_settings.eqa_time(), "draw", "parse", "null"
+                        )
+                    )
+                    page = "parse"
+                elif key == ord("4"):
+                    display_q.put(
+                        eqa_struct.display(
                             eqa_settings.eqa_time(), "draw", "settings", "null"
                         )
                     )
                     page = "settings"
-                elif key == ord("4"):
-                    display_q.put(
-                        eqa_struct.display(
-                            eqa_settings.eqa_time(), "draw", "help", "null"
+                elif key == ord("h"):
+                    if page == "help" and last_page is not None:
+                        display_q.put(
+                            eqa_struct.display(
+                                eqa_settings.eqa_time(), "draw", last_page, "null"
+                            )
                         )
-                    )
-                    page = "help"
+                        page = last_page
+                    else:
+                        last_page = page
+                        display_q.put(
+                            eqa_struct.display(
+                                eqa_settings.eqa_time(), "draw", "help", "null"
+                            )
+                        )
+                        page = "help"
                 elif key == ord("0"):
                     system_q.put(
                         eqa_struct.message(
@@ -136,6 +149,16 @@ def process(
                                 eqa_settings.eqa_time(),
                                 "system",
                                 "debug",
+                                "toggle",
+                                "null",
+                            )
+                        )
+                    elif key == ord("e"):
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "encounter",
                                 "toggle",
                                 "null",
                             )
