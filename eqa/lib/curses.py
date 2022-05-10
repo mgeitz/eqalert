@@ -39,6 +39,7 @@ def display(stdscr, display_q, state, exit_flag):
     events = []
     debug_events = []
     page = "events"
+    last_page = "events"
     setting = "character"
     selected_char = 0
     encounter_report = None
@@ -83,8 +84,27 @@ def display(stdscr, display_q, state, exit_flag):
 
                 ## Display Draw
                 elif display_event.type == "draw":
-                    if display_event.screen != "redraw":
+                    if display_event.screen == "help":
+                        if page == "help":
+                            page = last_page
+                        else:
+                            last_page = page
+                            page = display_event.screen
+                    elif display_event.screen == "redraw":
+                        if page == "help":
+                            draw_page(
+                                stdscr,
+                                last_page,
+                                events,
+                                debug_events,
+                                state,
+                                setting,
+                                selected_char,
+                                encounter_report,
+                            )
+                    else:
                         page = display_event.screen
+
                     draw_page(
                         stdscr,
                         page,
@@ -162,10 +182,10 @@ def draw_page(
                 draw_state(stdscr, state)
             elif page == "settings":
                 draw_settings(stdscr, state, setting, selected_char)
-            elif page == "help":
-                draw_help(stdscr)
             elif page == "parse":
                 draw_parse(stdscr, state, encounter_report)
+            elif page == "help":
+                draw_help(stdscr)
         else:
             draw_toosmall(stdscr)
     except Exception as e:
@@ -1121,89 +1141,100 @@ def draw_help(stdscr):
     """Draw help"""
 
     try:
-        # Clear and box
-        stdscr.clear()
-        stdscr.box()
+        y, x = stdscr.getmaxyx()
+
+        helpscr = stdscr.derwin(
+            int(y / 2) + int(y / 4), int(x / 2) + int(x / 4), int(y / 8), int(x / 8)
+        )
+        helpscr.clear()
+        helpscr.box()
+
+        help_y, help_x = helpscr.getmaxyx()
+        mid_help_y = int(help_y / 2)
+        mid_help_x = int(help_x / 2)
+
+        # Title
+        helpscr.addstr(2, mid_help_x - 8, "EQAlert Help Menu", curses.color_pair(2))
 
         # Commands
-        stdscr.addstr(5, 5, "Commands:", curses.color_pair(1))
+        helpscr.addstr(5, 5, "Keyboard Controls:", curses.color_pair(1))
 
         # Global commands
-        stdscr.addstr(7, 7, "Global", curses.color_pair(1))
+        helpscr.addstr(7, 7, "Global", curses.color_pair(1))
 
-        stdscr.addstr(8, 9, "1", curses.color_pair(2))
-        stdscr.addstr(8, 15, ":", curses.color_pair(1))
-        stdscr.addstr(8, 17, "Events", curses.color_pair(3))
+        helpscr.addstr(8, 9, "1", curses.color_pair(2))
+        helpscr.addstr(8, 15, ":", curses.color_pair(1))
+        helpscr.addstr(8, 17, "Events", curses.color_pair(3))
 
-        stdscr.addstr(9, 9, "2", curses.color_pair(2))
-        stdscr.addstr(9, 15, ":", curses.color_pair(1))
-        stdscr.addstr(9, 17, "State", curses.color_pair(3))
+        helpscr.addstr(9, 9, "2", curses.color_pair(2))
+        helpscr.addstr(9, 15, ":", curses.color_pair(1))
+        helpscr.addstr(9, 17, "State", curses.color_pair(3))
 
-        stdscr.addstr(10, 9, "3", curses.color_pair(2))
-        stdscr.addstr(10, 15, ":", curses.color_pair(1))
-        stdscr.addstr(10, 17, "Parse", curses.color_pair(3))
+        helpscr.addstr(10, 9, "3", curses.color_pair(2))
+        helpscr.addstr(10, 15, ":", curses.color_pair(1))
+        helpscr.addstr(10, 17, "Parse", curses.color_pair(3))
 
-        stdscr.addstr(11, 9, "4", curses.color_pair(2))
-        stdscr.addstr(11, 15, ":", curses.color_pair(1))
-        stdscr.addstr(11, 17, "Settings", curses.color_pair(3))
+        helpscr.addstr(11, 9, "4", curses.color_pair(2))
+        helpscr.addstr(11, 15, ":", curses.color_pair(1))
+        helpscr.addstr(11, 17, "Settings", curses.color_pair(3))
 
-        stdscr.addstr(12, 9, "q", curses.color_pair(2))
-        stdscr.addstr(12, 15, ":", curses.color_pair(1))
-        stdscr.addstr(12, 17, "Quit", curses.color_pair(3))
+        helpscr.addstr(12, 9, "q", curses.color_pair(2))
+        helpscr.addstr(12, 15, ":", curses.color_pair(1))
+        helpscr.addstr(12, 17, "Quit", curses.color_pair(3))
 
-        stdscr.addstr(13, 9, "h", curses.color_pair(2))
-        stdscr.addstr(13, 15, ":", curses.color_pair(1))
-        stdscr.addstr(13, 17, "Help", curses.color_pair(3))
+        helpscr.addstr(13, 9, "h", curses.color_pair(2))
+        helpscr.addstr(13, 15, ":", curses.color_pair(1))
+        helpscr.addstr(13, 17, "Help", curses.color_pair(3))
 
-        stdscr.addstr(14, 9, "0", curses.color_pair(2))
-        stdscr.addstr(14, 15, ":", curses.color_pair(1))
-        stdscr.addstr(14, 17, "Reload config", curses.color_pair(3))
+        helpscr.addstr(14, 9, "0", curses.color_pair(2))
+        helpscr.addstr(14, 15, ":", curses.color_pair(1))
+        helpscr.addstr(14, 17, "Reload config", curses.color_pair(3))
 
         # Events commands
-        stdscr.addstr(16, 7, "Events", curses.color_pair(1))
+        helpscr.addstr(16, 7, "Events", curses.color_pair(1))
 
-        stdscr.addstr(17, 9, "c", curses.color_pair(2))
-        stdscr.addstr(17, 15, ":", curses.color_pair(1))
-        stdscr.addstr(17, 17, "Clear events", curses.color_pair(3))
+        helpscr.addstr(17, 9, "c", curses.color_pair(2))
+        helpscr.addstr(17, 15, ":", curses.color_pair(1))
+        helpscr.addstr(17, 17, "Clear events", curses.color_pair(3))
 
-        stdscr.addstr(18, 9, "r", curses.color_pair(2))
-        stdscr.addstr(18, 15, ":", curses.color_pair(1))
-        stdscr.addstr(18, 17, "Toggle raid mode", curses.color_pair(3))
+        helpscr.addstr(18, 9, "r", curses.color_pair(2))
+        helpscr.addstr(18, 15, ":", curses.color_pair(1))
+        helpscr.addstr(18, 17, "Toggle raid mode", curses.color_pair(3))
 
-        stdscr.addstr(19, 9, "d", curses.color_pair(2))
-        stdscr.addstr(19, 15, ":", curses.color_pair(1))
-        stdscr.addstr(19, 17, "Toggle debug mode", curses.color_pair(3))
+        helpscr.addstr(19, 9, "d", curses.color_pair(2))
+        helpscr.addstr(19, 15, ":", curses.color_pair(1))
+        helpscr.addstr(19, 17, "Toggle debug mode", curses.color_pair(3))
 
-        stdscr.addstr(20, 9, "e", curses.color_pair(2))
-        stdscr.addstr(20, 15, ":", curses.color_pair(1))
-        stdscr.addstr(20, 17, "Toggle encounter parsing", curses.color_pair(3))
+        helpscr.addstr(20, 9, "e", curses.color_pair(2))
+        helpscr.addstr(20, 15, ":", curses.color_pair(1))
+        helpscr.addstr(20, 17, "Toggle encounter parsing", curses.color_pair(3))
 
-        stdscr.addstr(21, 9, "m", curses.color_pair(2))
-        stdscr.addstr(21, 15, ":", curses.color_pair(1))
-        stdscr.addstr(21, 17, "Toggle mute", curses.color_pair(3))
+        helpscr.addstr(21, 9, "m", curses.color_pair(2))
+        helpscr.addstr(21, 15, ":", curses.color_pair(1))
+        helpscr.addstr(21, 17, "Toggle mute", curses.color_pair(3))
 
         # Settings commands
-        stdscr.addstr(23, 7, "Settings", curses.color_pair(1))
+        helpscr.addstr(23, 7, "Settings", curses.color_pair(1))
 
-        stdscr.addstr(24, 9, "up", curses.color_pair(2))
-        stdscr.addstr(24, 15, ":", curses.color_pair(1))
-        stdscr.addstr(24, 17, "Cycle up in selection", curses.color_pair(3))
+        helpscr.addstr(24, 9, "up", curses.color_pair(2))
+        helpscr.addstr(24, 15, ":", curses.color_pair(1))
+        helpscr.addstr(24, 17, "Cycle up in selection", curses.color_pair(3))
 
-        stdscr.addstr(25, 9, "down", curses.color_pair(2))
-        stdscr.addstr(25, 15, ":", curses.color_pair(1))
-        stdscr.addstr(25, 17, "Cycle down in selection", curses.color_pair(3))
+        helpscr.addstr(25, 9, "down", curses.color_pair(2))
+        helpscr.addstr(25, 15, ":", curses.color_pair(1))
+        helpscr.addstr(25, 17, "Cycle down in selection", curses.color_pair(3))
 
-        stdscr.addstr(26, 9, "right", curses.color_pair(2))
-        stdscr.addstr(26, 15, ":", curses.color_pair(1))
-        stdscr.addstr(26, 17, "Toggle selection on", curses.color_pair(3))
+        helpscr.addstr(26, 9, "right", curses.color_pair(2))
+        helpscr.addstr(26, 15, ":", curses.color_pair(1))
+        helpscr.addstr(26, 17, "Toggle selection on", curses.color_pair(3))
 
-        stdscr.addstr(27, 9, "left", curses.color_pair(2))
-        stdscr.addstr(27, 15, ":", curses.color_pair(1))
-        stdscr.addstr(27, 17, "Toggle selection off", curses.color_pair(3))
+        helpscr.addstr(27, 9, "left", curses.color_pair(2))
+        helpscr.addstr(27, 15, ":", curses.color_pair(1))
+        helpscr.addstr(27, 17, "Toggle selection off", curses.color_pair(3))
 
-        stdscr.addstr(28, 9, "space", curses.color_pair(2))
-        stdscr.addstr(28, 15, ":", curses.color_pair(1))
-        stdscr.addstr(28, 17, "Cycle selection", curses.color_pair(3))
+        helpscr.addstr(28, 9, "space", curses.color_pair(2))
+        helpscr.addstr(28, 15, ":", curses.color_pair(1))
+        helpscr.addstr(28, 17, "Cycle selection", curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(

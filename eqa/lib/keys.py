@@ -41,7 +41,6 @@ def process(
 
     key = ""
     page = "events"
-    last_page = None
     settings = "character"
     selected_char = 0
 
@@ -99,21 +98,11 @@ def process(
                     )
                     page = "settings"
                 elif key == ord("h"):
-                    if page == "help" and last_page is not None:
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", last_page, "null"
-                            )
+                    display_q.put(
+                        eqa_struct.display(
+                            eqa_settings.eqa_time(), "draw", "help", "null"
                         )
-                        page = last_page
-                    else:
-                        last_page = page
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "help", "null"
-                            )
-                        )
-                        page = "help"
+                    )
                 elif key == ord("0"):
                     system_q.put(
                         eqa_struct.message(
