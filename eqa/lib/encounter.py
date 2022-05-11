@@ -1829,33 +1829,34 @@ def encounter_report(
                 encounter_report_file.close()
 
             ## Prune Old Events in encounter_stack
-            count = 0
-            keep_encounter_stack = deque([])
-            while count < len(encounter_stack):
-                event = encounter_stack.popleft
-                time, source, target, mode, result = event
-                this_hour, this_minute, this_second_m = time.split(":")
-                this_second, this_milli = last_second_m.split(".")
-                this_message_time = datetime(
-                    2020, 12, 30, int(this_hour), int(this_minute), int(this_second)
-                )
-                message_age = int(
-                    (encounter_end_time - this_message_time).total_seconds()
-                )
-                if message_age < 0:
-                    first_half = int(
-                        (
-                            datetime(2020, 12, 30, 23, 59, 59) - this_message_time
-                        ).total_seconds()
+            if not len(encounter_stack) < 1:
+                count = 0
+                keep_encounter_stack = deque([])
+                while count < len(encounter_stack):
+                    event = encounter_stack.popleft
+                    time, source, target, mode, result = event
+                    this_hour, this_minute, this_second_m = time.split(":")
+                    this_second, this_milli = last_second_m.split(".")
+                    this_message_time = datetime(
+                        2020, 12, 30, int(this_hour), int(this_minute), int(this_second)
                     )
-                    second_half = int(encounter_end_time.total_seconds())
-                    message_age = int(first_half + second_half)
+                    message_age = int(
+                        (encounter_end_time - this_message_time).total_seconds()
+                    )
+                    if message_age < 0:
+                        first_half = int(
+                            (
+                                datetime(2020, 12, 30, 23, 59, 59) - this_message_time
+                            ).total_seconds()
+                        )
+                        second_half = int(encounter_end_time.total_seconds())
+                        message_age = int(first_half + second_half)
 
-                # If an event is more than 30 minutes old and still hasn't been used in an encounter log, remove it
-                if not message_age > 18000:
-                    keep_encounter_stack.append(event)
+                    # If an event is more than 30 minutes old and still hasn't been used in an encounter log, remove it
+                    if not message_age > 18000:
+                        keep_encounter_stack.append(event)
 
-            encounter_stack = keep_encounter_stack
+                encounter_stack = keep_encounter_stack
 
     except Exception as e:
         eqa_settings.log(
