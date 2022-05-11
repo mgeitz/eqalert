@@ -130,6 +130,10 @@ def process(
                             display_q,
                         )
 
+                    elif interaction == "start":
+                        #### Set active encounter
+                        active_encounter = True
+
                 ## If we're in an encounter
                 if active_encounter == True:
                     ### Add combat or spell events to the stack
