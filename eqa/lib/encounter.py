@@ -1829,7 +1829,7 @@ def encounter_report(
                 encounter_report_file.close()
 
             ## Prune Old Events in encounter_stack
-            if not len(encounter_stack) < 1:
+            if len(encounter_stack) > 1:
                 count = 0
                 keep_encounter_stack = deque([])
                 while count < len(encounter_stack):
