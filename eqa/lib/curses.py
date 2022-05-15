@@ -42,10 +42,9 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
     page = "events"
     last_page = "events"
     s_setting = "character"
-    s_char = state.char
+    s_char = 0
     s_opt = "debug"
     s_line = "all"
-    # selected_char = 0
     encounter_report = None
 
     try:
