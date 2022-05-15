@@ -609,6 +609,13 @@ def draw_events_default_lower(stdscr):
             "Please submit any bugs to github",
             "A good day for project 1999",
             "Is Phinigel Autropos up?",
+            "How secret is Secrets' secret secrets?",
+            "Sirken might say A+ to that",
+            "Rogean is watching",
+            "We don't talk about Derubael",
+            "Nilbog will fix it",
+            "Fill your ammo slot to leave corpses",
+            "Use /pause to add delays to your macros",
         ]
         response = random.choice(responses)
 
