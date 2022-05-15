@@ -26,6 +26,7 @@ import math
 import pkg_resources
 import random
 import re
+from datetime import datetime
 
 import eqa.lib.struct as eqa_struct
 import eqa.lib.state as eqa_state
@@ -561,7 +562,12 @@ def draw_events_default_lower(stdscr):
 
         responses = [
             "Press 'h' to access the help menu",
-            "Use /char to update your bind point",
+            "Press 'h' to access the help menu",
+            "Press 'h' to access the help menu",
+            "Press 'h' to access the help menu",
+            "Press 'h' to access the help menu",
+            "Press 'h' to access the help menu",
+            "Use /char to view your bind point",
             "Set /loc to common macros",
             "Firiona Vie is a lie",
             "Use shift+t to look behind you",
@@ -572,7 +578,26 @@ def draw_events_default_lower(stdscr):
             "Thanks Daldaen",
             "Edit config.json to customize alerts",
             "Remember to water your house plants",
+            "Sending Fippy Darkpaw batphone . . .",
+            "Use /book to quickly access spells",
+            "Always train each skill to at least 1",
+            "Use /list if you want a bad experience",
+            "Have a nice " + datetime.today().strftime("%A"),
+            "Use /hidecorpse looted",
+            "Remember to load junk buffs first",
+            "Using /viewport can restore a 4:3 ratio",
+            "There are 93 emote commands",
+            "Some zones have two spaces before LFG",
+            "FPS governs the rate of turning",
+            "This window is "
+            + str(default_win_x)
+            + " by "
+            + str(default_win_y)
+            + " cells",
+            "Use shift + click to move item stacks",
+            "Use /autoinventory when foraging" "Use ctrl + click to move a single item",
             "Remember to train sense heading",
+            "Always tip your porter",
         ]
         response = random.choice(responses)
 
