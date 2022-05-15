@@ -32,7 +32,7 @@ import eqa.lib.state as eqa_state
 import eqa.lib.settings as eqa_settings
 
 
-def display(stdscr, display_q, state, config, exit_flag):
+def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
     """
     Process: display_q
     Produce: display event
@@ -49,7 +49,7 @@ def display(stdscr, display_q, state, config, exit_flag):
     encounter_report = None
 
     try:
-        while not exit_flag.is_set():
+        while not exit_flag.is_set() and not cfg_reload.is_set():
 
             # Sleep between empty checks
             if display_q.qsize() < 1:
