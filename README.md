@@ -86,9 +86,15 @@ If you would like encounter parses saved, update the `auto_save` setting in `con
   - m       : Toggle global audio mute
 
 #### Settings
-  - up      : Cycle up in selection
-  - down    : Cycle down in selection
-  - right   : Toggle selection on
+  - up      : Up in selection
+  - down    : Down in selection
+  - right   : Selection options
+  - left    : Selection options
+  - space   : Select
+  - enter   : Select
+  - tab     : Cycle category
+
+> Note: WASD or arrow keys will work
 
 ### Say Controls
 

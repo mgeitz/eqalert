@@ -192,15 +192,7 @@ def process(
                                         selected_char,
                                     )
                                 )
-                        elif key == curses.KEY_RIGHT or key == ord("d"):
-                            display_q.put(
-                                eqa_struct.display(
-                                    eqa_settings.eqa_time(),
-                                    "update",
-                                    "zone",
-                                    "unavailable",
-                                )
-                            )
+                        elif key == ord("\n") or key == ord(" "):
                             system_q.put(
                                 eqa_struct.message(
                                     eqa_settings.eqa_time(),
@@ -210,12 +202,40 @@ def process(
                                     chars[selected_char],
                                 )
                             )
-                        elif key == ord(" "):
-                            pass
+                        elif key == ord("\t") or key == ord("`"):
+                            settings = "option"
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "update",
+                                    "setting",
+                                    "option",
+                                )
+                            )
 
-                ## Help keys
-                elif page == "help":
-                    pass
+                    elif settings == "option":
+                        if key == ord("\t") or key == ord("`"):
+                            settings = "line"
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "update",
+                                    "setting",
+                                    "line",
+                                )
+                            )
+
+                    elif settings == "line":
+                        if key == ord("\t") or key == ord("`"):
+                            settings = "character"
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "update",
+                                    "setting",
+                                    "character",
+                                )
+                            )
 
                 keyboard_q.task_done()
 

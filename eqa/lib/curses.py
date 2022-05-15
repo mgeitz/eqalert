@@ -62,7 +62,7 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
                 ## Display Var Update
                 if display_event.type == "update":
                     if display_event.screen == "setting":
-                        setting = display_event.payload
+                        s_setting = display_event.payload
                     elif display_event.screen == "selected_char":
                         s_char = display_event.payload
                     elif display_event.screen == "select_char":
@@ -1119,7 +1119,7 @@ def draw_state(stdscr, state):
         )
 
 
-def draw_settings(stdscr, state, config, s_setting, s_char, s_option, s_line):
+def draw_settings(stdscr, state, config, s_setting, s_char, s_opt, s_line):
     """Draw settings"""
 
     try:
@@ -1165,7 +1165,7 @@ def draw_settings(stdscr, state, config, s_setting, s_char, s_option, s_line):
         optscr.addch(0, int(opt_x / 2) + 4, curses.ACS_LTEE)
 
         ## Options
-        draw_settings_options(optscr, config, state, s_option)
+        draw_settings_options(optscr, config, state, s_opt)
 
         # Line Type Editor
         linescr = stdscr.derwin(y - 6, int(x / 2) - 6, 4, int(x / 2) + 2)
@@ -1472,23 +1472,31 @@ def draw_help(stdscr):
 
         helpscr.addstr(24, 9, "up", curses.color_pair(2))
         helpscr.addstr(24, 15, ":", curses.color_pair(1))
-        helpscr.addstr(24, 17, "Cycle up in selection", curses.color_pair(3))
+        helpscr.addstr(24, 17, "Up in selection", curses.color_pair(3))
 
         helpscr.addstr(25, 9, "down", curses.color_pair(2))
         helpscr.addstr(25, 15, ":", curses.color_pair(1))
-        helpscr.addstr(25, 17, "Cycle down in selection", curses.color_pair(3))
+        helpscr.addstr(25, 17, "Down in selection", curses.color_pair(3))
 
         helpscr.addstr(26, 9, "right", curses.color_pair(2))
         helpscr.addstr(26, 15, ":", curses.color_pair(1))
-        helpscr.addstr(26, 17, "Toggle selection on", curses.color_pair(3))
+        helpscr.addstr(26, 17, "Selection options", curses.color_pair(3))
 
         helpscr.addstr(27, 9, "left", curses.color_pair(2))
         helpscr.addstr(27, 15, ":", curses.color_pair(1))
-        helpscr.addstr(27, 17, "Toggle selection off", curses.color_pair(3))
+        helpscr.addstr(27, 17, "Selection options", curses.color_pair(3))
 
         helpscr.addstr(28, 9, "space", curses.color_pair(2))
         helpscr.addstr(28, 15, ":", curses.color_pair(1))
-        helpscr.addstr(28, 17, "Cycle selection", curses.color_pair(3))
+        helpscr.addstr(28, 17, "Select", curses.color_pair(3))
+
+        helpscr.addstr(29, 9, "enter", curses.color_pair(2))
+        helpscr.addstr(29, 15, ":", curses.color_pair(1))
+        helpscr.addstr(29, 17, "Select", curses.color_pair(3))
+
+        helpscr.addstr(30, 9, "tab", curses.color_pair(2))
+        helpscr.addstr(30, 15, ":", curses.color_pair(1))
+        helpscr.addstr(30, 17, "Cycle category", curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(
