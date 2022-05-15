@@ -310,7 +310,7 @@ def main():
     # Do something to the TUI
     ## Consume display_q
     process_display = threading.Thread(
-        target=eqa_curses.display, args=(screen, display_q, state, exit_flag)
+        target=eqa_curses.display, args=(screen, display_q, state, config, exit_flag)
     )
     process_display.daemon = True
     process_display.start()
@@ -566,7 +566,17 @@ def main():
                         process_sound_2.join()
                         process_sound_3.join()
                         process_keys.join()
+                        process_display.join()
                         cfg_reload.clear()
+
+                        # Restart the TUI
+                        ## Consume display_q
+                        process_display = threading.Thread(
+                            target=eqa_curses.display,
+                            args=(screen, display_q, state, config, exit_flag),
+                        )
+                        process_display.daemon = True
+                        process_display.start()
 
                         #### Restart process_keys
                         process_keys = threading.Thread(

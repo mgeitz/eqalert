@@ -31,7 +31,7 @@ import eqa.lib.state as eqa_state
 import eqa.lib.settings as eqa_settings
 
 
-def display(stdscr, display_q, state, exit_flag):
+def display(stdscr, display_q, state, config, exit_flag):
     """
     Process: display_q
     Produce: display event
@@ -40,8 +40,11 @@ def display(stdscr, display_q, state, exit_flag):
     debug_events = []
     page = "events"
     last_page = "events"
-    setting = "character"
-    selected_char = 0
+    s_setting = "character"
+    s_char = state.char
+    s_opt = "debug"
+    s_line = "all"
+    # selected_char = 0
     encounter_report = None
 
     try:
@@ -61,9 +64,9 @@ def display(stdscr, display_q, state, exit_flag):
                     if display_event.screen == "setting":
                         setting = display_event.payload
                     elif display_event.screen == "selected_char":
-                        selected_char = display_event.payload
+                        s_char = display_event.payload
                     elif display_event.screen == "select_char":
-                        selected_char = display_event.payload
+                        s_char = display_event.payload
                         state.char = state.chars[selected_char]
                     elif display_event.screen == "zone":
                         zone = display_event.payload
@@ -77,8 +80,11 @@ def display(stdscr, display_q, state, exit_flag):
                         events,
                         debug_events,
                         state,
-                        setting,
-                        selected_char,
+                        config,
+                        s_setting,
+                        s_char,
+                        s_opt,
+                        s_line,
                         encounter_report,
                     )
 
@@ -94,12 +100,15 @@ def display(stdscr, display_q, state, exit_flag):
                         if page == "help":
                             draw_page(
                                 stdscr,
-                                last_page,
+                                page,
                                 events,
                                 debug_events,
                                 state,
-                                setting,
-                                selected_char,
+                                config,
+                                s_setting,
+                                s_char,
+                                s_opt,
+                                s_line,
                                 encounter_report,
                             )
                     else:
@@ -111,8 +120,11 @@ def display(stdscr, display_q, state, exit_flag):
                         events,
                         debug_events,
                         state,
-                        setting,
-                        selected_char,
+                        config,
+                        s_setting,
+                        s_char,
+                        s_opt,
+                        s_line,
                         encounter_report,
                     )
 
@@ -127,8 +139,11 @@ def display(stdscr, display_q, state, exit_flag):
                                 events,
                                 debug_events,
                                 state,
-                                setting,
-                                selected_char,
+                                config,
+                                s_setting,
+                                s_char,
+                                s_opt,
+                                s_line,
                                 encounter_report,
                             )
                     elif display_event.screen == "debug":
@@ -139,8 +154,11 @@ def display(stdscr, display_q, state, exit_flag):
                             events,
                             debug_events,
                             state,
-                            setting,
-                            selected_char,
+                            config,
+                            s_setting,
+                            s_char,
+                            s_opt,
+                            s_line,
                             encounter_report,
                         )
                     elif display_event.screen == "clear":
@@ -152,11 +170,13 @@ def display(stdscr, display_q, state, exit_flag):
                             events,
                             debug_events,
                             state,
-                            setting,
-                            selected_char,
+                            config,
+                            s_setting,
+                            s_char,
+                            s_opt,
+                            s_line,
                             encounter_report,
                         )
-
                 display_q.task_done()
 
     except Exception as e:
@@ -171,7 +191,17 @@ def display(stdscr, display_q, state, exit_flag):
 
 
 def draw_page(
-    stdscr, page, events, debug_events, state, setting, selected_char, encounter_report
+    stdscr,
+    page,
+    events,
+    debug_events,
+    state,
+    config,
+    s_setting,
+    s_char,
+    s_opt,
+    s_line,
+    encounter_report,
 ):
     y, x = stdscr.getmaxyx()
     try:
@@ -181,7 +211,9 @@ def draw_page(
             elif page == "state":
                 draw_state(stdscr, state)
             elif page == "settings":
-                draw_settings(stdscr, state, setting, selected_char)
+                draw_settings(
+                    stdscr, state, config, s_setting, s_char, s_opt, s_line
+                )
             elif page == "parse":
                 draw_parse(stdscr, state, encounter_report)
             elif page == "help":
@@ -1059,38 +1091,140 @@ def draw_state(stdscr, state):
         )
 
 
-def draw_settings(stdscr, state, selected_setting, selected_char):
+def draw_settings(stdscr, state, config, s_setting, s_char, s_option, s_line):
     """Draw settings"""
 
     try:
         # Clear and box
         stdscr.clear()
         stdscr.box()
+        y, x = stdscr.getmaxyx()
 
         # Draw tabs
         draw_tabs(stdscr, "settings")
 
-        # Draw chars
-        if selected_setting == "character":
-            stdscr.addstr(
-                4, 3, "Character Selection", curses.A_UNDERLINE | curses.color_pair(2)
+        # Char Select Window
+        charscr = stdscr.derwin(int(y / 2) - 4, int(x / 2) - 4, 4, 4)
+        char_y, char_x = charscr.getmaxyx()
+        charscr.box()
+
+        ## Char Select Title
+        charscr.addch(0, int(char_x / 2) - 10, curses.ACS_RTEE)
+        if s_setting == "character":
+            charscr.addstr(
+                0, int(char_x / 2) - 9, " Character Select ", curses.color_pair(4)
             )
         else:
-            stdscr.addstr(4, 5, "Character Selection", curses.color_pair(3))
-        stdscr.addstr(7 + len(state.chars), 5, "Active Character", curses.color_pair(3))
-        stdscr.addstr(7 + len(state.chars), 21, ":", curses.color_pair(1))
-        stdscr.addstr(
-            7 + len(state.chars),
-            23,
-            state.char + " on " + state.server,
-            curses.color_pair(2),
-        )
+            charscr.addstr(
+                0, int(char_x / 2) - 9, " Character Select ", curses.color_pair(2)
+            )
+        charscr.addch(0, int(char_x / 2) + 9, curses.ACS_LTEE)
 
-        draw_chars(stdscr, state.chars, state.char, selected_char)
+        ## Draw Char Select
+        draw_settings_char_select(charscr, config, state, s_char)
+
+        # Options Window
+        optscr = stdscr.derwin(int(y / 2) - 4, int(x / 2) - 4, int(y / 2) + 2, 4)
+        opt_y, opt_x = optscr.getmaxyx()
+        optscr.box()
+
+        ## Options Title
+        optscr.addch(0, int(opt_x / 2) - 6, curses.ACS_RTEE)
+        if s_setting == "option":
+            optscr.addstr(0, int(opt_x / 2) - 5, " Options ", curses.color_pair(4))
+        else:
+            optscr.addstr(0, int(opt_x / 2) - 5, " Options ", curses.color_pair(2))
+        optscr.addch(0, int(opt_x / 2) + 4, curses.ACS_LTEE)
+
+        ## Options
+        draw_settings_options(optscr, config, state, s_option)
+
+        # Line Type Editor
+        linescr = stdscr.derwin(y - 6, int(x / 2) - 6, 4, int(x / 2) + 2)
+        line_y, line_x = linescr.getmaxyx()
+        linescr.box()
+
+        ## Line Type Editor Title
+        linescr.addch(0, int(line_x / 2) - 8, curses.ACS_RTEE)
+        if s_setting == "line":
+            linescr.addstr(0, int(line_x / 2) - 7, " Alert Config ", curses.color_pair(4))
+        else:
+            linescr.addstr(0, int(line_x / 2) - 7, " Alert Config ", curses.color_pair(2))
+        linescr.addch(0, int(line_x / 2) + 7, curses.ACS_LTEE)
+
+        ## Draw Line Type Editor
+        draw_settings_line_editor(linescr, config, state, s_line)
+
+    # # Draw chars
+    # if selected_setting == "character":
+    #     stdscr.addstr(
+    #         4, 3, "Character Selection", curses.A_UNDERLINE | curses.color_pair(2)
+    #     )
+    # else:
+    #     stdscr.addstr(4, 5, "Character Selection", curses.color_pair(3))
+    # stdscr.addstr(7 + len(state.chars), 5, "Active Character", curses.color_pair(3))
+    # stdscr.addstr(7 + len(state.chars), 21, ":", curses.color_pair(1))
+    # stdscr.addstr(
+    #     7 + len(state.chars),
+    #     23,
+    #     state.char + " on " + state.server,
+    #     curses.color_pair(2),
+    # )
+
+    # draw_chars(stdscr, state.chars, state.char, selected_char)
 
     except Exception as e:
         eqa_settings.log(
             "draw settings: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def draw_settings_char_select(charscr, config, state, s_char):
+    """Draw settings character selection window"""
+
+    try:
+        char_y, char_x = charscr.getmaxyx()
+
+        charscr.addch(1, 1, curses.ACS_UARROW, curses.color_pair(2))
+        charscr.addch(char_y - 2, 1, curses.ACS_DARROW, curses.color_pair(2))
+        pass
+
+    except Exception as e:
+        eqa_settings.log(
+            "draw settings char select: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def draw_settings_options(optscr, config, state, s_option):
+    """Draw settings options window"""
+
+    try:
+        pass
+
+    except Exception as e:
+        eqa_settings.log(
+            "draw settings options: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def draw_settings_line_editor(linescr, config, state, s_line):
+    """Draw settings alert config editor window"""
+
+    try:
+        pass
+
+    except Exception as e:
+        eqa_settings.log(
+            "draw settings alert config editor: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
