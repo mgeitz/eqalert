@@ -1365,6 +1365,14 @@ def action_you_say_commands(
                             + " life choose you?",
                         )
                     )
+            elif args[0] == "ping":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "pong",
+                        )
+                    )
             else:
                 display_q.put(
                     eqa_struct.display(

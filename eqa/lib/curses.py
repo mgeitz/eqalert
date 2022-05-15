@@ -563,8 +563,16 @@ def draw_events_default_lower(stdscr):
         responses = [
             "Press 'h' to access the help menu",
             "Use /char to update your bind point",
-            "Set /loc to common hotkeys",
+            "Set /loc to common macros",
             "Firiona Vie is a lie",
+            "Use shift+t to look behind you",
+            "Press 'd' to toggle debug mode",
+            "Press 'e' to toggle encounter parsing",
+            "Press 'm' to toggle mute",
+            "/say parser why",
+            "Thanks Daldaen",
+            "Edit config.json to customize alerts",
+            "Remember to water your house plants",
             "Remember to train sense heading",
         ]
         response = random.choice(responses)
@@ -1180,24 +1188,6 @@ def draw_settings(stdscr, state, config, s_setting, s_char, s_option, s_line):
         ## Draw Line Type Editor
         draw_settings_line_editor(linescr, config, state, s_line)
 
-    # # Draw chars
-    # if selected_setting == "character":
-    #     stdscr.addstr(
-    #         4, 3, "Character Selection", curses.A_UNDERLINE | curses.color_pair(2)
-    #     )
-    # else:
-    #     stdscr.addstr(4, 5, "Character Selection", curses.color_pair(3))
-    # stdscr.addstr(7 + len(state.chars), 5, "Active Character", curses.color_pair(3))
-    # stdscr.addstr(7 + len(state.chars), 21, ":", curses.color_pair(1))
-    # stdscr.addstr(
-    #     7 + len(state.chars),
-    #     23,
-    #     state.char + " on " + state.server,
-    #     curses.color_pair(2),
-    # )
-
-    # draw_chars(stdscr, state.chars, state.char, selected_char)
-
     except Exception as e:
         eqa_settings.log(
             "draw settings: Error on line "
@@ -1212,10 +1202,58 @@ def draw_settings_char_select(charscr, config, state, s_char):
 
     try:
         char_y, char_x = charscr.getmaxyx()
+        char_name, char_server = state.chars[s_char].split("_")
 
-        charscr.addch(1, 1, curses.ACS_UARROW, curses.color_pair(2))
-        charscr.addch(char_y - 2, 1, curses.ACS_DARROW, curses.color_pair(2))
-        pass
+        charscr.addstr(2, 2, "Active:", curses.color_pair(1))
+        charscr.addstr(2, 10, state.char.title(), curses.color_pair(3))
+        charscr.addstr(2, 11 + len(state.char), "on", curses.color_pair(1))
+        charscr.addstr(
+            2, 14 + len(state.char), state.server.title(), curses.color_pair(3)
+        )
+
+        charscr.addstr(6, 2, "Select:", curses.color_pair(1))
+        charscr.addstr(6, 10, char_name.title(), curses.color_pair(3))
+        charscr.addstr(6, 11 + len(char_name), "on", curses.color_pair(1))
+        charscr.addstr(
+            6, 14 + len(char_name), char_server.title(), curses.color_pair(3)
+        )
+
+        charscr.addstr(10, 2, "Class:", curses.color_pair(1))
+        charscr.addstr(
+            10,
+            9,
+            config["char_logs"][state.chars[s_char]]["char_state"]["class"].title(),
+            curses.color_pair(3),
+        )
+        charscr.addstr(11, 2, "Level:", curses.color_pair(1))
+        charscr.addstr(
+            11,
+            9,
+            config["char_logs"][state.chars[s_char]]["char_state"]["level"],
+            curses.color_pair(3),
+        )
+        charscr.addstr(12, 2, "Guild:", curses.color_pair(1))
+        charscr.addstr(
+            12,
+            9,
+            config["char_logs"][state.chars[s_char]]["char_state"]["guild"].title(),
+            curses.color_pair(3),
+        )
+        charscr.addstr(13, 2, "Zone:", curses.color_pair(1))
+        charscr.addstr(
+            13,
+            9,
+            config["char_logs"][state.chars[s_char]]["char_state"]["zone"].title(),
+            curses.color_pair(3),
+        )
+
+        if s_char == 0:
+            charscr.addch(5, 10, curses.ACS_UARROW, curses.color_pair(2))
+        elif s_char == len(state.chars) - 1:
+            charscr.addch(7, 10, curses.ACS_DARROW, curses.color_pair(2))
+        else:
+            charscr.addch(5, 10, curses.ACS_UARROW, curses.color_pair(2))
+            charscr.addch(7, 10, curses.ACS_DARROW, curses.color_pair(2))
 
     except Exception as e:
         eqa_settings.log(
@@ -1348,46 +1386,6 @@ def draw_mascot_message(scr, message):
     except Exception as e:
         eqa_settings.log(
             "draw settings options: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-
-
-def draw_chars(stdscr, chars, char, selected):
-    """Draw character selection component for settings"""
-    try:
-        y, x = stdscr.getmaxyx()
-        charscr_width = int(x / 3)
-        # Pending general scrolling method
-        charscr_height = len(chars) + 2
-
-        charscr = stdscr.derwin(charscr_height, charscr_width, 5, 3)
-        charscr.clear()
-        charscr.box()
-
-        count = 0
-        while count < len(chars):
-            char_name, char_server = chars[count].split("_")
-            if selected == count:
-                charscr.addstr(
-                    len(chars) - count,
-                    2,
-                    char_name + " " + char_server,
-                    curses.color_pair(1),
-                )
-            else:
-                charscr.addstr(
-                    len(chars) - count,
-                    2,
-                    char_name + " " + char_server,
-                    curses.color_pair(2),
-                )
-            count += 1
-
-    except Exception as e:
-        eqa_settings.log(
-            "draw chars: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
