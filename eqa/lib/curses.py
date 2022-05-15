@@ -567,6 +567,10 @@ def draw_events_default_lower(stdscr):
             "Press 'h' to access the help menu",
             "Press 'h' to access the help menu",
             "Press 'h' to access the help menu",
+            "Press 'h' to access the help menu",
+            "Press 'h' to access the help menu",
+            "Press 'h' to access the help menu",
+            "Press 'h' to access the help menu",
             "Use /char to view your bind point",
             "Set /loc to common macros",
             "Firiona Vie is a lie",
@@ -587,17 +591,24 @@ def draw_events_default_lower(stdscr):
             "Remember to load junk buffs first",
             "Using /viewport can restore a 4:3 ratio",
             "There are 93 emote commands",
-            "Some zones have two spaces before LFG",
-            "FPS governs the rate of turning",
+            "EverQuest released March 16 1999",
+            "FPS determines the rate of turning",
             "This window is "
             + str(default_win_x)
             + " by "
             + str(default_win_y)
             + " cells",
             "Use shift + click to move item stacks",
-            "Use /autoinventory when foraging" "Use ctrl + click to move a single item",
+            "Use /autoinventory when foraging",
+            "Use ctrl + click to move a single item",
             "Remember to train sense heading",
             "Always tip your porter",
+            "Using /who will update your character info",
+            "Always use levitate in Kelethin",
+            "Have you spent your DKP today?",
+            "Please submit any bugs to github",
+            "A good day for project 1999",
+            "Is Phinigel Autropos up?",
         ]
         response = random.choice(responses)
 
