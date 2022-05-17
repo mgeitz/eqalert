@@ -276,7 +276,7 @@ def process(
                                         "system",
                                         "mute",
                                         "toggle",
-                                        "null",
+                                        "all",
                                     )
                                 )
                             elif option == "raid" and state.raid == "true":
@@ -324,7 +324,7 @@ def process(
                                         "system",
                                         "mute",
                                         "toggle",
-                                        "null",
+                                        "all",
                                     )
                                 )
                             elif option == "raid" and state.raid == "false":
@@ -334,7 +334,7 @@ def process(
                                         "system",
                                         "raid",
                                         "toggle",
-                                        "null",
+                                        "all",
                                     )
                                 )
                             elif option == "autoraid":
