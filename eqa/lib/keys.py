@@ -289,8 +289,16 @@ def process(
                                         "null",
                                     )
                                 )
-                            elif option == "autoraid":
-                                pass
+                            elif option == "autoraid" and state.autoraid == "true":
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "raid",
+                                        "auto",
+                                        "false",
+                                    )
+                                )
                             elif (
                                 option == "encounter"
                                 and state.encounter_parse == "true"
@@ -304,8 +312,18 @@ def process(
                                         "null",
                                     )
                                 )
-                            elif option == "saveencounter":
-                                pass
+                            elif (
+                                option == "saveencounter" and state.saveparse == "true"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "encounter",
+                                        "save",
+                                        "false",
+                                    )
+                                )
                         elif key == curses.KEY_LEFT or key == ord("a"):
                             if option == "debug" and state.debug == "false":
                                 system_q.put(
@@ -337,8 +355,16 @@ def process(
                                         "all",
                                     )
                                 )
-                            elif option == "autoraid":
-                                pass
+                            elif option == "autoraid" and state.autoraid == "false":
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "raid",
+                                        "auto",
+                                        "true",
+                                    )
+                                )
                             elif (
                                 option == "encounter"
                                 and state.encounter_parse == "false"
@@ -352,8 +378,18 @@ def process(
                                         "null",
                                     )
                                 )
-                            elif option == "saveencounter":
-                                pass
+                            elif (
+                                option == "saveencounter" and state.saveparse == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "encounter",
+                                        "save",
+                                        "true",
+                                    )
+                                )
                         elif key == ord("\t") or key == ord("`"):
                             settings = "line"
                             display_q.put(

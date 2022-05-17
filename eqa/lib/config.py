@@ -147,12 +147,9 @@ def bootstrap_state(base_path, char, server):
                 "server": server,
                 "character": char,
                 "afk": "false",
-                "raid": "false",
-                "debug": "false",
-                "mute": "false",
                 "group": "false",
                 "leader": "false",
-                "encounter_parse": "true",
+                "raid": "false",
             }
         )
         json_data = open(base_path + "config.json", "w", encoding="utf-8")
@@ -199,14 +196,21 @@ def set_last_state(state, base_path):
                 "server": str(state.server),
                 "character": str(state.char),
                 "afk": str(state.afk),
-                "raid": str(state.raid),
-                "debug": str(state.debug),
-                "mute": str(state.mute),
                 "group": str(state.group),
                 "leader": str(state.leader),
-                "encounter_parse": str(state.encounter_parse),
+                "raid": str(state.raid),
             }
         )
+        data["settings"]["encounter_parsing"].update(
+            {"auto_save": str(state.saveparse), "enabled": str(state.encounter_parse)}
+        )
+        data["settings"]["raid_mode"].update(
+            {
+                "auto_set": str(state.autoraid),
+            }
+        )
+        data["settings"]["debug_mode"].update({"enabled": str(state.debug)})
+        data["settings"]["mute"].update({"enabled": str(state.mute)})
         data["char_logs"][state.char + "_" + state.server].update(
             {
                 "char": str(state.char),
@@ -293,12 +297,16 @@ def get_last_state(base_path, char_name, char_server):
             "guild"
         ]
         afk = data["last_state"]["afk"]
-        raid = data["last_state"]["raid"]
-        debug = data["last_state"]["debug"]
-        mute = data["last_state"]["mute"]
         group = data["last_state"]["group"]
         leader = data["last_state"]["leader"]
-        encounter_parse = data["last_state"]["encounter_parse"]
+        raid = data["last_state"]["raid"]
+
+        encounter_parse = data["settings"]["encounter_parsing"]["enabled"]
+        debug = data["settings"]["debug_mode"]["enabled"]
+        mute = data["settings"]["mute"]["enabled"]
+        saveparse = data["settings"]["encounter_parsing"]["auto_save"]
+        setraid = data["settings"]["raid_mode"]["auto_set"]
+        mute = data["settings"]["mute"]["enabled"]
 
         # Get chars
         chars = get_config_chars(data)
@@ -323,6 +331,8 @@ def get_last_state(base_path, char_name, char_server):
             char_class,
             char_guild,
             encounter_parse,
+            saveparse,
+            setraid,
         )
 
         return state
@@ -1360,13 +1370,20 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
+    "debug_mode": {
+      "enabled": "false"
+    },
+    "mute": {
+      "enabled": "false"
+    },
     "encounter_parsing": {
-      "auto_save": "false"
+      "auto_save": "false",
+      "enabled": "true"
     },
     "raid_mode": {
       "auto_set": "true"
     },
-    "version": "2.12.1"
+    "version": "2.12.2"
   },
   "zones": {
     "An Arena (PVP) Area": "false",
