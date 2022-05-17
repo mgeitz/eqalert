@@ -1363,7 +1363,10 @@ def build_config(base_path):
     "encounter_parsing": {
       "auto_save": "false"
     },
-    "version": "2.12.0"
+    "raid_mode": {
+      "auto_set": "true"
+    },
+    "version": "2.12.1"
   },
   "zones": {
     "An Arena (PVP) Area": "false",

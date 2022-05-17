@@ -64,6 +64,8 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
                 if display_event.type == "update":
                     if display_event.screen == "setting":
                         s_setting = display_event.payload
+                    elif display_event.screen == "option":
+                        s_opt = display_event.payload
                     elif display_event.screen == "selected_char":
                         s_char = display_event.payload
                     elif display_event.screen == "select_char":
@@ -1208,7 +1210,7 @@ def draw_settings(stdscr, state, config, s_setting, s_char, s_opt, s_line):
         optscr.addch(0, int(opt_x / 2) + 4, curses.ACS_LTEE)
 
         ## Options
-        draw_settings_options(optscr, config, state, s_opt)
+        draw_settings_options(optscr, config, state, s_opt, s_setting)
 
         # Line Type Editor
         linescr = stdscr.derwin(y - 6, int(x / 2) - 6, 4, int(x / 2) + 2)
@@ -1306,11 +1308,85 @@ def draw_settings_char_select(charscr, config, state, s_char):
         )
 
 
-def draw_settings_options(optscr, config, state, s_option):
+def draw_settings_options(optscr, config, state, s_option, s_setting):
     """Draw settings options window"""
 
     try:
-        pass
+        opy_y, opt_x = optscr.getmaxyx()
+        first_q = int(opt_x / 5)
+        second_third = int((opt_x / 3) * 2)
+
+        # Debug
+        if s_option == "debug" and s_setting == "option":
+            optscr.addstr(3, first_q, "Debug Mode", curses.color_pair(4))
+        else:
+            optscr.addstr(3, first_q, "Debug Mode", curses.color_pair(1))
+        optscr.addstr(3, second_third, "[", curses.color_pair(2))
+        if state.debug == "true":
+            optscr.addstr(3, second_third + 1, "on", curses.color_pair(5))
+        elif state.debug == "false":
+            optscr.addstr(3, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(3, second_third + 7, "]", curses.color_pair(2))
+
+        # Mute
+        if s_option == "mute" and s_setting == "option":
+            optscr.addstr(5, first_q, "Mute", curses.color_pair(4))
+        else:
+            optscr.addstr(5, first_q, "Mute", curses.color_pair(1))
+        optscr.addstr(5, second_third, "[", curses.color_pair(2))
+        if state.mute == "true":
+            optscr.addstr(5, second_third + 1, "on", curses.color_pair(5))
+        elif state.mute == "false":
+            optscr.addstr(5, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(5, second_third + 7, "]", curses.color_pair(2))
+
+        # Raid
+        if s_option == "raid" and s_setting == "option":
+            optscr.addstr(7, first_q, "Raid Mode", curses.color_pair(4))
+        else:
+            optscr.addstr(7, first_q, "Raid Mode", curses.color_pair(1))
+        optscr.addstr(7, second_third, "[", curses.color_pair(2))
+        if state.mute == "true":
+            optscr.addstr(7, second_third + 1, "on", curses.color_pair(5))
+        elif state.mute == "false":
+            optscr.addstr(7, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(7, second_third + 7, "]", curses.color_pair(2))
+
+        # Raid Auto
+        if s_option == "autoraid" and s_setting == "option":
+            optscr.addstr(9, first_q, "Auto-set Raid Mode", curses.color_pair(4))
+        else:
+            optscr.addstr(9, first_q, "Auto-set Raid Mode", curses.color_pair(1))
+        optscr.addstr(9, second_third, "[", curses.color_pair(2))
+        if config["settings"]["raid_mode"]["auto_set"] == "true":
+            optscr.addstr(9, second_third + 1, "on", curses.color_pair(5))
+        elif config["settings"]["raid_mode"]["auto_set"] == "false":
+            optscr.addstr(9, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(9, second_third + 7, "]", curses.color_pair(2))
+
+        # Encounter
+        if s_option == "encounter" and s_setting == "option":
+            optscr.addstr(11, first_q, "Encounter Parse", curses.color_pair(4))
+        else:
+            optscr.addstr(11, first_q, "Encounter Parse", curses.color_pair(1))
+        optscr.addstr(11, second_third, "[", curses.color_pair(2))
+        if state.encounter_parse == "true":
+            optscr.addstr(11, second_third + 1, "on", curses.color_pair(5))
+        elif state.encounter_parse == "false":
+            optscr.addstr(11, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(11, second_third + 7, "]", curses.color_pair(2))
+
+        # Encounter Save
+        if s_option == "saveencounter" and s_setting == "option":
+            optscr.addstr(13, first_q, "Save Encounter Parse", curses.color_pair(4))
+        else:
+            optscr.addstr(13, first_q, "Save Encounter Parse", curses.color_pair(1))
+        optscr.addstr(13, second_third, "[", curses.color_pair(2))
+        if config["settings"]["encounter_parsing"]["auto_save"] == "true":
+            optscr.addstr(13, second_third + 1, "on", curses.color_pair(5))
+        elif config["settings"]["encounter_parsing"]["auto_save"] == "false":
+            optscr.addstr(13, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(13, second_third + 7, "]", curses.color_pair(2))
 
     except Exception as e:
         eqa_settings.log(

@@ -226,7 +226,7 @@ def main():
     process_keys = threading.Thread(
         target=eqa_keys.process,
         args=(
-            state.chars,
+            state,
             display_q,
             keyboard_q,
             system_q,
@@ -590,7 +590,7 @@ def main():
                         process_keys = threading.Thread(
                             target=eqa_keys.process,
                             args=(
-                                state.chars,
+                                state,
                                 display_q,
                                 keyboard_q,
                                 system_q,

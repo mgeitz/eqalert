@@ -1572,7 +1572,10 @@ def action_you_new_zone(
         if current_zone[0] not in config["zones"].keys():
             eqa_config.add_zone(current_zone[0], base_path)
         elif current_zone[0] in config["zones"].keys() and not state.raid == "true":
-            if config["zones"][current_zone[0]] == "raid":
+            if (
+                config["zones"][current_zone[0]] == "raid"
+                and config["settings"]["raid_mode"]["auto_set"] == "true"
+            ):
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),
@@ -1583,7 +1586,10 @@ def action_you_new_zone(
                     )
                 )
         elif current_zone[0] in config["zones"].keys() and state.raid == "true":
-            if config["zones"][current_zone[0]] != "raid":
+            if (
+                config["zones"][current_zone[0]] != "raid"
+                and config["settings"]["raid_mode"]["auto_set"] == "true"
+            ):
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),

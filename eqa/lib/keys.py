@@ -27,7 +27,7 @@ import eqa.lib.struct as eqa_struct
 
 
 def process(
-    chars,
+    state,
     display_q,
     keyboard_q,
     system_q,
@@ -39,10 +39,12 @@ def process(
     Produce: display_q, system_q
     """
 
+    chars = state.chars
     key = ""
     page = "events"
     settings = "character"
     selected_char = 0
+    option = "debug"
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
@@ -214,7 +216,145 @@ def process(
                             )
 
                     elif settings == "option":
-                        if key == ord("\t") or key == ord("`"):
+                        if key == curses.KEY_UP or key == ord("w"):
+                            if option == "debug":
+                                pass
+                            elif option == "mute":
+                                option = "debug"
+                            elif option == "raid":
+                                option = "mute"
+                            elif option == "autoraid":
+                                option = "raid"
+                            elif option == "encounter":
+                                option = "autoraid"
+                            elif option == "saveencounter":
+                                option = "encounter"
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "update",
+                                    "option",
+                                    option,
+                                )
+                            )
+                        elif key == curses.KEY_DOWN or key == ord("s"):
+                            if option == "debug":
+                                option = "mute"
+                            elif option == "mute":
+                                option = "raid"
+                            elif option == "raid":
+                                option = "autoraid"
+                            elif option == "autoraid":
+                                option = "encounter"
+                            elif option == "encounter":
+                                option = "saveencounter"
+                            elif option == "saveencounter":
+                                pass
+                            display_q.put(
+                                eqa_struct.display(
+                                    eqa_settings.eqa_time(),
+                                    "update",
+                                    "option",
+                                    option,
+                                )
+                            )
+                        elif key == curses.KEY_RIGHT or key == ord("d"):
+                            if option == "debug" and state.debug == "true":
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "debug",
+                                        "toggle",
+                                        "null",
+                                    )
+                                )
+                            elif option == "mute" and state.mute == "true":
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "mute",
+                                        "toggle",
+                                        "null",
+                                    )
+                                )
+                            elif option == "raid" and state.raid == "true":
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "raid",
+                                        "toggle",
+                                        "null",
+                                    )
+                                )
+                            elif option == "autoraid":
+                                pass
+                            elif (
+                                option == "encounter"
+                                and state.encounter_parse == "true"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "encounter",
+                                        "toggle",
+                                        "null",
+                                    )
+                                )
+                            elif option == "saveencounter":
+                                pass
+                        elif key == curses.KEY_LEFT or key == ord("a"):
+                            if option == "debug" and state.debug == "false":
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "debug",
+                                        "toggle",
+                                        "null",
+                                    )
+                                )
+                            elif option == "mute" and state.mute == "false":
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "mute",
+                                        "toggle",
+                                        "null",
+                                    )
+                                )
+                            elif option == "raid" and state.raid == "false":
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "raid",
+                                        "toggle",
+                                        "null",
+                                    )
+                                )
+                            elif option == "autoraid":
+                                pass
+                            elif (
+                                option == "encounter"
+                                and state.encounter_parse == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "encounter",
+                                        "toggle",
+                                        "null",
+                                    )
+                                )
+                            elif option == "saveencounter":
+                                pass
+                        elif key == ord("\t") or key == ord("`"):
                             settings = "line"
                             display_q.put(
                                 eqa_struct.display(
