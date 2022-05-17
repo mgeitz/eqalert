@@ -609,7 +609,7 @@ def draw_events_default_lower(stdscr):
             "Always use levitate in Kelethin",
             "Have you spent your DKP today?",
             "Please submit any bugs to github",
-            "A good day for project 1999",
+            "A good day for Project 1999",
             "Is Phinigel Autropos up?",
             "How secret is Secrets' secret secrets?",
             "Sirken might say A+ to that",
@@ -629,7 +629,12 @@ def draw_events_default_lower(stdscr):
             "Remember to be kind",
             "Hydration is critical",
             "Does stamina work yet?",
-            "Check out the Project1999 Forums!",
+            "Check out the Project 1999 Forums!",
+            "Use /inv to send or accept group invites",
+            "Normal track sort orders new to old spawns",
+            "Project 1999 released October 2009",
+            "You can buy carrots in Rivervale",
+            "Each server has a Magelo on the wiki",
         ]
         response = random.choice(responses)
 
