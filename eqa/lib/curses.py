@@ -1353,7 +1353,7 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
         if s_option == "debug" and s_setting == "option":
             optscr.addstr(5, first_q - 1, "Debug Mode", curses.color_pair(4))
             optscr.addstr(
-                2, first_q - 2, "Log and display all parser matches", curses.color_pair(3)
+                2, first_q - 2, "Log and display all parser output", curses.color_pair(3)
             )
         else:
             optscr.addstr(5, first_q, "Debug Mode", curses.color_pair(1))
