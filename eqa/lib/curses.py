@@ -887,14 +887,6 @@ def draw_ftime(stdscr, timestamp, y):
 def draw_parse(stdscr, state, encounter_report):
     """Draw parse"""
     y, x = stdscr.getmaxyx()
-    encounter_y = int(y / 2) - 3
-    encounter_x = x - 2
-    center_y = int(encounter_y / 2)
-    center_x = int(encounter_x / 2)
-    first_quarter = int(encounter_x / 4)
-    third_quarter = center_x + first_quarter
-    first_third = int(encounter_x / 3)
-    second_third = first_third + first_third
 
     # Clear and box
     stdscr.clear()
@@ -904,9 +896,17 @@ def draw_parse(stdscr, state, encounter_report):
     draw_tabs(stdscr, "parse")
 
     try:
-        encounterscr = stdscr.derwin(encounter_y, encounter_x, 3, 1)
+        encounterscr = stdscr.derwin(int(y / 2) - 3, x - 2, 3, 1)
         encounterscr.clear()
+        encounter_y, encounter_x = encounterscr.getmaxyx()
+        center_y = int(encounter_y / 2)
+        center_x = int(encounter_x / 2)
+        first_quarter = int(encounter_x / 4)
+        third_quarter = center_x + first_quarter
+        first_third = int(encounter_x / 3)
+        second_third = first_third + first_third
         playerscr = stdscr.derwin(int(y / 2) - 1, encounter_x, int(y / 2), 1)
+        playerscr_y, playerscr_x = playerscr.getmaxyx()
         playerscr.clear()
 
         # If we're parsing encounters
@@ -914,16 +914,26 @@ def draw_parse(stdscr, state, encounter_report):
             ## If we have a report to show
             if encounter_report is not None:
 
+                target_name = encounter_report["target"]["name"].title()
+
+                # Target Line
+                underline = 3
+                while underline < (center_x - 2):
+                    encounterscr.addch(1, underline, curses.ACS_HLINE, curses.color_pair(3))
+                    underline += 1
+
+
                 ### Target Title
+                #encounterscr.addch(1, ((center_x - (len(targetname) / 2)) - 1), curses.ACS_RTEE, curses.color_pair(1))
                 encounterscr.addstr(
                     1,
-                    1,
-                    encounter_report["target"]["name"].title() + ":",
+                    first_quarter - int(len(target_name) / 2),
+                    " " + target_name + " ",
                     curses.color_pair(2),
                 )
 
                 ### Target Stats
-                count = 2
+                count = 3
                 for entry in encounter_report["target"]:
                     if entry != "name" and entry != "killed":
                         encounterscr.addstr(
@@ -951,12 +961,12 @@ def draw_parse(stdscr, state, encounter_report):
                     #### Killed
                     elif entry == "killed":
                         encounterscr.addstr(
-                            1,
+                            3,
                             first_third,
                             "Killed:",
                             curses.color_pair(6),
                         )
-                        kill_count = 2
+                        kill_count = 4
                         for victim in encounter_report["target"]["killed"].keys():
                             encounterscr.addstr(
                                 kill_count,
@@ -972,14 +982,23 @@ def draw_parse(stdscr, state, encounter_report):
                             )
                             kill_count += 1
 
-                ### Encounter Summary
+
+                ### Encounter Line
+                underline = center_x + 2
+                while underline < (encounter_x - 2):
+                    encounterscr.addch(1, underline, curses.ACS_HLINE, curses.color_pair(3))
+                    underline += 1
+
+                ### Encounter Title
                 encounterscr.addstr(
                     1,
-                    center_x,
-                    "Encounter Summary:",
+                    third_quarter - 9,
+                    " Encounter Summary ",
                     curses.color_pair(2),
                 )
-                count = 2
+
+                ### Encounter Summary
+                count = 3
                 for entry in encounter_report["encounter_summary"]:
                     encounterscr.addstr(
                         count,
@@ -1003,13 +1022,28 @@ def draw_parse(stdscr, state, encounter_report):
                     )
                     count += 1
 
-                ### Player Summary
+                ### Player Line
+                underline = 2
+                while underline < (playerscr_x - 2):
+                    playerscr.addch(0, underline, curses.ACS_HLINE, curses.color_pair(3))
+                    underline += 1
+
+                ### Player Title
                 playerscr.addstr(
-                    0, int(encounter_x / 2) - 4, "Players:", curses.color_pair(2)
+                    0, int(playerscr_x / 2) - 4, " Players ", curses.color_pair(2)
                 )
+
+                ### Player Summary
                 player_x = 1
-                player_y = 1
+                player_y = 2
                 for player in encounter_report["participants"].keys():
+                    if len(encounter_report["participants"][player].keys()) + 1 > (playerscr_y - player_y):
+                        player_y = 2
+                        if player_x <= second_third:
+                            player_x += first_third
+                        else:
+                            # We're out of screen space
+                            break
                     playerscr.addstr(
                         player_y, player_x, player.title() + ":", curses.color_pair(3)
                     )
@@ -1040,7 +1074,7 @@ def draw_parse(stdscr, state, encounter_report):
                         )
                         player_y += 1
                     if player_y > (int(y / 2) - 10):
-                        player_y = 1
+                        player_y = 2
                         if player_x <= second_third:
                             player_x += first_third
                         else:
