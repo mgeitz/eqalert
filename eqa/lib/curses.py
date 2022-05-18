@@ -635,6 +635,7 @@ def draw_events_default_lower(stdscr):
             "Project 1999 released October 2009",
             "You can buy carrots in Rivervale",
             "Each server has a Magelo on the wiki",
+            "Don't panic and always carry a DA Idol",
         ]
         response = random.choice(responses)
 
