@@ -227,6 +227,7 @@ def main():
         target=eqa_keys.process,
         args=(
             state,
+            config,
             display_q,
             keyboard_q,
             system_q,
@@ -591,6 +592,7 @@ def main():
                             target=eqa_keys.process,
                             args=(
                                 state,
+                                config,
                                 display_q,
                                 keyboard_q,
                                 system_q,

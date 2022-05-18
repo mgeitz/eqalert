@@ -28,6 +28,7 @@ import eqa.lib.struct as eqa_struct
 
 def process(
     state,
+    config,
     display_q,
     keyboard_q,
     system_q,
@@ -40,10 +41,12 @@ def process(
     """
 
     chars = state.chars
+    lines = len(config["line"].keys())
     key = ""
     page = "events"
     settings = "character"
     selected_char = 0
+    selected_line = 0
     option = "debug"
 
     try:
@@ -402,7 +405,29 @@ def process(
                             )
 
                     elif settings == "line":
-                        if key == ord("\t") or key == ord("`"):
+                        if key == curses.KEY_UP or key == ord("w"):
+                            if selected_line < lines - 1:
+                                selected_line += 1
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "update",
+                                        "selected_line",
+                                        selected_line,
+                                    )
+                                )
+                        elif key == curses.KEY_DOWN or key == ord("s"):
+                            if selected_line > 0:
+                                selected_line -= 1
+                                display_q.put(
+                                    eqa_struct.display(
+                                        eqa_settings.eqa_time(),
+                                        "update",
+                                        "selected_line",
+                                        selected_line,
+                                    )
+                                )
+                        elif key == ord("\t") or key == ord("`"):
                             settings = "character"
                             display_q.put(
                                 eqa_struct.display(

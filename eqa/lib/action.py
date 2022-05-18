@@ -233,9 +233,6 @@ def process(
                         config,
                         check_line,
                     )
-                # elif line_type.startswith("pet_"):
-                #    action_pet()
-                # elif line_type == "who_player":
 
                 ## If line_type exists in the config
                 if line_type in config["line"].keys():

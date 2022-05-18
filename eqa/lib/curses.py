@@ -45,7 +45,7 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
     s_setting = "character"
     s_char = 0
     s_opt = "debug"
-    s_line = "all"
+    s_line = 0
     encounter_report = None
 
     try:
@@ -66,6 +66,8 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
                         s_setting = display_event.payload
                     elif display_event.screen == "option":
                         s_opt = display_event.payload
+                    elif display_event.screen == "selected_line":
+                        s_line = display_event.payload
                     elif display_event.screen == "selected_char":
                         s_char = display_event.payload
                     elif display_event.screen == "select_char":
@@ -802,7 +804,6 @@ def draw_events_encounter(stdscr, encounter_report):
             underline = mid_encounter_win_x + 4
             while underline < (encounter_win_x - 4):
                 if underline == third_quarter:
-                    pass
                     encounterscr.addch(
                         mid_encounter_win_y + 1,
                         underline,
@@ -1272,7 +1273,7 @@ def draw_settings(stdscr, state, config, s_setting, s_char, s_opt, s_line):
         ## Options
         draw_settings_options(optscr, config, state, s_opt, s_setting)
 
-        # Line Type Editor
+        # Line Type
         linescr = stdscr.derwin(y - 6, int(x / 2) - 6, 4, int(x / 2) + 2)
         line_y, line_x = linescr.getmaxyx()
         linescr.box()
@@ -1290,7 +1291,7 @@ def draw_settings(stdscr, state, config, s_setting, s_char, s_opt, s_line):
         linescr.addch(0, int(line_x / 2) + 7, curses.ACS_LTEE)
 
         ## Draw Line Type Editor
-        draw_settings_line_editor(linescr, config, state, s_line)
+        draw_settings_line_editor(linescr, config, state, s_line, s_setting)
 
     except Exception as e:
         eqa_settings.log(
@@ -1310,70 +1311,80 @@ def draw_settings_char_select(charscr, config, state, s_char, s_setting):
         first_q = int(char_x / 5)
         second_third = int((char_x / 3) * 2)
 
-        charscr.addstr(2, 2, "Active:", curses.color_pair(1))
-        charscr.addstr(2, 10, state.char.title(), curses.color_pair(3))
-        charscr.addstr(2, 11 + len(state.char), "on", curses.color_pair(1))
+        # Active Character
+        charscr.addstr(2, first_q - 5, "Active:", curses.color_pair(1))
+        charscr.addstr(2, first_q + 3, state.char.title(), curses.color_pair(5))
+        charscr.addstr(2, first_q + 4 + len(state.char), "on", curses.color_pair(1))
         charscr.addstr(
-            2, 14 + len(state.char), state.server.title(), curses.color_pair(3)
+            2, first_q + 7 + len(state.char), state.server.title(), curses.color_pair(5)
         )
 
-        charscr.addstr(6, 2, "Select:", curses.color_pair(1))
+        # Character Select
+        charscr.addstr(6, first_q - 5, "Select:", curses.color_pair(1))
         if s_setting == "character":
-            charscr.addstr(6, 10, char_name.title(), curses.color_pair(4))
-            charscr.addstr(6, 11 + len(char_name), "on", curses.color_pair(1))
+            charscr.addstr(6, first_q + 3, char_name.title(), curses.color_pair(4))
+            charscr.addstr(6, first_q + 4 + len(char_name), "on", curses.color_pair(1))
             charscr.addstr(
-                6, 14 + len(char_name), char_server.title(), curses.color_pair(4)
+                6,
+                first_q + 7 + len(char_name),
+                char_server.title(),
+                curses.color_pair(4),
             )
         else:
-            charscr.addstr(6, 10, char_name.title(), curses.color_pair(3))
-            charscr.addstr(6, 11 + len(char_name), "on", curses.color_pair(1))
+            charscr.addstr(6, first_q + 3, char_name.title(), curses.color_pair(3))
+            charscr.addstr(6, first_q + 4 + len(char_name), "on", curses.color_pair(1))
             charscr.addstr(
-                6, 14 + len(char_name), char_server.title(), curses.color_pair(3)
+                6,
+                first_q + 7 + len(char_name),
+                char_server.title(),
+                curses.color_pair(3),
             )
 
-        charscr.addstr(10, 6, "Class:", curses.color_pair(1))
+        # Character Select Arrows
+        if s_char == 0:
+            charscr.addch(5, first_q + 3, curses.ACS_UARROW, curses.color_pair(2))
+        elif s_char == len(state.chars) - 1:
+            charscr.addch(7, first_q + 3, curses.ACS_DARROW, curses.color_pair(2))
+        else:
+            charscr.addch(5, first_q + 3, curses.ACS_UARROW, curses.color_pair(2))
+            charscr.addch(7, first_q + 3, curses.ACS_DARROW, curses.color_pair(2))
+
+        # Character Select Stats
+        charscr.addstr(10, first_q, "Class:", curses.color_pair(1))
         charscr.addstr(
             10,
-            13,
+            first_q + 7,
             config["char_logs"][state.chars[s_char]]["char_state"]["class"].title(),
             curses.color_pair(3),
         )
-        charscr.addstr(11, 6, "Level:", curses.color_pair(1))
+        charscr.addstr(11, first_q, "Level:", curses.color_pair(1))
         charscr.addstr(
             11,
-            13,
+            first_q + 7,
             config["char_logs"][state.chars[s_char]]["char_state"]["level"],
             curses.color_pair(3),
         )
-        charscr.addstr(12, 6, "Guild:", curses.color_pair(1))
+        charscr.addstr(12, first_q, "Guild:", curses.color_pair(1))
         charscr.addstr(
             12,
-            13,
+            first_q + 7,
             config["char_logs"][state.chars[s_char]]["char_state"]["guild"].title(),
             curses.color_pair(3),
         )
-        charscr.addstr(13, 6, "Zone:", curses.color_pair(1))
+        charscr.addstr(13, first_q, "Zone:", curses.color_pair(1))
         charscr.addstr(
             13,
-            13,
+            first_q + 7,
             config["char_logs"][state.chars[s_char]]["char_state"]["zone"].title(),
             curses.color_pair(3),
         )
-        charscr.addstr(14, 6, "Bind:", curses.color_pair(1))
+        charscr.addstr(14, first_q, "Bind:", curses.color_pair(1))
         charscr.addstr(
             14,
-            13,
+            first_q + 7,
             config["char_logs"][state.chars[s_char]]["char_state"]["bind"].title(),
             curses.color_pair(3),
         )
-
-        if s_char == 0:
-            charscr.addch(5, 10, curses.ACS_UARROW, curses.color_pair(2))
-        elif s_char == len(state.chars) - 1:
-            charscr.addch(7, 10, curses.ACS_DARROW, curses.color_pair(2))
-        else:
-            charscr.addch(5, 10, curses.ACS_UARROW, curses.color_pair(2))
-            charscr.addch(7, 10, curses.ACS_DARROW, curses.color_pair(2))
 
     except Exception as e:
         eqa_settings.log(
@@ -1501,11 +1512,77 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
         )
 
 
-def draw_settings_line_editor(linescr, config, state, s_line):
+def draw_settings_line_editor(linescr, config, state, s_line, s_setting):
     """Draw settings alert config editor window"""
 
     try:
-        pass
+        line_y, line_x = linescr.getmaxyx()
+        first_q = int(line_x / 5)
+        last_q = int((line_x / 5) * 4)
+        config_line_type = list(config["line"].keys())[s_line]
+
+        # Description
+        if s_setting == "line":
+            linescr.addstr(
+                line_y - 3,
+                int(line_x / 2) - 15,
+                "Edit your config.json to modify",
+                curses.color_pair(3),
+            )
+
+        # Line Type Selection
+        linescr.addstr(4, first_q - 5, "Line Type:", curses.color_pair(1))
+        if s_setting == "line":
+            linescr.addstr(4, first_q + 6, config_line_type, curses.color_pair(4))
+        else:
+            linescr.addstr(4, first_q + 6, config_line_type, curses.color_pair(3))
+
+        # Line Type Selection Arrows
+        if s_line == 0:
+            linescr.addch(3, first_q + 6, curses.ACS_UARROW, curses.color_pair(2))
+        elif s_line == len(config["line"].keys()) - 1:
+            linescr.addch(5, first_q + 6, curses.ACS_DARROW, curses.color_pair(2))
+        else:
+            linescr.addch(3, first_q + 6, curses.ACS_UARROW, curses.color_pair(2))
+            linescr.addch(5, first_q + 6, curses.ACS_DARROW, curses.color_pair(2))
+
+        # View Line Type Reaction
+        linescr.addstr(7, first_q - 1, "Reaction:", curses.color_pair(1))
+        linescr.addstr(
+            7,
+            first_q + 10,
+            config["line"][config_line_type]["reaction"].title(),
+            curses.color_pair(3),
+        )
+
+        # View Line Type Sound
+        linescr.addstr(9, first_q - 1, "Sound:", curses.color_pair(1))
+        linescr.addstr(
+            9,
+            first_q + 10,
+            config["line"][config_line_type]["sound"].title(),
+            curses.color_pair(3),
+        )
+
+        # View Line Type Alerts
+        linescr.addstr(11, first_q - 1, "Alerts:", curses.color_pair(1))
+        alert_num = len(config["line"][config_line_type]["alert"].keys())
+        if alert_num == 0:
+            linescr.addstr(11, first_q + 10, "None", curses.color_pair(3))
+        else:
+            count = 12
+            for key in config["line"][config_line_type]["alert"].keys():
+                linescr.addstr(count, first_q, key, curses.color_pair(2))
+                linescr.addstr(
+                    count,
+                    last_q,
+                    config["line"][config_line_type]["alert"][key].title(),
+                    curses.color_pair(3),
+                )
+                if count >= line_y - 3:
+                    break
+                else:
+                    count += 1
 
     except Exception as e:
         eqa_settings.log(
@@ -1741,7 +1818,7 @@ def draw_toosmall(stdscr):
         center_x = int(x / 2)
 
         stdscr.addstr(
-            center_y, center_x - 10, "Terminal too small.", curses.color_pair(1)
+            center_y, center_x - 9, "Terminal too small", curses.color_pair(1)
         )
 
     except Exception as e:

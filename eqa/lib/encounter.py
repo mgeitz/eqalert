@@ -1833,7 +1833,7 @@ def encounter_report(
                 count = 0
                 keep_encounter_stack = deque([])
                 while count < len(encounter_stack):
-                    event = encounter_stack.popleft
+                    event = encounter_stack.popleft()
                     time, source, target, mode, result = event
                     this_hour, this_minute, this_second_m = time.split(":")
                     this_second, this_milli = last_second_m.split(".")

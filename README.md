@@ -53,15 +53,6 @@ Spot check these default paths generated in `config.json`
         },
 ```
 
-If you would like encounter parses saved, update the `auto_save` setting in `config.json` to `true` as shown below
-```
-  "settings": {
-    "encounter_parsing": {
-      "auto_save": "true"
-    },
-  },
-```
-
 > Press `0` to reload your config or restart the program if any changes were made to the config
 
 
