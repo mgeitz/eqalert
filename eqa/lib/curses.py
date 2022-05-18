@@ -1351,9 +1351,9 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
 
         # Debug
         if s_option == "debug" and s_setting == "option":
-            optscr.addstr(5, first_q, "Debug Mode", curses.color_pair(4))
+            optscr.addstr(5, first_q - 1, "Debug Mode", curses.color_pair(4))
             optscr.addstr(
-                3, first_q, "Log and display all parser matches", curses.color_pair(3)
+                2, first_q - 2, "Log and display all parser matches", curses.color_pair(3)
             )
         else:
             optscr.addstr(5, first_q, "Debug Mode", curses.color_pair(1))
@@ -1366,8 +1366,8 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
 
         # Mute
         if s_option == "mute" and s_setting == "option":
-            optscr.addstr(7, first_q, "Mute", curses.color_pair(4))
-            optscr.addstr(3, first_q, "Mute audio alerts", curses.color_pair(3))
+            optscr.addstr(7, first_q - 1, "Mute", curses.color_pair(4))
+            optscr.addstr(2, first_q - 2, "Mute all audio alerts", curses.color_pair(3))
         else:
             optscr.addstr(7, first_q, "Mute", curses.color_pair(1))
         optscr.addstr(7, second_third, "[", curses.color_pair(3))
@@ -1379,8 +1379,8 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
 
         # Raid
         if s_option == "raid" and s_setting == "option":
-            optscr.addstr(9, first_q, "Raid Mode", curses.color_pair(4))
-            optscr.addstr(3, first_q, "Set raid context", curses.color_pair(3))
+            optscr.addstr(9, first_q - 1, "Raid Mode", curses.color_pair(4))
+            optscr.addstr(2, first_q - 2, "Manually toggle raid context", curses.color_pair(3))
         else:
             optscr.addstr(9, first_q, "Raid Mode", curses.color_pair(1))
         optscr.addstr(9, second_third, "[", curses.color_pair(3))
@@ -1392,9 +1392,9 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
 
         # Raid Auto
         if s_option == "autoraid" and s_setting == "option":
-            optscr.addstr(11, first_q, "Auto-set Raid Mode", curses.color_pair(4))
+            optscr.addstr(11, first_q - 1, "Auto-set Raid Mode", curses.color_pair(4))
             optscr.addstr(
-                3, first_q, "Automatically set raid context", curses.color_pair(3)
+                2, first_q - 2, "Automatically set raid context by zone", curses.color_pair(3)
             )
         else:
             optscr.addstr(11, first_q, "Auto-set Raid Mode", curses.color_pair(1))
@@ -1407,8 +1407,8 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
 
         # Encounter
         if s_option == "encounter" and s_setting == "option":
-            optscr.addstr(13, first_q, "Encounter Parse", curses.color_pair(4))
-            optscr.addstr(3, first_q, "Parse combat encounters", curses.color_pair(3))
+            optscr.addstr(13, first_q - 1, "Encounter Parse", curses.color_pair(4))
+            optscr.addstr(2, first_q - 2, "Automatically parse combat encounters", curses.color_pair(3))
         else:
             optscr.addstr(13, first_q, "Encounter Parse", curses.color_pair(1))
         optscr.addstr(13, second_third, "[", curses.color_pair(3))
@@ -1420,9 +1420,9 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
 
         # Encounter Save
         if s_option == "saveencounter" and s_setting == "option":
-            optscr.addstr(15, first_q, "Save Encounter Parse", curses.color_pair(4))
+            optscr.addstr(15, first_q - 1, "Save Encounter Parse", curses.color_pair(4))
             optscr.addstr(
-                3, first_q, "Save combat encounters to a file", curses.color_pair(3)
+                2, first_q - 2, "Save combat encounters to a .json file", curses.color_pair(3)
             )
         else:
             optscr.addstr(15, first_q, "Save Encounter Parse", curses.color_pair(1))
