@@ -636,6 +636,8 @@ def draw_events_default_lower(stdscr):
             "You can buy carrots in Rivervale",
             "Each server has a Magelo on the wiki",
             "Don't panic and always carry a DA Idol",
+            "Is Wuoshi up?",
+            "Use /load ui to leave an empty corpse",
         ]
         response = random.choice(responses)
 
@@ -919,12 +921,13 @@ def draw_parse(stdscr, state, encounter_report):
                 # Target Line
                 underline = 3
                 while underline < (center_x - 2):
-                    encounterscr.addch(1, underline, curses.ACS_HLINE, curses.color_pair(3))
+                    encounterscr.addch(
+                        1, underline, curses.ACS_HLINE, curses.color_pair(3)
+                    )
                     underline += 1
 
-
                 ### Target Title
-                #encounterscr.addch(1, ((center_x - (len(targetname) / 2)) - 1), curses.ACS_RTEE, curses.color_pair(1))
+                # encounterscr.addch(1, ((center_x - (len(targetname) / 2)) - 1), curses.ACS_RTEE, curses.color_pair(1))
                 encounterscr.addstr(
                     1,
                     first_quarter - int(len(target_name) / 2),
@@ -982,11 +985,12 @@ def draw_parse(stdscr, state, encounter_report):
                             )
                             kill_count += 1
 
-
                 ### Encounter Line
                 underline = center_x + 2
                 while underline < (encounter_x - 2):
-                    encounterscr.addch(1, underline, curses.ACS_HLINE, curses.color_pair(3))
+                    encounterscr.addch(
+                        1, underline, curses.ACS_HLINE, curses.color_pair(3)
+                    )
                     underline += 1
 
                 ### Encounter Title
@@ -1025,7 +1029,9 @@ def draw_parse(stdscr, state, encounter_report):
                 ### Player Line
                 underline = 2
                 while underline < (playerscr_x - 2):
-                    playerscr.addch(0, underline, curses.ACS_HLINE, curses.color_pair(3))
+                    playerscr.addch(
+                        0, underline, curses.ACS_HLINE, curses.color_pair(3)
+                    )
                     underline += 1
 
                 ### Player Title
@@ -1037,7 +1043,9 @@ def draw_parse(stdscr, state, encounter_report):
                 player_x = 1
                 player_y = 2
                 for player in encounter_report["participants"].keys():
-                    if len(encounter_report["participants"][player].keys()) + 1 > (playerscr_y - player_y):
+                    if len(encounter_report["participants"][player].keys()) + 1 > (
+                        playerscr_y - player_y
+                    ):
                         player_y = 2
                         if player_x <= second_third:
                             player_x += first_third
@@ -1388,7 +1396,10 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
         if s_option == "debug" and s_setting == "option":
             optscr.addstr(5, first_q - 1, "Debug Mode", curses.color_pair(4))
             optscr.addstr(
-                2, first_q - 2, "Log and display all parser output", curses.color_pair(3)
+                2,
+                first_q - 2,
+                "Log and display all parser output",
+                curses.color_pair(3),
             )
         else:
             optscr.addstr(5, first_q, "Debug Mode", curses.color_pair(1))
@@ -1415,7 +1426,9 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
         # Raid
         if s_option == "raid" and s_setting == "option":
             optscr.addstr(9, first_q - 1, "Raid Mode", curses.color_pair(4))
-            optscr.addstr(2, first_q - 2, "Manually toggle raid context", curses.color_pair(3))
+            optscr.addstr(
+                2, first_q - 2, "Manually toggle raid context", curses.color_pair(3)
+            )
         else:
             optscr.addstr(9, first_q, "Raid Mode", curses.color_pair(1))
         optscr.addstr(9, second_third, "[", curses.color_pair(3))
@@ -1429,7 +1442,10 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
         if s_option == "autoraid" and s_setting == "option":
             optscr.addstr(11, first_q - 1, "Auto-set Raid Mode", curses.color_pair(4))
             optscr.addstr(
-                2, first_q - 2, "Automatically set raid context by zone", curses.color_pair(3)
+                2,
+                first_q - 2,
+                "Automatically set raid context by zone",
+                curses.color_pair(3),
             )
         else:
             optscr.addstr(11, first_q, "Auto-set Raid Mode", curses.color_pair(1))
@@ -1443,7 +1459,12 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
         # Encounter
         if s_option == "encounter" and s_setting == "option":
             optscr.addstr(13, first_q - 1, "Encounter Parse", curses.color_pair(4))
-            optscr.addstr(2, first_q - 2, "Automatically parse combat encounters", curses.color_pair(3))
+            optscr.addstr(
+                2,
+                first_q - 2,
+                "Automatically parse combat encounters",
+                curses.color_pair(3),
+            )
         else:
             optscr.addstr(13, first_q, "Encounter Parse", curses.color_pair(1))
         optscr.addstr(13, second_third, "[", curses.color_pair(3))
@@ -1457,7 +1478,10 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
         if s_option == "saveencounter" and s_setting == "option":
             optscr.addstr(15, first_q - 1, "Save Encounter Parse", curses.color_pair(4))
             optscr.addstr(
-                2, first_q - 2, "Save combat encounters to a .json file", curses.color_pair(3)
+                2,
+                first_q - 2,
+                "Save combat encounters to a .json file",
+                curses.color_pair(3),
             )
         else:
             optscr.addstr(15, first_q, "Save Encounter Parse", curses.color_pair(1))
