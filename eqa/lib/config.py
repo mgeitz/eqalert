@@ -827,6 +827,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "pet_attack": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "pet_back": {
       "alert": {},
       "reaction": "false",
@@ -1383,7 +1388,7 @@ def build_config(base_path):
     "raid_mode": {
       "auto_set": "true"
     },
-    "version": "2.12.2"
+    "version": "3.0.0"
   },
   "zones": {
     "An Arena (PVP) Area": "false",

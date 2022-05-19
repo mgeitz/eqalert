@@ -1043,6 +1043,14 @@ def check_pets(line):
             return "pet_follow"
         elif (
             re.fullmatch(
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'Attacking a [a-zA-Z\s`]+ Master\.\'$",
+                line,
+            )
+            is not None
+        ):
+            return "pet_attack"
+        elif (
+            re.fullmatch(
                 r"^[a-zA-Z\s]+ (says|tells you)(,|) \'No longer taunting attackers, Master\.\'$",
                 line,
             )
