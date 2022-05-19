@@ -44,6 +44,8 @@ class EQA_State:
         char_class,
         char_guild,
         encounter_parse,
+        saveparse,
+        autoraid,
     ):
         """All States"""
         self.char = char
@@ -64,6 +66,8 @@ class EQA_State:
         self.char_class = char_class
         self.char_guild = char_guild
         self.encounter_parse = encounter_parse
+        self.saveparse = saveparse
+        self.autoraid = autoraid
 
     def set_char(self, char):
         """Set Character"""
@@ -136,3 +140,11 @@ class EQA_State:
     def set_encounter_parse(self, encounter_parse):
         """Set Encounter Parse"""
         self.encounter_parse = encounter_parse
+
+    def set_encounter_parse_save(self, saveparse):
+        """Set Encounter Parse Auto-Save"""
+        self.saveparse = saveparse
+
+    def set_auto_raid(self, autoraid):
+        """Toggle Automatic Raid Mode"""
+        self.autoraid = autoraid

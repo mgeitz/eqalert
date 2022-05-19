@@ -226,7 +226,8 @@ def main():
     process_keys = threading.Thread(
         target=eqa_keys.process,
         args=(
-            state.chars,
+            state,
+            config,
             display_q,
             keyboard_q,
             system_q,
@@ -310,7 +311,8 @@ def main():
     # Do something to the TUI
     ## Consume display_q
     process_display = threading.Thread(
-        target=eqa_curses.display, args=(screen, display_q, state, exit_flag)
+        target=eqa_curses.display,
+        args=(screen, display_q, state, config, exit_flag, cfg_reload),
     )
     process_display.daemon = True
     process_display.start()
@@ -566,13 +568,31 @@ def main():
                         process_sound_2.join()
                         process_sound_3.join()
                         process_keys.join()
+                        process_display.join()
                         cfg_reload.clear()
+
+                        # Restart the TUI
+                        ## Consume display_q
+                        process_display = threading.Thread(
+                            target=eqa_curses.display,
+                            args=(
+                                screen,
+                                display_q,
+                                state,
+                                config,
+                                exit_flag,
+                                cfg_reload,
+                            ),
+                        )
+                        process_display.daemon = True
+                        process_display.start()
 
                         #### Restart process_keys
                         process_keys = threading.Thread(
                             target=eqa_keys.process,
                             args=(
-                                state.chars,
+                                state,
+                                config,
                                 display_q,
                                 keyboard_q,
                                 system_q,
@@ -743,6 +763,46 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
                     new_message.payload,
                 )
             )
+        elif (
+            new_message.rx == "auto"
+            and new_message.payload == "true"
+            and state.autoraid == "false"
+        ):
+            state.set_auto_raid("true")
+            eqa_config.set_last_state(state, base_path)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Raid context will be automatically set by zone",
+                )
+            )
+            sound_q.put(
+                eqa_struct.sound(
+                    "speak", "Raid context will be automatically set by zone"
+                )
+            )
+        elif (
+            new_message.rx == "auto"
+            and new_message.payload == "false"
+            and state.autoraid == "true"
+        ):
+            state.set_auto_raid("false")
+            eqa_config.set_last_state(state, base_path)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Raid context will not be automatically updated",
+                )
+            )
+            sound_q.put(
+                eqa_struct.sound(
+                    "speak", "Raid context will not be automatically updated"
+                )
+            )
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
         )
@@ -871,6 +931,44 @@ def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_mess
                 )
             )
             sound_q.put(eqa_struct.sound("speak", "Encounter Parse Disabled"))
+        elif (
+            state.saveparse == "true"
+            and new_message.rx == "save"
+            and new_message.payload == "false"
+        ):
+            state.set_encounter_parse_save("false")
+            eqa_config.set_last_state(state, base_path)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Encounter parse will not save to a file",
+                )
+            )
+            sound_q.put(
+                eqa_struct.sound("speak", "Encounter parser will not save to a file")
+            )
+        elif (
+            state.saveparse == "false"
+            and new_message.rx == "save"
+            and new_message.payload == "true"
+        ):
+            state.set_encounter_parse_save("true")
+            eqa_config.set_last_state(state, base_path)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Encounter parse will automatically save to a file",
+                )
+            )
+            sound_q.put(
+                eqa_struct.sound(
+                    "speak", "Encounter parser will automatically save to a file"
+                )
+            )
         elif new_message.rx == "clear":
             encounter_q.put(
                 eqa_struct.message(

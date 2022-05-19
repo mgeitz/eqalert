@@ -165,6 +165,14 @@ def check_melee(line):
         # Melee Combat
         if (
             re.fullmatch(
+                r"^[a-zA-Z`\s]+ (mauls|hits|crushes|slashes|pierces|bashes|backstabs|bites|kicks|claws|gores|punches|strikes|slices) (you|YOU) for \d+ point(s|) of damage\.$",
+                line,
+            )
+            is not None
+        ):
+            return "combat_you_receive_melee"
+        elif (
+            re.fullmatch(
                 r"^[a-zA-Z`\s]+ (mauls|hits|crushes|slashes|pierces|bashes|backstabs|bites|kicks|claws|gores|punches|strikes|slices) [a-zA-Z`\s]+ for \d+ point(s|) of damage\.$",
                 line,
             )
@@ -227,14 +235,6 @@ def check_melee(line):
             is not None
         ):
             return "combat_other_rune_damage"
-        elif (
-            re.fullmatch(
-                r"^[a-zA-Z`\s]+ (mauls|hits|crushes|slashes|pierces|bashes|backstabs|bites|kicks|claws|gores|punches|strikes|slices) you for \d+ points of damage\.$",
-                line,
-            )
-            is not None
-        ):
-            return "combat_you_receive_melee"
         elif (
             re.fullmatch(
                 r"^You (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z`\s]+ for \d+ point(s|) of damage\.$",
@@ -1035,30 +1035,46 @@ def check_pets(line):
 
     try:
         if (
-            re.fullmatch(r"^[a-zA-Z\s]+ says \'Following you, Master\.\'$", line)
+            re.fullmatch(
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'Following you, Master\.\'$", line
+            )
             is not None
         ):
             return "pet_follow"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says \'No longer taunting attackers, Master\.\'$", line
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'Attacking a [a-zA-Z\s`]+ Master\.\'$",
+                line,
+            )
+            is not None
+        ):
+            return "pet_attack"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'No longer taunting attackers, Master\.\'$",
+                line,
             )
             is not None
         ):
             return "pet_taunt_off"
         elif (
-            re.fullmatch(r"^[a-zA-Z\s]+ says \'At your service Master\.\'$", line)
+            re.fullmatch(
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'At your service Master\.\'$", line
+            )
             is not None
         ):
             return "pet_spawn"
         elif (
-            re.fullmatch(r"^[a-zA-Z\s]+ says \'Changing position, Master\.\'$", line)
+            re.fullmatch(
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'Changing position, Master\.\'$",
+                line,
+            )
             is not None
         ):
             return "pet_sit_stand"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says \'Guarding with my life\.\.oh splendid one\.\'$",
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'Guarding with my life\.\.oh splendid one\.\'$",
                 line,
             )
             is not None
@@ -1066,21 +1082,24 @@ def check_pets(line):
             return "pet_guard"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says \'Sorry, Master\.\.calming down\.\'$", line
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'Sorry, Master\.\.calming down\.\'$",
+                line,
             )
             is not None
         ):
             return "pet_back"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says \'That is not a legal target master\.\'$", line
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'That is not a legal target master\.\'$",
+                line,
             )
             is not None
         ):
             return "pet_illegal_target"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ says \'Sorry to have failed you, oh Great One\.\'$", line
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'Sorry to have failed you, oh Great One\.\'$",
+                line,
             )
             is not None
         ):

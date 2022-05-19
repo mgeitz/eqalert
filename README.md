@@ -2,7 +2,7 @@
 
 A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface for Linux
 
-![img](https://i.imgur.com/MzLNgMN.png)
+![img](https://i.imgur.com/TtUwq12.png)
 
 > Best used with the [Linux EQ Launch Manager](https://gist.github.com/mgeitz/aa295061c51b26d53dd818d0ebb3e37a) to maintain reasonable log file size
 
@@ -53,15 +53,6 @@ Spot check these default paths generated in `config.json`
         },
 ```
 
-If you would like encounter parses saved, update the `auto_save` setting in `config.json` to `true` as shown below
-```
-  "settings": {
-    "encounter_parsing": {
-      "auto_save": "true"
-    },
-  },
-```
-
 > Press `0` to reload your config or restart the program if any changes were made to the config
 
 
@@ -86,9 +77,15 @@ If you would like encounter parses saved, update the `auto_save` setting in `con
   - m       : Toggle global audio mute
 
 #### Settings
-  - up      : Cycle up in selection
-  - down    : Cycle down in selection
-  - right   : Toggle selection on
+  - up      : Up in selection
+  - down    : Down in selection
+  - right   : Selection options
+  - left    : Selection options
+  - space   : Select
+  - enter   : Select
+  - tab     : Cycle category
+
+> Note: WASD or arrow keys will work
 
 ### Say Controls
 

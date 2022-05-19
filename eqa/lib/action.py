@@ -233,9 +233,6 @@ def process(
                         config,
                         check_line,
                     )
-                # elif line_type.startswith("pet_"):
-                #    action_pet()
-                # elif line_type == "who_player":
 
                 ## If line_type exists in the config
                 if line_type in config["line"].keys():
@@ -1260,6 +1257,16 @@ def action_you_say_commands(
                             "null",
                         )
                     )
+                elif args[1] == "start":
+                    system_q.put(
+                        eqa_struct.message(
+                            eqa_settings.eqa_time(),
+                            "system",
+                            "encounter",
+                            "start",
+                            "null",
+                        )
+                    )
             elif args[0] == "what":
                 if len(args) == 1:
                     sound_q.put(eqa_struct.sound("speak", "What what?"))
@@ -1353,6 +1360,14 @@ def action_you_say_commands(
                             + " life, or did the "
                             + state.char_class
                             + " life choose you?",
+                        )
+                    )
+            elif args[0] == "ping":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "pong",
                         )
                     )
             else:
@@ -1554,7 +1569,10 @@ def action_you_new_zone(
         if current_zone[0] not in config["zones"].keys():
             eqa_config.add_zone(current_zone[0], base_path)
         elif current_zone[0] in config["zones"].keys() and not state.raid == "true":
-            if config["zones"][current_zone[0]] == "raid":
+            if (
+                config["zones"][current_zone[0]] == "raid"
+                and config["settings"]["raid_mode"]["auto_set"] == "true"
+            ):
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),
@@ -1565,7 +1583,10 @@ def action_you_new_zone(
                     )
                 )
         elif current_zone[0] in config["zones"].keys() and state.raid == "true":
-            if config["zones"][current_zone[0]] != "raid":
+            if (
+                config["zones"][current_zone[0]] != "raid"
+                and config["settings"]["raid_mode"]["auto_set"] == "true"
+            ):
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),
