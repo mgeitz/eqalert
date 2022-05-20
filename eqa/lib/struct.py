@@ -27,5 +27,5 @@ global message
 
 message = namedtuple("data", ["timestamp", "type", "tx", "rx", "payload"])
 display = namedtuple("data", ["timestamp", "type", "screen", "payload"])
-timer = namedtuple("data", ["time", "type", "payload"])
+timer = namedtuple("data", ["time", "type", "seconds", "payload"])
 sound = namedtuple("data", ["sound", "payload"])

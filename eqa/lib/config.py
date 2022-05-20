@@ -376,7 +376,7 @@ def add_zone(zone, base_path):
         json_data = open(base_path + "config.json", "r", encoding="utf-8")
         data = json.load(json_data)
         json_data.close()
-        data["zones"].update({str(zone): "false"})
+        data["zones"].update({str(zone): {"raid_mode": "false", "timer": "0"}})
         json_data = open(base_path + "config.json", "w", encoding="utf-8")
         json.dump(data, json_data, sort_keys=True, indent=2)
         json_data.close()
@@ -1388,109 +1388,417 @@ def build_config(base_path):
     "raid_mode": {
       "auto_set": "true"
     },
-    "version": "3.1.0"
+    "version": "3.1.1"
   },
   "zones": {
-    "An Arena (PVP) Area": "false",
-    "Befallen": "false",
-    "Blackburrow": "false",
-    "Butcherblock Mountains": "false",
-    "Castle Mistmoore": "false",
-    "Chardok": "false",
-    "City of Thurgadin": "false",
-    "Cobalt Scar": "false",
-    "Crushbone": "false",
-    "Crystal Caverns": "false",
-    "Dagnor's Cauldron": "false",
-    "Dragon Necropolis": "false",
-    "Dreadlands": "false",
-    "East Commonlands": "false",
-    "East Freeport": "false",
-    "Eastern Plains of Karana": "false",
-    "Eastern Wastelands": "false",
-    "Erudin": "false",
-    "Erudin Palace": "false",
-    "Estate of Unrest": "false",
-    "Everfrost": "false",
-    "Field of Bone": "false",
-    "Firiona Vie": "false",
-    "Frontier Mountains": "false",
-    "Gorge of King Xorbb": "false",
-    "Great Divide": "false",
-    "Greater Faydark": "false",
-    "Guk": "false",
-    "High Keep": "false",
-    "Highpass Hold": "false",
-    "Howling Stones": "false",
-    "Iceclad Ocean": "false",
-    "Icewell Keep": "raid",
-    "Infected Paw": "false",
-    "Innothule Swamp": "false",
-    "Kael Drakkel": "raid",
-    "Karnor's Castle": "false",
-    "Kedge Keep": "false",
-    "Kithicor Woods": "false",
-    "Kurn's Tower": "false",
-    "Lake Rathetear": "false",
-    "Lake of Ill Omen": "false",
-    "Lavastorm Mountains": "false",
-    "Lesser Faydark": "false",
-    "Lost Temple of Cazic-Thule": "false",
-    "Mines of Nurga": "false",
-    "Misty Thicket": "false",
-    "Nagafen's Lair": "false",
-    "Najena": "false",
-    "North Freeport": "false",
-    "Northern Desert of Ro": "false",
-    "Northern Felwithe": "false",
-    "Northern Plains of Karana": "false",
-    "Oasis of Marr": "false",
-    "Ocean of Tears": "false",
-    "Old Sebilis": "false",
-    "Paineel": "false",
-    "Permafrost Caverns": "false",
-    "Plane of Air": "raid",
-    "Plane of Fear": "raid",
-    "Plane of Growth": "false",
-    "Plane of Hate": "raid",
-    "Plane of Mischief": "false",
-    "Qeynos Hills": "false",
-    "Rathe Mountains": "false",
-    "Rivervale": "false",
-    "Ruins of Old Guk": "false",
-    "Sirens Grotto": "false",
-    "Skyfire Mountains": "false",
-    "Skyshrine": "false",
-    "Sleepers Tomb": "raid",
-    "South Kaladim": "false",
-    "Southern Desert of Ro": "false",
-    "Southern Felwithe": "false",
-    "Southern Plains of Karana": "false",
-    "Steamfont Mountains": "false",
-    "Surefall Glade": "false",
-    "Temple of Droga": "false",
-    "Temple of Solusek Ro": "false",
-    "Temple of Veeshan": "raid",
-    "The Arena": "false",
-    "The Burning Wood": "false",
-    "The City of Mist": "false",
-    "The Emerald Jungle": "false",
-    "The Feerrott": "false",
-    "The Hole": "false",
-    "The Nektulos Forest": "false",
-    "The Overthere": "false",
-    "The Wakening Lands": "false",
-    "Timorous Deep": "false",
-    "Toxxulia Forest": "false",
-    "Trakanon's Teeth": "false",
-    "Veeshan's Peak": "raid",
-    "Velketor's Labyrinth": "false",
-    "Warrens": "false",
-    "West Commonlands": "false",
-    "West Freeport": "false",
-    "Western Plains of Karana": "false",
-    "Western Wastelands": "false",
-    "Western Wastes": "raid"
+    "An Arena (PVP) Area": {
+      "raid_mode": "false",
+      "timer": "0"
+    },
+    "Befallen": {
+      "raid_mode": "false",
+      "timer": "1140"
+    },
+    "Blackburrow": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "Butcherblock Mountains": {
+      "raid_mode": "false",
+      "timer": "600"
+    },
+    "Castle Mistmoore": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "Chardok": {
+      "raid_mode": "false",
+      "timer": "1200"
+    },
+    "City of Thurgadin": {
+      "raid_mode": "false",
+      "timer": "420"
+    },
+    "Cobalt Scar": {
+      "raid_mode": "false",
+      "timer": "1200"
+    },
+    "Crushbone": {
+      "raid_mode": "false",
+      "timer": "540"
+    },
+    "Crystal Caverns": {
+      "raid_mode": "false",
+      "timer": "885"
+    },
+    "Dagnor's Cauldron": {
+      "raid_mode": "false",
+      "timer": "0"
+    },
+    "Dalnir": {
+      "raid_mode": "false",
+      "timer": "720"
+    },
+    "Dragon Necropolis": {
+      "raid_mode": "false",
+      "timer": "1620"
+    },
+    "Dreadlands": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "East Commonlands": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "East Freeport": {
+      "raid_mode": "false",
+      "timer": "1440"
+    },
+    "Eastern Plains of Karana": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Eastern Wastelands": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Erudin": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Erudin Palace": {
+      "raid_mode": "false",
+      "timer": "1500"
+    },
+    "Estate of Unrest": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "Everfrost": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Field of Bone": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Firiona Vie": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Frontier Mountains": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Gorge of King Xorbb": {
+      "raid_mode": "false",
+      "timer": "360"
+    },
+    "Great Divide": {
+      "raid_mode": "false",
+      "timer": "640"
+    },
+    "Greater Faydark": {
+      "raid_mode": "false",
+      "timer": "425"
+    },
+    "Guk": {
+      "raid_mode": "false",
+      "timer": "990"
+    },
+    "High Keep": {
+      "raid_mode": "false",
+      "timer": "600"
+    },
+    "Highpass Hold": {
+      "raid_mode": "false",
+      "timer": "300"
+    },
+    "Howling Stones": {
+      "raid_mode": "false",
+      "timer": "1230"
+    },
+    "Iceclad Ocean": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Icewell Keep": {
+      "raid_mode": "true",
+      "timer": "1260"
+    },
+    "Infected Paw": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "Innothule Swamp": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Kael Drakkel": {
+      "raid_mode": "true",
+      "timer": "1680"
+    },
+    "Kaesora": {
+      "raid_mode": "false",
+      "timer": "1080"
+    },
+    "Karnor's Castle": {
+      "raid_mode": "false",
+      "timer": "1620"
+    },
+    "Kedge Keep": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "Kithicor Woods": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Kurn's Tower": {
+      "raid_mode": "false",
+      "timer": "1100"
+    },
+    "Lake Rathetear": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Lake of Ill Omen": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Lavastorm Mountains": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Lesser Faydark": {
+      "raid_mode": "false",
+      "timer": "390"
+    },
+    "Lost Temple of Cazic-Thule": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "Mines of Nurga": {
+      "raid_mode": "false",
+      "timer": "1230"
+    },
+    "Misty Thicket": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Nagafen's Lair": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "Najena": {
+      "raid_mode": "false",
+      "timer": "1110"
+    },
+    "North Freeport": {
+      "raid_mode": "false",
+      "timer": "1440"
+    },
+    "Northern Desert of Ro": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Northern Felwithe": {
+      "raid_mode": "false",
+      "timer": "1440"
+    },
+    "Northern Plains of Karana": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Oasis of Marr": {
+      "raid_mode": "false",
+      "timer": "990"
+    },
+    "Ocean of Tears": {
+      "raid_mode": "false",
+      "timer": "360"
+    },
+    "Old Sebilis": {
+      "raid_mode": "false",
+      "timer": "1620"
+    },
+    "Paineel": {
+      "raid_mode": "false",
+      "timer": "630"
+    },
+    "Permafrost Caverns": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "Plane of Air": {
+      "raid_mode": "true",
+      "timer": "28800"
+    },
+    "Plane of Fear": {
+      "raid_mode": "true",
+      "timer": "28800"
+    },
+    "Plane of Growth": {
+      "raid_mode": "true",
+      "timer": "43200"
+    },
+    "Plane of Hate": {
+      "raid_mode": "true",
+      "timer": "28800"
+    },
+    "Plane of Mischief": {
+      "raid_mode": "false",
+      "timer": "4210"
+    },
+    "Qeynos Hills": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Rathe Mountains": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Rivervale": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "Ruins of Old Guk": {
+      "raid_mode": "false",
+      "timer": "1680"
+    },
+    "Sirens Grotto": {
+      "raid_mode": "false",
+      "timer": "1680"
+    },
+    "Skyfire Mountains": {
+      "raid_mode": "false",
+      "timer": "780"
+    },
+    "Skyshrine": {
+      "raid_mode": "true",
+      "timer": "1800"
+    },
+    "Sleepers Tomb": {
+      "raid_mode": "true",
+      "timer": "28800"
+    },
+    "South Kaladim": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Southern Desert of Ro": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Southern Felwithe": {
+      "raid_mode": "false",
+      "timer": "1440"
+    },
+    "Southern Plains of Karana": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Steamfont Mountains": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Surefall Glade": {
+      "raid_mode": "false",
+      "timer": "0"
+    },
+    "Temple of Droga": {
+      "raid_mode": "false",
+      "timer": "1230"
+    },
+    "Temple of Solusek Ro": {
+      "raid_mode": "false",
+      "timer": "0"
+    },
+    "Temple of Veeshan": {
+      "raid_mode": "false",
+      "timer": "4320"
+    },
+    "The Arena": {
+      "raid_mode": "false",
+      "timer": "0"
+    },
+    "The Burning Wood": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "The City of Mist": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "The Emerald Jungle": {
+      "raid_mode": "false",
+      "timer": "0"
+    },
+    "The Feerrott": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "The Hole": {
+      "raid_mode": "false",
+      "timer": "1290"
+    },
+    "The Nektulos Forest": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "The Overthere": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "The Wakening Lands": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Tower of Frozen Shadow": {
+      "raid_mode": "false",
+      "timer": "1200"
+    },
+    "Timorous Deep": {
+      "raid_mode": "false",
+      "timer": "720"
+    },
+    "Toxxulia Forest": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Trakanon's Teeth": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "Veeshan's Peak": {
+      "raid_mode": "true",
+      "timer": "0"
+    },
+    "Velketor's Labyrinth": {
+      "raid_mode": "false",
+      "timer": "1972"
+    },
+    "Warrens": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "West Commonlands": {
+      "raid_mode": "false",
+      "timer": "400"
+    },
+    "West Freeport": {
+      "raid_mode": "false",
+      "timer": "1440"
+    },
+    "Western Plains of Karana": {
+      "raid_mode": "false",
+      "timer": "1320"
+    },
+    "Western Wastes": {
+      "raid_mode": "true",
+      "timer": "0"
+    }
   }
 }
 """

@@ -54,7 +54,10 @@ def process(timer_q, sound_q, display_q, exit_flag):
                         heapq.heappush(
                             timers,
                             eqa_struct.timer(
-                                timer_event.time, "tick", timer_event.payload
+                                timer_event.time,
+                                "tick",
+                                timer_event.seconds,
+                                timer_event.payload,
                             ),
                         )
                         tock = True
@@ -62,7 +65,10 @@ def process(timer_q, sound_q, display_q, exit_flag):
                         heapq.heappush(
                             timers,
                             eqa_struct.timer(
-                                timer_event.time, "tock", timer_event.payload
+                                timer_event.time,
+                                "tock",
+                                timer_event.seconds,
+                                timer_event.payload,
                             ),
                         )
                         tock = False
@@ -93,10 +99,11 @@ def process(timer_q, sound_q, display_q, exit_flag):
                                     (
                                         datetime.datetime.now()
                                         + datetime.timedelta(
-                                            seconds=int(timer_event.payload)
+                                            seconds=int(timer_event.seconds)
                                         )
                                     ),
                                     "metronome",
+                                    timer_event.seconds,
                                     timer_event.payload,
                                 )
                             )
@@ -110,21 +117,22 @@ def process(timer_q, sound_q, display_q, exit_flag):
                                     (
                                         datetime.datetime.now()
                                         + datetime.timedelta(
-                                            seconds=int(timer_event.payload)
+                                            seconds=int(timer_event.seconds)
                                         )
                                     ),
                                     "metronome",
+                                    timer_event.seconds,
                                     timer_event.payload,
                                 )
                             )
                     else:
-                        sound_q.put(eqa_struct.sound("speak", "time"))
+                        sound_q.put(eqa_struct.sound("speak", str(timer_event.payload)))
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(),
                                 "event",
                                 "events",
-                                "Timer: " + "awooga",
+                                "Timer: " + str(timer_event.payload),
                             )
                         )
                 else:

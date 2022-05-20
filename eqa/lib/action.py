@@ -50,6 +50,8 @@ def process(
     Produce: sound_q, display_q, system_q, encounter_q
     """
 
+    automatic_default_timers = False
+
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
 
@@ -173,6 +175,26 @@ def process(
                                 "spell",
                                 "null",
                                 check_line,
+                            )
+                        )
+                ## Default Timers
+                if automatic_default_timers:
+                    if (
+                        line_type == "experience_solo"
+                        or line_type == "experience_group"
+                    ):
+                        timer_seconds = config["zones"][str(state.zone).title()][
+                            "timer"
+                        ]
+                        timer_q.put(
+                            eqa_struct.timer(
+                                (
+                                    datetime.datetime.now()
+                                    + datetime.timedelta(seconds=int(timer_seconds))
+                                ),
+                                "timer",
+                                str(timer_seconds),
+                                str(state.zone) + " pop",
                             )
                         )
 
@@ -1376,7 +1398,7 @@ def action_you_say_commands(
                     sound_q.put(
                         eqa_struct.sound(
                             "speak",
-                            "Please provide an arguement in seconds",
+                            "Metronome what?",
                         )
                     )
                 elif len(args) == 2:
@@ -1391,23 +1413,18 @@ def action_you_say_commands(
                                     ),
                                     "metronome",
                                     str(metro_seconds),
+                                    None,
                                 )
                             )
                     elif args[1] == "stop":
-                        timer_q.put(eqa_struct.timer(None, "metronome_stop", None))
+                        timer_q.put(
+                            eqa_struct.timer(None, "metronome_stop", None, None)
+                        )
                     else:
                         sound_q.put(
                             eqa_struct.sound(
                                 "speak",
-                                "Please provide an arguement in seconds or stop",
-                            )
-                        )
-                        display_q.put(
-                            eqa_struct.display(
-                                eqa_settings.eqa_time(),
-                                "event",
-                                "events",
-                                "ACK! " + str(args[1]),
+                                "That command wasn't quite right",
                             )
                         )
             elif args[0] == "timer":
@@ -1415,7 +1432,7 @@ def action_you_say_commands(
                     sound_q.put(
                         eqa_struct.sound(
                             "speak",
-                            "Please provide an arguement in seconds",
+                            "I don't get it. Timer what?",
                         )
                     )
                 elif len(args) == 2:
@@ -1429,17 +1446,23 @@ def action_you_say_commands(
                                 ),
                                 "timer",
                                 str(timer_seconds),
+                                "times up",
                             )
                         )
                     elif args[1] == "clear":
-                        timer_q.put(eqa_struct.timer(None, "clear", None))
+                        timer_q.put(eqa_struct.timer(None, "clear", None, None))
+                    elif args[1] == "default":
+                        automatic_default_timers = True
                     else:
                         sound_q.put(
                             eqa_struct.sound(
                                 "speak",
-                                "Please provide an arguement in seconds or clear",
+                                "Something wasn't quite right with that",
                             )
                         )
+                elif len(args) == 3:
+                    if args[1] == "default" and args[2] == "stop":
+                        automatic_default_timers = False
             else:
                 display_q.put(
                     eqa_struct.display(
@@ -1640,7 +1663,7 @@ def action_you_new_zone(
             eqa_config.add_zone(current_zone[0], base_path)
         elif current_zone[0] in config["zones"].keys() and not state.raid == "true":
             if (
-                config["zones"][current_zone[0]] == "raid"
+                config["zones"][current_zone[0]]["raid_mode"] == "true"
                 and config["settings"]["raid_mode"]["auto_set"] == "true"
             ):
                 system_q.put(
@@ -1654,7 +1677,7 @@ def action_you_new_zone(
                 )
         elif current_zone[0] in config["zones"].keys() and state.raid == "true":
             if (
-                config["zones"][current_zone[0]] != "raid"
+                config["zones"][current_zone[0]]["raid_mode"] == "false"
                 and config["settings"]["raid_mode"]["auto_set"] == "true"
             ):
                 system_q.put(
