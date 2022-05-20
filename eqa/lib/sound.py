@@ -35,6 +35,7 @@ def process(config, sound_q, exit_flag, cfg_reload, state):
     Produce: sound event
     """
 
+    sound_file_path = config["settings"]["paths"]["sound"]
     tmp_sound_file_path = config["settings"]["paths"]["tmp_sound"]
     mute_speak = "false"
     mute_alert = "false"
@@ -70,6 +71,10 @@ def process(config, sound_q, exit_flag, cfg_reload, state):
                     and not state.mute == "true"
                 ):
                     alert(config, sound_event.payload)
+                elif sound_event.sound == "tick":
+                    sound_tick(sound_file_path, sound_event)
+                elif sound_event.sound == "tock":
+                    sound_tock(sound_file_path, sound_event)
 
                 sound_q.task_done()
 
@@ -130,6 +135,42 @@ def play_sound(sound):
     except Exception as e:
         eqa_settings.log(
             "sound_play_sound: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def sound_tock(sound_file_path, sound_event):
+    """Tock!"""
+    try:
+        if not os.path.exists(sound_file_path + "tock.wav"):
+            tts = gtts.gTTS(text="tock", lang="en")
+            tts.save(sound_file_path + "tock.wav")
+
+        play_sound(sound_file_path + "tock.wav")
+
+    except Exception as e:
+        eqa_settings.log(
+            "sound_tock: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def sound_tick(sound_file_path, sound_event):
+    """Tick!"""
+    try:
+        if not os.path.exists(sound_file_path + "tick.wav"):
+            tts = gtts.gTTS(text="tick", lang="en")
+            tts.save(sound_file_path + "tick.wav")
+
+        play_sound(sound_file_path + "tick.wav")
+
+    except Exception as e:
+        eqa_settings.log(
+            "sound_tick: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)

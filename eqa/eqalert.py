@@ -39,6 +39,7 @@ import eqa.lib.settings as eqa_settings
 import eqa.lib.sound as eqa_sound
 import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
+import eqa.lib.timer as eqa_timer
 
 
 def startup(base_path):
@@ -186,6 +187,7 @@ def main():
     system_q = queue.Queue()
     log_q = queue.Queue()
     encounter_q = queue.Queue()
+    timer_q = queue.Queue()
 
     # Initialize curses
     screen = eqa_curses.init(state)
@@ -254,6 +256,7 @@ def main():
             state,
             action_q,
             encounter_q,
+            timer_q,
             system_q,
             display_q,
             sound_q,
@@ -316,6 +319,15 @@ def main():
     )
     process_display.daemon = True
     process_display.start()
+
+    # Produce sound_q, display_q
+    ## Consume timer_q
+
+    process_timer = threading.Thread(
+        target=eqa_timer.process, args=(timer_q, sound_q, display_q, exit_flag)
+    )
+    process_timer.daemon = True
+    process_timer.start()
 
     # Signal Startup Complete
     display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "events", "null"))
@@ -614,6 +626,7 @@ def main():
                                 state,
                                 action_q,
                                 encounter_q,
+                                timer_q,
                                 system_q,
                                 display_q,
                                 sound_q,
@@ -706,6 +719,7 @@ def main():
     process_keys.join()
     process_action.join()
     process_encounter.join()
+    process_timer.join()
     process_sound_1.join()
     process_sound_2.join()
     process_sound_3.join()

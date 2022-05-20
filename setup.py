@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name="eqalert",
-    version="3.0.0",
+    version="3.1.0",
     author="Michael Geitz",
     author_email="git@geitz.xyz",
     install_requires=[
@@ -17,6 +17,6 @@ setup(
             "eqalert = eqa.eqalert:main",
         ],
     },
-    description="Parse and React to EQEmu Logs",
+    description="Configurable and Context Driven Project 1999 Log Parser",
     url="https://github.com/mgeitz/eqalert",
 )

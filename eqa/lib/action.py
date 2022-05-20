@@ -24,7 +24,6 @@ import time
 import re
 import os
 import pkg_resources
-from datetime import datetime
 
 import eqa.lib.config as eqa_config
 import eqa.lib.settings as eqa_settings
@@ -38,6 +37,7 @@ def process(
     state,
     action_q,
     encounter_q,
+    timer_q,
     system_q,
     display_q,
     sound_q,
@@ -215,6 +215,7 @@ def process(
                         is not None
                     ):
                         action_you_say_commands(
+                            timer_q,
                             system_q,
                             sound_q,
                             display_q,
@@ -1068,14 +1069,14 @@ def action_location(system_q, check_line):
 
 
 def action_you_say_commands(
-    system_q, sound_q, display_q, check_line, config, mute_list, state
+    timer_q, system_q, sound_q, display_q, check_line, config, mute_list, state
 ):
     """Perform actions for parser say commands"""
 
     try:
-        if re.findall(r"(?<=You say, \'parser )[a-zA-Z\s]+", check_line) is not None:
-            check_line_clean = re.sub(r"[^\w\s\,]", "", check_line)
-            args = re.findall(r"(?<=You say, parser )[a-zA-Z\s]+", check_line_clean)[
+        if re.findall(r"(?<=You say, \'parser )[a-zA-Z\d\s]+", check_line) is not None:
+            check_line_clean = re.sub(r"[^\w\s\d\,]", "", check_line)
+            args = re.findall(r"(?<=You say, parser )[a-zA-Z\d\s]+", check_line_clean)[
                 0
             ].split(" ")
             if args[0] == "mute":
@@ -1370,6 +1371,75 @@ def action_you_say_commands(
                             "pong",
                         )
                     )
+            elif args[0] == "metronome":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "Please provide an arguement in seconds",
+                        )
+                    )
+                elif len(args) == 2:
+                    if args[1].isdigit():
+                        metro_seconds = int(args[1])
+                        if metro_seconds < 300:
+                            timer_q.put(
+                                eqa_struct.timer(
+                                    (
+                                        datetime.datetime.now()
+                                        + datetime.timedelta(seconds=metro_seconds)
+                                    ),
+                                    "metronome",
+                                    str(metro_seconds),
+                                )
+                            )
+                    elif args[1] == "stop":
+                        timer_q.put(eqa_struct.timer(None, "metronome_stop", None))
+                    else:
+                        sound_q.put(
+                            eqa_struct.sound(
+                                "speak",
+                                "Please provide an arguement in seconds or stop",
+                            )
+                        )
+                        display_q.put(
+                            eqa_struct.display(
+                                eqa_settings.eqa_time(),
+                                "event",
+                                "events",
+                                "ACK! " + str(args[1]),
+                            )
+                        )
+            elif args[0] == "timer":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "Please provide an arguement in seconds",
+                        )
+                    )
+                elif len(args) == 2:
+                    if args[1].isdigit():
+                        timer_seconds = int(args[1])
+                        timer_q.put(
+                            eqa_struct.timer(
+                                (
+                                    datetime.datetime.now()
+                                    + datetime.timedelta(seconds=timer_seconds)
+                                ),
+                                "timer",
+                                str(timer_seconds),
+                            )
+                        )
+                    elif args[1] == "clear":
+                        timer_q.put(eqa_struct.timer(None, "clear", None))
+                    else:
+                        sound_q.put(
+                            eqa_struct.sound(
+                                "speak",
+                                "Please provide an arguement in seconds or clear",
+                            )
+                        )
             else:
                 display_q.put(
                     eqa_struct.display(
@@ -1623,7 +1693,7 @@ def action_matched(line_type, line, base_path):
                     + "log/debug/matched-lines_"
                     + version
                     + "_"
-                    + str(datetime.now().date())
+                    + str(datetime.datetime.now().date())
                     + ".txt"
                 )
                 os.rename(matched_log, archived_log)
