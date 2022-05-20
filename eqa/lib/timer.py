@@ -69,7 +69,10 @@ def process(timer_q, sound_q, display_q, exit_flag):
                 elif timer_event.type == "timer":
                     heapq.heappush(timers, timer_event)
                 elif timer_event.type == "metronome_stop":
-                    metronome_stop = True
+                    if len(timers) == 0:
+                        metronome_stop = False
+                    elif metronome_stop == False:
+                        metronome_stop = True
                 elif timer_event.type == "clear":
                     timers = []
 
