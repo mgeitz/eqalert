@@ -98,13 +98,11 @@ def process(timer_q, sound_q, display_q, exit_flag):
                                 eqa_struct.timer(
                                     (
                                         datetime.datetime.now()
-                                        + datetime.timedelta(
-                                            seconds=int(timer_event.seconds)
-                                        )
+                                        + datetime.timedelta(seconds=int(timer.seconds))
                                     ),
                                     "metronome",
-                                    timer_event.seconds,
-                                    timer_event.payload,
+                                    timer.seconds,
+                                    timer.payload,
                                 )
                             )
                     elif timer.type == "tock":
@@ -116,23 +114,21 @@ def process(timer_q, sound_q, display_q, exit_flag):
                                 eqa_struct.timer(
                                     (
                                         datetime.datetime.now()
-                                        + datetime.timedelta(
-                                            seconds=int(timer_event.seconds)
-                                        )
+                                        + datetime.timedelta(seconds=int(timer.seconds))
                                     ),
                                     "metronome",
-                                    timer_event.seconds,
-                                    timer_event.payload,
+                                    timer.seconds,
+                                    timer.payload,
                                 )
                             )
                     else:
-                        sound_q.put(eqa_struct.sound("speak", str(timer_event.payload)))
+                        sound_q.put(eqa_struct.sound("speak", str(timer.payload)))
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(),
                                 "event",
                                 "events",
-                                "Timer: " + str(timer_event.payload),
+                                "Timer: " + str(timer.payload),
                             )
                         )
                 else:
