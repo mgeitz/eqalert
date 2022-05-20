@@ -127,6 +127,14 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 `/say parser what state`
 
+`/say parser metronome [seconds]`
+
+`/say parser metronome stop`
+
+`/say parser timer [seconds]`
+
+`/say parser timer clear`
+
 
 ## Custom Alerting
 
