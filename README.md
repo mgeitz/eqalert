@@ -75,6 +75,8 @@ Spot check these default paths generated in `config.json`
   - d       : Toggle debug mode
   - e       : Toggle encounter parsing
   - m       : Toggle global audio mute
+  - t       : Toggle automatic mob respawn timers
+  - p       : Toggle encounter parse save
 
 #### Settings
   - up      : Up in selection
@@ -126,6 +128,18 @@ You can control some parser settings using `/say` in-game.  This is better suite
 `/say parser where`
 
 `/say parser what state`
+
+`/say parser metronome [seconds]`
+
+`/say parser metronome stop`
+
+`/say parser timer [seconds]`
+
+`/say parser timer clear`
+
+`/say parser timer respawn`
+
+`/say parser timer respawn stop`
 
 
 ## Custom Alerting
@@ -262,5 +276,11 @@ This can be helpful if you would like to alert for something not yet matched by 
 
 ### Zones
 
+#### raid_mode
 - `false`: Considered a non-raid zone
-- `raid`: Parser raid mode will auto-enable in this zone
+- `true`: Parser raid mode will auto-enable in this zone
+
+#### timer
+- `#`: The value in seconds to associate to a default timer in a given zone
+
+> Note: No support for zones with multiple default timers, stick with the manual timer command for those for now.  For zones with tiered default timers, the shortest timer was set as the default.  You can change this value to be any number in seconds you prefer.

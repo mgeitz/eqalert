@@ -44,8 +44,9 @@ class EQA_State:
         char_class,
         char_guild,
         encounter_parse,
-        saveparse,
-        autoraid,
+        save_parse,
+        auto_raid,
+        auto_mob_timer,
     ):
         """All States"""
         self.char = char
@@ -66,8 +67,9 @@ class EQA_State:
         self.char_class = char_class
         self.char_guild = char_guild
         self.encounter_parse = encounter_parse
-        self.saveparse = saveparse
-        self.autoraid = autoraid
+        self.save_parse = save_parse
+        self.auto_raid = auto_raid
+        self.auto_mob_timer = auto_mob_timer
 
     def set_char(self, char):
         """Set Character"""
@@ -141,10 +143,14 @@ class EQA_State:
         """Set Encounter Parse"""
         self.encounter_parse = encounter_parse
 
-    def set_encounter_parse_save(self, saveparse):
+    def set_encounter_parse_save(self, save_parse):
         """Set Encounter Parse Auto-Save"""
-        self.saveparse = saveparse
+        self.save_parse = save_parse
 
-    def set_auto_raid(self, autoraid):
+    def set_auto_raid(self, auto_raid):
         """Toggle Automatic Raid Mode"""
-        self.autoraid = autoraid
+        self.auto_raid = auto_raid
+
+    def set_auto_mob_timer(self, auto_mob_timer):
+        """Toggle Automatic Mob Timers"""
+        self.auto_mob_timer = auto_mob_timer

@@ -24,7 +24,6 @@ import time
 import re
 import os
 import pkg_resources
-from datetime import datetime
 
 import eqa.lib.config as eqa_config
 import eqa.lib.settings as eqa_settings
@@ -38,6 +37,7 @@ def process(
     state,
     action_q,
     encounter_q,
+    timer_q,
     system_q,
     display_q,
     sound_q,
@@ -175,6 +175,26 @@ def process(
                                 check_line,
                             )
                         )
+                ## Default Timers
+                if state.auto_mob_timer == "true":
+                    if (
+                        line_type == "experience_solo"
+                        or line_type == "experience_group"
+                    ):
+                        timer_seconds = config["zones"][str(state.zone).title()][
+                            "timer"
+                        ]
+                        timer_q.put(
+                            eqa_struct.timer(
+                                (
+                                    datetime.datetime.now()
+                                    + datetime.timedelta(seconds=int(timer_seconds))
+                                ),
+                                "timer",
+                                str(timer_seconds),
+                                "Pop " + str(state.zone),
+                            )
+                        )
 
                 ## State Building Line Types
                 if line_type == "location":
@@ -215,6 +235,7 @@ def process(
                         is not None
                     ):
                         action_you_say_commands(
+                            timer_q,
                             system_q,
                             sound_q,
                             display_q,
@@ -1068,14 +1089,14 @@ def action_location(system_q, check_line):
 
 
 def action_you_say_commands(
-    system_q, sound_q, display_q, check_line, config, mute_list, state
+    timer_q, system_q, sound_q, display_q, check_line, config, mute_list, state
 ):
     """Perform actions for parser say commands"""
 
     try:
-        if re.findall(r"(?<=You say, \'parser )[a-zA-Z\s]+", check_line) is not None:
-            check_line_clean = re.sub(r"[^\w\s\,]", "", check_line)
-            args = re.findall(r"(?<=You say, parser )[a-zA-Z\s]+", check_line_clean)[
+        if re.findall(r"(?<=You say, \'parser )[a-zA-Z\d\s]+", check_line) is not None:
+            check_line_clean = re.sub(r"[^\w\s\d\,]", "", check_line)
+            args = re.findall(r"(?<=You say, parser )[a-zA-Z\d\s]+", check_line_clean)[
                 0
             ].split(" ")
             if args[0] == "mute":
@@ -1370,6 +1391,92 @@ def action_you_say_commands(
                             "pong",
                         )
                     )
+            elif args[0] == "metronome":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "Metronome what?",
+                        )
+                    )
+                elif len(args) == 2:
+                    if args[1].isdigit():
+                        metro_seconds = int(args[1])
+                        if metro_seconds < 300:
+                            timer_q.put(
+                                eqa_struct.timer(
+                                    (
+                                        datetime.datetime.now()
+                                        + datetime.timedelta(seconds=metro_seconds)
+                                    ),
+                                    "metronome",
+                                    str(metro_seconds),
+                                    None,
+                                )
+                            )
+                    elif args[1] == "stop":
+                        timer_q.put(
+                            eqa_struct.timer(None, "metronome_stop", None, None)
+                        )
+                    else:
+                        sound_q.put(
+                            eqa_struct.sound(
+                                "speak",
+                                "That command wasn't quite right",
+                            )
+                        )
+            elif args[0] == "timer":
+                if len(args) == 1:
+                    sound_q.put(
+                        eqa_struct.sound(
+                            "speak",
+                            "I don't get it. Timer what?",
+                        )
+                    )
+                elif len(args) == 2:
+                    if args[1].isdigit():
+                        timer_seconds = int(args[1])
+                        timer_q.put(
+                            eqa_struct.timer(
+                                (
+                                    datetime.datetime.now()
+                                    + datetime.timedelta(seconds=timer_seconds)
+                                ),
+                                "timer",
+                                str(timer_seconds),
+                                "times up",
+                            )
+                        )
+                    elif args[1] == "clear":
+                        timer_q.put(eqa_struct.timer(None, "clear", None, None))
+                    elif args[1] == "respawn":
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "timer",
+                                "mob",
+                                "true",
+                            )
+                        )
+                    else:
+                        sound_q.put(
+                            eqa_struct.sound(
+                                "speak",
+                                "Something wasn't quite right with that",
+                            )
+                        )
+                elif len(args) == 3:
+                    if args[1] == "respawn" and args[2] == "stop":
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "timer",
+                                "mob",
+                                "false",
+                            )
+                        )
             else:
                 display_q.put(
                     eqa_struct.display(
@@ -1570,7 +1677,7 @@ def action_you_new_zone(
             eqa_config.add_zone(current_zone[0], base_path)
         elif current_zone[0] in config["zones"].keys() and not state.raid == "true":
             if (
-                config["zones"][current_zone[0]] == "raid"
+                config["zones"][current_zone[0]]["raid_mode"] == "true"
                 and config["settings"]["raid_mode"]["auto_set"] == "true"
             ):
                 system_q.put(
@@ -1584,7 +1691,7 @@ def action_you_new_zone(
                 )
         elif current_zone[0] in config["zones"].keys() and state.raid == "true":
             if (
-                config["zones"][current_zone[0]] != "raid"
+                config["zones"][current_zone[0]]["raid_mode"] == "false"
                 and config["settings"]["raid_mode"]["auto_set"] == "true"
             ):
                 system_q.put(
@@ -1623,7 +1730,7 @@ def action_matched(line_type, line, base_path):
                     + "log/debug/matched-lines_"
                     + version
                     + "_"
-                    + str(datetime.now().date())
+                    + str(datetime.datetime.now().date())
                     + ".txt"
                 )
                 os.rename(matched_log, archived_log)

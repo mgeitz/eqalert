@@ -27,6 +27,7 @@ import sys
 import threading
 import time
 import queue
+import shutil
 
 import eqa.lib.action as eqa_action
 import eqa.lib.config as eqa_config
@@ -39,6 +40,7 @@ import eqa.lib.settings as eqa_settings
 import eqa.lib.sound as eqa_sound
 import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
+import eqa.lib.timer as eqa_timer
 
 
 def startup(base_path):
@@ -95,6 +97,12 @@ def startup(base_path):
         if not os.path.exists(sound_path):
             print("    - making a home for alert sounds")
             os.makedirs(sound_path)
+        if not os.path.exists(sound_path + "tock.wav"):
+            tock_path = pkg_resources.resource_filename("eqa", "sound/tock.wav")
+            shutil.move(tock_path, sound_path + "tock.wav")
+        if not os.path.exists(sound_path + "tick.wav"):
+            tick_path = pkg_resources.resource_filename("eqa", "sound/tick.wav")
+            shutil.move(tick_path, sound_path + "tick.wav")
 
         # Make the tmp sound directory
         if not os.path.exists(tmp_sound_path):
@@ -186,6 +194,7 @@ def main():
     system_q = queue.Queue()
     log_q = queue.Queue()
     encounter_q = queue.Queue()
+    timer_q = queue.Queue()
 
     # Initialize curses
     screen = eqa_curses.init(state)
@@ -254,6 +263,7 @@ def main():
             state,
             action_q,
             encounter_q,
+            timer_q,
             system_q,
             display_q,
             sound_q,
@@ -316,6 +326,15 @@ def main():
     )
     process_display.daemon = True
     process_display.start()
+
+    # Produce sound_q, display_q
+    ## Consume timer_q
+
+    process_timer = threading.Thread(
+        target=eqa_timer.process, args=(timer_q, sound_q, display_q, exit_flag)
+    )
+    process_timer.daemon = True
+    process_timer.start()
 
     # Signal Startup Complete
     display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "events", "null"))
@@ -419,6 +438,9 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
+                    ### Update automatic timer status
+                    elif new_message.tx == "timer":
+                        system_timer(state, base_path, display_q, sound_q, new_message)
                     ### Update bind status
                     elif new_message.tx == "bind":
                         state.set_bind(new_message.payload)
@@ -614,6 +636,7 @@ def main():
                                 state,
                                 action_q,
                                 encounter_q,
+                                timer_q,
                                 system_q,
                                 display_q,
                                 sound_q,
@@ -706,6 +729,7 @@ def main():
     process_keys.join()
     process_action.join()
     process_encounter.join()
+    process_timer.join()
     process_sound_1.join()
     process_sound_2.join()
     process_sound_3.join()
@@ -766,7 +790,7 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
         elif (
             new_message.rx == "auto"
             and new_message.payload == "true"
-            and state.autoraid == "false"
+            and state.auto_raid == "false"
         ):
             state.set_auto_raid("true")
             eqa_config.set_last_state(state, base_path)
@@ -786,7 +810,7 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
         elif (
             new_message.rx == "auto"
             and new_message.payload == "false"
-            and state.autoraid == "true"
+            and state.auto_raid == "true"
         ):
             state.set_auto_raid("false")
             eqa_config.set_last_state(state, base_path)
@@ -849,6 +873,54 @@ def system_afk(base_path, state, display_q, new_message):
     except Exception as e:
         eqa_settings.log(
             "system afk: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def system_timer(state, base_path, display_q, sound_q, new_message):
+    """Perform system tasks for auto timer behavior"""
+
+    try:
+        if new_message.rx == "mob":
+            if state.auto_mob_timer == "false" and new_message.payload == "true":
+                state.set_auto_mob_timer("true")
+                eqa_config.set_last_state(state, base_path)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Automatic mob respawn timers enabled",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound("speak", "Automatic mob respawn timers enabled")
+                )
+            elif state.auto_mob_timer == "true" and new_message.payload == "false":
+                state.set_auto_mob_timer("false")
+                eqa_config.set_last_state(state, base_path)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Automatic mob respawn timers disabled",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound("speak", "Automatic mob respawn timers disabled")
+                )
+        elif new_message.rx == "spell":
+            pass
+        display_q.put(
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "system debug: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
@@ -932,7 +1004,7 @@ def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_mess
             )
             sound_q.put(eqa_struct.sound("speak", "Encounter Parse Disabled"))
         elif (
-            state.saveparse == "true"
+            state.save_parse == "true"
             and new_message.rx == "save"
             and new_message.payload == "false"
         ):
@@ -950,7 +1022,7 @@ def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_mess
                 eqa_struct.sound("speak", "Encounter parser will not save to a file")
             )
         elif (
-            state.saveparse == "false"
+            state.save_parse == "false"
             and new_message.rx == "save"
             and new_message.payload == "true"
         ):
