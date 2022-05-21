@@ -12,7 +12,7 @@ setup(
     python_requires=">3",
     packages=["eqa", "eqa.lib", "eqa.sound"],
     include_package_data=True,
-    package_data={"": ["README.md", "LICENSE"], "eqa.sound": ["*.wav"]},
+    package_data={"eqa.sound": ["*.wav"]},
     license="GPL2",
     entry_points={
         "console_scripts": [
