@@ -211,7 +211,7 @@ def set_last_state(state, base_path):
         )
         data["settings"]["timers"].update(
             {
-                "auto_set": str(state.auto_mob_timer),
+                "auto_mob_timer": str(state.auto_mob_timer),
             }
         )
         data["settings"]["debug_mode"].update({"enabled": str(state.debug)})
@@ -311,7 +311,7 @@ def get_last_state(base_path, char_name, char_server):
         mute = data["settings"]["mute"]["enabled"]
         save_parse = data["settings"]["encounter_parsing"]["auto_save"]
         auto_raid = data["settings"]["raid_mode"]["auto_set"]
-        auto_mob_timer = data["settings"]["timers"]["auto_set"]
+        auto_mob_timer = data["settings"]["timers"]["auto_mob_timer"]
         mute = data["settings"]["mute"]["enabled"]
 
         # Get chars
@@ -1397,9 +1397,9 @@ def build_config(base_path):
       "auto_set": "true"
     },
     "timers": {
-      "auto_set": "false"
+      "auto_mob_timer": "false"
     },
-    "version": "3.1.2"
+    "version": "3.1.3"
   },
   "zones": {
     "An Arena (PVP) Area": {
