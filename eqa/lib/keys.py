@@ -167,6 +167,48 @@ def process(
                                 "all",
                             )
                         )
+                    elif key == ord("t"):
+                        if state.auto_mob_timer == "false":
+                            system_q.put(
+                                eqa_struct.message(
+                                    eqa_settings.eqa_time(),
+                                    "system",
+                                    "timer",
+                                    "mob",
+                                    "true",
+                                )
+                            )
+                        elif state.auto_mob_timer == "true":
+                            system_q.put(
+                                eqa_struct.message(
+                                    eqa_settings.eqa_time(),
+                                    "system",
+                                    "timer",
+                                    "mob",
+                                    "false",
+                                )
+                            )
+                    elif key == ord("p"):
+                        if state.save_parse == "false":
+                            system_q.put(
+                                eqa_struct.message(
+                                    eqa_settings.eqa_time(),
+                                    "system",
+                                    "encounter",
+                                    "save",
+                                    "true",
+                                )
+                            )
+                        elif state.save_parse == "true":
+                            system_q.put(
+                                eqa_struct.message(
+                                    eqa_settings.eqa_time(),
+                                    "system",
+                                    "encounter",
+                                    "save",
+                                    "false",
+                                )
+                            )
 
                 ## State keys
                 elif page == "state":
@@ -320,7 +362,7 @@ def process(
                                     )
                                 )
                             elif (
-                                option == "saveencounter" and state.saveparse == "true"
+                                option == "saveencounter" and state.save_parse == "true"
                             ):
                                 system_q.put(
                                     eqa_struct.message(
@@ -331,13 +373,16 @@ def process(
                                         "false",
                                     )
                                 )
-                            elif option == "defaulttimer" and state.autotimer == "true":
+                            elif (
+                                option == "defaulttimer"
+                                and state.auto_mob_timer == "true"
+                            ):
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
                                         "system",
                                         "timer",
-                                        None,
+                                        "mob",
                                         "false",
                                     )
                                 )
@@ -396,7 +441,8 @@ def process(
                                     )
                                 )
                             elif (
-                                option == "saveencounter" and state.saveparse == "false"
+                                option == "saveencounter"
+                                and state.save_parse == "false"
                             ):
                                 system_q.put(
                                     eqa_struct.message(
@@ -408,14 +454,15 @@ def process(
                                     )
                                 )
                             elif (
-                                option == "defaulttimer" and state.autotimer == "false"
+                                option == "defaulttimer"
+                                and state.auto_mob_timer == "false"
                             ):
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
                                         "system",
                                         "timer",
-                                        None,
+                                        "mob",
                                         "true",
                                     )
                                 )

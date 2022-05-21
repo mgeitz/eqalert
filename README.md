@@ -75,6 +75,8 @@ Spot check these default paths generated in `config.json`
   - d       : Toggle debug mode
   - e       : Toggle encounter parsing
   - m       : Toggle global audio mute
+  - t       : Toggle automatic mob respawn timers
+  - p       : Toggle encounter parse save
 
 #### Settings
   - up      : Up in selection
@@ -135,9 +137,9 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 `/say parser timer clear`
 
-`/say parser timer default`
+`/say parser timer respawn`
 
-`/say parser timer default stop`
+`/say parser timer respawn stop`
 
 
 ## Custom Alerting

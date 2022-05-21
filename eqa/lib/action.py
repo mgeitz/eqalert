@@ -176,7 +176,7 @@ def process(
                             )
                         )
                 ## Default Timers
-                if state.autotimer == "true":
+                if state.auto_mob_timer == "true":
                     if (
                         line_type == "experience_solo"
                         or line_type == "experience_group"
@@ -1449,13 +1449,13 @@ def action_you_say_commands(
                         )
                     elif args[1] == "clear":
                         timer_q.put(eqa_struct.timer(None, "clear", None, None))
-                    elif args[1] == "default":
+                    elif args[1] == "respawn":
                         system_q.put(
                             eqa_struct.message(
                                 eqa_settings.eqa_time(),
                                 "system",
                                 "timer",
-                                "auto",
+                                "mob",
                                 "true",
                             )
                         )
@@ -1467,13 +1467,13 @@ def action_you_say_commands(
                             )
                         )
                 elif len(args) == 3:
-                    if args[1] == "default" and args[2] == "stop":
+                    if args[1] == "respawn" and args[2] == "stop":
                         system_q.put(
                             eqa_struct.message(
                                 eqa_settings.eqa_time(),
                                 "system",
                                 "timer",
-                                "auto",
+                                "mob",
                                 "false",
                             )
                         )

@@ -1461,9 +1461,9 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
         else:
             optscr.addstr(11, first_q, "Auto-set Raid Mode", curses.color_pair(1))
         optscr.addstr(11, second_third, "[", curses.color_pair(3))
-        if state.autoraid == "true":
+        if state.auto_raid == "true":
             optscr.addstr(11, second_third + 1, "on", curses.color_pair(5))
-        elif state.autoraid == "false":
+        elif state.auto_raid == "false":
             optscr.addstr(11, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(11, second_third + 7, "]", curses.color_pair(3))
 
@@ -1497,27 +1497,29 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
         else:
             optscr.addstr(15, first_q, "Save Encounter Parse", curses.color_pair(1))
         optscr.addstr(15, second_third, "[", curses.color_pair(3))
-        if state.saveparse == "true":
+        if state.save_parse == "true":
             optscr.addstr(15, second_third + 1, "on", curses.color_pair(5))
-        elif state.saveparse == "false":
+        elif state.save_parse == "false":
             optscr.addstr(15, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(15, second_third + 7, "]", curses.color_pair(3))
 
         # Default Timer
         if s_option == "defaulttimer" and s_setting == "option":
-            optscr.addstr(17, first_q - 1, "Auto-set Zone Timer", curses.color_pair(4))
+            optscr.addstr(
+                17, first_q - 1, "Auto-set Respawn Timer", curses.color_pair(4)
+            )
             optscr.addstr(
                 2,
                 first_q - 2,
-                "Timers set after xp msgs to zone default",
+                "Automatically set mob respawn timers",
                 curses.color_pair(3),
             )
         else:
-            optscr.addstr(17, first_q, "Auto-set Zone Timer", curses.color_pair(1))
+            optscr.addstr(17, first_q, "Auto-set Respawn Timer", curses.color_pair(1))
         optscr.addstr(17, second_third, "[", curses.color_pair(3))
-        if state.autotimer == "true":
+        if state.auto_mob_timer == "true":
             optscr.addstr(17, second_third + 1, "on", curses.color_pair(5))
-        elif state.autotimer == "false":
+        elif state.auto_mob_timer == "false":
             optscr.addstr(17, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(17, second_third + 7, "]", curses.color_pair(3))
 
@@ -1785,36 +1787,46 @@ def draw_help(stdscr):
         helpscr.addstr(21, 15, ":", curses.color_pair(1))
         helpscr.addstr(21, 17, "Toggle mute", curses.color_pair(3))
 
+        helpscr.addstr(22, 9, "t", curses.color_pair(2))
+        helpscr.addstr(22, 15, ":", curses.color_pair(1))
+        helpscr.addstr(
+            22, 17, "Toggle automatic mob respawn timers", curses.color_pair(3)
+        )
+
+        helpscr.addstr(23, 9, "p", curses.color_pair(2))
+        helpscr.addstr(23, 15, ":", curses.color_pair(1))
+        helpscr.addstr(23, 17, "Toggle encounter parse save", curses.color_pair(3))
+
         # Settings commands
-        helpscr.addstr(23, 7, "Settings", curses.color_pair(1))
+        helpscr.addstr(25, 7, "Settings", curses.color_pair(1))
 
-        helpscr.addstr(24, 9, "up", curses.color_pair(2))
-        helpscr.addstr(24, 15, ":", curses.color_pair(1))
-        helpscr.addstr(24, 17, "Up in selection", curses.color_pair(3))
-
-        helpscr.addstr(25, 9, "down", curses.color_pair(2))
-        helpscr.addstr(25, 15, ":", curses.color_pair(1))
-        helpscr.addstr(25, 17, "Down in selection", curses.color_pair(3))
-
-        helpscr.addstr(26, 9, "right", curses.color_pair(2))
+        helpscr.addstr(26, 9, "up", curses.color_pair(2))
         helpscr.addstr(26, 15, ":", curses.color_pair(1))
-        helpscr.addstr(26, 17, "Selection options", curses.color_pair(3))
+        helpscr.addstr(26, 17, "Up in selection", curses.color_pair(3))
 
-        helpscr.addstr(27, 9, "left", curses.color_pair(2))
+        helpscr.addstr(27, 9, "down", curses.color_pair(2))
         helpscr.addstr(27, 15, ":", curses.color_pair(1))
-        helpscr.addstr(27, 17, "Selection options", curses.color_pair(3))
+        helpscr.addstr(27, 17, "Down in selection", curses.color_pair(3))
 
-        helpscr.addstr(28, 9, "space", curses.color_pair(2))
+        helpscr.addstr(28, 9, "right", curses.color_pair(2))
         helpscr.addstr(28, 15, ":", curses.color_pair(1))
-        helpscr.addstr(28, 17, "Select", curses.color_pair(3))
+        helpscr.addstr(28, 17, "Selection options", curses.color_pair(3))
 
-        helpscr.addstr(29, 9, "enter", curses.color_pair(2))
+        helpscr.addstr(29, 9, "left", curses.color_pair(2))
         helpscr.addstr(29, 15, ":", curses.color_pair(1))
-        helpscr.addstr(29, 17, "Select", curses.color_pair(3))
+        helpscr.addstr(29, 17, "Selection options", curses.color_pair(3))
 
-        helpscr.addstr(30, 9, "tab", curses.color_pair(2))
+        helpscr.addstr(30, 9, "space", curses.color_pair(2))
         helpscr.addstr(30, 15, ":", curses.color_pair(1))
-        helpscr.addstr(30, 17, "Cycle category", curses.color_pair(3))
+        helpscr.addstr(30, 17, "Select", curses.color_pair(3))
+
+        helpscr.addstr(31, 9, "enter", curses.color_pair(2))
+        helpscr.addstr(31, 15, ":", curses.color_pair(1))
+        helpscr.addstr(31, 17, "Select", curses.color_pair(3))
+
+        helpscr.addstr(32, 9, "tab", curses.color_pair(2))
+        helpscr.addstr(32, 15, ":", curses.color_pair(1))
+        helpscr.addstr(32, 17, "Cycle category", curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(

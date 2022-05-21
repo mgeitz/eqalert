@@ -202,16 +202,16 @@ def set_last_state(state, base_path):
             }
         )
         data["settings"]["encounter_parsing"].update(
-            {"auto_save": str(state.saveparse), "enabled": str(state.encounter_parse)}
+            {"auto_save": str(state.save_parse), "enabled": str(state.encounter_parse)}
         )
         data["settings"]["raid_mode"].update(
             {
-                "auto_set": str(state.autoraid),
+                "auto_set": str(state.auto_raid),
             }
         )
         data["settings"]["timers"].update(
             {
-                "auto_set": str(state.autotimer),
+                "auto_set": str(state.auto_mob_timer),
             }
         )
         data["settings"]["debug_mode"].update({"enabled": str(state.debug)})
@@ -309,9 +309,9 @@ def get_last_state(base_path, char_name, char_server):
         encounter_parse = data["settings"]["encounter_parsing"]["enabled"]
         debug = data["settings"]["debug_mode"]["enabled"]
         mute = data["settings"]["mute"]["enabled"]
-        saveparse = data["settings"]["encounter_parsing"]["auto_save"]
-        setraid = data["settings"]["raid_mode"]["auto_set"]
-        settimer = data["settings"]["timers"]["auto_set"]
+        save_parse = data["settings"]["encounter_parsing"]["auto_save"]
+        auto_raid = data["settings"]["raid_mode"]["auto_set"]
+        auto_mob_timer = data["settings"]["timers"]["auto_set"]
         mute = data["settings"]["mute"]["enabled"]
 
         # Get chars
@@ -337,9 +337,9 @@ def get_last_state(base_path, char_name, char_server):
             char_class,
             char_guild,
             encounter_parse,
-            saveparse,
-            setraid,
-            settimer,
+            save_parse,
+            auto_raid,
+            auto_mob_timer,
         )
 
         return state
