@@ -582,6 +582,8 @@ def draw_events_default_lower(stdscr):
             "Press 'd' to toggle debug mode",
             "Press 'e' to toggle encounter parsing",
             "Press 'm' to toggle mute",
+            "Press 'p' to toggle encounter parse saves",
+            "Press 't' to toggle automatic respawn timers",
             "/say parser why",
             "Thanks Daldaen",
             "Edit config.json to customize alerts",
