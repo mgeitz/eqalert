@@ -730,6 +730,7 @@ def build_config(base_path):
         "malosini": "raid",
         "occlusion": "raid",
         "off-tanking": "raid",
+        "pop": "raid",
         "rampage": "raid",
         "rune": "raid",
         "sieve": "raid",
