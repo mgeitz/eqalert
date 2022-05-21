@@ -27,6 +27,7 @@ import sys
 import threading
 import time
 import queue
+import shutil
 
 import eqa.lib.action as eqa_action
 import eqa.lib.config as eqa_config
@@ -96,6 +97,12 @@ def startup(base_path):
         if not os.path.exists(sound_path):
             print("    - making a home for alert sounds")
             os.makedirs(sound_path)
+        if not os.path.exists(sound_path + "tock.wav"):
+            tock_path = pkg_resources.resource_filename("eqa", "sound/tock.wav")
+            shutil.move(tock_path, sound_path + "tock.wav")
+        if not os.path.exists(sound_path + "tick.wav"):
+            tick_path = pkg_resources.resource_filename("eqa", "sound/tick.wav")
+            shutil.move(tick_path, sound_path + "tick.wav")
 
         # Make the tmp sound directory
         if not os.path.exists(tmp_sound_path):
