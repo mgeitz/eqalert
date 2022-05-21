@@ -438,6 +438,15 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
+                    ### Update automatic timer status
+                    elif new_message.tx == "timer":
+                        state.set_auto_timer(new_message.payload)
+                        eqa_config.set_last_state(state, base_path)
+                        display_q.put(
+                            eqa_struct.display(
+                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                            )
+                        )
                     ### Update bind status
                     elif new_message.tx == "bind":
                         state.set_bind(new_message.payload)

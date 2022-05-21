@@ -232,6 +232,8 @@ def process(
                                 option = "autoraid"
                             elif option == "saveencounter":
                                 option = "encounter"
+                            elif option == "defaulttimer":
+                                option = "saveencounter"
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -252,6 +254,8 @@ def process(
                             elif option == "encounter":
                                 option = "saveencounter"
                             elif option == "saveencounter":
+                                option = "defaulttimer"
+                            elif option == "defaulttimer":
                                 pass
                             display_q.put(
                                 eqa_struct.display(
@@ -327,6 +331,16 @@ def process(
                                         "false",
                                     )
                                 )
+                            elif option == "defaulttimer" and state.autotimer == "true":
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "timer",
+                                        None,
+                                        "false",
+                                    )
+                                )
                         elif key == curses.KEY_LEFT or key == ord("a"):
                             if option == "debug" and state.debug == "false":
                                 system_q.put(
@@ -390,6 +404,18 @@ def process(
                                         "system",
                                         "encounter",
                                         "save",
+                                        "true",
+                                    )
+                                )
+                            elif (
+                                option == "defaulttimer" and state.autotimer == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "timer",
+                                        None,
                                         "true",
                                     )
                                 )

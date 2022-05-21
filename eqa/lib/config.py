@@ -209,6 +209,11 @@ def set_last_state(state, base_path):
                 "auto_set": str(state.autoraid),
             }
         )
+        data["settings"]["timers"].update(
+            {
+                "auto_set": str(state.autotimer),
+            }
+        )
         data["settings"]["debug_mode"].update({"enabled": str(state.debug)})
         data["settings"]["mute"].update({"enabled": str(state.mute)})
         data["char_logs"][state.char + "_" + state.server].update(
@@ -306,6 +311,7 @@ def get_last_state(base_path, char_name, char_server):
         mute = data["settings"]["mute"]["enabled"]
         saveparse = data["settings"]["encounter_parsing"]["auto_save"]
         setraid = data["settings"]["raid_mode"]["auto_set"]
+        settimer = data["settings"]["timers"]["auto_set"]
         mute = data["settings"]["mute"]["enabled"]
 
         # Get chars
@@ -333,6 +339,7 @@ def get_last_state(base_path, char_name, char_server):
             encounter_parse,
             saveparse,
             setraid,
+            settimer,
         )
 
         return state
@@ -1368,6 +1375,16 @@ def build_config(base_path):
     }
   },
   "settings": {
+    "debug_mode": {
+      "enabled": "false"
+    },
+    "encounter_parsing": {
+      "auto_save": "false",
+      "enabled": "true"
+    },
+    "mute": {
+      "enabled": "false"
+    },
     "paths": {
       "alert_log": "%slog/",
       "data": "%sdata/",
@@ -1376,20 +1393,13 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
-    "debug_mode": {
-      "enabled": "false"
-    },
-    "mute": {
-      "enabled": "false"
-    },
-    "encounter_parsing": {
-      "auto_save": "false",
-      "enabled": "true"
-    },
     "raid_mode": {
       "auto_set": "true"
     },
-    "version": "3.1.1"
+    "timers": {
+      "auto_set": "false"
+    },
+    "version": "3.1.2"
   },
   "zones": {
     "An Arena (PVP) Area": {

@@ -1503,6 +1503,24 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
             optscr.addstr(15, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(15, second_third + 7, "]", curses.color_pair(3))
 
+        # Default Timer
+        if s_option == "defaulttimer" and s_setting == "option":
+            optscr.addstr(17, first_q - 1, "Auto-set Zone Timer", curses.color_pair(4))
+            optscr.addstr(
+                2,
+                first_q - 2,
+                "Timers set after xp msgs to zone default",
+                curses.color_pair(3),
+            )
+        else:
+            optscr.addstr(17, first_q, "Auto-set Zone Timer", curses.color_pair(1))
+        optscr.addstr(17, second_third, "[", curses.color_pair(3))
+        if state.autotimer == "true":
+            optscr.addstr(17, second_third + 1, "on", curses.color_pair(5))
+        elif state.autotimer == "false":
+            optscr.addstr(17, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(17, second_third + 7, "]", curses.color_pair(3))
+
     except Exception as e:
         eqa_settings.log(
             "draw settings options: Error on line "

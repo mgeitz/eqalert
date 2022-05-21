@@ -50,8 +50,6 @@ def process(
     Produce: sound_q, display_q, system_q, encounter_q
     """
 
-    automatic_default_timers = False
-
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
 
@@ -178,7 +176,7 @@ def process(
                             )
                         )
                 ## Default Timers
-                if automatic_default_timers:
+                if state.autotimer == "true":
                     if (
                         line_type == "experience_solo"
                         or line_type == "experience_group"
@@ -1452,7 +1450,15 @@ def action_you_say_commands(
                     elif args[1] == "clear":
                         timer_q.put(eqa_struct.timer(None, "clear", None, None))
                     elif args[1] == "default":
-                        automatic_default_timers = True
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "timer",
+                                "auto",
+                                "true",
+                            )
+                        )
                     else:
                         sound_q.put(
                             eqa_struct.sound(
@@ -1462,7 +1468,15 @@ def action_you_say_commands(
                         )
                 elif len(args) == 3:
                     if args[1] == "default" and args[2] == "stop":
-                        automatic_default_timers = False
+                        system_q.put(
+                            eqa_struct.message(
+                                eqa_settings.eqa_time(),
+                                "system",
+                                "timer",
+                                "auto",
+                                "false",
+                            )
+                        )
             else:
                 display_q.put(
                     eqa_struct.display(

@@ -46,6 +46,7 @@ class EQA_State:
         encounter_parse,
         saveparse,
         autoraid,
+        autotimer,
     ):
         """All States"""
         self.char = char
@@ -68,6 +69,7 @@ class EQA_State:
         self.encounter_parse = encounter_parse
         self.saveparse = saveparse
         self.autoraid = autoraid
+        self.autotimer = autotimer
 
     def set_char(self, char):
         """Set Character"""
@@ -148,3 +150,7 @@ class EQA_State:
     def set_auto_raid(self, autoraid):
         """Toggle Automatic Raid Mode"""
         self.autoraid = autoraid
+
+    def set_auto_timer(self, autotimer):
+        """Toggle Automatic Timers"""
+        self.autotimer = autotimer
