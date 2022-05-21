@@ -192,7 +192,7 @@ def process(
                                 ),
                                 "timer",
                                 str(timer_seconds),
-                                str(state.zone) + " pop",
+                                "Pop " + str(state.zone),
                             )
                         )
 
