@@ -935,12 +935,221 @@ def check_emotes(line):
     """
 
     try:
-        if re.fullmatch(r"^\w+ bows before \w+\.$", line) is not None:
+        if (
+            re.fullmatch(
+                r"^(You agree with everyone around you\.|You agree with [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_agree_you"
+        elif (
+            re.fullmatch(
+                r"^(You are amazed\!|You gasp at [a-zA-Z`\s]+ in amazement\.)$", line
+            )
+            is not None
+        ):
+            return "emote_amaze_you"
+        elif (
+            re.fullmatch(
+                r"^(You apologize to everyone\.|You apologize to [a-zA-Z`\s]+ whole\-heartedly\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_apologize_you"
+        elif (
+            re.fullmatch(
+                r"^(You give a round of applause\.|You applaud [a-zA-Z`\s\']+ performance\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_applaud_you"
+        elif (
+            re.fullmatch(
+                r"^(You make a rude gesture\.|You make a rude gesture at [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_bird_you"
+        elif (
+            re.fullmatch(
+                r"^(You look around for someone to bite\!|You bite [a-zA-Z`\s]+ on the leg\!)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_bite_you"
+        elif (
+            re.fullmatch(
+                r"^(You bleed quietly\.|You bleed all over [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_bleed_you"
+        elif (
+            re.fullmatch(
+                r"^(You blink in disbelief\.|You blink at [a-zA-Z`\s]+ in disbelief\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_blink_you"
+        elif (
+            re.fullmatch(r"^(You blush profusely\.|You blush at [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_blush_you"
+        elif (
+            re.fullmatch(
+                r"^(You boggle\, shaking your head and looking confused\.|You boggle at [a-zA-Z`\s]+\, shaking your head and looking confused\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_boggle_you"
+        elif (
+            re.fullmatch(
+                r"^(You look around for someone to bonk\!|You bonk [a-zA-Z`\s]+ on the head\!)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_bonk_you"
+        elif re.fullmatch(r"^\w+ bonks \w+ on the head\!$", line) is not None:
+            return "emote_bonk_other"
+        elif (
+            re.fullmatch(
+                r"^(You inform everyone that you are bored\.|You inform [a-zA-Z`\s]+ that you are bored\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_bored_you"
+        elif (
+            re.fullmatch(
+                r"^(You bounce with excitement\.|You bounce around [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_bounce_you"
+        elif (
+            re.fullmatch(r"^(You bow\.|You bow before [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_bow_you"
+        elif re.fullmatch(r"^(\w+ bows before \w+\.|\w+ bows\.)$", line) is not None:
             return "emote_bow_other"
-        elif re.fullmatch(r"^\w+ thanks \w+ heartily\.$", line) is not None:
-            return "emote_thank_other"
-        elif re.fullmatch(r"^\w+ waves at \w+\.$", line) is not None:
-            return "emote_wave_other"
+        elif (
+            re.fullmatch(
+                r"^(You announce that you will be right back\.|You let [a-zA-Z`\s]+ know that you will be right back\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_brb_you"
+        elif (
+            re.fullmatch(
+                r"^(You burp loudly\.|You burp loudly at [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_burp_you"
+        elif (
+            re.fullmatch(
+                r"^(You wave goodbye to everyone\.|You wave goodbye to [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_bye_you"
+        elif (
+            re.fullmatch(
+                r"^(You cackle gleefully\.|You cackle gleefully at [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_cackle_you"
+        elif (
+            re.fullmatch(
+                r"^(You look peaceful and calm\.|You try to calm down [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_calm_you"
+        elif (
+            re.fullmatch(r"^(You cheer\.|You cheer at [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_cheer_you"
+        elif (
+            re.fullmatch(r"^(\w+ cheers\.|\w+ cheers at [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_cheer_other"
+        elif (
+            re.fullmatch(r"^(You chuckle\.|You chuckle at [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_chuckle_you"
+        elif (
+            re.fullmatch(
+                r"^(You clap your hands together \- hurray\!|You clap happily for [a-zA-Z`\s]+ \- hurray\!)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_clap_you"
+        elif (
+            re.fullmatch(
+                r"^(You need to be comforted\.|You comfort [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_comfort_you"
+        elif (
+            re.fullmatch(
+                r"^(You congratulate those around you on a job well done\.|You congratulate [a-zA-Z`\s]+ on a job well done\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_congratulate_you"
+        elif (
+            re.fullmatch(r"^(You cough\.|You cough at [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_cough_you"
+        elif (
+            re.fullmatch(r"^(You cringe\.|You cringe away from [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_cringe_you"
+        elif (
+            re.fullmatch(r"^(You cry\.|You cry over [a-zA-Z`\s]+\.)$", line) is not None
+        ):
+            return "emote_cry_you"
+        elif (
+            re.fullmatch(
+                r"^(You look around you curiously\.|You look at [a-zA-Z`\s]+ curiously\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_curious_you"
+        elif (
+            re.fullmatch(
+                r"^(You stand on your tip\-toes and do a dance of joy\!|You grab hold of [a-zA-Z`\s]+ and begin to dance with them\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_dance_you"
         elif (
             re.fullmatch(
                 r"^\w+ grabs hold of \w+ and begins to dance with (?:h(?:er|im)|it)\.$",
@@ -949,14 +1158,415 @@ def check_emotes(line):
             is not None
         ):
             return "emote_dance_other"
-        elif re.fullmatch(r"^\w+ bonks \w+ on the head\!$", line) is not None:
-            return "emote_bonk_other"
-        elif re.fullmatch(r"^\w+ beams a smile at (a|) \w+$", line) is not None:
+        elif (
+            re.fullmatch(
+                r"^(You drool \-\- something must have you excited\!|You drool all over [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_drool_you"
+        elif (
+            re.fullmatch(r"^(You duck\.|You duck behind [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_duck_you"
+        elif (
+            re.fullmatch(
+                r"^(You raise an eyebrow inquiringly\.|You raise an eyebrow at [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_eye_you"
+        elif re.fullmatch(r"^(You fidget\.)$", line) is not None:
+            return "emote_fidget_you"
+        elif (
+            re.fullmatch(
+                r"^(You flex your muscles proudly\.|You flex at [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_flex_you"
+        elif (
+            re.fullmatch(r"^(You frown\.|You frown at [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_frown_you"
+        elif (
+            re.fullmatch(
+                r"^(You gasp in astonishment\.|You gasp at [a-zA-Z`\s]+ in astonishment\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_gasp_you"
+        elif (
+            re.fullmatch(r"^(You giggle\.|You giggle at [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_giggle_you"
+        elif (
+            re.fullmatch(
+                r"^(You glare at nothing in particular\.|You turn an icy glare upon [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_glare_you"
+        elif (
+            re.fullmatch(
+                r"^(You grin evilly\.|You grin evilly at [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_grin_you"
+        elif (
+            re.fullmatch(
+                r"^(You groan\.|You groan at the sight of [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_groan_you"
+        elif (
+            re.fullmatch(
+                r"^(You grovel pitifully\.|You grovel before [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_grovel_you"
+        elif (
+            re.fullmatch(
+                r"^(You are so happy\!|You are very happy with [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_happy_you"
+        elif (
+            re.fullmatch(
+                r"^(You need food\, badly\.|You let [a-zA-Z`\s]+ know that you need food\, badly\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_hungry_you"
+        elif (
+            re.fullmatch(r"^(You hug yourself\.|You hug [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_hug_you"
+        elif (
+            re.fullmatch(
+                r"^(You introduce yourself\. Hi there\!|You introduce [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_introduce_you"
+        elif (
+            re.fullmatch(
+                r"^(You were JUST KIDDING\!|You let [a-zA-Z`\s]+ know that you were JUST KIDDING\!)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_jk_you"
+        elif (
+            re.fullmatch(
+                r"^(You blow a kiss into the air\.|You kiss [a-zA-Z`\s]+ on the cheek\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_kiss_you"
+        elif (
+            re.fullmatch(
+                r"^(You kneel down\.|You kneel before [a-zA-Z`\s]+ in humility and reverence\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_kneel_you"
+        elif (
+            re.fullmatch(r"^(You laugh\.|You laugh at [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_laugh_you"
+        elif (
+            re.fullmatch(
+                r"^(You look completely lost\!|You inform [a-zA-Z`\s]+ that you are completely lost\!)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_lost_you"
+        elif (
+            re.fullmatch(
+                r"^(You look around for someone to massage\.|You massage [a-zA-Z`\s\']+ shoulders\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_massage_you"
+        elif (
+            re.fullmatch(r"^(You moan\.|You moan at [a-zA-Z`\s]+\.)$", line) is not None
+        ):
+            return "emote_moan_you"
+        elif (
+            re.fullmatch(
+                r"^(You lower your head and mourn the loss of the dead\.|You lower your head and mourn the loss of [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_mourn_you"
+        elif re.fullmatch(r"^(You nod\.|You nod at [a-zA-Z`\s]+\.)$", line) is not None:
+            return "emote_nod_you"
+        elif re.fullmatch(r"^(You nudge|You nudge [a-zA-Z`\s]+\.)$", line) is not None:
+            return "emote_nudge_you"
+        elif (
+            re.fullmatch(
+                r"^(You panic and scream\.|You panic at the sight of [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_panic_you"
+        elif (
+            re.fullmatch(
+                r"^(You pat yourself on the back\.|You pat [a-zA-Z`\s]+ on the back\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_pat_you"
+        elif (
+            re.fullmatch(
+                r"^(You peer around intently\.|You peer at [a-zA-Z`\s]+\, looking them up and down\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_peer_you"
+        elif (
+            re.fullmatch(
+                r"^(You plead with everyone around you\.|You plead with [a-zA-Z`\s]+ desperately\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_plead_you"
+        elif (
+            re.fullmatch(
+                r"^(You point straight ahead\.|You point at [a-zA-Z`\s]+\. Yeah you\!)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_point_you"
+        elif (
+            re.fullmatch(r"^(You poke yourself\.|You poke [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_poke_you"
+        elif (
+            re.fullmatch(
+                r"^(You ponder the matters at hand\.|You ponder [a-zA-Z`\s]+\. What is going on with them\?)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_ponder_you"
+        elif (
+            re.fullmatch(r"^(You purr\.|You purr at [a-zA-Z`\s]+\.)$", line) is not None
+        ):
+            return "emote_purr_you"
+        elif (
+            re.fullmatch(
+                r"^(You look completely puzzled\.|You look at [a-zA-Z`\s]+\, completely puzzled\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_puzzle_you"
+        elif (
+            re.fullmatch(
+                r"^(You raise your hand\.|You look at [a-zA-Z`\s]+ and raise your hand\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_raise_you"
+        elif (
+            re.fullmatch(
+                r"^(You let everyone know that you are ready\!|You ask [a-zA-Z`\s]+ if they are ready\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_ready_you"
+        elif (
+            re.fullmatch(
+                r"^(You emit a low rumble and then roar like a lion\!|You emit a low rumble and then roar at [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_roar_you"
+        elif (
+            re.fullmatch(
+                r"^(You roll on the floor laughing\.|You roll on the floor laughing at [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_rofl_you"
+        elif (
+            re.fullmatch(
+                r"^(You salute the gods in pure admiration\.|You snap to attention and salute [a-zA-Z`\s]+ crisply\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_salute_you"
+        elif (
+            re.fullmatch(
+                r"^(You shiver\. Brrrrrr\.|You shiver at the thought of messing with [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_shiver_you"
+        elif (
+            re.fullmatch(
+                r"^(You shrug unknowingly\.|You shrug at [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_shrug_you"
+        elif (
+            re.fullmatch(
+                r"^(You sigh\, clearly disappointed\.|You sigh at [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_sigh_you"
+        elif (
+            re.fullmatch(
+                r"^(You smack yourself on the forehead\.|You smack [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_smack_you"
+        elif (
+            re.fullmatch(r"^(You smile\.|You beam a smile at [a-zA-Z`\s]+\.)$", line)
+            is not None
+        ):
+            return "emote_smile_you"
+        elif re.fullmatch(r"^\w+ beams a smile at [a-zA-Z`\s]+\.$", line) is not None:
             return "emote_smile_other"
-        elif re.fullmatch(r"^\w+ cheers at \w+$", line) is not None:
-            return "emote_cheer_other"
-        elif re.fullmatch(r"^You thank (everyone|\w+ heartily)\.$", line) is not None:
+        elif (
+            re.fullmatch(
+                r"^(You smirk mischievously\.|You smirk mischievously at [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_smirk_you"
+        elif (
+            re.fullmatch(
+                r"^(You bare your teeth in a terrible snarl\.|You snarl meanly at [a-zA-Z`\s]+\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_snarl_you"
+        elif (
+            re.fullmatch(
+                r"^(You snicker softly\.|You snicker softly at [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_snicker_you"
+        elif (
+            re.fullmatch(
+                r"^(You stare at the ground\.|You stare at [a-zA-Z`\s]+\, completely lost in their eyes\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_stare_you"
+        elif (
+            re.fullmatch(
+                r"^(You tap your foot impatiently\.|You tap your foot as you look at [a-zA-Z`\s]+ impatiently\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_tap_you"
+        elif (
+            re.fullmatch(
+                r"^(You look about for someone to tease\.|You tease [a-zA-Z`\s]+ mercilessly\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_tease_you"
+        elif (
+            re.fullmatch(
+                r"^(You thank everyone\.|You thank [a-zA-Z`\s]+ heartily\.)$", line
+            )
+            is not None
+        ):
             return "emote_thank_you"
+        elif re.fullmatch(r"^\w+ thanks [a-zA-Z`\s]+ heartily\.$", line) is not None:
+            return "emote_thank_other"
+        elif (
+            re.fullmatch(
+                r"^(You need drink\, badly\!|You let [a-zA-Z`\s]+ know that you need drink\, badly\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_thirsty_you"
+        elif (
+            re.fullmatch(
+                r"^(You veto the idea\.|You veto [a-zA-Z`\s\']+ idea\!)$", line
+            )
+            is not None
+        ):
+            return "emote_veto_you"
+        elif (
+            re.fullmatch(r"^(You wave\.|You wave at [a-zA-Z`\s]+\.)$", line) is not None
+        ):
+            return "emote_wave_you"
+        elif re.fullmatch(r"^\w+ waves at [a-zA-Z`\s]+\.$", line) is not None:
+            return "emote_wave_other"
+        elif (
+            re.fullmatch(
+                r"^(You whine pitifully\.|You whine pitifully at [a-zA-Z`\s]+\.)$", line
+            )
+            is not None
+        ):
+            return "emote_whine_you"
+        elif (
+            re.fullmatch(
+                r"^(You whistle a little tune\.|You whistle at [a-zA-Z`\s]+ appreciatively\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_whistle_you"
+        elif (
+            re.fullmatch(
+                r"^(You open your mouth wide and yawn\.|You yawn rudely in [a-zA-Z`\s\']+ face\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_yawn_you"
 
         return None
 
@@ -1043,7 +1653,7 @@ def check_pets(line):
             return "pet_follow"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'Attacking a [a-zA-Z\s`]+ Master\.\'$",
+                r"^[a-zA-Z\s]+ (says|tells you)(,|) \'Attacking [a-zA-Z\s`]+ Master\.\'$",
                 line,
             )
             is not None
