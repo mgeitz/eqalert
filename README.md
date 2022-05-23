@@ -121,6 +121,18 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 `/say parser encounter end` - Sometimes, your logs don't catch an encounter end.  Use this command to fix that!
 
+`/say parser metronome [seconds]` - Set a tick/tock metronome with n interval of [seconds]
+
+`/say parser metronome stop` - Stop the metronome
+
+`/say parser timer [seconds]` - Set a timer for [seconds], says "times up" when done
+
+`/say parser timer clear` - Clear all timers
+
+`/say parser timer respawn` - Create timers for the default current zone time after seeing an experience message. Timer response is "pop zone"
+
+`/say parser timer respawn stop` - Stop creating timers automatically
+
 `/say parser hello`
 
 `/say parser who`
@@ -128,18 +140,6 @@ You can control some parser settings using `/say` in-game.  This is better suite
 `/say parser where`
 
 `/say parser what state`
-
-`/say parser metronome [seconds]`
-
-`/say parser metronome stop`
-
-`/say parser timer [seconds]`
-
-`/say parser timer clear`
-
-`/say parser timer respawn`
-
-`/say parser timer respawn stop`
 
 
 ## Custom Alerting
