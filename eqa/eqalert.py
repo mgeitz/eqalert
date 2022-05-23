@@ -514,6 +514,10 @@ def main():
                             state.set_level(new_state.char_level)
                             state.set_class(new_state.char_class)
                             state.set_guild(new_state.char_guild)
+                            state.set_encounter_parse(new_state.encounter_parse)
+                            state.set_encounter_parse_save(new_state.save_parse)
+                            state.set_auto_raid(new_state.auto_raid)
+                            state.set_auto_mob_timer(new_state.auto_mob_timer)
                             eqa_config.set_last_state(state, base_path)
                             char_log = new_char_log
                             # Start new log watch
@@ -582,6 +586,10 @@ def main():
                         state.set_level(new_state.char_level)
                         state.set_class(new_state.char_class)
                         state.set_guild(new_state.char_guild)
+                        state.set_encounter_parse(new_state.encounter_parse)
+                        state.set_encounter_parse_save(new_state.save_parse)
+                        state.set_auto_raid(new_state.auto_raid)
+                        state.set_auto_mob_timer(new_state.auto_mob_timer)
                         #### Stop state dependent processes
                         cfg_reload.set()
                         process_action.join()

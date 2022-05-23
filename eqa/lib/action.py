@@ -181,9 +181,7 @@ def process(
                         line_type == "experience_solo"
                         or line_type == "experience_group"
                     ):
-                        timer_seconds = config["zones"][str(state.zone).title()][
-                            "timer"
-                        ]
+                        timer_seconds = config["zones"][str(state.zone)]["timer"]
                         timer_q.put(
                             eqa_struct.timer(
                                 (
