@@ -1251,6 +1251,7 @@ def encounter_report(
 
         slain_encounter_target = None
         encounter_target = None
+        encounter_start_time = None
 
         if line_type == "mob_slain_other":
             line_clean = re.sub(r"[^\w\s\,\-\'\`]", "", line)
@@ -1386,6 +1387,9 @@ def encounter_report(
                         this_encounter.append(event)
                     else:
                         not_this_encounter.append(event)
+
+                if encounter_start_time == None:
+                    encounter_start_time = encounter_end_time
 
                 encounter_stack = not_this_encounter
                 encounter_duration = int(
