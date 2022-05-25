@@ -1257,7 +1257,7 @@ def check_emotes(line):
             return "emote_hug_you"
         elif (
             re.fullmatch(
-                r"^(You introduce yourself\. Hi there\!|You introduce [a-zA-Z`\s]+\.)$",
+                r"^(You introduce yourself\.  Hi there\!|You introduce [a-zA-Z`\s]+\.)$",
                 line,
             )
             is not None

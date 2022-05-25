@@ -1829,7 +1829,7 @@ def build_config(base_path):
     "timers": {
       "auto_mob_timer": "false"
     },
-    "version": "3.1.4"
+    "version": "3.2.0"
   },
   "zones": {
     "An Arena (PVP) Area": {
