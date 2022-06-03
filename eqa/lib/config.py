@@ -2157,8 +2157,8 @@ def build_config(base_path):
       "timer": "0"
     },
     "Temple of Veeshan": {
-      "raid_mode": "false",
-      "timer": "4320"
+      "raid_mode": "true",
+      "timer": "4398"
     },
     "The Arena": {
       "raid_mode": "false",
