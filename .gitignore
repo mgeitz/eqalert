@@ -1,4 +1,6 @@
 dist/*
+util/spells_us.txt
+util/spells_us.json
 MANIFEST
 build/*
 *.pyc

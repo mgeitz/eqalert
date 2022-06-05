@@ -29,3 +29,25 @@ message = namedtuple("data", ["timestamp", "type", "tx", "rx", "payload"])
 display = namedtuple("data", ["timestamp", "type", "screen", "payload"])
 timer = namedtuple("data", ["time", "type", "seconds", "payload"])
 sound = namedtuple("data", ["sound", "payload"])
+config_file = namedtuple("data", ["name", "path"])
+configs = namedtuple(
+    "data",
+    [
+        "characters",
+        "settings",
+        "zones",
+        "melee",
+        "spell_general",
+        "spell_specific",
+        "pets",
+        "chat_recieved_npc",
+        "chat_recieved",
+        "chat_sent",
+        "command_output",
+        "system_messages",
+        "group_system_messages",
+        "loot_trade_messages",
+        "emotes",
+        "who",
+    ],
+)
