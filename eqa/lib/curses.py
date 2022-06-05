@@ -33,7 +33,7 @@ import eqa.lib.state as eqa_state
 import eqa.lib.settings as eqa_settings
 
 
-def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
+def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
     """
     Process: display_q
     Produce: display event
@@ -85,7 +85,7 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
                         events,
                         debug_events,
                         state,
-                        config,
+                        configs,
                         s_setting,
                         s_char,
                         s_opt,
@@ -109,7 +109,7 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
                                 events,
                                 debug_events,
                                 state,
-                                config,
+                                configs,
                                 s_setting,
                                 s_char,
                                 s_opt,
@@ -125,7 +125,7 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
                         events,
                         debug_events,
                         state,
-                        config,
+                        configs,
                         s_setting,
                         s_char,
                         s_opt,
@@ -144,7 +144,7 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
                                 events,
                                 debug_events,
                                 state,
-                                config,
+                                configs,
                                 s_setting,
                                 s_char,
                                 s_opt,
@@ -159,7 +159,7 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
                             events,
                             debug_events,
                             state,
-                            config,
+                            configs,
                             s_setting,
                             s_char,
                             s_opt,
@@ -175,7 +175,7 @@ def display(stdscr, display_q, state, config, exit_flag, cfg_reload):
                             events,
                             debug_events,
                             state,
-                            config,
+                            configs,
                             s_setting,
                             s_char,
                             s_opt,
@@ -201,7 +201,7 @@ def draw_page(
     events,
     debug_events,
     state,
-    config,
+    configs,
     s_setting,
     s_char,
     s_opt,
@@ -216,7 +216,7 @@ def draw_page(
             elif page == "state":
                 draw_state(stdscr, state)
             elif page == "settings":
-                draw_settings(stdscr, state, config, s_setting, s_char, s_opt, s_line)
+                draw_settings(stdscr, state, configs, s_setting, s_char, s_opt, s_line)
             elif page == "parse":
                 draw_parse(stdscr, state, encounter_report)
             elif page == "help":
@@ -586,7 +586,7 @@ def draw_events_default_lower(stdscr):
             "Press 't' to toggle automatic respawn timers",
             "/say parser why",
             "Thanks Daldaen",
-            "Edit config.json to customize alerts",
+            "Edit config/line-alerts/*.json to customize alerts",
             "Remember to water your house plants",
             "Sending Fippy Darkpaw batphone . . .",
             "Use /book to quickly access spells",
@@ -1227,7 +1227,7 @@ def draw_state(stdscr, state):
         )
 
 
-def draw_settings(stdscr, state, config, s_setting, s_char, s_opt, s_line):
+def draw_settings(stdscr, state, configs, s_setting, s_char, s_opt, s_line):
     """Draw settings"""
 
     try:
@@ -1257,7 +1257,7 @@ def draw_settings(stdscr, state, config, s_setting, s_char, s_opt, s_line):
         charscr.addch(0, int(char_x / 2) + 9, curses.ACS_LTEE)
 
         ## Draw Char Select
-        draw_settings_char_select(charscr, config, state, s_char, s_setting)
+        draw_settings_char_select(charscr, configs, state, s_char, s_setting)
 
         # Options Window
         optscr = stdscr.derwin(int(y / 2) - 4, int(x / 2) - 4, int(y / 2) + 2, 4)
@@ -1273,7 +1273,7 @@ def draw_settings(stdscr, state, config, s_setting, s_char, s_opt, s_line):
         optscr.addch(0, int(opt_x / 2) + 4, curses.ACS_LTEE)
 
         ## Options
-        draw_settings_options(optscr, config, state, s_opt, s_setting)
+        draw_settings_options(optscr, configs, state, s_opt, s_setting)
 
         # Line Type
         linescr = stdscr.derwin(y - 6, int(x / 2) - 6, 4, int(x / 2) + 2)
@@ -1293,7 +1293,7 @@ def draw_settings(stdscr, state, config, s_setting, s_char, s_opt, s_line):
         linescr.addch(0, int(line_x / 2) + 7, curses.ACS_LTEE)
 
         ## Draw Line Type Editor
-        draw_settings_line_editor(linescr, config, state, s_line, s_setting)
+        draw_settings_line_editor(linescr, configs, state, s_line, s_setting)
 
     except Exception as e:
         eqa_settings.log(
@@ -1304,7 +1304,7 @@ def draw_settings(stdscr, state, config, s_setting, s_char, s_opt, s_line):
         )
 
 
-def draw_settings_char_select(charscr, config, state, s_char, s_setting):
+def draw_settings_char_select(charscr, configs, state, s_char, s_setting):
     """Draw settings character selection window"""
 
     try:
@@ -1356,35 +1356,45 @@ def draw_settings_char_select(charscr, config, state, s_char, s_setting):
         charscr.addstr(
             10,
             first_q + 7,
-            config["char_logs"][state.chars[s_char]]["char_state"]["class"].title(),
+            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
+                "class"
+            ].title(),
             curses.color_pair(3),
         )
         charscr.addstr(11, first_q, "Level:", curses.color_pair(1))
         charscr.addstr(
             11,
             first_q + 7,
-            config["char_logs"][state.chars[s_char]]["char_state"]["level"],
+            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
+                "level"
+            ],
             curses.color_pair(3),
         )
         charscr.addstr(12, first_q, "Guild:", curses.color_pair(1))
         charscr.addstr(
             12,
             first_q + 7,
-            config["char_logs"][state.chars[s_char]]["char_state"]["guild"].title(),
+            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
+                "guild"
+            ].title(),
             curses.color_pair(3),
         )
         charscr.addstr(13, first_q, "Zone:", curses.color_pair(1))
         charscr.addstr(
             13,
             first_q + 7,
-            config["char_logs"][state.chars[s_char]]["char_state"]["zone"].title(),
+            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
+                "zone"
+            ].title(),
             curses.color_pair(3),
         )
         charscr.addstr(14, first_q, "Bind:", curses.color_pair(1))
         charscr.addstr(
             14,
             first_q + 7,
-            config["char_logs"][state.chars[s_char]]["char_state"]["bind"].title(),
+            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
+                "bind"
+            ].title(),
             curses.color_pair(3),
         )
 
@@ -1397,7 +1407,7 @@ def draw_settings_char_select(charscr, config, state, s_char, s_setting):
         )
 
 
-def draw_settings_options(optscr, config, state, s_option, s_setting):
+def draw_settings_options(optscr, configs, state, s_option, s_setting):
     """Draw settings options window"""
 
     try:
@@ -1534,21 +1544,21 @@ def draw_settings_options(optscr, config, state, s_option, s_setting):
         )
 
 
-def draw_settings_line_editor(linescr, config, state, s_line, s_setting):
+def draw_settings_line_editor(linescr, configs, state, s_line, s_setting):
     """Draw settings alert config editor window"""
 
     try:
         line_y, line_x = linescr.getmaxyx()
         first_q = int(line_x / 5)
         last_q = int((line_x / 5) * 4)
-        config_line_type = list(config["line"].keys())[s_line]
+        config_line_type = list(configs.alerts.config["line"].keys())[s_line]
 
         # Description
         if s_setting == "line":
             linescr.addstr(
                 line_y - 3,
                 int(line_x / 2) - 15,
-                "Edit your config.json to modify",
+                "Edit config/line-alerts/ to modify",
                 curses.color_pair(3),
             )
 
@@ -1562,7 +1572,7 @@ def draw_settings_line_editor(linescr, config, state, s_line, s_setting):
         # Line Type Selection Arrows
         if s_line == 0:
             linescr.addch(3, first_q + 6, curses.ACS_UARROW, curses.color_pair(2))
-        elif s_line == len(config["line"].keys()) - 1:
+        elif s_line == len(configs.alerts.config["line"].keys()) - 1:
             linescr.addch(5, first_q + 6, curses.ACS_DARROW, curses.color_pair(2))
         else:
             linescr.addch(3, first_q + 6, curses.ACS_UARROW, curses.color_pair(2))
@@ -1573,7 +1583,7 @@ def draw_settings_line_editor(linescr, config, state, s_line, s_setting):
         linescr.addstr(
             7,
             first_q + 10,
-            config["line"][config_line_type]["reaction"].title(),
+            configs.alerts.config["line"][config_line_type]["reaction"].title(),
             curses.color_pair(3),
         )
 
@@ -1582,23 +1592,25 @@ def draw_settings_line_editor(linescr, config, state, s_line, s_setting):
         linescr.addstr(
             9,
             first_q + 10,
-            config["line"][config_line_type]["sound"].title(),
+            configs.alerts.config["line"][config_line_type]["sound"].title(),
             curses.color_pair(3),
         )
 
         # View Line Type Alerts
         linescr.addstr(11, first_q - 1, "Alerts:", curses.color_pair(1))
-        alert_num = len(config["line"][config_line_type]["alert"].keys())
+        alert_num = len(configs.alerts.config["line"][config_line_type]["alert"].keys())
         if alert_num == 0:
             linescr.addstr(11, first_q + 10, "None", curses.color_pair(3))
         else:
             count = 12
-            for key in config["line"][config_line_type]["alert"].keys():
+            for key in configs.alerts.config["line"][config_line_type]["alert"].keys():
                 linescr.addstr(count, first_q, key, curses.color_pair(2))
                 linescr.addstr(
                     count,
                     last_q,
-                    config["line"][config_line_type]["alert"][key].title(),
+                    configs.alerts.config["line"][config_line_type]["alert"][
+                        key
+                    ].title(),
                     curses.color_pair(3),
                 )
                 if count >= line_y - 3:

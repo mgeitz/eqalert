@@ -29,14 +29,14 @@ import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
 
 
-def process(config, sound_q, exit_flag, cfg_reload, state):
+def process(configs, sound_q, exit_flag, cfg_reload, state):
     """
     Process: sound_q
     Produce: sound event
     """
 
-    sound_file_path = config["settings"]["paths"]["sound"]
-    tmp_sound_file_path = config["settings"]["paths"]["tmp_sound"]
+    sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
+    tmp_sound_file_path = configs.settings.config["settings"]["paths"]["tmp_sound"]
     mute_speak = "false"
     mute_alert = "false"
 
@@ -70,7 +70,7 @@ def process(config, sound_q, exit_flag, cfg_reload, state):
                     and not mute_alert == "true"
                     and not state.mute == "true"
                 ):
-                    alert(config, sound_event.payload)
+                    alert(configs, sound_event.payload)
                 elif sound_event.sound == "tick":
                     sound_tick(sound_file_path, sound_event)
                 elif sound_event.sound == "tock":
@@ -108,12 +108,12 @@ def speak(phrase, play, sound_file_path):
         )
 
 
-def alert(config, line_type):
+def alert(configs, line_type):
     """Play configured sounds"""
     try:
-        if not config["line"][line_type]["sound"] == "false":
-            phrase = config["line"][line_type]["sound"]
-            sound_file_path = config["settings"]["paths"]["sound"]
+        if not configs.alerts.config["line"][line_type]["sound"] == "false":
+            phrase = configs.alerts.config["line"][line_type]["sound"]
+            sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
             if not os.path.exists(sound_file_path + phrase + ".wav"):
                 tts = gtts.gTTS(text=phrase, lang="en")
                 tts.save(sound_file_path + phrase + ".wav")

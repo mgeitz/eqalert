@@ -32,7 +32,7 @@ import eqa.lib.struct as eqa_struct
 
 
 def process(
-    config,
+    configs,
     base_path,
     state,
     action_q,
@@ -181,7 +181,9 @@ def process(
                         line_type == "experience_solo"
                         or line_type == "experience_group"
                     ):
-                        timer_seconds = config["zones"][str(state.zone)]["timer"]
+                        timer_seconds = configs.zones.config["zones"][str(state.zone)][
+                            "timer"
+                        ]
                         timer_q.put(
                             eqa_struct.timer(
                                 (
@@ -238,7 +240,7 @@ def process(
                             sound_q,
                             display_q,
                             check_line,
-                            config,
+                            configs,
                             mute_list,
                             state,
                         )
@@ -249,21 +251,21 @@ def process(
                         display_q,
                         sound_q,
                         state,
-                        config,
+                        configs,
                         check_line,
                     )
 
                 ## If line_type exists in the config
-                if line_type in config["line"].keys():
+                if line_type in configs.alerts.config["line"].keys():
 
-                    reaction = config["line"][line_type]["reaction"]
+                    reaction = configs.alerts.config["line"][line_type]["reaction"]
 
                     ### Handle Alert Reactions
                     if reaction == "alert":
                         reaction_alert(
                             line_type,
                             check_line,
-                            config,
+                            configs,
                             sound_q,
                             display_q,
                             state,
@@ -275,7 +277,7 @@ def process(
                         reaction_context(
                             line_type,
                             check_line,
-                            config,
+                            configs,
                             sound_q,
                             display_q,
                             state,
@@ -284,11 +286,11 @@ def process(
                         )
 
                     ### Handle alert reactions for all lines
-                    if config["line"]["all"]["reaction"] == "alert":
+                    if configs.alerts.config["line"]["all"]["reaction"] == "alert":
                         reaction_alert(
                             "all",
                             check_line,
-                            config,
+                            configs,
                             sound_q,
                             display_q,
                             state,
@@ -296,16 +298,16 @@ def process(
                         )
 
                     ### Handle context reaction for all lines
-                    elif config["line"]["all"]["reaction"] != "false":
+                    elif configs.alerts.config["line"]["all"]["reaction"] != "false":
                         reaction_context(
                             "all",
                             check_line,
-                            config,
+                            configs,
                             sound_q,
                             display_q,
                             state,
                             mute_list,
-                            config["line"]["all"]["reaction"],
+                            configs.alerts.config["line"]["all"]["reaction"],
                         )
 
                 ## If line_type is not in the config
@@ -343,14 +345,14 @@ def process(
     sys.exit(0)
 
 
-def send_alerts(line_type, check_line, config, sound_q, display_q, mute_list):
+def send_alerts(line_type, check_line, configs, sound_q, display_q, mute_list):
     """Send messages to sound and display queues"""
 
     try:
         # Check Sender
         sender = re.findall(r"^([\w\-]+)", check_line)
 
-        if config["line"][line_type]["sound"] == "true":
+        if configs.alerts.config["line"][line_type]["sound"] == "true":
             if (
                 not (line_type, sender[0].lower()) in mute_list
                 and not (line_type, "all") in mute_list
@@ -374,7 +376,7 @@ def send_alerts(line_type, check_line, config, sound_q, display_q, mute_list):
                     )
                 )
 
-        elif config["line"][line_type]["sound"] != "false":
+        elif configs.alerts.config["line"][line_type]["sound"] != "false":
             if (
                 not (line_type, sender[0].lower()) in mute_list
                 and not (line_type, "all") in mute_list
@@ -408,7 +410,7 @@ def send_alerts(line_type, check_line, config, sound_q, display_q, mute_list):
 
 
 def send_keyphrase_alerts(
-    line_type, check_line, config, sound_q, display_q, keyphrase, context, mute_list
+    line_type, check_line, configs, sound_q, display_q, keyphrase, context, mute_list
 ):
     """Send keyphrase messages to sound and display queues"""
 
@@ -416,7 +418,7 @@ def send_keyphrase_alerts(
         # Check Sender
         sender = re.findall(r"^([\w\-]+)", check_line)
 
-        if config["line"][line_type]["sound"] == "true":
+        if configs.alerts.config["line"][line_type]["sound"] == "true":
             if keyphrase == "assist" or keyphrase == "rampage" or keyphrase == "spot":
                 payload = keyphrase + " on " + sender[0]
             else:
@@ -447,7 +449,7 @@ def send_keyphrase_alerts(
                     )
                 )
 
-        elif config["line"][line_type]["sound"] != "false":
+        elif configs.alerts.config["line"][line_type]["sound"] != "false":
             if keyphrase == "assist" or keyphrase == "rampage" or keyphrase == "spot":
                 payload = keyphrase + " on " + sender[0]
             else:
@@ -488,7 +490,7 @@ def send_keyphrase_alerts(
 
 
 def reaction_context(
-    line_type, check_line, config, sound_q, display_q, state, mute_list, reaction
+    line_type, check_line, configs, sound_q, display_q, state, mute_list, reaction
 ):
     """Reactions for when reaction is a context"""
 
@@ -498,7 +500,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -511,7 +513,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -522,7 +524,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -533,7 +535,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -544,7 +546,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -557,7 +559,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -568,7 +570,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -579,7 +581,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -590,7 +592,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -601,7 +603,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -612,7 +614,7 @@ def reaction_context(
             send_alerts(
                 line_type,
                 check_line,
-                config,
+                configs,
                 sound_q,
                 display_q,
                 mute_list,
@@ -627,18 +629,22 @@ def reaction_context(
         )
 
 
-def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mute_list):
+def reaction_alert(
+    line_type, check_line, configs, sound_q, display_q, state, mute_list
+):
     """Reactions for when reaction is alert"""
 
     try:
-        for keyphrase, value in config["line"][line_type]["alert"].items():
+        for keyphrase, value in configs.alerts.config["line"][line_type][
+            "alert"
+        ].items():
             # If the alert value is true
             if str(keyphrase).lower() in check_line.lower():
                 if value == "true":
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
-                        config,
+                        configs,
                         sound_q,
                         display_q,
                         keyphrase,
@@ -654,7 +660,7 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
-                        config,
+                        configs,
                         sound_q,
                         display_q,
                         keyphrase,
@@ -668,7 +674,7 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
-                        config,
+                        configs,
                         sound_q,
                         display_q,
                         keyphrase,
@@ -682,7 +688,7 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
-                        config,
+                        configs,
                         sound_q,
                         display_q,
                         keyphrase,
@@ -698,7 +704,7 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
-                        config,
+                        configs,
                         sound_q,
                         display_q,
                         keyphrase,
@@ -712,7 +718,7 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
-                        config,
+                        configs,
                         sound_q,
                         display_q,
                         keyphrase,
@@ -724,7 +730,7 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
-                        config,
+                        configs,
                         sound_q,
                         display_q,
                         keyphrase,
@@ -736,7 +742,7 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
-                        config,
+                        configs,
                         sound_q,
                         display_q,
                         keyphrase,
@@ -748,7 +754,7 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
-                        config,
+                        configs,
                         sound_q,
                         display_q,
                         keyphrase,
@@ -760,7 +766,7 @@ def reaction_alert(line_type, check_line, config, sound_q, display_q, state, mut
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
-                        config,
+                        configs,
                         sound_q,
                         display_q,
                         keyphrase,
@@ -1087,7 +1093,7 @@ def action_location(system_q, check_line):
 
 
 def action_you_say_commands(
-    timer_q, system_q, sound_q, display_q, check_line, config, mute_list, state
+    timer_q, system_q, sound_q, display_q, check_line, configs, mute_list, state
 ):
     """Perform actions for parser say commands"""
 
@@ -1138,7 +1144,7 @@ def action_you_say_commands(
                             "Muted list cleared",
                         )
                     )
-                elif args[1] in config["line"]:
+                elif args[1] in configs.alerts.config["line"]:
                     if len(args) == 2:
                         if not (args[1], "all") in mute_list:
                             mute_list.append((args[1], "all"))
@@ -1192,7 +1198,7 @@ def action_you_say_commands(
                             "alert",
                         )
                     )
-                elif args[1] in config["line"]:
+                elif args[1] in configs.alerts.config["line"]:
                     if len(args) == 2:
                         if (args[1], "all") in mute_list:
                             mute_list.remove((args[1], "all"))
@@ -1639,7 +1645,7 @@ def action_who_player(system_q, state, line):
 
 
 def action_you_new_zone(
-    base_path, system_q, display_q, sound_q, state, config, check_line
+    base_path, system_q, display_q, sound_q, state, configs, check_line
 ):
     """Perform actions for you new zone line types"""
 
@@ -1671,12 +1677,16 @@ def action_you_new_zone(
                 )
             )
 
-        if current_zone[0] not in config["zones"].keys():
+        if current_zone[0] not in configs.zones.config["zones"].keys():
             eqa_config.add_zone(current_zone[0], base_path)
-        elif current_zone[0] in config["zones"].keys() and not state.raid == "true":
+        elif (
+            current_zone[0] in configs.zones.config["zones"].keys()
+            and not state.raid == "true"
+        ):
             if (
-                config["zones"][current_zone[0]]["raid_mode"] == "true"
-                and config["settings"]["raid_mode"]["auto_set"] == "true"
+                configs.zones.config["zones"][current_zone[0]]["raid_mode"] == "true"
+                and configs.settings.config["settings"]["raid_mode"]["auto_set"]
+                == "true"
             ):
                 system_q.put(
                     eqa_struct.message(
@@ -1687,10 +1697,14 @@ def action_you_new_zone(
                         "Raid mode auto-enabled",
                     )
                 )
-        elif current_zone[0] in config["zones"].keys() and state.raid == "true":
+        elif (
+            current_zone[0] in configs.zones.config["zones"].keys()
+            and state.raid == "true"
+        ):
             if (
-                config["zones"][current_zone[0]]["raid_mode"] == "false"
-                and config["settings"]["raid_mode"]["auto_set"] == "true"
+                configs.zones.config["zones"][current_zone[0]]["raid_mode"] == "false"
+                and configs.settings.config["settings"]["raid_mode"]["auto_set"]
+                == "true"
             ):
                 system_q.put(
                     eqa_struct.message(

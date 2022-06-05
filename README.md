@@ -32,7 +32,8 @@ $ eqalert
 You should now see `~/.eqa/` with the following structure
 ```
 $HOME/.eqa
-        ⎿ config.json
+        ⎿ config/
+          ⎿ line-alerts/
         ⎿ data/
         ⎿ encounters/
         ⎿ log/
@@ -40,7 +41,7 @@ $HOME/.eqa
         ⎿ sound/
 ```
 
-Spot check these default paths generated in `config.json`
+Spot check these default paths generated in `config/settings.json`
 ```
     "settings": {
         "paths": {
@@ -53,7 +54,7 @@ Spot check these default paths generated in `config.json`
         },
 ```
 
-> Press `0` to reload your config or restart the program if any changes were made to the config
+> Press `0` to reload your configs or restart the program if any changes were made.  Though generally, it's a good idea to stop eqalert before manually editing your config files.
 
 
 ## Controls
@@ -144,11 +145,11 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 ## Custom Alerting
 
-Modify `~/.eqa/config.json` to customize alerts.
+Modify `~/.eqa/config/line-alerts/*.json` to customize alerts.
 
 ### Line Types
 
-Here is a an example configuration for a given line type in the config:
+Here is a an example configuration for a given line type a config file:
 ```
     "line_type": {
       "alert": {},
@@ -157,7 +158,7 @@ Here is a an example configuration for a given line type in the config:
     },
 ```
 
-There is a configuration entry for all lines matched by the parser.  If a new one is discovered, it is automatically added to the config with the values in the example above.
+There is a configuration entry for all lines matched by the parser.  If a new one is discovered, it is automatically added to config/line-alerts/other.json with the values in the example above.
 
 `line_type` here is whatever semi-arbitrary name I've given for a certain line match.  For each given line type you can configure alerts, a reaction, and a sound.
 
@@ -275,10 +276,11 @@ For example, the below configuration will alert if the word `help` is found in a
 This can be helpful if you would like to alert for something not yet matched by the parser, though your [contribution](CONTRIBUTING.md#pull-requests) to a new line type match in the parser would also be welcome!
 
 ### Zones
+> config/zones.json
 
 #### raid_mode
-- `false`: Considered a non-raid zone
-- `true`: Parser raid mode will auto-enable in this zone
+- `false`: If enabled, auto-disable raid mode in this zone
+- `true`: If enabled, auto-enable raid mode in this zone
 
 #### timer
 - `#`: The value in seconds to associate to a default timer in a given zone

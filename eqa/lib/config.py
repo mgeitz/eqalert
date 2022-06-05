@@ -20,16 +20,23 @@
 import json
 import os
 import sys
+import pkg_resources
 
 import eqa.lib.settings as eqa_settings
 import eqa.lib.state as eqa_state
+import eqa.lib.struct as eqa_struct
 
 
 def init(base_path):
-    """If there is no config, make a config"""
+    """Create any missing config files"""
     try:
-        if not os.path.isfile(base_path + "config.json"):
-            build_config(base_path)
+        generated = build_config(base_path)
+
+        if generated:
+            print("One or more new versioned configuration files have been generated.")
+            print("Older files have been archived under config/archive/\n")
+            print("Please validate your config/settings.json and relaunch eqalert.")
+            exit(1)
 
     except Exception as e:
         eqa_settings.log(
@@ -41,15 +48,165 @@ def init(base_path):
 
 
 def read_config(base_path):
-    """read the config"""
+    """All the config"""
     try:
-        json_data = open(base_path + "config.json", "r", encoding="utf-8")
-        config = json.load(json_data)
-        json_data.close()
 
-        return config
+        line_alerts = {}
+
+        # Characters
+        config_path_char = base_path + "config/characters.json"
+        json_data = open(config_path_char, "r", encoding="utf-8")
+        config_file_characters = json.load(json_data)
+        json_data.close()
+        config_characters = eqa_struct.config_file(
+            "characters", config_path_char, config_file_characters
+        )
+
+        # Settings
+        config_path_settings = base_path + "config/settings.json"
+        json_data = open(config_path_settings, "r", encoding="utf-8")
+        config_file_settings = json.load(json_data)
+        json_data.close()
+        config_settings = eqa_struct.config_file(
+            "settings", config_path_settings, config_file_settings
+        )
+
+        # Zones
+        config_path_zones = base_path + "config/zones.json"
+        json_data = open(config_path_zones, "r", encoding="utf-8")
+        config_file_zones = json.load(json_data)
+        json_data.close()
+        config_zones = eqa_struct.config_file(
+            "zones", config_path_zones, config_file_zones
+        )
+
+        ## Combat
+        config_path_line_combat = base_path + "config/line-alerts/combat.json"
+        json_data = open(config_path_line_combat, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts.update(config_file_line_alerts)
+
+        ## Spell General
+        config_path_line_spell_general = (
+            base_path + "config/line-alerts/spell-general.json"
+        )
+        json_data = open(config_path_line_spell_general, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Spell Specific
+        config_path_line_spell_specific = (
+            base_path + "config/line-alerts/spell-specific.json"
+        )
+        json_data = open(config_path_line_spell_specific, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Pets
+        config_path_line_pets = base_path + "config/line-alerts/pets.json"
+        json_data = open(config_path_line_pets, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Chat Recieved NPC
+        config_path_line_chat_recieved_npc = (
+            base_path + "config/line-alerts/chat-recieved-npc.json"
+        )
+        json_data = open(config_path_line_chat_recieved_npc, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Chat Recieved
+        config_path_line_chat_recieved = (
+            base_path + "config/line-alerts/chat-recieved.json"
+        )
+        json_data = open(config_path_line_chat_recieved, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Chat Sent
+        config_path_line_chat_sent = base_path + "config/line-alerts/chat-sent.json"
+        json_data = open(config_path_line_chat_sent, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Command Output
+        config_path_line_command_output = (
+            base_path + "config/line-alerts/command-output.json"
+        )
+        json_data = open(config_path_line_command_output, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## System Messages
+        config_path_line_system_messages = (
+            base_path + "config/line-alerts/system-messages.json"
+        )
+        json_data = open(config_path_line_system_messages, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Group System Messages
+        config_path_line_group_system_messages = (
+            base_path + "config/line-alerts/group-system-messages.json"
+        )
+        json_data = open(config_path_line_group_system_messages, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Loot Trade Messages
+        config_path_line_loot_trade = base_path + "config/line-alerts/loot-trade.json"
+        json_data = open(config_path_line_loot_trade, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Emotes
+        config_path_line_emotes = base_path + "config/line-alerts/emotes.json"
+        json_data = open(config_path_line_emotes, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Who
+        config_path_line_who = base_path + "config/line-alerts/who.json"
+        json_data = open(config_path_line_who, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        ## Other
+        config_path_line_other = base_path + "config/line-alerts/other.json"
+        json_data = open(config_path_line_other, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
+        config_line_alerts = eqa_struct.config_file("line-alerts", None, line_alerts)
+
+        configs = eqa_struct.configs(
+            config_characters, config_settings, config_zones, config_line_alerts
+        )
+
+        return configs
 
     except Exception as e:
+        print(
+            "config read: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
         eqa_settings.log(
             "config read: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
@@ -58,16 +215,20 @@ def read_config(base_path):
         )
 
 
-def update_logs(base_path):
+def update_logs(configs):
     """Add characters and servers of eqemu_ prefixed files in the log path"""
+
     try:
-        json_data = open(base_path + "config.json", "r", encoding="utf-8")
-        config = json.load(json_data)
-        json_data.close()
         log_files = [
             f
-            for f in os.listdir(config["settings"]["paths"]["char_log"])
-            if os.path.isfile(os.path.join(config["settings"]["paths"]["char_log"], f))
+            for f in os.listdir(
+                configs.settings.config["settings"]["paths"]["char_log"]
+            )
+            if os.path.isfile(
+                os.path.join(
+                    configs.settings.config["settings"]["paths"]["char_log"], f
+                )
+            )
         ]
 
         for logs in log_files:
@@ -76,10 +237,18 @@ def update_logs(base_path):
                 server_name = end.split(".")[0]
                 char_name = middle
                 char_server = char_name + "_" + server_name
-                if char_server not in config["char_logs"].keys():
-                    add_char_log(char_name, server_name, base_path)
+                if char_server not in configs.characters.config["char_logs"].keys():
+                    add_char_log(char_name, server_name, configs)
+                if len(configs.settings.config["last_state"].keys()) == 0:
+                    bootstrap_state(configs, char_name, server_name)
 
     except Exception as e:
+        print(
+            "set config chars: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
         eqa_settings.log(
             "set config chars: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
@@ -88,21 +257,13 @@ def update_logs(base_path):
         )
 
 
-def add_char_log(char, server, base_path):
+def add_char_log(char, server, configs):
     """Adds a new character to the config"""
     try:
         char_server = char + "_" + server
         char_log = "eqlog_" + char.title() + "_" + server + ".txt"
-        json_data = open(base_path + "config.json", "r", encoding="utf-8")
-        data = json.load(json_data)
-        json_data.close()
-        if not data["char_logs"]:
-            bootstrap_state(base_path, char, server)
 
-        json_data = open(base_path + "config.json", "r", encoding="utf-8")
-        data = json.load(json_data)
-        json_data.close()
-        data["char_logs"].update(
+        configs.characters.config["char_logs"].update(
             {
                 char_server: {
                     "character": char,
@@ -122,11 +283,17 @@ def add_char_log(char, server, base_path):
                 }
             }
         )
-        json_data = open(base_path + "config.json", "w", encoding="utf-8")
-        json.dump(data, json_data, sort_keys=True, indent=2)
+        json_data = open(configs.characters.path, "w", encoding="utf-8")
+        json.dump(configs.characters.config, json_data, sort_keys=True, indent=2)
         json_data.close()
 
     except Exception as e:
+        print(
+            "add char: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
         eqa_settings.log(
             "add char: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
@@ -135,13 +302,11 @@ def add_char_log(char, server, base_path):
         )
 
 
-def bootstrap_state(base_path, char, server):
+def bootstrap_state(configs, char, server):
     """Generate and save state to config"""
 
     try:
-        json_data = open(base_path + "config.json", "r", encoding="utf-8")
-        data = json.load(json_data)
-        json_data.close()
+        data = configs.settings.config
         data["last_state"].update(
             {
                 "server": server,
@@ -152,7 +317,7 @@ def bootstrap_state(base_path, char, server):
                 "raid": "false",
             }
         )
-        json_data = open(base_path + "config.json", "w", encoding="utf-8")
+        json_data = open(configs.settings.path, "w", encoding="utf-8")
         json.dump(data, json_data, sort_keys=True, indent=2)
         json_data.close()
 
@@ -165,12 +330,15 @@ def bootstrap_state(base_path, char, server):
         )
 
 
-def get_config_chars(config):
+def get_config_chars(configs):
     """Return each unique character log"""
     try:
         chars = []
-        for char_server in config["char_logs"].keys():
-            if config["char_logs"][char_server]["disabled"] == "false":
+        for char_server in configs.characters.config["char_logs"].keys():
+            if (
+                configs.characters.config["char_logs"][char_server]["disabled"]
+                == "false"
+            ):
                 chars.append(char_server)
 
         return chars
@@ -184,14 +352,11 @@ def get_config_chars(config):
         )
 
 
-def set_last_state(state, base_path):
+def set_last_state(state, configs):
     """Save state to config"""
 
     try:
-        json_data = open(base_path + "config.json", "r", encoding="utf-8")
-        data = json.load(json_data)
-        json_data.close()
-        data["last_state"].update(
+        configs.settings.config["last_state"].update(
             {
                 "server": str(state.server),
                 "character": str(state.char),
@@ -201,22 +366,24 @@ def set_last_state(state, base_path):
                 "raid": str(state.raid),
             }
         )
-        data["settings"]["encounter_parsing"].update(
+        configs.settings.config["settings"]["encounter_parsing"].update(
             {"auto_save": str(state.save_parse), "enabled": str(state.encounter_parse)}
         )
-        data["settings"]["raid_mode"].update(
+        configs.settings.config["settings"]["raid_mode"].update(
             {
                 "auto_set": str(state.auto_raid),
             }
         )
-        data["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"].update(
             {
                 "auto_mob_timer": str(state.auto_mob_timer),
             }
         )
-        data["settings"]["debug_mode"].update({"enabled": str(state.debug)})
-        data["settings"]["mute"].update({"enabled": str(state.mute)})
-        data["char_logs"][state.char + "_" + state.server].update(
+        configs.settings.config["settings"]["debug_mode"].update(
+            {"enabled": str(state.debug)}
+        )
+        configs.settings.config["settings"]["mute"].update({"enabled": str(state.mute)})
+        configs.characters.config["char_logs"][state.char + "_" + state.server].update(
             {
                 "char": str(state.char),
                 "disabled": "false",
@@ -242,8 +409,23 @@ def set_last_state(state, base_path):
                 },
             }
         )
-        json_data = open(base_path + "config.json", "w", encoding="utf-8")
-        json.dump(data, json_data, sort_keys=True, ensure_ascii=False, indent=2)
+        json_data = open(configs.settings.path, "w", encoding="utf-8")
+        json.dump(
+            configs.settings.config,
+            json_data,
+            sort_keys=True,
+            ensure_ascii=False,
+            indent=2,
+        )
+        json_data.close()
+        json_data = open(configs.characters.path, "w", encoding="utf-8")
+        json.dump(
+            configs.characters.config,
+            json_data,
+            sort_keys=True,
+            ensure_ascii=False,
+            indent=2,
+        )
         json_data.close()
 
     except Exception as e:
@@ -255,67 +437,70 @@ def set_last_state(state, base_path):
         )
 
 
-def get_last_state(base_path, char_name, char_server):
+def get_last_state(configs, char_name, char_server):
     """Load state from config"""
 
     try:
-        # Read config
-        json_data = open(base_path + "config.json", "r", encoding="utf-8")
-        data = json.load(json_data)
-        json_data.close()
-
         # Populate State
-        server = data["last_state"]["server"]
-        char = data["last_state"]["character"]
-        zone = data["char_logs"][char_name + "_" + char_server]["char_state"]["zone"]
+        server = configs.settings.config["last_state"]["server"]
+        char = configs.settings.config["last_state"]["character"]
+        zone = configs.characters.config["char_logs"][char_name + "_" + char_server][
+            "char_state"
+        ]["zone"]
         location = [
             float(
-                data["char_logs"][char_name + "_" + char_server]["char_state"][
-                    "location"
-                ]["y"]
+                configs.characters.config["char_logs"][char_name + "_" + char_server][
+                    "char_state"
+                ]["location"]["y"]
             ),
             float(
-                data["char_logs"][char_name + "_" + char_server]["char_state"][
-                    "location"
-                ]["x"]
+                configs.characters.config["char_logs"][char_name + "_" + char_server][
+                    "char_state"
+                ]["location"]["x"]
             ),
             float(
-                data["char_logs"][char_name + "_" + char_server]["char_state"][
-                    "location"
-                ]["z"]
+                configs.characters.config["char_logs"][char_name + "_" + char_server][
+                    "char_state"
+                ]["location"]["z"]
             ),
         ]
-        direction = data["char_logs"][char_name + "_" + char_server]["char_state"][
-            "direction"
-        ]
-        encumbered = data["char_logs"][char_name + "_" + char_server]["char_state"][
-            "encumbered"
-        ]
-        bind = data["char_logs"][char_name + "_" + char_server]["char_state"]["bind"]
-        char_level = data["char_logs"][char_name + "_" + char_server]["char_state"][
-            "level"
-        ]
-        char_class = data["char_logs"][char_name + "_" + char_server]["char_state"][
-            "class"
-        ]
-        char_guild = data["char_logs"][char_name + "_" + char_server]["char_state"][
-            "guild"
-        ]
-        afk = data["last_state"]["afk"]
-        group = data["last_state"]["group"]
-        leader = data["last_state"]["leader"]
-        raid = data["last_state"]["raid"]
+        direction = configs.characters.config["char_logs"][
+            char_name + "_" + char_server
+        ]["char_state"]["direction"]
+        encumbered = configs.characters.config["char_logs"][
+            char_name + "_" + char_server
+        ]["char_state"]["encumbered"]
+        bind = configs.characters.config["char_logs"][char_name + "_" + char_server][
+            "char_state"
+        ]["bind"]
+        char_level = configs.characters.config["char_logs"][
+            char_name + "_" + char_server
+        ]["char_state"]["level"]
+        char_class = configs.characters.config["char_logs"][
+            char_name + "_" + char_server
+        ]["char_state"]["class"]
+        char_guild = configs.characters.config["char_logs"][
+            char_name + "_" + char_server
+        ]["char_state"]["guild"]
+        afk = configs.settings.config["last_state"]["afk"]
+        group = configs.settings.config["last_state"]["group"]
+        leader = configs.settings.config["last_state"]["leader"]
+        raid = configs.settings.config["last_state"]["raid"]
 
-        encounter_parse = data["settings"]["encounter_parsing"]["enabled"]
-        debug = data["settings"]["debug_mode"]["enabled"]
-        mute = data["settings"]["mute"]["enabled"]
-        save_parse = data["settings"]["encounter_parsing"]["auto_save"]
-        auto_raid = data["settings"]["raid_mode"]["auto_set"]
-        auto_mob_timer = data["settings"]["timers"]["auto_mob_timer"]
-        mute = data["settings"]["mute"]["enabled"]
+        encounter_parse = configs.settings.config["settings"]["encounter_parsing"][
+            "enabled"
+        ]
+        debug = configs.settings.config["settings"]["debug_mode"]["enabled"]
+        mute = configs.settings.config["settings"]["mute"]["enabled"]
+        save_parse = configs.settings.config["settings"]["encounter_parsing"][
+            "auto_save"
+        ]
+        auto_raid = configs.settings.config["settings"]["raid_mode"]["auto_set"]
+        auto_mob_timer = configs.settings.config["settings"]["timers"]["auto_mob_timer"]
+        mute = configs.settings.config["settings"]["mute"]["enabled"]
 
         # Get chars
-        chars = get_config_chars(data)
+        chars = get_config_chars(configs)
 
         # Populate and return a new state
         state = eqa_state.EQA_State(
@@ -357,13 +542,13 @@ def add_type(line_type, base_path):
     """Adds default setting values for new line_type"""
 
     try:
-        json_data = open(base_path + "config.json", "r", encoding="utf-8")
-        data = json.load(json_data)
-        json_data.close()
-        data["line"].update(
-            {line_type: {"sound": "0", "reaction": "false", "alert": {}}}
+        json_data = open(
+            base_path + "config/line-alerts/other.json", "r", encoding="utf-8"
         )
-        json_data = open(base_path + "config.json", "w", encoding="utf-8")
+        data = json.load(json_data)
+        data["line"].update(
+            {line_type: {"sound": "false", "reaction": "false", "alert": {}}}
+        )
         json.dump(data, json_data, sort_keys=True, indent=2)
         json_data.close()
 
@@ -380,11 +565,11 @@ def add_zone(zone, base_path):
     """Adds default setting values for new zones"""
 
     try:
-        json_data = open(base_path + "config.json", "r", encoding="utf-8")
+        json_data = open(base_path + "config/zones.json", "r", encoding="utf-8")
         data = json.load(json_data)
         json_data.close()
         data["zones"].update({str(zone): {"raid_mode": "false", "timer": "0"}})
-        json_data = open(base_path + "config.json", "w", encoding="utf-8")
+        json_data = open(base_path + "config/zones.json", "w", encoding="utf-8")
         json.dump(data, json_data, sort_keys=True, indent=2)
         json_data.close()
 
@@ -400,1410 +585,15 @@ def add_zone(zone, base_path):
 def build_config(base_path):
     """Build a default config"""
 
-    home = os.path.expanduser("~")
-
-    new_config = """
+    new_char_config = """
 {
-  "char_logs": {},
+  "char_logs": {}
+}
+"""
+
+    new_settings_config = """
+{
   "last_state": {},
-  "line": {
-    "all": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "auction": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "auction_wtb": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "auction_wts": {
-      "alert": {
-        "shiny brass idol": "true"
-      },
-      "reaction": "alert",
-      "sound": "look at auction"
-    },
-    "auction_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "autofollow_advice": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_melee": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_melee_block": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_melee_crip_blow": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_melee_crit": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_melee_crit_kick": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_melee_dodge": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_melee_invulnerable": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_melee_miss": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_melee_parry": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_melee_reposte": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_rune_damage": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_you_melee": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_you_melee_miss": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_you_receive_melee": {
-      "alert": {},
-      "reaction": "afk",
-      "sound": "danger will robinson"
-    },
-    "command_block": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "command_block_casting": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "command_invalid": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "command_error": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "consider_no_target": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "ding_down": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "true"
-    },
-    "ding_up": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "congratulations"
-    },
-    "direction": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "direction_miss": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "drink_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "earthquake": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "earthquake!"
-    },
-    "emote_agree_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_amaze_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_apologize_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_bird_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_bite_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_bleed_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_blink_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_blush_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_boggle_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_bonk_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_bonk_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_bored_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_bounce_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_bow_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_bow_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_brb_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_burp_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_bye_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_cackle_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_calm_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_cheer_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_cheer_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_chuckle_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_clap_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_comfort_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_congratulate_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_cough_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_cringe_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_cry_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_curious_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_dance_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_dance_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_drool_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_duck_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_eye_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_fidget_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_flex_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_frown_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_gasp_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_giggle_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_glare_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_grin_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_groan_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_grovel_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_happy_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_hungry_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_hug_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_hug_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_introduce_you": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "why, hello there"
-    },
-    "emote_jk_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_kiss_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_kneel_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_laugh_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_lost_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_massage_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_moan_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_mourn_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_nod_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_nudge_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_panic_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_pat_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_peer_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_plead_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_point_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_poke_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_ponder_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_purr_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_puzzle_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_raise_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_ready_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_roar_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_rofl_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_salute_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_shiver_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_shrug_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_sigh_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_smack_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_smile_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_smile_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_smirk_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_snarl_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_snicker_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_stare_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_tap_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_tease_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_thank_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_thank_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_thirsty_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_veto_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_wave_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_wave_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_whine_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_whistle_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "emote_yawn_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "encumbered_off": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "encumbered_on": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "engage": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "true"
-    },
-    "experience_group": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "experience_lost": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "oh no!"
-    },
-    "experience_solo": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "experience_solo_resurrection": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "faction_line": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "group": {
-      "alert": {
-        "invite": "raid",
-        "drop": "raid",
-        "help": "raid",
-        "invis": "raid",
-        "inc": "true",
-        "oom": "true"
-      },
-      "reaction": "alert",
-      "sound": "look at group"
-    },
-    "group_created": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "group_disbanded": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "group_invite_instruction": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "group_invite_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "group_invite_you": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "true"
-    },
-    "group_joined": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "group_joined_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "group_join_notify": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "group_leader_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "group_leader_you": {
-      "alert": {},
-      "reaction": "group",
-      "sound": "true"
-    },
-    "group_leave_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "group_removed": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "true"
-    },
-    "group_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "guild": {
-      "alert": {
-        "help": "true",
-        "assist": "raid",
-        "crippled": "raid",
-        "dispelled": "raid",
-        "feared": "raid",
-        "harmony": "raid",
-        "fixated": "raid",
-        "fixation": "raid",
-        "incoming": "raid",
-        "logs": "raid",
-        "malo": "raid",
-        "malosini": "raid",
-        "occlusion": "raid",
-        "off-tanking": "raid",
-        "pop": "raid",
-        "rampage": "raid",
-        "rune": "raid",
-        "sieve": "raid",
-        "slow": "raid",
-        "snare": "raid",
-        "stand": "raid",
-        "sunder": "raid",
-        "tash": "raid"
-      },
-      "reaction": "alert",
-      "sound": "look at guild"
-    },
-    "guild_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "location": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "looted_item_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "looted_item_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "looted_money_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "looted_money_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "mob_enrage_off": {
-      "alert": {},
-      "reaction": "group",
-      "sound": "true"
-    },
-    "mob_enrage_on": {
-      "alert": {},
-      "reaction": "group",
-      "sound": "enrage"
-    },
-    "mob_out_of_range": {
-      "alert": {},
-      "reaction": "group",
-      "sound": "range"
-    },
-    "mob_rampage_on": {
-      "alert": {},
-      "reaction": "group",
-      "sound": "rampage"
-    },
-    "mob_slain_other": {
-      "alert": {},
-      "reaction": "solo_group_only",
-      "sound": "true"
-    },
-    "mob_slain_you": {
-      "alert": {},
-      "reaction": "solo_group_only",
-      "sound": "true"
-    },
-    "motd_game": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "motd_guild": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "motd_welcome": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "ooc": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "ooc_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "pet_attack": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "pet_back": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "pet_dead": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "pet dead"
-    },
-    "pet_follow": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "pet_guard": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "pet_illegal_target": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "pet_sit_stand": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "pet_spawn": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "pet_taunt_off": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "player_linkdead": {
-      "alert": {},
-      "reaction": "group",
-      "sound": "true"
-    },
-    "random": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "say": {
-      "alert": {
-        "help": "true",
-        "spot": "raid"
-      },
-      "reaction": "alert",
-      "sound": "look at say"
-    },
-    "say_npc": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "say_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "server_message": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "true"
-    },
-    "shout": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "shout_npc": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "shout_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "skill_up": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "song_interrupted_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_bind_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_cast_item_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_cast_oom": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_cast_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_cast_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_cooldown_active": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_cured_other": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "cured"
-    },
-    "spell_damage": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_fizzle_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_fizzle_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_forget": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_gate_collapse": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "gate collapse"
-    },
-    "spell_heal_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_interrupt_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_interrupt_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_invis_dropping_you": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "invis is dropping"
-    },
-    "spell_invis_off_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_invis_on_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_levitate_dropping_you": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "levitate is dropping"
-    },
-    "spell_levitate_off_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_levitate_on_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_memorize_already": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_memorize_begin": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_memorize_finish": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_no_target": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_not_hold": {
-      "alert": {},
-      "reaction": "raid",
-      "sound": "did not hold"
-    },
-    "spell_protected": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_recover_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_recover_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_regen_on_other": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_regen_on_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_resist_you": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "resist"
-    },
-    "spell_sitting": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_slow_on": {
-      "alert": {},
-      "reaction": "solo_group_only",
-      "sound": "slowed"
-    },
-    "spell_sow_off_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_sow_on_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spell_summoned_you": {
-      "alert": {},
-      "reaction": "group",
-      "sound": "you have been summoned"
-    },
-    "spell_worn_off": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "true"
-    },
-    "summon_corpse": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "target": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "tell": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "true"
-    },
-    "tell_npc": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "tell_offline": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "tell_you": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "time_earth": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "time_game": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "tracking": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "tracking_player_off": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "tracking_player_on": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "trade_item": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "trade_money": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "trade_npc_payment": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "undetermined": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "weather_start_rain": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "weather_start_snow": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_line": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_line_friends": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_player": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_top": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_top_friends": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_top_lfg": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_total": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_total_empty": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "who_total_local_empty": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "wrong_key": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "wrong key or place"
-    },
-    "you_afk_off": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_afk_on": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_auto_attack_off": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_auto_attack_on": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_camping": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_camping_abandoned": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_cannot_reach": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_char_bound": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_hungry": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_lfg_off": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_lfg_on": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_new_zone": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "true"
-    },
-    "you_outdrink": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_outdrinklowfood": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_outfood": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_outfooddrink": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_outfoodlowdrink": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_thirsty": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_stun_off": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "you_stun_on": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "zone_message": {
-      "alert": {},
-      "reaction": "all",
-      "sound": "true"
-    },
-    "zoning": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    }
-  },
   "settings": {
     "debug_mode": {
       "enabled": "false"
@@ -1828,9 +618,14 @@ def build_config(base_path):
     },
     "timers": {
       "auto_mob_timer": "false"
-    },
-    "version": "3.2.0"
+    }
   },
+  "version": "%s"
+}
+"""
+
+    new_zones_config = """
+{
   "zones": {
     "An Arena (PVP) Area": {
       "raid_mode": "false",
@@ -2240,17 +1035,2233 @@ def build_config(base_path):
       "raid_mode": "true",
       "timer": "0"
     }
-  }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_combat_config = """
+{
+  "line": {
+    "combat_other_melee": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_melee_block": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_melee_crip_blow": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_melee_crit": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_melee_crit_kick": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_melee_dodge": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_melee_invulnerable": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_melee_miss": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_melee_parry": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_melee_reposte": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_rune_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_you_melee": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_you_melee_miss": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_you_receive_melee": {
+      "alert": {},
+      "reaction": "afk",
+      "sound": "danger will robinson"
+    },
+    "experience_group": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "experience_lost": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "oh no!"
+    },
+    "experience_solo": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "experience_solo_resurrection": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "mob_enrage_off": {
+      "alert": {},
+      "reaction": "group",
+      "sound": "true"
+    },
+    "mob_enrage_on": {
+      "alert": {},
+      "reaction": "group",
+      "sound": "enrage"
+    },
+    "mob_out_of_range": {
+      "alert": {},
+      "reaction": "group",
+      "sound": "range"
+    },
+    "mob_rampage_on": {
+      "alert": {},
+      "reaction": "group",
+      "sound": "rampage"
+    },
+    "mob_slain_other": {
+      "alert": {},
+      "reaction": "solo_group_only",
+      "sound": "true"
+    },
+    "mob_slain_you": {
+      "alert": {},
+      "reaction": "solo_group_only",
+      "sound": "true"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_spell_general_config = """
+{
+  "line": {
+    "spell_cast_item_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_cast_oom": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_cast_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_cast_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_cooldown_active": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_fizzle_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_fizzle_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_forget": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_interrupt_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_interrupt_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_memorize_already": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_memorize_begin": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_memorize_finish": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_no_target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_not_hold": {
+      "alert": {},
+      "reaction": "raid",
+      "sound": "did not hold"
+    },
+    "spell_protected": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_recover_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_recover_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_resist_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "resist"
+    },
+    "spell_sitting": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_worn_off": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_spell_specific_config = """
+{
+  "line": {
+    "spell_bind_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_cured_other": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "cured"
+    },
+    "spell_gate_collapse": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "gate collapse"
+    },
+    "spell_heal_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_invis_dropping_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "invis is dropping"
+    },
+    "spell_invis_off_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_invis_on_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_levitate_dropping_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "levitate is dropping"
+    },
+    "spell_levitate_off_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_levitate_on_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_regen_on_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_regen_on_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_slow_on": {
+      "alert": {},
+      "reaction": "solo_group_only",
+      "sound": "slowed"
+    },
+    "spell_sow_off_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_sow_on_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_summoned_you": {
+      "alert": {},
+      "reaction": "group",
+      "sound": "you have been summoned"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_pets_config = """
+{
+  "line": {
+    "pet_attack": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "pet_back": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "pet_dead": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "pet dead"
+    },
+    "pet_follow": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "pet_guard": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "pet_illegal_target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "pet_sit_stand": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "pet_spawn": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "pet_taunt_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_chat_recieved_npc_config = """
+{
+  "line": {
+    "say_npc": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "shout_npc": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tell_npc": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_chat_recieved_config = """
+{
+  "line": {
+    "auction": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "auction_wtb": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "auction_wts": {
+      "alert": {
+        "shiny brass idol": "true"
+      },
+      "reaction": "alert",
+      "sound": "look at auction"
+    },
+    "group": {
+      "alert": {
+        "drop": "raid",
+        "help": "raid",
+        "inc": "true",
+        "invis": "raid",
+        "invite": "raid",
+        "oom": "true"
+      },
+      "reaction": "alert",
+      "sound": "look at group"
+    },
+    "guild": {
+      "alert": {
+        "assist": "raid",
+        "crippled": "raid",
+        "dispelled": "raid",
+        "feared": "raid",
+        "fixated": "raid",
+        "fixation": "raid",
+        "harmony": "raid",
+        "help": "true",
+        "incoming": "raid",
+        "logs": "raid",
+        "malo": "raid",
+        "malosini": "raid",
+        "occlusion": "raid",
+        "off-tanking": "raid",
+        "pop": "raid",
+        "rampage": "raid",
+        "rune": "raid",
+        "sieve": "raid",
+        "slow": "raid",
+        "snare": "raid",
+        "stand": "raid",
+        "sunder": "raid",
+        "tash": "raid"
+      },
+      "reaction": "alert",
+      "sound": "look at guild"
+    },
+    "ooc": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "say": {
+      "alert": {
+        "help": "true",
+        "spot": "raid"
+      },
+      "reaction": "alert",
+      "sound": "look at say"
+    },
+    "shout": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tell": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_chat_sent_config = """
+{
+  "line": {
+    "auction_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "ooc_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "say_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "shout_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tell_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_command_output_config = """
+{
+  "line": {
+    "command_block": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "command_block_casting": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "command_invalid": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "direction": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "direction_miss": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "drink_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "location": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "motd_game": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "motd_guild": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "player_linkdead": {
+      "alert": {},
+      "reaction": "group",
+      "sound": "true"
+    },
+    "random": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "server_message": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "true"
+    },
+    "skill_up": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "song_interrupted_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "summon_corpse": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "time_earth": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "time_game": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_afk_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_afk_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_camping": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_camping_abandoned": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_lfg_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_lfg_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_system_messages_config = """
+{
+  "line": {
+    "autofollow_advice": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "command_error": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "consider_no_target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "ding_down": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "true"
+    },
+    "ding_up": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "congratulations"
+    },
+    "earthquake": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "earthquake!"
+    },
+    "encumbered_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "encumbered_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "engage": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "true"
+    },
+    "faction_line": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "motd_welcome": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tell_offline": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tracking": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tracking_player_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tracking_player_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "weather_start_rain": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "weather_start_snow": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "wrong_key": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "wrong key or place"
+    },
+    "you_auto_attack_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_auto_attack_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_cannot_reach": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_char_bound": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_hungry": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_new_zone": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "true"
+    },
+    "you_outdrink": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_outdrinklowfood": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_outfood": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_outfooddrink": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_outfoodlowdrink": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_stun_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_stun_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_thirsty": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "zone_message": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "true"
+    },
+    "zoning": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_group_system_messages_config = """
+{
+  "line": {
+    "group_created": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_disbanded": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_invite_instruction": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_invite_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_invite_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
+    },
+    "group_join_notify": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_joined": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_joined_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_leader_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_leader_you": {
+      "alert": {},
+      "reaction": "group",
+      "sound": "true"
+    },
+    "group_leave_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_removed": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_loot_trade_config = """
+{
+  "line": {
+    "looted_item_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "looted_item_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "looted_money_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "looted_money_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "trade_item": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "trade_money": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "trade_npc_payment": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_emotes_config = """
+{
+  "line": {
+    "emote_agree_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_amaze_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_apologize_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bird_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bite_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bleed_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_blink_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_blush_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_boggle_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bonk_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bonk_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bored_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bounce_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bow_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bow_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_brb_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_burp_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bye_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_cackle_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_calm_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_cheer_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_cheer_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_chuckle_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_clap_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_comfort_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_congratulate_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_cough_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_cringe_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_cry_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_curious_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_dance_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_dance_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_drool_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_duck_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_eye_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_fidget_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_flex_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_frown_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_gasp_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_giggle_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_glare_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_grin_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_groan_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_grovel_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_happy_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_hug_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_hungry_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_introduce_you": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "why, hello there"
+    },
+    "emote_jk_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_kiss_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_kneel_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_laugh_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_lost_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_massage_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_moan_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_mourn_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_nod_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_nudge_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_panic_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_pat_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_peer_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_plead_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_point_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_poke_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_ponder_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_purr_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_puzzle_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_raise_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_ready_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_roar_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_rofl_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_salute_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_shiver_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_shrug_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_sigh_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_smack_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_smile_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_smile_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_smirk_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_snarl_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_snicker_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_stare_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_tap_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_tease_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_thank_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_thank_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_thirsty_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_veto_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_wave_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_wave_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_whine_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_whistle_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_yawn_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_who_config = """
+{
+  "line": {
+    "who_line": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "who_line_friends": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "who_player": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "who_top": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "who_top_friends": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "who_top_lfg": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "who_total": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "who_total_empty": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "who_total_local_empty": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    new_line_other_config = """
+{
+  "line": {
+    "all": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "undetermined": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    }
+  },
+  "version": "%s"
 }
 """
 
     try:
-        f = open(base_path + "config.json", "w", encoding="utf-8")
-        f.write(new_config % (base_path, base_path, base_path, home, base_path))
-        f.close()
+        home = os.path.expanduser("~")
+        version = str(pkg_resources.get_distribution("eqalert").version)
+        generated = False
+
+        # Check for old config.yml
+        legacy_config_json_path = base_path + "config.json"
+        if os.path.isfile(legacy_config_json_path):
+            json_data = open(legacy_config_json_path, "r", encoding="utf-8")
+            legacy_config_json = json.load(json_data)
+            json_data.close()
+            old_version = str(legacy_config_json["settings"]["version"]).replace(
+                ".", "-"
+            )
+            if not os.path.exists(base_path + "config/archive/"):
+                os.makedirs(base_path + "config/archive/")
+            if not os.path.exists(base_path + "config/archive/" + old_version + "/"):
+                os.makedirs(base_path + "config/archive/" + old_version + "/")
+            archive_config = (
+                base_path + "config/archive/" + old_version + "/config.json"
+            )
+            os.rename(legacy_config_json_path, archive_config)
+
+        # Generate Default Files if Needed
+        ## Characters File
+        characters_json_path = base_path + "config/characters.json"
+        if not os.path.isfile(characters_json_path):
+            f = open(characters_json_path, "w", encoding="utf-8")
+            f.write(new_char_config)
+            f.close()
+            generated = True
+
+        ## Settings
+        settings_json_path = base_path + "config/settings.json"
+        if not os.path.isfile(settings_json_path):
+            f = open(settings_json_path, "w", encoding="utf-8")
+            f.write(
+                new_settings_config
+                % (base_path, base_path, base_path, home, base_path, version)
+            )
+            f.close()
+            generated = True
+        elif os.path.isfile(settings_json_path):
+            json_data = open(settings_json_path, "r", encoding="utf-8")
+            settings_json = json.load(json_data)
+            json_data.close()
+            # Archive old settings.json and re-generate one
+            if not settings_json["version"] == version:
+                old_version = str(settings_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                archive_config = (
+                    base_path + "config/archive/" + old_version + "/settings.json"
+                )
+                os.rename(settings_json_path, archive_config)
+                f = open(settings_json_path, "w", encoding="utf-8")
+                f.write(
+                    new_settings_config
+                    % (base_path, base_path, base_path, home, base_path, version)
+                )
+                f.close()
+                generated = True
+
+        ## Zones
+        zones_json_path = base_path + "config/zones.json"
+        if not os.path.isfile(zones_json_path):
+            f = open(zones_json_path, "w", encoding="utf-8")
+            f.write(new_zones_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(zones_json_path):
+            json_data = open(zones_json_path, "r", encoding="utf-8")
+            zones_json = json.load(json_data)
+            json_data.close()
+            # Archive old zones.json and re-generate one
+            if not zones_json["version"] == version:
+                old_version = str(zones_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                archive_config = (
+                    base_path + "config/archive/" + old_version + "/zones.json"
+                )
+                os.rename(zones_json_path, archive_config)
+                f = open(zones_json_path, "w", encoding="utf-8")
+                f.write(new_zones_config % (version))
+                f.close()
+                generated = True
+
+        ## Line Alerts
+        ### Combat
+        line_combat_json_path = base_path + "config/line-alerts/combat.json"
+        if not os.path.isfile(line_combat_json_path):
+            f = open(line_combat_json_path, "w", encoding="utf-8")
+            f.write(new_line_combat_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_combat_json_path):
+            json_data = open(line_combat_json_path, "r", encoding="utf-8")
+            line_combat_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/combat.json and re-generate one
+            if not line_combat_json["version"] == version:
+                old_version = str(line_combat_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/combat.json"
+                )
+                os.rename(line_combat_json_path, archive_config)
+                f = open(line_combat_json_path, "w", encoding="utf-8")
+                f.write(new_line_combat_config % (version))
+                f.close()
+                generated = True
+
+        ### Spell General
+        line_spell_general_json_path = (
+            base_path + "config/line-alerts/spell-general.json"
+        )
+        if not os.path.isfile(line_spell_general_json_path):
+            f = open(
+                line_spell_general_json_path,
+                "w",
+                encoding="utf-8",
+            )
+            f.write(new_line_spell_general_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_spell_general_json_path):
+            json_data = open(line_spell_general_json_path, "r", encoding="utf-8")
+            line_spell_general_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/spell-general.json and re-generate one
+            if not line_spell_general_json["version"] == version:
+                old_version = str(line_spell_general_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/spell-general.json"
+                )
+                os.rename(line_spell_general_json_path, archive_config)
+                f = open(
+                    line_spell_general_json_path,
+                    "w",
+                    encoding="utf-8",
+                )
+                f.write(new_line_spell_general_config % (version))
+                f.close()
+                generated = True
+
+        ### Spell Specific
+        line_spell_specific_json_path = (
+            base_path + "config/line-alerts/spell-specific.json"
+        )
+        if not os.path.isfile(line_spell_specific_json_path):
+            f = open(
+                line_spell_specific_json_path,
+                "w",
+                encoding="utf-8",
+            )
+            f.write(new_line_spell_specific_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_spell_specific_json_path):
+            json_data = open(line_spell_specific_json_path, "r", encoding="utf-8")
+            line_spell_specific_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/spell-specific.json and re-generate one
+            if not line_spell_specific_json["version"] == version:
+                old_version = str(line_spell_specific_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/spell-specific.json"
+                )
+                os.rename(line_spell_specific_json_path, archive_config)
+                f = open(
+                    line_spell_specific_json_path,
+                    "w",
+                    encoding="utf-8",
+                )
+                f.write(new_line_spell_specific_config % (version))
+                f.close()
+                generated = True
+
+        ### Pets
+        line_pets_json_path = base_path + "config/line-alerts/pets.json"
+        if not os.path.isfile(line_pets_json_path):
+            f = open(line_pets_json_path, "w", encoding="utf-8")
+            f.write(new_line_pets_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_pets_json_path):
+            json_data = open(line_pets_json_path, "r", encoding="utf-8")
+            line_pets_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/pets.json and re-generate one
+            if not line_pets_json["version"] == version:
+                old_version = str(line_pets_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/pets.json"
+                )
+                os.rename(line_pets_json_path, archive_config)
+                f = open(line_pets_json_path, "w", encoding="utf-8")
+                f.write(new_line_pets_config % (version))
+                f.close()
+                generated = True
+
+        ### Chat Recieved NPC
+        line_chat_recieved_npc_json_path = (
+            base_path + "config/line-alerts/chat-recieved-npc.json"
+        )
+        if not os.path.isfile(line_chat_recieved_npc_json_path):
+            f = open(
+                line_chat_recieved_npc_json_path,
+                "w",
+                encoding="utf-8",
+            )
+            f.write(new_line_chat_recieved_npc_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_chat_recieved_npc_json_path):
+            json_data = open(line_chat_recieved_npc_json_path, "r", encoding="utf-8")
+            line_chat_recieved_npc_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/chat-recieved-npc.json and re-generate one
+            if not line_chat_recieved_npc_json["version"] == version:
+                old_version = str(line_chat_recieved_npc_json["version"]).replace(
+                    ".", "-"
+                )
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/chat-recieved-npc.json"
+                )
+                os.rename(line_chat_recieved_npc_json_path, archive_config)
+                f = open(
+                    line_chat_recieved_npc_json_path,
+                    "w",
+                    encoding="utf-8",
+                )
+                f.write(new_line_chat_recieved_npc_config % (version))
+                f.close()
+                generated = True
+
+        ### Chat Recieved
+        line_chat_recieved_json_path = (
+            base_path + "config/line-alerts/chat-recieved.json"
+        )
+        if not os.path.isfile(line_chat_recieved_json_path):
+            f = open(
+                line_chat_recieved_json_path,
+                "w",
+                encoding="utf-8",
+            )
+            f.write(new_line_chat_recieved_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_chat_recieved_json_path):
+            json_data = open(line_chat_recieved_json_path, "r", encoding="utf-8")
+            line_chat_recieved_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/chat-recieved.json and re-generate one
+            if not line_chat_recieved_json["version"] == version:
+                old_version = str(line_chat_recieved_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/chat-recieved.json"
+                )
+                os.rename(line_chat_recieved_json_path, archive_config)
+                f = open(
+                    line_chat_recieved_json_path,
+                    "w",
+                    encoding="utf-8",
+                )
+                f.write(new_line_chat_recieved_config % (version))
+                f.close()
+                generated = True
+
+        ### Chat Sent
+        line_chat_sent_json_path = base_path + "config/line-alerts/chat-sent.json"
+        if not os.path.isfile(line_chat_sent_json_path):
+            f = open(line_chat_sent_json_path, "w", encoding="utf-8")
+            f.write(new_line_chat_sent_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_chat_sent_json_path):
+            json_data = open(line_chat_sent_json_path, "r", encoding="utf-8")
+            line_chat_sent_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/chat-sent.json and re-generate one
+            if not line_chat_sent_json["version"] == version:
+                old_version = str(line_chat_sent_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/chat-sent.json"
+                )
+                os.rename(line_chat_sent_json_path, archive_config)
+                f = open(
+                    line_chat_sent_json_path,
+                    "w",
+                    encoding="utf-8",
+                )
+                f.write(new_line_chat_sent_config % (version))
+                f.close()
+                generated = True
+
+        ### Command Output
+        line_command_output_json_path = (
+            base_path + "config/line-alerts/command-output.json"
+        )
+        if not os.path.isfile(line_command_output_json_path):
+            f = open(
+                line_command_output_json_path,
+                "w",
+                encoding="utf-8",
+            )
+            f.write(new_line_command_output_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_command_output_json_path):
+            json_data = open(line_command_output_json_path, "r", encoding="utf-8")
+            line_command_output_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/command-output.json and re-generate one
+            if not line_command_output_json["version"] == version:
+                old_version = str(line_chat_sent_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/command-output.json"
+                )
+                os.rename(line_command_output_json_path, archive_config)
+                f = open(
+                    line_command_output_json_path,
+                    "w",
+                    encoding="utf-8",
+                )
+                f.write(new_line_command_output_config % (version))
+                f.close()
+                generated = True
+
+        ### System Messages
+        line_system_messages_json_path = (
+            base_path + "config/line-alerts/system-messages.json"
+        )
+        if not os.path.isfile(line_system_messages_json_path):
+            f = open(
+                line_system_messages_json_path,
+                "w",
+                encoding="utf-8",
+            )
+            f.write(new_line_system_messages_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_system_messages_json_path):
+            json_data = open(line_system_messages_json_path, "r", encoding="utf-8")
+            line_system_messages_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/system-messages.json and re-generate one
+            if not line_system_messages_json["version"] == version:
+                old_version = str(line_system_messages_json["version"]).replace(
+                    ".", "-"
+                )
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/system-messages.json"
+                )
+                os.rename(line_system_messages_json_path, archive_config)
+                f = open(
+                    line_system_messages_json_path,
+                    "w",
+                    encoding="utf-8",
+                )
+                f.write(new_line_system_messages_config % (version))
+                f.close()
+                generated = True
+
+        ### Group System Messages
+        line_group_system_messages_json_path = (
+            base_path + "config/line-alerts/group-system-messages.json"
+        )
+        if not os.path.isfile(line_group_system_messages_json_path):
+            f = open(
+                line_group_system_messages_json_path,
+                "w",
+                encoding="utf-8",
+            )
+            f.write(new_line_group_system_messages_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_group_system_messages_json_path):
+            json_data = open(
+                line_group_system_messages_json_path, "r", encoding="utf-8"
+            )
+            line_group_system_messages_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/group-system-messages.json and re-generate one
+            if not line_group_system_messages_json["version"] == version:
+                old_version = str(line_group_system_messages_json["version"]).replace(
+                    ".", "-"
+                )
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/group-system-messages.json"
+                )
+                os.rename(line_group_system_messages_json_path, archive_config)
+                f = open(
+                    line_group_system_messages_json_path,
+                    "w",
+                    encoding="utf-8",
+                )
+                f.write(new_line_group_system_messages_config % (version))
+                f.close()
+                generated = True
+
+        ### Loot Trade Messages
+        line_loot_trade_json_path = base_path + "config/line-alerts/loot-trade.json"
+        if not os.path.isfile(line_loot_trade_json_path):
+            f = open(line_loot_trade_json_path, "w", encoding="utf-8")
+            f.write(new_line_loot_trade_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_loot_trade_json_path):
+            json_data = open(line_loot_trade_json_path, "r", encoding="utf-8")
+            line_loot_trade_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/loot-trade.json and re-generate one
+            if not line_loot_trade_json["version"] == version:
+                old_version = str(line_loot_trade_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/loot-trade.json"
+                )
+                os.rename(line_loot_trade_json_path, archive_config)
+                f = open(
+                    line_loot_trade_json_path,
+                    "w",
+                    encoding="utf-8",
+                )
+                f.write(new_line_loot_trade_messages_config % (version))
+                f.close()
+                generated = True
+
+        ### Emotes
+        line_emotes_json_path = base_path + "config/line-alerts/emotes.json"
+        if not os.path.isfile(line_emotes_json_path):
+            f = open(line_emotes_json_path, "w", encoding="utf-8")
+            f.write(new_line_emotes_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_emotes_json_path):
+            json_data = open(line_emotes_json_path, "r", encoding="utf-8")
+            line_emotes_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/emotes.json and re-generate one
+            if not line_emotes_json["version"] == version:
+                old_version = str(line_emotes_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/emotes.json"
+                )
+                os.rename(line_emotes_json_path, archive_config)
+                f = open(line_emotes_json_path, "w", encoding="utf-8")
+                f.write(new_line_emotes_config % (version))
+                f.close()
+                generated = True
+
+        ### Who
+        line_who_json_path = base_path + "config/line-alerts/who.json"
+        if not os.path.isfile(line_who_json_path):
+            f = open(line_who_json_path, "w", encoding="utf-8")
+            f.write(new_line_who_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_who_json_path):
+            json_data = open(line_who_json_path, "r", encoding="utf-8")
+            line_who_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/who.json and re-generate one
+            if not line_who_json["version"] == version:
+                old_version = str(line_who_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/who.json"
+                )
+                os.rename(line_who_json_path, archive_config)
+                f = open(line_who_json_path, "w", encoding="utf-8")
+                f.write(new_line_who_config % (version))
+                f.close()
+                generated = True
+
+        ### Other
+        line_other_json_path = base_path + "config/line-alerts/other.json"
+        if not os.path.isfile(line_other_json_path):
+            f = open(line_other_json_path, "w", encoding="utf-8")
+            f.write(new_line_other_config % (version))
+            f.close()
+            generated = True
+        elif os.path.isfile(line_other_json_path):
+            json_data = open(line_other_json_path, "r", encoding="utf-8")
+            line_other_json = json.load(json_data)
+            json_data.close()
+            # Archive old line-alerts/other.json and re-generate one
+            if not line_other_json["version"] == version:
+                old_version = str(line_other_json["version"]).replace(".", "-")
+                if not os.path.exists(base_path + "config/archive/"):
+                    os.makedirs(base_path + "config/archive/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/"
+                ):
+                    os.makedirs(base_path + "config/archive/" + old_version + "/")
+                if not os.path.exists(
+                    base_path + "config/archive/" + old_version + "/line-alerts/"
+                ):
+                    os.makedirs(
+                        base_path + "config/archive/" + old_version + "/line-alerts/"
+                    )
+                archive_config = (
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/line-alerts/other.json"
+                )
+                os.rename(line_other_json_path, archive_config)
+                f = open(line_other_json_path, "w", encoding="utf-8")
+                f.write(new_line_other_config % (version))
+                f.close()
+                generated = True
+
+        return generated
 
     except Exception as e:
-        eqa_settings.log(
+        print(
             "build config: Error on line"
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
