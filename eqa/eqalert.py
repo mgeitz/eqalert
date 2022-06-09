@@ -65,20 +65,34 @@ def startup(base_path):
 
         # Read config paths
         configs = eqa_config.read_config(base_path)
-        log_path = configs.settings.config["settings"]["paths"]["alert_log"]
+        log_path = configs.settings.config["settings"]["paths"]["eqalert_log"]
         data_path = configs.settings.config["settings"]["paths"]["data"]
         encounter_path = configs.settings.config["settings"]["paths"]["encounter"]
         sound_path = configs.settings.config["settings"]["paths"]["sound"]
         tmp_sound_path = configs.settings.config["settings"]["paths"]["tmp_sound"]
-        char_log_path = configs.settings.config["settings"]["paths"]["char_log"]
+        char_log_path = configs.settings.config["settings"]["paths"]["everquest_logs"]
+        eq_files_path = configs.settings.config["settings"]["paths"]["everquest_files"]
 
         # Validate char_log directory path
         if not os.path.exists(char_log_path):
             print(
                 "Please review paths in config/settings.json. Cannot find a character log: "
-                + str(configs.settings.config["settings"]["paths"]["char_log"])
+                + str(configs.settings.config["settings"]["paths"]["everquest_logs"])
             )
             exit(1)
+
+        # Make the log directory
+        if not os.path.exists(log_path):
+            print("    - making a place for logs")
+            os.makedirs(log_path)
+
+        # Set log file
+        logging.basicConfig(filename=log_path + "eqalert.log", level=logging.INFO)
+
+        # Make the debug directory
+        if not os.path.exists(log_path + "debug/"):
+            print("    - making a place for optional debug logs")
+            os.makedirs(log_path + "debug/")
 
         # Make the sound directory
         if not os.path.exists(sound_path):
@@ -100,23 +114,19 @@ def startup(base_path):
             print("    - making a place for data")
             os.makedirs(data_path)
 
+        eq_spells_file_path = eq_files_path + "spells_us.txt"
+        if os.path.isfile(eq_spells_file_path) and not os.path.isfile(
+            data_path + "spell-timers.json"
+        ):
+            print(
+                "    - generating data/spell-timers.json from spells_us.txt. This takes about 45 seconds."
+            )
+            eqa_config.update_spell_timers(data_path, eq_spells_file_path)
+
         # Make the encounter directory
         if not os.path.exists(encounter_path):
             print("    - making a place for encounter logs")
             os.makedirs(encounter_path)
-
-        # Make the log directory
-        if not os.path.exists(log_path):
-            print("    - making a place for logs")
-            os.makedirs(log_path)
-
-        # Set log file
-        logging.basicConfig(filename=log_path + "eqalert.log", level=logging.INFO)
-
-        # Make the debug directory
-        if not os.path.exists(log_path + "debug/"):
-            print("    - making a place for optional debug logs")
-            os.makedirs(log_path + "debug/")
 
         # Update config char_logs
         eqa_config.update_logs(configs)
@@ -124,7 +134,7 @@ def startup(base_path):
         server = configs.settings.config["last_state"]["server"]
         char = configs.settings.config["last_state"]["character"]
         char_log = (
-            configs.settings.config["settings"]["paths"]["char_log"]
+            configs.settings.config["settings"]["paths"]["everquest_logs"]
             + configs.characters.config["char_logs"][char + "_" + server]["file_name"]
         )
 
@@ -163,7 +173,7 @@ def main():
     char = configs.settings.config["last_state"]["character"]
     state = eqa_config.get_last_state(configs, char, server)
     char_log = (
-        configs.settings.config["settings"]["paths"]["char_log"]
+        configs.settings.config["settings"]["paths"]["everquest_logs"]
         + configs.characters.config["char_logs"][char + "_" + server]["file_name"]
     )
 
@@ -469,7 +479,9 @@ def main():
                     ### Update character
                     elif new_message.tx == "new_character":
                         new_char_log = (
-                            configs.settings.config["settings"]["paths"]["char_log"]
+                            configs.settings.config["settings"]["paths"][
+                                "everquest_logs"
+                            ]
                             + configs.characters.config["char_logs"][
                                 new_message.payload
                             ]["file_name"]

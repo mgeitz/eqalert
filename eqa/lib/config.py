@@ -21,6 +21,7 @@ import json
 import os
 import sys
 import pkg_resources
+import re
 
 import eqa.lib.settings as eqa_settings
 import eqa.lib.state as eqa_state
@@ -222,11 +223,11 @@ def update_logs(configs):
         log_files = [
             f
             for f in os.listdir(
-                configs.settings.config["settings"]["paths"]["char_log"]
+                configs.settings.config["settings"]["paths"]["everquest_logs"]
             )
             if os.path.isfile(
                 os.path.join(
-                    configs.settings.config["settings"]["paths"]["char_log"], f
+                    configs.settings.config["settings"]["paths"]["everquest_logs"], f
                 )
             )
         ]
@@ -346,6 +347,66 @@ def get_config_chars(configs):
     except Exception as e:
         eqa_settings.log(
             "get config chars: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def update_spell_timers(data_path, eq_spells_file_path):
+    """Parse spells_us.txt to data/spell-timers.json"""
+    try:
+        # Read spells_us.txt
+        eq_spells_file = open(eq_spells_file_path, "r")
+        eq_spells_file_lines = eq_spells_file.readlines()
+        eq_spells_file.close()
+
+        # Bootstrap new spell-timers.json
+        spell_timer_file = data_path + "spell-timers.json"
+        spell_timer_json = {"spells": {}}
+
+        # Read spells_us.txt line
+        for line in eq_spells_file_lines:
+            modified_line = line.split("^")
+
+            ## Relevant values
+            spell_name = modified_line[1]
+            spell_buff_duration = str(int(modified_line[17]) * 6)
+            spell_aeduration = str(int(modified_line[18]) * 6)
+
+            ## Clean spell name
+            line_type_spell_name = re.sub(r"[^a-z\s]", "", spell_name.lower()).replace(
+                " ", "_"
+            )
+
+            if int(spell_buff_duration) > 0 and int(spell_aeduration) > 0:
+                spell_timer = str(spell_buff_duration)
+            elif int(spell_buff_duration) > 0 and int(spell_aeduration) == 0:
+                spell_timer = str(spell_buff_duration)
+            elif int(spell_buff_duration) == 0 and int(spell_aeduration) > 0:
+                spell_timer = str(spell_aeduration)
+            elif int(spell_buff_duration) == 0 and int(spell_aeduration) == 0:
+                spell_timer = None
+
+            if (
+                not len(line_type_spell_name) == 0
+                and not line_type_spell_name.startswith("test")
+                and not line_type_spell_name.startswith("_")
+                and spell_timer is not None
+                and not "__" in line_type_spell_name
+            ):
+                prefixed_line_type_spell_name = "spell_" + line_type_spell_name
+                spell_timer_json["spells"].update(
+                    {prefixed_line_type_spell_name: spell_timer}
+                )
+
+            json_data = open(spell_timer_file, "w")
+            json.dump(spell_timer_json, json_data, sort_keys=True, indent=2)
+            json_data.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "update spell timers: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
@@ -606,10 +667,11 @@ def build_config(base_path):
       "enabled": "false"
     },
     "paths": {
-      "alert_log": "%slog/",
+      "eqalert_log": "%slog/",
       "data": "%sdata/",
       "encounter": "%sencounters/",
-      "char_log": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
+      "everquest_logs": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
+      "everquest_files": "%s/.wine/drive_c/Program Files/Sony/EverQuest/",
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
@@ -2581,7 +2643,7 @@ def build_config(base_path):
             f = open(settings_json_path, "w", encoding="utf-8")
             f.write(
                 new_settings_config
-                % (base_path, base_path, base_path, home, base_path, version)
+                % (base_path, base_path, base_path, home, home, base_path, version)
             )
             f.close()
             generated = True
@@ -2605,7 +2667,7 @@ def build_config(base_path):
                 f = open(settings_json_path, "w", encoding="utf-8")
                 f.write(
                     new_settings_config
-                    % (base_path, base_path, base_path, home, base_path, version)
+                    % (base_path, base_path, base_path, home, home, base_path, version)
                 )
                 f.close()
                 generated = True
@@ -3140,7 +3202,7 @@ def build_config(base_path):
                     "w",
                     encoding="utf-8",
                 )
-                f.write(new_line_loot_trade_messages_config % (version))
+                f.write(new_line_loot_trade_config % (version))
                 f.close()
                 generated = True
 
