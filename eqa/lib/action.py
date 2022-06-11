@@ -115,7 +115,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type == "spell_cast_other":
+                    elif line_type == "spells_cast_other":
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -125,7 +125,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type == "spell_cast_you":
+                    elif line_type == "spells_cast_you":
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -165,7 +165,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type.startswith("spell_"):
+                    elif line_type.startswith("spells_"):
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -1332,6 +1332,18 @@ def action_you_say_commands(
                             + ". Encounter parser state is "
                             + state.encounter_parse,
                         )
+                    )
+                elif args[1] == "context":
+                    if state.afk == "true":
+                        context = "afk"
+                    elif state.group == "false" and state.raid == "false":
+                        context = "solo"
+                    elif state.group == "true" and state.raid == "false":
+                        context = "group"
+                    elif state.raid == "raid":
+                        context = "raid"
+                    sound_q.put(
+                        eqa_struct.sound("You are in a " + context + " context.")
                     )
             elif args[0] == "test":
                 if len(args) == 1:

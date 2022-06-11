@@ -114,14 +114,15 @@ def startup(base_path):
             print("    - making a place for data")
             os.makedirs(data_path)
 
+        # Generate Spell Timers
         eq_spells_file_path = eq_files_path + "spells_us.txt"
-        if os.path.isfile(eq_spells_file_path) and not os.path.isfile(
-            data_path + "spell-timers.json"
-        ):
-            print(
-                "    - generating data/spell-timers.json from spells_us.txt. This takes about 45 seconds."
-            )
+        if os.path.isfile(eq_spells_file_path):
             eqa_config.update_spell_timers(data_path, eq_spells_file_path)
+        else:
+            print(
+                "Please review paths in config/settings.json. Unable to find spells_us.txt in "
+                + eq_spells_file_path
+            )
 
         # Make the encounter directory
         if not os.path.exists(encounter_path):

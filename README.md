@@ -56,6 +56,16 @@ Spot check these default paths generated in `config/settings.json`
 
 > Press `0` to reload your configs or restart the program if any changes were made.  Though generally, it's a good idea to stop eqalert before manually editing your config files.
 
+## Data
+
+### Spell Timers
+
+On first run, eqalert will try to generate `data/spell-timers.json` by parsing `spells_us.txt` in your EverQuest directory.
+
+This file will regenerate with each new `eqalert` version or when `data/spell-timers.json` doesn't yet exist.
+
+> If there is a project1999 update it is recommended to delete `data/spell-timers.json` to force `data/spell-timers.json` regeneration
+
 
 ## Controls
 
@@ -146,6 +156,12 @@ You can control some parser settings using `/say` in-game.  This is better suite
 ## Custom Alerting
 
 Modify `~/.eqa/config/line-alerts/*.json` to customize alerts.
+
+Due to how many line matches there are, the configuration for their reactions have been split into several json files under config/line-alerts/
+
+Anything matched by the parser not found in configuration is automatically added to config/line-alerts/other.json
+
+Modify `line_type` values to customize alerts accordingly.
 
 ### Line Types
 
@@ -276,7 +292,7 @@ For example, the below configuration will alert if the word `help` is found in a
 This can be helpful if you would like to alert for something not yet matched by the parser, though your [contribution](CONTRIBUTING.md#pull-requests) to a new line type match in the parser would also be welcome!
 
 ### Zones
-> config/zones.json
+Zone data is stored in `config/zones.json`
 
 #### raid_mode
 - `false`: If enabled, auto-disable raid mode in this zone
