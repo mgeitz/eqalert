@@ -566,7 +566,7 @@ def main():
                     ### Reload config
                     elif new_message.tx == "reload_config":
                         #### Reload config
-                        eqa_config.update_logs(base_path)
+                        eqa_config.update_logs(configs)
                         configs = eqa_config.read_config(base_path)
                         #### Reread characters
                         new_state = eqa_config.get_last_state(

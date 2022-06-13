@@ -2129,11 +2129,15 @@ def add_type(line_type, base_path):
 
     try:
         json_data = open(
-            base_path + "config/line-alerts/other.json", "w", encoding="utf-8"
+            base_path + "config/line-alerts/other.json", "r", encoding="utf-8"
         )
         data = json.load(json_data)
+        json_data.close()
         data["line"].update(
             {line_type: {"sound": "false", "reaction": "false", "alert": {}}}
+        )
+        json_data = open(
+            base_path + "config/line-alerts/other.json", "w", encoding="utf-8"
         )
         json.dump(data, json_data, sort_keys=True, indent=2)
         json_data.close()
