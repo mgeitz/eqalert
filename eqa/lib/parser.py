@@ -998,10 +998,16 @@ def check_spell_specific(line):
             is not None
         ):
             return "spell_affliction_other_on"
+            # return "spell_insidious_decay_other_on"
+            # return "spell_insidious_fever_other_on"
+            # return "spell_insidious_malady_other_on"
         elif re.fullmatch(r"^You feel feverish\.$", line) is not None:
             return "spell_affliction_you_on"
         elif re.fullmatch(r"^Your fever has broken\.$", line) is not None:
             return "spell_affliction_you_off"
+            # return "spell_insidious_decay_you_off"
+            # return "spell_insidious_fever_you_off"
+            # return "spell_insidious_malady_you_off"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ looks agile\.$", line) is not None:
             return "spell_agility_other_on"
         elif re.fullmatch(r"^You feel agile\.$", line) is not None:
@@ -1111,6 +1117,8 @@ def check_spell_specific(line):
             # return "spell_cavorting_bones_other_on"
             # return "spell_convoke_shadow_other_on"
             # return "spell_haunting_corpse_other_on"
+            # return "spell_invoke_death_other_on"
+            # return "spell_invoke_shadow_other_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ feels annulled\.$", line) is not None:
             return "spell_annul_magic_other_on"
         elif re.fullmatch(r"^You feel annulled\.$", line) is not None:
@@ -1218,6 +1226,7 @@ def check_spell_specific(line):
             # return "spell_earthelementalattack_you_off"
             # return "spell_enstill_you_off"
             # return "spell_fetter_you_off"
+            # return "spell_immobilize_you_off"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ calms down\.$", line) is not None:
             return "spell_atone_other_on"
         elif re.fullmatch(r"^You feel forgiveness in your mind\.$", line) is not None:
@@ -1227,29 +1236,24 @@ def check_spell_specific(line):
             is not None
         ):
             return "spell_augment_other_on"
+            # return "spell_augmentation_other_on"
+            # return "spell_inner_fire_other_on"
         elif (
             re.fullmatch(r"^You feel your body pulse with energy\.$", line) is not None
         ):
             return "spell_augment_you_on"
+            # return "spell_augmentation_you_on"
+            # return "spell_inner_fire_you_on"
         elif re.fullmatch(r"^The pulsing energy fades\.$", line) is not None:
             return "spell_augment_you_off"
+            # return "spell_augmentation_you_off"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+\'s eyes gleam with madness\.$", line)
             is not None
         ):
             return "spell_augment_death_other_on"
             # return "spell_augmentation_of_death_other_on"
-        elif (
-            re.fullmatch(r"^[a-zA-Z`\s]+\'s body pulses with energy\.$", line)
-            is not None
-        ):
-            return "spell_augmentation_other_on"
-        elif (
-            re.fullmatch(r"^You feel your body pulse with energy\.$", line) is not None
-        ):
-            return "spell_augmentation_you_on"
-        elif re.fullmatch(r"^The pulsing energy fades\.$", line) is not None:
-            return "spell_augmentation_you_off"
+            # return "spell_intensify_death_other_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ begins to regenerate\.$", line) is not None:
             return "spell_aura_of_battle_other_on"
             # return "spell_chloroplast_other_on"
@@ -1420,6 +1424,10 @@ def check_spell_specific(line):
             return "spell_barrier_of_combustion_you_on"
         elif re.fullmatch(r"^The flames die down\.$", line) is not None:
             return "spell_barrier_of_combustion_you_off"
+            # return "spell_boon_of_immolation_you_off"
+            # return "spell_breath_of_ro_you_off"
+            # return "spell_cadeau_of_flame_you_off"
+            # return "spell_inferno_shield_you_off"
         elif (
             re.fullmatch(
                 r"^[a-zA-Z`\s]+ is surrounded by a swirling maelstrom of magical force\.\.$",
@@ -1552,10 +1560,14 @@ def check_spell_specific(line):
             return "spell_blaze_other_on"
             # return "spell_call_of_flame_other_on"
             # return "spell_firestrike_other_on"
+            # return "spell_ignite_other_on"
+            # return "spell_inferno_shock_other_on"
         elif re.fullmatch(r"^You feel your skin ignite\.$", line) is not None:
             return "spell_blaze_you_on"
             # return "spell_call_of_flame_you_on"
             # return "spell_firestrike_you_on"
+            # return "spell_ignite_you_on"
+            # return "spell_inferno_shock_you_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ is surrounded by an aura of nature\.$", line)
             is not None
@@ -1599,7 +1611,11 @@ def check_spell_specific(line):
             return "spell_blinding_fear_you_on"
         elif re.fullmatch(r"^You are no longer afraid\.$", line) is not None:
             return "spell_blinding_fear_you_off"
+            # return "spell_cloud_of_fear_you_off"
+            # return "spell_dragon_roar_you_off"
             # return "spell_fear_you_off"
+            # return "spell_inspire_fear_you_off"
+            # return "spell_invoke_fear_you_off"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ lets loose a mighty roar\.$", line) is not None
         ):
@@ -1638,6 +1654,10 @@ def check_spell_specific(line):
             # return "spell_frost_port_other_on"
             # return "spell_gate_other_on"
             # return "spell_great_divide_gate_other_on"
+            # return "spell_iceclad_gate_other_on"
+            # return "spell_improved_invisibility_other_on"
+            # return "spell_improved_superior_camouflage_other_on"
+            # return "spell_invisibility_other_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ is caught in a raging blizzard\.$", line)
             is not None
@@ -1681,6 +1701,8 @@ def check_spell_specific(line):
         elif re.fullmatch(r"^Your blood cools\.$", line) is not None:
             return "spell_boil_blood_you_off"
             # return "spell_boiling_blood_you_off"
+            #return "spell_heat_blood_you_off"
+            #return "spell_ignite_blood_you_off"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ is bathed in fire\.$", line) is not None:
             return "spell_bolt_of_flame_other_on"
             # return "spell_cinder_bolt_other_on"
@@ -1696,8 +1718,14 @@ def check_spell_specific(line):
             is not None
         ):
             return "spell_bolt_of_karana_other_on"
+            # return "spell_careless_lightning_other_on"
+            # return "spell_fury_of_air_other_on"
+            # return "spell_invoke_lightning_other_on"
         elif re.fullmatch(r"^Lightning surges through your body\.$", line) is not None:
             return "spell_bolt_of_karana_you_on"
+            # return "spell_careless_lightning_you_on"
+            # return "spell_fury_of_air_you_on"
+            # return "spell_invoke_lightning_you_on"
         elif re.fullmatch(r"^You feel your lifeforce drain away\.$", line) is not None:
             return "spell_bond_of_death_you_on"
             # return "spell_curse_of_the_garou_you_on"
@@ -1730,11 +1758,13 @@ def check_spell_specific(line):
             return "spell_bonds_of_tunare_you_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+\'s skin burns away\.$", line) is not None:
             return "spell_bone_melt_other_on"
+            #return "spell_ignite_bones_other_on"
         elif (
             re.fullmatch(r"^You feel your skin burn from your body\.$", line)
             is not None
         ):
             return "spell_bone_melt_you_on"
+            #return "spell_ignite_bones_you_on"
         elif (
             re.fullmatch(
                 r"^You feel the bones of your enemy shatter beneath your hammer\.$",
@@ -1762,8 +1792,6 @@ def check_spell_specific(line):
             return "spell_boon_of_immolation_other_on"
         elif re.fullmatch(r"^You are enveloped in lava\.$", line) is not None:
             return "spell_boon_of_immolation_you_on"
-        elif re.fullmatch(r"^The flames die down\.$", line) is not None:
-            return "spell_boon_of_immolation_you_off"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ looks tranquil\.$", line) is not None:
             return "spell_boon_of_the_clear_mind_other_on"
             # return "spell_clarity_other_on"
@@ -1832,8 +1860,6 @@ def check_spell_specific(line):
             return "spell_breath_of_ro_other_on"
         elif re.fullmatch(r"^You are immolated by blazing flames.$", line) is not None:
             return "spell_breath_of_ro_you_on"
-        elif re.fullmatch(r"^The flames die down.$", line) is not None:
-            return "spell_breath_of_ro_you_off"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ stops breathing\.$", line) is not None:
             return "spell_breath_of_the_dead_other_on"
         elif re.fullmatch(r"^You feel your heart stop beating\.$", line) is not None:
@@ -1992,6 +2018,7 @@ def check_spell_specific(line):
             # return "spell_evacuate_west_you_off"
             # return "spell_fay_portal_you_off"
             # return "spell_great_divide_portal_you_off"
+            # return "spell_iceclad_portal_you_off"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ goes berserk\.$", line) is not None:
             return "spell_burnout_other_on"
             # return "spell_burnout_ii_other_on"
@@ -2047,6 +2074,7 @@ def check_spell_specific(line):
             return "spell_burst_of_strength_other_on"
             # return "spell_furious_strength_other_on"
             # return "spell_girdle_of_karana_other_on"
+            # return "spell_impart_strength_other_on"
         elif re.fullmatch(r"^Your muscles scream with strength\.$", line) is not None:
             return "spell_burst_of_strength_you_on"
         elif re.fullmatch(r"^Your strength fades\.$", line) is not None:
@@ -2062,8 +2090,6 @@ def check_spell_specific(line):
             is not None
         ):
             return "spell_cadeau_of_flame_you_on"
-        elif re.fullmatch(r"^The flames die down\.$", line) is not None:
-            return "spell_cadeau_of_flame_you_off"
         elif re.fullmatch(r"^$[a-zA-Z`\s]+ blisters and burns\.", line) is not None:
             return "spell_calefaction_other_on"
             # return "spell_fist_of_fire_other_on"
@@ -2190,13 +2216,6 @@ def check_spell_specific(line):
         elif re.fullmatch(r"^The quickening spirit departs\.$", line) is not None:
             return "spell_captain_nalots_quickening_you_off"
         elif (
-            re.fullmatch(r"^[a-zA-Z`\s]+ has been struck by lightning\.$", line)
-            is not None
-        ):
-            return "spell_careless_lightning_other_on"
-        elif re.fullmatch(r"^Lightning surges through your body\.$", line) is not None:
-            return "spell_careless_lightning_you_on"
-        elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ is pelted by hailstones\.$", line) is not None
         ):
             return "spell_cascade_of_hail_other_on"
@@ -2265,6 +2284,7 @@ def check_spell_specific(line):
             # return "spell_evacuate_west_other_on"
             # return "spell_fay_portal_other_on"
             # return "spell_great_divide_portal_other_on"
+            # return "spell_iceclad_portal_other_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+\'s body is covered with a soft glow\.$", line)
             is not None
@@ -2327,6 +2347,7 @@ def check_spell_specific(line):
         ):
             return "spell_chaos_breath_other_on"
             # return "spell_gravity_flux_other_on"
+            # return "spell_invert_gravity_other_on"
         elif (
             re.fullmatch(r"^You experience chaotic weightlessness\.$", line) is not None
         ):
@@ -2424,8 +2445,10 @@ def check_spell_specific(line):
             return "spell_cindas_charismatic_carillon_you_off"
         elif re.fullmatch(r"^[a-zA-Z`\s]+\'s head snaps back\.$", line) is not None:
             return "spell_cinder_jolt_other_on"
+            # return "spell_jolt_other_on"
         elif re.fullmatch(r"^Your head snaps back\.$", line) is not None:
             return "spell_cinder_jolt_you_on"
+            # return "spell_jolt_you_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ is immolated by raging energy\.$", line)
             is not None
@@ -2513,10 +2536,10 @@ def check_spell_specific(line):
         elif re.fullmatch(r"^[a-zA-Z`\s]+ looks very afraid\.$", line) is not None:
             return "spell_cloud_of_fear_other_on"
             # return "spell_fear_other_on"
+            # return "spell_inspire_fear_other_on"
+            # return "spell_invoke_fear_other_on"
         elif re.fullmatch(r"^Your mind is wracked by fear\.$", line) is not None:
             return "spell_cloud_of_fear_you_on"
-        elif re.fullmatch(r"^You are no longer afraid\.$", line) is not None:
-            return "spell_cloud_of_fear_you_off"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ is surrounded by a cloud of silence\.$", line)
             is not None
@@ -2797,23 +2820,27 @@ def check_spell_specific(line):
             # return "spell_feeble_mind_iv_other_on"
             # return "spell_feeble_poison_other_on"
             # return "spell_froglok_poison_other_on"
+            # return "spell_ikatiars_revenge_other_on"
         elif re.fullmatch(r"^You have been poisoned\.$", line) is not None:
             return "spell_deadly_poison_you_on"
             # return "spell_envenomed_bolt_you_on"
             # return "spell_envenomed_breath_you_on"
             # return "spell_feeble_poison_you_on"
             # return "spell_froglok_poison_you_on"
+            # return "spell_ikatiars_revenge_you_on"
         elif re.fullmatch(r"^The poison has run its course\.$", line) is not None:
             return "spell_deadly_poison_you_off"
             # return "spell_envenomed_bolt_you_off"
             # return "spell_envenomed_breath_you_off"
             # return "spell_froglok_poison_you_off"
+            # return "spell_ikatiars_revenge_you_off"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+\'s fangs gleam with poison\.$", line)
             is not None
         ):
             return "spell_deadly_poison_other_cast"
             # return "spell_feeble_poison_other_cast"
+            # return "spell_ikatiars_revenge_other_cast"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ is wracked by deadly velium poison\.$", line)
             is not None
@@ -2975,10 +3002,13 @@ def check_spell_specific(line):
             return "spell_diseased_cloud_you_cast"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ looks frail\.$", line) is not None:
             return "spell_disempower_other_on"
+            # return "spell_incapacitate_other_on"
         elif re.fullmatch(r"^You feel frail\.$", line) is not None:
             return "spell_disempower_you_on"
+            # return "spell_incapacitate_you_on"
         elif re.fullmatch(r"^You feel your strength return\.$", line) is not None:
             return "spell_disempower_you_off"
+            # return "spell_incapacitate_you_off"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ has been disintegrated\.$", line) is not None:
             return "spell_disintegrate_other_on"
         elif (
@@ -3156,8 +3186,6 @@ def check_spell_specific(line):
             return "spell_draconic_rage_you_off"
         elif re.fullmatch(r"^You flee in terror\.$", line) is not None:
             return "spell_dragon_roar_you_on"
-        elif re.fullmatch(r"^You are no longer afraid\.$", line) is not None:
-            return "spell_dragon_roar_you_off"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ lets loose a mighty roar.$", line) is not None
         ):
@@ -3413,6 +3441,7 @@ def check_spell_specific(line):
         elif re.fullmatch(r"^Your strength returns\.$", line) is not None:
             return "spell_enfeeblement_you_off"
             # return "spell_feckless_might_you_off"
+            # return "spell_insipid_weakness_you_off"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ gapes in reverent awe\.$", line) is not None:
             return "spell_enforced_reverence_other_on"
         elif re.fullmatch(r"^You are stunned with reverent awe\.$", line) is not None:
@@ -3464,9 +3493,11 @@ def check_spell_specific(line):
         ):
             return "spell_enstill_other_on"
             # return "spell_fetter_other_on"
+            # return "spell_immobilize_other_on"
         elif re.fullmatch(r"^Your feet adhere to the ground\.$", line) is not None:
             return "spell_enstill_you_on"
             # return "spell_fetter_you_on"
+            # return "spell_immobilize_you_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ has been enthralled\.$", line) is not None:
             return "spell_enthrall_other_on"
             # return "spell_gaze_other_on"
@@ -3512,8 +3543,10 @@ def check_spell_specific(line):
             return "spell_expedience_other_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ looks energized\.$", line) is not None:
             return "spell_extinguish_fatigue_other_on"
+            # return "spell_invigor_other_on"
         elif re.fullmatch(r"^Your body zings with energy\.$", line) is not None:
             return "spell_extinguish_fatigue_you_on"
+            # return "spell_invigor_you_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ looks confused\.$", line) is not None:
             return "spell_eye_of_confusion_other_on"
         elif re.fullmatch(r"^You feel confused\.$", line) is not None:
@@ -3553,6 +3586,8 @@ def check_spell_specific(line):
             return "spell_fatigue_drain_you_on"
         elif re.fullmatch(r"^Your mind fills with fear\.$", line) is not None:
             return "spell_fear_you_on"
+            # return "spell_inspire_fear_you_on"
+            # return "spell_invoke_fear_you_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ casts Fear\.$", line) is not None:
             return "spell_fear_other_cast"
         elif re.fullmatch(r"^You cast Fear\.$", line) is not None:
@@ -3561,8 +3596,10 @@ def check_spell_specific(line):
             return "spell_feast_of_blood_you_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ is weakened\.$", line) is not None:
             return "spell_feckless_might_other_on"
+            # return "spell_insipid_weakness_other_on"
         elif re.fullmatch(r"^You feel weak\.$", line) is not None:
             return "spell_feckless_might_you_on"
+            # return "spell_insipid_weakness_you_on"
         elif (
             re.fullmatch(
                 r"^You feel your mind fuzz as poison spreads through your body\.$", line
@@ -4014,6 +4051,7 @@ def check_spell_specific(line):
             return "spell_fungus_spores_you_off"
         elif re.fullmatch(r"^You feel stronger\.$", line) is not None:
             return "spell_furious_strength_you_on"
+            #return "spell_impart_strength_you_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ is struck by a sudden burst of force\.$", line)
             is not None
@@ -4024,13 +4062,6 @@ def check_spell_specific(line):
             is not None
         ):
             return "spell_furor_you_on"
-        elif (
-            re.fullmatch(r"^[a-zA-Z`\s]+ has been struck by lightning\.$", line)
-            is not None
-        ):
-            return "spell_fury_of_air_other_on"
-        elif re.fullmatch(r"^Lightning surges through your body\.$", line) is not None:
-            return "spell_fury_of_air_you_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+\'s skin blisters\.$", line) is not None:
             return "spell_gale_of_poison_other_on"
         elif (
@@ -4200,6 +4231,7 @@ def check_spell_specific(line):
         elif re.fullmatch(r"^You feel much better\.$", line) is not None:
             return "spell_greater_healing_you_on"
             # return "spell_healing_you_on"
+            # return "spell_invigorate_you_on"
         elif (
             re.fullmatch(
                 r"^[a-zA-Z`\s]+ becomes engulfed in a noxious cloud of green mist\.$",
@@ -4323,8 +4355,6 @@ def check_spell_specific(line):
             return "spell_heat_blood_other_on"
         elif re.fullmatch(r"^Your blood simmers\.$", line) is not None:
             return "spell_heat_blood_you_on"
-        elif re.fullmatch(r"^Your blood cools\.$", line) is not None:
-            return "spell_heat_blood_you_off"
         elif re.fullmatch(r"^Your infravision fades\.$", line) is not None:
             return "spell_heat_sight_you_off"
         elif (
@@ -4386,6 +4416,186 @@ def check_spell_specific(line):
             return "spell_ice_shock_other_on"
         elif re.fullmatch(r"^Your skin freezes over\.$", line) is not None:
             return "spell_ice_shock_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ is struck down by Solist's spear of ice\.$", line) is not None:
+            return "spell_ice_spear_of_solist_other_on"
+        elif re.fullmatch(r"^Solist's spear of ice strikes you down\.$", line) is not None:
+            return "spell_ice_spear_of_solist_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+\'s body freezes\.$", line) is not None:
+            return "spell_ice_strike_other_on"
+        elif re.fullmatch(r"^Your body freezes\.$", line) is not None:
+            return "spell_ice_strike_you_on"
+        elif re.fullmatch(r"^You body thaws\.$", line) is not None:
+            return "spell_ice_strike_you_off"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ is pelted by sleet\.$", line) is not None:
+            return "spell_icestrike_other_on"
+        elif re.fullmatch(r"^You are pelted by sleet\.$", line) is not None:
+            return "spell_icestrike_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+\'s blood ignites\.$", line) is not None:
+            return "spell_ignite_blood_other_on"
+        elif re.fullmatch(r"^Your blood ignites\.$", line) is not None:
+            return "spell_ignite_blood_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+\'s image shimmers\.$", line) is not None:
+            return "spell_illusion_air_elemental_other_on"
+            # return "spell_illusion_barbarian_other_on"
+            # return "spell_illusion_dry_bone_other_on"
+            # return "spell_illusion_dwarf_other_on"
+            # return "spell_illusion_earth_elemental_other_on"
+            # return "spell_illusion_erudite_other_on"
+            # return "spell_illusion_fire_elemental_other_on"
+            # return "spell_illusion_gnome_other_on"
+            # return "spell_illusion_halfelf_other_on"
+            # return "spell_illusion_halfling_other_on"
+            # return "spell_illusion_high_elf_other_on"
+            # return "spell_illusion_human_other_on"
+            # return "spell_illusion_iksar_other_on"
+            # return "spell_illusion_ogre_other_on"
+            # return "spell_illusion_skeleton_other_on"
+            # return "spell_illusion_spirit_wolf_other_on"
+            # return "spell_illusion_tree_other_on"
+            # return "spell_illusion_troll_other_on"
+            # return "spell_illusion_water_elemental_other_on"
+            # return "spell_illusion_werewolf_other_on"
+            # return "spell_illusion_wood_elf_other_on"
+        elif re.fullmatch(r"^You feel different\.$", line) is not None:
+            return "spell_illusion_air_elemental_you_on"
+            # return "spell_illusion_barbarian_you_on"
+            # return "spell_illusion_dry_bone_you_on"
+            # return "spell_illusion_dwarf_you_on"
+            # return "spell_illusion_earth_elemental_you_on"
+            # return "spell_illusion_erudite_you_on"
+            # return "spell_illusion_fire_elemental_you_on"
+            # return "spell_illusion_gnome_you_on"
+            # return "spell_illusion_halfelf_you_on"
+            # return "spell_illusion_halfling_you_on"
+            # return "spell_illusion_high_elf_you_on"
+            # return "spell_illusion_human_you_on"
+            # return "spell_illusion_iksar_you_on"
+            # return "spell_illusion_ogre_you_on"
+            # return "spell_illusion_skeleton_you_on"
+            # return "spell_illusion_spirit_wolf_you_on"
+            # return "spell_illusion_tree_you_on"
+            # return "spell_illusion_troll_you_on"
+            # return "spell_illusion_water_elemental_you_on"
+            # return "spell_illusion_werewolf_you_on"
+            # return "spell_illusion_wood_elf_you_on"
+        elif re.fullmatch(r"^Your illusion fades\.$", line) is not None:
+            return "spell_illusion_air_elemental_you_off"
+            # return "spell_illusion_barbarian_you_off"
+            # return "spell_illusion_dry_bone_you_off"
+            # return "spell_illusion_dwarf_you_off"
+            # return "spell_illusion_earth_elemental_you_off"
+            # return "spell_illusion_erudite_you_off"
+            # return "spell_illusion_fire_elemental_you_off"
+            # return "spell_illusion_gnome_you_off"
+            # return "spell_illusion_halfelf_you_off"
+            # return "spell_illusion_halfling_you_off"
+            # return "spell_illusion_high_elf_you_off"
+            # return "spell_illusion_human_you_off"
+            # return "spell_illusion_iksar_you_off"
+            # return "spell_illusion_ogre_you_off"
+            # return "spell_illusion_skeleton_you_off"
+            # return "spell_illusion_spirit_wolf_you_off"
+            # return "spell_illusion_tree_you_off"
+            # return "spell_illusion_troll_you_off"
+            # return "spell_illusion_water_elemental_you_off"
+            # return "spell_illusion_werewolf_you_off"
+            # return "spell_illusion_wood_elf_you_off"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ is surrounded by blazing flames\.$", line) is not None:
+            return "spell_immolate_other_on"
+        elif re.fullmatch(r"^You are surrounded by blazing flames\.$", line) is not None:
+            return "spell_immolate_you_on"
+        elif re.fullmatch(r"^The flames are extinguished\.$", line) is not None:
+            return "spell_immolate_you_off"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+\'s flesh is seared\.$", line) is not None:
+            return "spell_immolating_breath_other_on"
+        elif re.fullmatch(r"^Your flesh is seared from your bones\.$", line) is not None:
+            return "spell_immolating_breath_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ exhales a cloud of flame\.$", line) is not None:
+            return "spell_immolating_breath_other_cast"
+        elif re.fullmatch(r"^You exhale a cloud of flame\.$", line) is not None:
+            return "spell_immolating_breath_you_cast"
+        elif re.fullmatch(r"^Your strength leaves you\.$", line) is not None:
+            return "spell_impart_strength_you_off"
+        elif re.fullmatch(r"^You vanish\.$", line) is not None:
+            return "spell_improved_invisibility_you_on"
+            #return "spell_improved_superior_camouflage_you_on"
+            #return "spell_invisibility_you_on"
+        elif re.fullmatch(r"^You appear\.$", line) is not None:
+            return "spell_improved_invisibility_you_off"
+            #return "spell_improved_superior_camouflage_you_off"
+            #return "spell_invisibility_you_off"
+            #return "spell_invisibility_cloak_you_off"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ shrieks as their bones are set ablaze\.$", line) is not None:
+            return "spell_incinerate_bones_other_on"
+        elif re.fullmatch(r"^You shriek as your bones are ablaze\.$", line) is not None:
+            return "spell_incinerate_bones_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ starts to wretch\.$", line) is not None:
+            return "spell_infectious_cloud_other_on"
+        elif re.fullmatch(r"^The bile wells up in your throat\.$", line) is not None:
+            return "spell_infectious_cloud_you_on"
+        elif re.fullmatch(r"^You feel better\.$", line) is not None:
+            return "spell_infectious_cloud_you_off"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ burns within the inferno of Al'Kabor\.$", line) is not None:
+            return "spell_inferno_of_alkabor_other_on"
+        elif re.fullmatch(r"^You burn within the inferno of Al'Kabor\.$", line) is not None:
+            return "spell_inferno_of_alkabor_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ is enveloped in flame\.$", line) is not None:
+            return "spell_inferno_shield_other_on"
+        elif re.fullmatch(r"^You are enveloped in flame\.$", line) is not None:
+            return "spell_inferno_shield_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ is healed\.$", line) is not None:
+            return "spell_infusion_other_on"
+        elif re.fullmatch(r"^You are healed\.$", line) is not None:
+            return "spell_infusion_you_on"
+        elif re.fullmatch(r"^The inner fire fades\.$", line) is not None:
+            return "spell_inner_fire_you_off"
+        elif re.fullmatch(r"^You feel a fever settle upon you\.$", line) is not None:
+            return "spell_insidious_decay_you_on"
+            # return "spell_insidious_fever_you_on"
+            # return "spell_insidious_malady_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ looks wise\.$", line) is not None:
+            return "spell_insight_other_on"
+        elif re.fullmatch(r"^Your mind fills with wisdom\.$", line) is not None:
+            return "spell_insight_you_on"
+        elif re.fullmatch(r"^Your wisdom fades\.$", line) is not None:
+            return "spell_insight_you_off"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ casts Inspire Fear\.$", line) is not None:
+            return "spell_inspire_fear_other_cast"
+        elif re.fullmatch(r"^This is a BUG\.  Please report it to a GM\.$", line) is not None:
+            return "spell_inspire_fear_you_cast"
+            # return "spell_invoke_fear_you_cast"
+        elif re.fullmatch(r"^You feel gravity reverse\.$", line) is not None:
+            return "spell_invert_gravity_you_on"
+        elif re.fullmatch(r"^$[a-zA-Z`\s]+ looks invigorated", line) is not None:
+            return "spell_invigorate_other_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ vanishes amidst the sound of whirrs and clicks\.$", line) is not None:
+            return "spell_invisibility_cloak_other_on"
+        elif re.fullmatch(r"^You vanish amidst the sound of whirrs and clicks\.$", line) is not None:
+            return "spell_invisibility_cloak_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ fades a little\.$", line) is not None:
+            return "spell_invisibility_to_undead_other_on"
+            # return "spell_invisibility_versus_undead_other_on"
+        elif re.fullmatch(r"^You feel your skin tingle\.$", line) is not None:
+            return "spell_invisibility_to_undead_you_on"
+            # return "spell_invisibility_versus_undead_you_on"
+        elif re.fullmatch(r"^Your skin stops tingling\.$", line) is not None:
+            return "spell_invisibility_to_undead_you_off"
+            # return "spell_invisibility_versus_undead_you_off"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ is surrounded by an aura which shimmers and then fades away\.$", line) is not None:
+            return "spell_invisibility_versus_animal_other_on"
+            # return "spell_invisibility_versus_animals_other_on"
+        elif re.fullmatch(r"^Part of your image fades away\.$", line) is not None:
+            return "spell_invisibility_versus_animal_you_on"
+            # return "spell_invisibility_versus_animals_you_on"
+        elif re.fullmatch(r"^Your image returns\.$", line) is not None:
+            return "spell_invisibility_versus_animal_you_off"
+            # return "spell_invisibility_versus_animals_you_off"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ casts Invoke Fear\.$", line) is not None:
+            return "spell_invoke_fear_other_cast"
+        elif re.fullmatch(r"^You feel inspired\.$", line) is not None:
+            return "spell_jonthans_inspiration_you_on"
+        elif re.fullmatch(r"^Your inspiration fades\.$", line) is not None:
+            return "spell_jonthans_inspiration_you_off"
         # elif re.fullmatch(r"^$", line) is not None:
         #    return ""
 
