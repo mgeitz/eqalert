@@ -902,7 +902,7 @@ def check_spell_specific(line):
             return "spell_aanyas_quickening_other_on"
         elif re.fullmatch(r"^You experience a quickening\.$", line) is not None:
             return "spell_aanyas_quickening_you_on"
-        elif re.fullmatch(r"^$Your speed returns to normal\.", line) is not None:
+        elif re.fullmatch(r"^Your speed returns to normal\.$", line) is not None:
             return "spell_aanyas_quickening_you_off"
             # return "spell_blessing_of_the_grove_you_off"
             # return "spell_alacrity_you_off"
@@ -965,7 +965,7 @@ def check_spell_specific(line):
             # return "spell_serpent_sight_you_on"
             # return "spell_spirit_sight_you_on"
             # return "spell_ultravision_you_on"
-        elif re.fullmatch(r"^$Your eyes stop tingling\.", line) is not None:
+        elif re.fullmatch(r"^Your eyes stop tingling\.$", line) is not None:
             return "spell_acumen_you_off"
             # return "spell_see_invisible_you_off"
             # return "spell_spirit_sight_you_off"
@@ -1112,7 +1112,7 @@ def check_spell_specific(line):
             return "spell_alliance_you_off"
             # return "spell_benevolence_you_off"
             # return "spell_collaboration_you_off"
-        elif re.fullmatch(r"^$You have been charmed\.", line) is not None:
+        elif re.fullmatch(r"^You have been charmed\.$", line) is not None:
             return "spell_allure_you_on"
             # return "spell_alluring_whispers_you_on"
             # return "spell_beguile_you_on"
@@ -5213,7 +5213,7 @@ def check_spell_specific(line):
             return "spell_jonthans_provocation_you_off"
         elif re.fullmatch(r"^You whistle an ancient warsong\.$", line) is not None:
             return "spell_jonthans_whistling_warsong_you_on"
-        elif re.fullmatch(r"^$You stop whistling.", line) is not None:
+        elif re.fullmatch(r"^You stop whistling\.$", line) is not None:
             return "spell_jonthans_whistling_warsong_you_off"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ is slammed by a static pulse\.$", line) is not None:
             return "spell_jylls_static_pulse_other_on"
