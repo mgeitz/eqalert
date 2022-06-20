@@ -43,17 +43,17 @@ $HOME/.eqa
 
 Spot check these default paths generated in `config/settings.json`
 ```
-    "settings": {
-        "paths": {
-            "alert_log": "[$HOME/.eqa/]log/",
-            "data": "[$HOME/.eqa/]data/",
-            "encounter": "[$HOME/.eqa/]encounters/",
-            "char_log": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
-            "sound": "[$HOME/.eqa/]sound/",
-            "tmp_sound": "/tmp/eqa/sound/"
-        },
+  "settings": {
+    "paths": {
+      "eqalert_log": "[$HOME/.eqa/]log/",
+      "data": "[$HOME/.eqa/]data/",
+      "encounter": "[$HOME/.eqa/]encounters/",
+      "everquest_logs": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
+      "everquest_files": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/",
+      "sound": "[$HOME/.eqa/]sound/",
+      "tmp_sound": "/tmp/eqa/sound/"
+    },
 ```
-
 > Press `0` to reload your configs or restart the program if any changes were made.  Though generally, it's a good idea to stop eqalert before manually editing your config files.
 
 ## Data
@@ -62,7 +62,7 @@ Spot check these default paths generated in `config/settings.json`
 
 On first run, eqalert will try to generate `data/spell-timers.json` by parsing `spells_us.txt` in your EverQuest directory.
 
-This file will regenerate with each new `eqalert` version or when `data/spell-timers.json` doesn't yet exist.
+This file will regenerate with each new `eqalert` version or when `data/spell-timers.json` doesn't exist.
 
 > If there is a project1999 update it is recommended to delete `data/spell-timers.json` to force `data/spell-timers.json` regeneration
 

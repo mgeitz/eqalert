@@ -2701,6 +2701,26 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_other_ds_fire_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_ds_thorns_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_you_ds_fire_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_you_ds_thorns_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_you_melee": {
       "alert": {},
       "reaction": "false",
@@ -2779,6 +2799,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spells_bind_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spells_cast_item_you": {
       "alert": {},
       "reaction": "false",
@@ -2804,6 +2829,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spells_cured_other": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "cured"
+    },
     "spells_damage": {
       "alert": {},
       "reaction": "false",
@@ -2824,6 +2854,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spells_gate_collapse": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "gate collapse"
+    },
+    "spells_heal_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spells_interrupt_other": {
       "alert": {},
       "reaction": "false",
@@ -2833,6 +2873,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "spells_invis_dropping_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "invis is dropping"
+    },
+    "spells_levitate_dropping_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "levitate is dropping"
     },
     "spells_memorize_already": {
       "alert": {},
@@ -2874,15 +2924,25 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "spells_resist_you": {
+    "spells_resist_other": {
       "alert": {},
       "reaction": "solo",
       "sound": "resist"
+    },
+    "spells_resist_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "spells_sitting": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "spells_summoned_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "you have been summoned"
     },
     "spells_worn_off": {
       "alert": {},
@@ -2919,8 +2979,8 @@ def build_config(base_path):
     },
     "spell_acid_jet_other_casts": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "acid jet"
     },
     "spell_acid_jet_you_on": {
       "alert": {},
@@ -2984,8 +3044,8 @@ def build_config(base_path):
     },
     "spell_aegolism_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "aegolism dropped"
     },
     "spell_aegolism_you_on": {
       "alert": {},
@@ -3054,8 +3114,8 @@ def build_config(base_path):
     },
     "spell_ancient_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "get a disease cure"
     },
     "spell_annul_magic_other_on": {
       "alert": {},
@@ -3214,8 +3274,8 @@ def build_config(base_path):
     },
     "spell_avatar_power_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "avatar power"
     },
     "spell_avatar_you_off": {
       "alert": {},
@@ -3344,8 +3404,8 @@ def build_config(base_path):
     },
     "spell_bind_affinity_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "character bind updated"
     },
     "spell_bind_sight_you_off": {
       "alert": {},
@@ -3404,8 +3464,8 @@ def build_config(base_path):
     },
     "spell_blinding_fear_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "blinding fear"
     },
     "spell_blinding_fear_you_on": {
       "alert": {},
@@ -3629,13 +3689,13 @@ def build_config(base_path):
     },
     "spell_burning_vengeance_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "burning vengeance"
     },
     "spell_burrowing_scarab_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "burrowing scarab"
     },
     "spell_burrowing_scarab_you_off": {
       "alert": {},
@@ -3779,13 +3839,13 @@ def build_config(base_path):
     },
     "spell_call_of_the_zero_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "call of the zero"
     },
     "spell_call_of_the_zero_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "call of the zero"
     },
     "spell_camouflage_you_off": {
       "alert": {},
@@ -3919,8 +3979,8 @@ def build_config(base_path):
     },
     "spell_ceticious_cloud_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "sev poison"
     },
     "spell_ceticious_cloud_other_on": {
       "alert": {},
@@ -4014,8 +4074,8 @@ def build_config(base_path):
     },
     "spell_chill_of_unlife_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "chill of unlife"
     },
     "spell_chilling_embrace_other_on": {
       "alert": {},
@@ -4124,8 +4184,8 @@ def build_config(base_path):
     },
     "spell_cloud_of_fear_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "silence"
     },
     "spell_cloud_other_on": {
       "alert": {},
@@ -4774,8 +4834,8 @@ def build_config(base_path):
     },
     "spell_dragon_roar_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "roar"
     },
     "spell_dragon_roar_you_on": {
       "alert": {},
@@ -4884,8 +4944,8 @@ def build_config(base_path):
     },
     "spell_efreeti_fire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "efreeti fire"
     },
     "spell_egress_other_on": {
       "alert": {},
@@ -4899,8 +4959,8 @@ def build_config(base_path):
     },
     "spell_electric_blast_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "electric blast"
     },
     "spell_elemental_armor_you_off": {
       "alert": {},
@@ -4944,8 +5004,8 @@ def build_config(base_path):
     },
     "spell_embrace_of_the_kelpmaiden_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "kelp maiden snare"
     },
     "spell_endure_cold_other_on": {
       "alert": {},
@@ -5104,8 +5164,8 @@ def build_config(base_path):
     },
     "spell_entomb_in_ice_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "ice"
     },
     "spell_entomb_in_ice_you_off": {
       "alert": {},
@@ -5224,8 +5284,8 @@ def build_config(base_path):
     },
     "spell_fatigue_drain_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "fatigue drain"
     },
     "spell_fear_other_cast": {
       "alert": {},
@@ -5374,8 +5434,8 @@ def build_config(base_path):
     },
     "spell_fist_of_water_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "fist of water"
     },
     "spell_fixation_of_ro_other_on": {
       "alert": {},
@@ -5394,8 +5454,8 @@ def build_config(base_path):
     },
     "spell_flame_jet_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "flame jet"
     },
     "spell_flame_jet_you_on": {
       "alert": {},
@@ -5524,8 +5584,8 @@ def build_config(base_path):
     },
     "spell_freezing_breath_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "freezing breath"
     },
     "spell_freezing_breath_other_on": {
       "alert": {},
@@ -5574,8 +5634,8 @@ def build_config(base_path):
     },
     "spell_frost_breath_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "frost breath"
     },
     "spell_frost_breath_other_on": {
       "alert": {},
@@ -5669,8 +5729,8 @@ def build_config(base_path):
     },
     "spell_frosty_death_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "frosty death"
     },
     "spell_fufils_curtailing_chant_other_on": {
       "alert": {},
@@ -5739,8 +5799,8 @@ def build_config(base_path):
     },
     "spell_garzicors_vengeance_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "garzicor is not happy"
     },
     "spell_garzicors_vengeance_you_off": {
       "alert": {},
@@ -5774,8 +5834,8 @@ def build_config(base_path):
     },
     "spell_gelatroot_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "gel root"
     },
     "spell_gelatroot_you_off": {
       "alert": {},
@@ -5789,8 +5849,8 @@ def build_config(base_path):
     },
     "spell_ghoul_root_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "ghoul root"
     },
     "spell_ghoul_root_you_off": {
       "alert": {},
@@ -5809,8 +5869,8 @@ def build_config(base_path):
     },
     "spell_gift_of_aerr_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "lifetap a.e."
     },
     "spell_gift_of_brilliance_you_off": {
       "alert": {},
@@ -5959,8 +6019,8 @@ def build_config(base_path):
     },
     "spell_harpy_voice_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "you have been mesmerized"
     },
     "spell_harvest_leaves_other_on": {
       "alert": {},
@@ -6039,8 +6099,8 @@ def build_config(base_path):
     },
     "spell_hug_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "hug"
     },
     "spell_ice_breath_other_on": {
       "alert": {},
@@ -6054,8 +6114,8 @@ def build_config(base_path):
     },
     "spell_ice_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "ice breath"
     },
     "spell_ice_rend_other_on": {
       "alert": {},
@@ -6064,8 +6124,8 @@ def build_config(base_path):
     },
     "spell_ice_rend_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "ice rend"
     },
     "spell_ice_spear_of_solist_other_on": {
       "alert": {},
@@ -6129,8 +6189,8 @@ def build_config(base_path):
     },
     "spell_immolating_breath_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "immolating breath"
     },
     "spell_immolating_breath_other_on": {
       "alert": {},
@@ -6344,8 +6404,8 @@ def build_config(base_path):
     },
     "spell_knockback_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "knockback"
     },
     "spell_knockback_other_on": {
       "alert": {},
@@ -6399,8 +6459,8 @@ def build_config(base_path):
     },
     "spell_lava_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "lava breath"
     },
     "spell_lava_storm_you_on": {
       "alert": {},
@@ -6654,13 +6714,13 @@ def build_config(base_path):
     },
     "spell_line_brd_slow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "bard slow"
     },
     "spell_line_brd_slow_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "bard slow"
     },
     "spell_line_brd_strands_fade_you_off": {
       "alert": {},
@@ -6979,8 +7039,8 @@ def build_config(base_path):
     },
     "spell_line_enc_slow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "enchanter slow"
     },
     "spell_line_enc_slow_you_off": {
       "alert": {},
@@ -6989,8 +7049,8 @@ def build_config(base_path):
     },
     "spell_line_enc_slow_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "enchanter slow"
     },
     "spell_line_enc_stun_other_on": {
       "alert": {},
@@ -7639,8 +7699,8 @@ def build_config(base_path):
     },
     "spell_line_npc_disease_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "disease"
     },
     "spell_line_npc_disease_other_on": {
       "alert": {},
@@ -7689,8 +7749,8 @@ def build_config(base_path):
     },
     "spell_line_npc_thunder_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "thunder"
     },
     "spell_line_npc_thunder_you_on": {
       "alert": {},
@@ -7764,8 +7824,8 @@ def build_config(base_path):
     },
     "spell_line_potion_ds_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "potion d.s. dropped"
     },
     "spell_line_potion_ds_you_on": {
       "alert": {},
@@ -7784,8 +7844,8 @@ def build_config(base_path):
     },
     "spell_line_potion_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "cheers"
     },
     "spell_line_protection_you_off": {
       "alert": {},
@@ -7799,8 +7859,8 @@ def build_config(base_path):
     },
     "spell_line_raid_ae_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "a.e."
     },
     "spell_line_raid_silence_other_on": {
       "alert": {},
@@ -7809,8 +7869,8 @@ def build_config(base_path):
     },
     "spell_line_raid_silence_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "silence"
     },
     "spell_line_regen_other_on": {
       "alert": {},
@@ -7999,8 +8059,8 @@ def build_config(base_path):
     },
     "spell_line_slow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "slow"
     },
     "spell_line_slow_you_off": {
       "alert": {},
@@ -8009,8 +8069,8 @@ def build_config(base_path):
     },
     "spell_line_slow_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "slow"
     },
     "spell_line_snare_other_on": {
       "alert": {},
@@ -8034,8 +8094,8 @@ def build_config(base_path):
     },
     "spell_line_spin_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "like a record"
     },
     "spell_line_stagger_other_on": {
       "alert": {},
@@ -8089,8 +8149,8 @@ def build_config(base_path):
     },
     "spell_line_stun_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "stunned"
     },
     "spell_line_swarm_other_on": {
       "alert": {},
@@ -8209,8 +8269,8 @@ def build_config(base_path):
     },
     "spell_line_wolf_form_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo_only",
+      "sound": "bork bork"
     },
     "spell_line_word_other_on": {
       "alert": {},
@@ -8329,8 +8389,8 @@ def build_config(base_path):
     },
     "spell_magi_curse_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "stun more"
     },
     "spell_malevolent_grasp_other_on": {
       "alert": {},
@@ -8434,8 +8494,8 @@ def build_config(base_path):
     },
     "spell_manticore_poison_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "manticore poison"
     },
     "spell_mark_of_karn_other_on": {
       "alert": {},
@@ -8499,8 +8559,8 @@ def build_config(base_path):
     },
     "spell_mesmerizing_breath_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "silence"
     },
     "spell_mesmerizing_breath_you_cast": {
       "alert": {},
@@ -8519,8 +8579,8 @@ def build_config(base_path):
     },
     "spell_mind_cloud_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "mind cloud"
     },
     "spell_minor_healing_other_on": {
       "alert": {},
@@ -8829,8 +8889,8 @@ def build_config(base_path):
     },
     "spell_plagueratdisease_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "rat disease"
     },
     "spell_plainsight_you_off": {
       "alert": {},
@@ -8879,8 +8939,8 @@ def build_config(base_path):
     },
     "spell_power_of_the_forests_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "tunare nuked you"
     },
     "spell_pox_of_bertoxxulous_other_on": {
       "alert": {},
@@ -9359,8 +9419,8 @@ def build_config(base_path):
     },
     "spell_scarab_storm_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "scarab storm"
     },
     "spell_scarab_storm_you_off": {
       "alert": {},
@@ -9909,8 +9969,8 @@ def build_config(base_path):
     },
     "spell_skunkspray_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "skunk spray"
     },
     "spell_skunkspray_other_on": {
       "alert": {},
@@ -9934,8 +9994,8 @@ def build_config(base_path):
     },
     "spell_slime_mist_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "slime mist"
     },
     "spell_slime_mist_you_on": {
       "alert": {},
@@ -9964,8 +10024,8 @@ def build_config(base_path):
     },
     "spell_snakeelefireburst_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "snake fire"
     },
     "spell_solons_bewitching_bravura_you_on": {
       "alert": {},
@@ -10034,8 +10094,8 @@ def build_config(base_path):
     },
     "spell_soul_devour_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "soul devour"
     },
     "spell_soul_leech_you_on": {
       "alert": {},
@@ -10274,8 +10334,8 @@ def build_config(base_path):
     },
     "spell_static_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "group",
+      "sound": "static"
     },
     "spell_steam_overload_other_on": {
       "alert": {},
@@ -10314,8 +10374,8 @@ def build_config(base_path):
     },
     "spell_stream_of_acid_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "stream of acid"
     },
     "spell_stream_of_acid_other_on": {
       "alert": {},
@@ -10364,8 +10424,8 @@ def build_config(base_path):
     },
     "spell_stun_breath_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "stun breath"
     },
     "spell_stun_breath_other_on": {
       "alert": {},
@@ -10644,13 +10704,13 @@ def build_config(base_path):
     },
     "spell_the_dains_justice_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "teleport"
     },
     "spell_the_dains_justice_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "teleport"
     },
     "spell_the_unspoken_word_other_on": {
       "alert": {},
@@ -10819,8 +10879,8 @@ def build_config(base_path):
     },
     "spell_travelerboots_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "why not buy journeyman boots?"
     },
     "spell_tremor_you_on": {
       "alert": {},
@@ -11009,8 +11069,8 @@ def build_config(base_path):
     },
     "spell_wave_of_cold_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "wave of cold"
     },
     "spell_wave_of_fire_other_on": {
       "alert": {},
@@ -11019,13 +11079,13 @@ def build_config(base_path):
     },
     "spell_wave_of_fire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "wave of fire"
     },
     "spell_wave_of_flame_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "wave of flame"
     },
     "spell_wave_of_flame_you_on": {
       "alert": {},
@@ -11074,8 +11134,8 @@ def build_config(base_path):
     },
     "spell_wildfire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "the druids are clearly upset"
     },
     "spell_winds_of_gelid_other_on": {
       "alert": {},
@@ -11104,8 +11164,8 @@ def build_config(base_path):
     },
     "spell_wonderous_rapidity_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "gotta go fast"
     },
     "spell_word_of_redemption:_other_on": {
       "alert": {},
