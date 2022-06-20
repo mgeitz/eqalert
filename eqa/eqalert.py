@@ -54,24 +54,30 @@ def startup(base_path):
             print("    - putting this stuff in " + base_path)
             os.makedirs(base_path)
 
-        # Generating a config file
-        if not os.path.exists(base_path + "config.json"):
-            print("    - generating json config")
-            eqa_config.init(base_path)
+        # Make the config directory
+        if not os.path.exists(base_path + "config/"):
+            print("    - making a place for way too many config files")
+            os.makedirs(base_path + "config/")
+            os.makedirs(base_path + "config/line-alerts/")
+
+        # Make Any Missing Config Files
+        eqa_config.init(base_path)
 
         # Read config paths
-        config = eqa_config.read_config(base_path)
-        log_path = config["settings"]["paths"]["alert_log"]
-        data_path = config["settings"]["paths"]["data"]
-        encounter_path = config["settings"]["paths"]["encounter"]
-        sound_path = config["settings"]["paths"]["sound"]
-        tmp_sound_path = config["settings"]["paths"]["tmp_sound"]
-        char_log_path = config["settings"]["paths"]["char_log"]
+        configs = eqa_config.read_config(base_path)
+        log_path = configs.settings.config["settings"]["paths"]["eqalert_log"]
+        data_path = configs.settings.config["settings"]["paths"]["data"]
+        encounter_path = configs.settings.config["settings"]["paths"]["encounter"]
+        sound_path = configs.settings.config["settings"]["paths"]["sound"]
+        tmp_sound_path = configs.settings.config["settings"]["paths"]["tmp_sound"]
+        char_log_path = configs.settings.config["settings"]["paths"]["everquest_logs"]
+        eq_files_path = configs.settings.config["settings"]["paths"]["everquest_files"]
 
         # Validate char_log directory path
         if not os.path.exists(char_log_path):
             print(
-                "There was an issue building initial configuration, please check settings > paths > char_log in config.json"
+                "Please review paths in config/settings.json. Cannot find a character log: "
+                + str(configs.settings.config["settings"]["paths"]["everquest_logs"])
             )
             exit(1)
 
@@ -87,11 +93,6 @@ def startup(base_path):
         if not os.path.exists(log_path + "debug/"):
             print("    - making a place for optional debug logs")
             os.makedirs(log_path + "debug/")
-
-        # Make the encounter directory
-        if not os.path.exists(encounter_path):
-            print("    - making a place for encounter logs")
-            os.makedirs(encounter_path)
 
         # Make the sound directory
         if not os.path.exists(sound_path):
@@ -113,41 +114,37 @@ def startup(base_path):
             print("    - making a place for data")
             os.makedirs(data_path)
 
-        # Update config char_logs
-        eqa_config.update_logs(base_path)
+        # Generate Spell Timers
+        eq_spells_file_path = eq_files_path + "spells_us.txt"
+        if os.path.isfile(eq_spells_file_path):
+            eqa_config.update_spell_timers(data_path, eq_spells_file_path)
+        else:
+            print(
+                "Please review paths in config/settings.json. Unable to find spells_us.txt in "
+                + eq_spells_file_path
+            )
 
-        config = eqa_config.read_config(base_path)
-        server = config["last_state"]["server"]
-        char = config["last_state"]["character"]
+        # Make the encounter directory
+        if not os.path.exists(encounter_path):
+            print("    - making a place for encounter logs")
+            os.makedirs(encounter_path)
+
+        # Update config char_logs
+        eqa_config.update_logs(configs)
+
+        server = configs.settings.config["last_state"]["server"]
+        char = configs.settings.config["last_state"]["character"]
         char_log = (
-            config["settings"]["paths"]["char_log"]
-            + config["char_logs"][char + "_" + server]["file_name"]
+            configs.settings.config["settings"]["paths"]["everquest_logs"]
+            + configs.characters.config["char_logs"][char + "_" + server]["file_name"]
         )
 
         # Validate last state char log
         if not os.path.exists(char_log):
             print(
-                "Please review `settings > paths` in config.json, a log with that default server and character cannot be found."
+                "Please review paths in config/settings.json. Cannot find character log: "
+                + str(char_log)
             )
-            exit(1)
-
-        # Validate config version
-        if "version" not in config["settings"]:
-            print(
-                "Please move or delete your current configuration. A new config.json file must be generated."
-            )
-            exit(1)
-        elif not config["settings"]["version"] == str(
-            pkg_resources.get_distribution("eqalert").version
-        ):
-            old_version = str(config["settings"]["version"]).replace(".", "-")
-            archive_config = base_path + "config_" + old_version + ".json"
-            print("Your config.json was generated by a older version of eqalert.")
-            print("Archiving old config to " + archive_config)
-            os.rename(base_path + "config.json", archive_config)
-            print("Generating new config.json")
-            eqa_config.init(base_path)
-            print("Please validate your new config.json and relaunch eqalert.")
             exit(1)
 
     except Exception as e:
@@ -156,7 +153,7 @@ def startup(base_path):
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
-            + "# Sometimes this is solved by allowing config regeneration"
+            + "# Sometimes this is solved by forcing config regeneration"
         )
         exit(1)
 
@@ -172,13 +169,13 @@ def main():
     startup(base_path)
 
     # Read in config and state
-    config = eqa_config.read_config(base_path)
-    server = config["last_state"]["server"]
-    char = config["last_state"]["character"]
-    state = eqa_config.get_last_state(base_path, char, server)
+    configs = eqa_config.read_config(base_path)
+    server = configs.settings.config["last_state"]["server"]
+    char = configs.settings.config["last_state"]["character"]
+    state = eqa_config.get_last_state(configs, char, server)
     char_log = (
-        config["settings"]["paths"]["char_log"]
-        + config["char_logs"][char + "_" + server]["file_name"]
+        configs.settings.config["settings"]["paths"]["everquest_logs"]
+        + configs.characters.config["char_logs"][char + "_" + server]["file_name"]
     )
 
     # Thread Events
@@ -236,7 +233,7 @@ def main():
         target=eqa_keys.process,
         args=(
             state,
-            config,
+            configs,
             display_q,
             keyboard_q,
             system_q,
@@ -258,7 +255,7 @@ def main():
     process_action = threading.Thread(
         target=eqa_action.process,
         args=(
-            config,
+            configs,
             base_path,
             state,
             action_q,
@@ -281,7 +278,7 @@ def main():
     process_encounter = threading.Thread(
         target=eqa_encounter.process,
         args=(
-            config,
+            configs,
             base_path,
             encounter_q,
             system_q,
@@ -299,21 +296,21 @@ def main():
 
     ### Thread 1
     process_sound_1 = threading.Thread(
-        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload, state)
+        target=eqa_sound.process, args=(configs, sound_q, exit_flag, cfg_reload, state)
     )
     process_sound_1.daemon = True
     process_sound_1.start()
 
     ### Thread 2
     process_sound_2 = threading.Thread(
-        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload, state)
+        target=eqa_sound.process, args=(configs, sound_q, exit_flag, cfg_reload, state)
     )
     process_sound_2.daemon = True
     process_sound_2.start()
 
     ### Thread 3
     process_sound_3 = threading.Thread(
-        target=eqa_sound.process, args=(config, sound_q, exit_flag, cfg_reload, state)
+        target=eqa_sound.process, args=(configs, sound_q, exit_flag, cfg_reload, state)
     )
     process_sound_3.daemon = True
     process_sound_3.start()
@@ -322,7 +319,7 @@ def main():
     ## Consume display_q
     process_display = threading.Thread(
         target=eqa_curses.display,
-        args=(screen, display_q, state, config, exit_flag, cfg_reload),
+        args=(screen, display_q, state, configs, exit_flag, cfg_reload),
     )
     process_display.daemon = True
     process_display.start()
@@ -368,7 +365,7 @@ def main():
                         state.set_zone(new_message.payload)
                         state.set_direction("unavailable")
                         state.set_loc([0.00, 0.00, 0.00])
-                        eqa_config.set_last_state(state, base_path)
+                        eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -377,7 +374,7 @@ def main():
                     ### Update location
                     elif new_message.tx == "loc":
                         state.set_loc(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
+                        eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -386,7 +383,7 @@ def main():
                     ### Update direction
                     elif new_message.tx == "direction":
                         state.set_direction(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
+                        eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -394,17 +391,17 @@ def main():
                         )
                     ### Update afk status
                     elif new_message.tx == "afk":
-                        system_afk(base_path, state, display_q, new_message)
+                        system_afk(configs, state, display_q, new_message)
                     ### Update raid status
                     elif new_message.tx == "raid":
-                        system_raid(base_path, state, display_q, sound_q, new_message)
+                        system_raid(configs, state, display_q, sound_q, new_message)
                     ### Update debug status
                     elif new_message.tx == "debug":
-                        system_debug(base_path, state, display_q, sound_q, new_message)
+                        system_debug(configs, state, display_q, sound_q, new_message)
                     ### Update encounter parse status
                     elif new_message.tx == "encounter":
                         system_encounter(
-                            base_path,
+                            configs,
                             state,
                             display_q,
                             sound_q,
@@ -414,7 +411,7 @@ def main():
                     ### Update group status
                     elif new_message.tx == "group":
                         state.set_group(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
+                        eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -423,7 +420,7 @@ def main():
                     ### Update group leader status
                     elif new_message.tx == "leader":
                         state.set_leader(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
+                        eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -432,7 +429,7 @@ def main():
                     ### Update encumbered status
                     elif new_message.tx == "encumbered":
                         state.set_encumbered(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
+                        eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -440,11 +437,11 @@ def main():
                         )
                     ### Update automatic timer status
                     elif new_message.tx == "timer":
-                        system_timer(state, base_path, display_q, sound_q, new_message)
+                        system_timer(configs, state, display_q, sound_q, new_message)
                     ### Update bind status
                     elif new_message.tx == "bind":
                         state.set_bind(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
+                        eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -453,7 +450,7 @@ def main():
                     ### Update level status
                     elif new_message.tx == "level":
                         state.set_level(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
+                        eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -462,7 +459,7 @@ def main():
                     ### Update class status
                     elif new_message.tx == "class":
                         state.set_class(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
+                        eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -471,7 +468,7 @@ def main():
                     ### Update guild status
                     elif new_message.tx == "guild":
                         state.set_guild(new_message.payload)
-                        eqa_config.set_last_state(state, base_path)
+                        eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -479,17 +476,21 @@ def main():
                         )
                     ### Update mute status
                     elif new_message.tx == "mute":
-                        system_mute(base_path, state, display_q, sound_q, new_message)
+                        system_mute(configs, state, display_q, sound_q, new_message)
                     ### Update character
                     elif new_message.tx == "new_character":
                         new_char_log = (
-                            config["settings"]["paths"]["char_log"]
-                            + config["char_logs"][new_message.payload]["file_name"]
+                            configs.settings.config["settings"]["paths"][
+                                "everquest_logs"
+                            ]
+                            + configs.characters.config["char_logs"][
+                                new_message.payload
+                            ]["file_name"]
                         )
                         #### Ensure char/server combo exists as file
                         if os.path.exists(new_char_log):
                             # Record old char state before swapping
-                            eqa_config.set_last_state(state, base_path)
+                            eqa_config.set_last_state(state, configs)
                             # Stop watch on current log
                             log_reload.set()
                             process_log.join()
@@ -497,7 +498,7 @@ def main():
                             # Set new character
                             char_name, char_server = new_message.payload.split("_")
                             new_state = eqa_config.get_last_state(
-                                base_path, char_name, char_server
+                                configs, char_name, char_server
                             )
                             state.set_char(char_name)
                             state.set_server(char_server)
@@ -518,7 +519,7 @@ def main():
                             state.set_encounter_parse_save(new_state.save_parse)
                             state.set_auto_raid(new_state.auto_raid)
                             state.set_auto_mob_timer(new_state.auto_mob_timer)
-                            eqa_config.set_last_state(state, base_path)
+                            eqa_config.set_last_state(state, configs)
                             char_log = new_char_log
                             # Start new log watch
                             process_log = threading.Thread(
@@ -565,15 +566,15 @@ def main():
                     ### Reload config
                     elif new_message.tx == "reload_config":
                         #### Reload config
-                        eqa_config.update_logs(base_path)
-                        config = eqa_config.read_config(base_path)
+                        eqa_config.update_logs(configs)
+                        configs = eqa_config.read_config(base_path)
                         #### Reread characters
                         new_state = eqa_config.get_last_state(
-                            base_path, state.char, state.server
+                            configs, state.char, state.server
                         )
                         state.set_char(state.char)
                         state.set_server(state.server)
-                        state.set_chars(eqa_config.get_config_chars(config))
+                        state.set_chars(eqa_config.get_config_chars(configs))
                         state.set_zone(new_state.zone)
                         state.set_loc(new_state.loc)
                         state.set_direction(new_state.direction)
@@ -609,7 +610,7 @@ def main():
                                 screen,
                                 display_q,
                                 state,
-                                config,
+                                configs,
                                 exit_flag,
                                 cfg_reload,
                             ),
@@ -622,7 +623,7 @@ def main():
                             target=eqa_keys.process,
                             args=(
                                 state,
-                                config,
+                                configs,
                                 display_q,
                                 keyboard_q,
                                 system_q,
@@ -639,7 +640,7 @@ def main():
                         process_action = threading.Thread(
                             target=eqa_action.process,
                             args=(
-                                config,
+                                configs,
                                 base_path,
                                 state,
                                 action_q,
@@ -660,7 +661,7 @@ def main():
                         process_encounter = threading.Thread(
                             target=eqa_encounter.process,
                             args=(
-                                config,
+                                configs,
                                 base_path,
                                 encounter_q,
                                 system_q,
@@ -678,7 +679,7 @@ def main():
                         ##### Thread 1
                         process_sound_1 = threading.Thread(
                             target=eqa_sound.process,
-                            args=(config, sound_q, exit_flag, cfg_reload, state),
+                            args=(configs, sound_q, exit_flag, cfg_reload, state),
                         )
                         process_sound_1.daemon = True
                         process_sound_1.start()
@@ -686,7 +687,7 @@ def main():
                         ##### Thread 2
                         process_sound_2 = threading.Thread(
                             target=eqa_sound.process,
-                            args=(config, sound_q, exit_flag, cfg_reload, state),
+                            args=(configs, sound_q, exit_flag, cfg_reload, state),
                         )
                         process_sound_2.daemon = True
                         process_sound_2.start()
@@ -694,7 +695,7 @@ def main():
                         ##### Thread 3
                         process_sound_3 = threading.Thread(
                             target=eqa_sound.process,
-                            args=(config, sound_q, exit_flag, cfg_reload, state),
+                            args=(configs, sound_q, exit_flag, cfg_reload, state),
                         )
                         process_sound_3.daemon = True
                         process_sound_3.start()
@@ -745,13 +746,13 @@ def main():
     eqa_curses.close_screens(screen)
 
 
-def system_raid(base_path, state, display_q, sound_q, new_message):
+def system_raid(configs, state, display_q, sound_q, new_message):
     """Perform system tasks for raid behavior"""
 
     try:
         if state.raid == "false" and new_message.rx == "toggle":
             state.set_raid("true")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -763,7 +764,7 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
             sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
         elif state.raid == "true" and new_message.rx == "toggle":
             state.set_raid("false")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -775,7 +776,7 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
             sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
         elif state.raid == "false" and new_message.rx == "true":
             state.set_raid("true")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -786,7 +787,7 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
             )
         elif state.raid == "true" and new_message.rx == "false":
             state.set_raid("false")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -801,7 +802,7 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
             and state.auto_raid == "false"
         ):
             state.set_auto_raid("true")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -821,7 +822,7 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
             and state.auto_raid == "true"
         ):
             state.set_auto_raid("false")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -848,13 +849,13 @@ def system_raid(base_path, state, display_q, sound_q, new_message):
         )
 
 
-def system_afk(base_path, state, display_q, new_message):
+def system_afk(configs, state, display_q, new_message):
     """Perform system tasks for afk behavior"""
 
     try:
         if new_message.payload == "true" and state.afk == "false":
             state.set_afk(new_message.payload)
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -865,7 +866,7 @@ def system_afk(base_path, state, display_q, new_message):
             )
         elif new_message.payload == "false" and state.afk == "true":
             state.set_afk(new_message.payload)
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -887,14 +888,14 @@ def system_afk(base_path, state, display_q, new_message):
         )
 
 
-def system_timer(state, base_path, display_q, sound_q, new_message):
+def system_timer(configs, state, display_q, sound_q, new_message):
     """Perform system tasks for auto timer behavior"""
 
     try:
         if new_message.rx == "mob":
             if state.auto_mob_timer == "false" and new_message.payload == "true":
                 state.set_auto_mob_timer("true")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -908,7 +909,7 @@ def system_timer(state, base_path, display_q, sound_q, new_message):
                 )
             elif state.auto_mob_timer == "true" and new_message.payload == "false":
                 state.set_auto_mob_timer("false")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -935,13 +936,13 @@ def system_timer(state, base_path, display_q, sound_q, new_message):
         )
 
 
-def system_debug(base_path, state, display_q, sound_q, new_message):
+def system_debug(configs, state, display_q, sound_q, new_message):
     """Perform system tasks for debug behavior"""
 
     try:
         if state.debug == "false" and new_message.rx == "toggle":
             state.set_debug("true")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -955,7 +956,7 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
             )
         elif state.debug == "true" and new_message.rx == "toggle":
             state.set_debug("false")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -978,13 +979,13 @@ def system_debug(base_path, state, display_q, sound_q, new_message):
         )
 
 
-def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_message):
+def system_encounter(configs, state, display_q, sound_q, encounter_q, new_message):
     """Perform system tasks for encounter parse behavior"""
 
     try:
         if state.encounter_parse == "false" and new_message.rx == "toggle":
             state.set_encounter_parse("true")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -1001,7 +1002,7 @@ def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_mess
             sound_q.put(eqa_struct.sound("speak", "Encounter Parse Enabled"))
         elif state.encounter_parse == "true" and new_message.rx == "toggle":
             state.set_encounter_parse("false")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -1017,7 +1018,7 @@ def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_mess
             and new_message.payload == "false"
         ):
             state.set_encounter_parse_save("false")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -1035,7 +1036,7 @@ def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_mess
             and new_message.payload == "true"
         ):
             state.set_encounter_parse_save("true")
-            eqa_config.set_last_state(state, base_path)
+            eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
                     eqa_settings.eqa_time(),
@@ -1074,7 +1075,7 @@ def system_encounter(base_path, state, display_q, sound_q, encounter_q, new_mess
         )
 
 
-def system_mute(base_path, state, display_q, sound_q, new_message):
+def system_mute(configs, state, display_q, sound_q, new_message):
     """Perform system tasks for mute behavior"""
 
     try:
@@ -1083,7 +1084,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
                 sound_q.put(eqa_struct.sound("mute_speak", "true"))
                 sound_q.put(eqa_struct.sound("mute_alert", "true"))
                 state.set_mute("true")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -1096,7 +1097,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
                 sound_q.put(eqa_struct.sound("mute_speak", "false"))
                 sound_q.put(eqa_struct.sound("mute_alert", "false"))
                 state.set_mute("false")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -1110,7 +1111,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
             if state.mute == "false":
                 sound_q.put(eqa_struct.sound("mute_speak", "true"))
                 state.set_mute("speak")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -1122,7 +1123,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
             elif state.mute == "alert":
                 sound_q.put(eqa_struct.sound("mute_speak", "true"))
                 state.set_mute("true")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -1134,7 +1135,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
             elif state.mute == "true":
                 sound_q.put(eqa_struct.sound("mute_speak", "false"))
                 state.set_mute("alert")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -1147,7 +1148,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
             else:
                 sound_q.put(eqa_struct.sound("mute_speak", "false"))
                 state.set_mute("false")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -1161,7 +1162,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
             if state.mute == "false":
                 sound_q.put(eqa_struct.sound("mute_alert", "true"))
                 state.set_mute("alert")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -1173,7 +1174,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
             elif state.mute == "speak":
                 sound_q.put(eqa_struct.sound("mute_alert", "true"))
                 state.set_mute("true")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -1185,7 +1186,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
             elif state.mute == "true":
                 sound_q.put(eqa_struct.sound("mute_alert", "false"))
                 state.set_mute("speak")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),
@@ -1198,7 +1199,7 @@ def system_mute(base_path, state, display_q, sound_q, new_message):
             else:
                 sound_q.put(eqa_struct.sound("mute_alert", "false"))
                 state.set_mute("false")
-                eqa_config.set_last_state(state, base_path)
+                eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
                         eqa_settings.eqa_time(),

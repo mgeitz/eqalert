@@ -34,7 +34,7 @@ import eqa.lib.struct as eqa_struct
 
 
 def process(
-    config, base_path, encounter_q, system_q, display_q, exit_flag, cfg_reload, state
+    configs, base_path, encounter_q, system_q, display_q, exit_flag, cfg_reload, state
 ):
     """
     Process: encounter_q
@@ -92,7 +92,7 @@ def process(
                                     line,
                                     encounter_stack,
                                     state,
-                                    config,
+                                    configs,
                                     display_q,
                                 )
                             else:
@@ -112,7 +112,7 @@ def process(
                                 line,
                                 encounter_stack,
                                 state,
-                                config,
+                                configs,
                                 display_q,
                             )
 
@@ -126,7 +126,7 @@ def process(
                             line,
                             encounter_stack,
                             state,
-                            config,
+                            configs,
                             display_q,
                         )
 
@@ -1243,7 +1243,7 @@ def encounter_spell(line_type, line_time, line, encounter_stack, state):
 
 
 def encounter_report(
-    line_type, line_time, line, encounter_stack, state, config, display_q
+    line_type, line_time, line, encounter_stack, state, configs, display_q
 ):
     """Report encounter stats"""
 
@@ -1303,7 +1303,9 @@ def encounter_report(
                 encounter_parse_time = datetime.now().strftime("%H-%M-%s")
                 encounter_parse_date = datetime.now().strftime("%Y-%m-%d")
 
-                encounter_path = config["settings"]["paths"]["encounter"]
+                encounter_path = configs.settings.config["settings"]["paths"][
+                    "encounter"
+                ]
                 clean_zone = re.sub(r"[^\w\s]", "", state.zone)
                 if not os.path.exists(encounter_path):
                     os.makedirs(encounter_path)
@@ -1861,7 +1863,12 @@ def encounter_report(
                 )
 
                 ## Write Encounter to File
-                if config["settings"]["encounter_parsing"]["auto_save"] == "true":
+                if (
+                    configs.settings.config["settings"]["encounter_parsing"][
+                        "auto_save"
+                    ]
+                    == "true"
+                ):
                     encounter_report_json_string = json.dumps(
                         encounter_report, indent=2
                     )

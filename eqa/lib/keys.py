@@ -28,7 +28,7 @@ import eqa.lib.struct as eqa_struct
 
 def process(
     state,
-    config,
+    configs,
     display_q,
     keyboard_q,
     system_q,
@@ -41,7 +41,7 @@ def process(
     """
 
     chars = state.chars
-    lines = len(config["line"].keys())
+    lines = len(configs.alerts.config["line"].keys())
     key = ""
     page = "events"
     settings = "character"

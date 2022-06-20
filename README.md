@@ -32,7 +32,8 @@ $ eqalert
 You should now see `~/.eqa/` with the following structure
 ```
 $HOME/.eqa
-        ⎿ config.json
+        ⎿ config/
+          ⎿ line-alerts/
         ⎿ data/
         ⎿ encounters/
         ⎿ log/
@@ -40,20 +41,30 @@ $HOME/.eqa
         ⎿ sound/
 ```
 
-Spot check these default paths generated in `config.json`
+Spot check these default paths generated in `config/settings.json`
 ```
-    "settings": {
-        "paths": {
-            "alert_log": "[$HOME/.eqa/]log/",
-            "data": "[$HOME/.eqa/]data/",
-            "encounter": "[$HOME/.eqa/]encounters/",
-            "char_log": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
-            "sound": "[$HOME/.eqa/]sound/",
-            "tmp_sound": "/tmp/eqa/sound/"
-        },
+  "settings": {
+    "paths": {
+      "eqalert_log": "[$HOME/.eqa/]log/",
+      "data": "[$HOME/.eqa/]data/",
+      "encounter": "[$HOME/.eqa/]encounters/",
+      "everquest_logs": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
+      "everquest_files": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/",
+      "sound": "[$HOME/.eqa/]sound/",
+      "tmp_sound": "/tmp/eqa/sound/"
+    },
 ```
+> Press `0` to reload your configs or restart the program if any changes were made.  Though generally, it's a good idea to stop eqalert before manually editing your config files.
 
-> Press `0` to reload your config or restart the program if any changes were made to the config
+## Data
+
+### Spell Timers
+
+On first run, eqalert will try to generate `data/spell-timers.json` by parsing `spells_us.txt` in your EverQuest directory.
+
+This file will regenerate with each new `eqalert` version or when `data/spell-timers.json` doesn't exist.
+
+> If there is a project1999 update it is recommended to delete `data/spell-timers.json` to force `data/spell-timers.json` regeneration
 
 
 ## Controls
@@ -144,11 +155,17 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 ## Custom Alerting
 
-Modify `~/.eqa/config.json` to customize alerts.
+Modify `~/.eqa/config/line-alerts/*.json` to customize alerts.
+
+Due to how many line matches there are, the configuration for their reactions have been split into several json files under config/line-alerts/
+
+Anything matched by the parser not found in configuration is automatically added to config/line-alerts/other.json
+
+Modify `line_type` values to customize alerts accordingly.
 
 ### Line Types
 
-Here is a an example configuration for a given line type in the config:
+Here is a an example configuration for a given line type a config file:
 ```
     "line_type": {
       "alert": {},
@@ -157,7 +174,7 @@ Here is a an example configuration for a given line type in the config:
     },
 ```
 
-There is a configuration entry for all lines matched by the parser.  If a new one is discovered, it is automatically added to the config with the values in the example above.
+There is a configuration entry for all lines matched by the parser.  If a new one is discovered, it is automatically added to config/line-alerts/other.json with the values in the example above.
 
 `line_type` here is whatever semi-arbitrary name I've given for a certain line match.  For each given line type you can configure alerts, a reaction, and a sound.
 
@@ -275,10 +292,11 @@ For example, the below configuration will alert if the word `help` is found in a
 This can be helpful if you would like to alert for something not yet matched by the parser, though your [contribution](CONTRIBUTING.md#pull-requests) to a new line type match in the parser would also be welcome!
 
 ### Zones
+Zone data is stored in `config/zones.json`
 
 #### raid_mode
-- `false`: Considered a non-raid zone
-- `true`: Parser raid mode will auto-enable in this zone
+- `false`: If enabled, auto-disable raid mode in this zone
+- `true`: If enabled, auto-enable raid mode in this zone
 
 #### timer
 - `#`: The value in seconds to associate to a default timer in a given zone
