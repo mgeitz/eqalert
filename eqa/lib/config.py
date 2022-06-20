@@ -7039,8 +7039,8 @@ def build_config(base_path):
     },
     "spell_line_enc_slow_other_on": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "enchanter slow"
+      "reaction": "false",
+      "sound": "false"
     },
     "spell_line_enc_slow_you_off": {
       "alert": {},
@@ -7049,8 +7049,8 @@ def build_config(base_path):
     },
     "spell_line_enc_slow_you_on": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "enchanter slow"
+      "reaction": "false",
+      "sound": "false"
     },
     "spell_line_enc_stun_other_on": {
       "alert": {},
