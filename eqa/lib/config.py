@@ -1863,8 +1863,9 @@ def update_spell_timers(data_path, eq_spells_file_path):
 
                     ## Relevant values
                     spell_name = modified_line[1]
-                    spell_buff_duration = str(int(modified_line[17]) * 6)
-                    spell_aeduration = str(int(modified_line[18]) * 6)
+                    spell_buff_duration = modified_line[17]
+                    spell_aeduration = modified_line[18]
+                    spell_buffdurationformula = modified_line[16]
 
                     ## Clean spell name
                     line_type_spell_name = re.sub(
@@ -1883,7 +1884,12 @@ def update_spell_timers(data_path, eq_spells_file_path):
                     if line_type_spell_name in valid_spells:
                         prefixed_line_type_spell_name = "spell_" + line_type_spell_name
                         spell_timer_json["spells"].update(
-                            {prefixed_line_type_spell_name: spell_timer}
+                            {
+                                prefixed_line_type_spell_name: {
+                                    "time": spell_timer,
+                                    "formula": spell_buffdurationformula,
+                                }
+                            }
                         )
 
                     json_data = open(spell_timer_file, "w")
@@ -1904,6 +1910,7 @@ def update_spell_timers(data_path, eq_spells_file_path):
                 spell_name = modified_line[1]
                 spell_buff_duration = str(int(modified_line[17]) * 6)
                 spell_aeduration = str(int(modified_line[18]) * 6)
+                spell_buffdurationformula = modified_line[16]
 
                 ## Clean spell name
                 line_type_spell_name = re.sub(
@@ -1922,7 +1929,12 @@ def update_spell_timers(data_path, eq_spells_file_path):
                 if line_type_spell_name in valid_spells:
                     prefixed_line_type_spell_name = "spell_" + line_type_spell_name
                     spell_timer_json["spells"].update(
-                        {prefixed_line_type_spell_name: spell_timer}
+                        {
+                            prefixed_line_type_spell_name: {
+                                "time": spell_timer,
+                                "formula": spell_buffdurationformula,
+                            }
+                        }
                     )
 
                 json_data = open(spell_timer_file, "w")
