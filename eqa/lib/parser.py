@@ -2872,7 +2872,7 @@ def check_spell_specific(line):
                 )
                 is not None
             ):
-                return "sppell_talisman_of_the_serpent_you_on"
+                return "spell_talisman_of_the_serpent_you_on"
             elif re.fullmatch(r"^You hear the barking of Tashan\.$", line) is not None:
                 return "spell_tashan_you_on"
             elif (
