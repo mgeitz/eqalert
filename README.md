@@ -157,9 +157,9 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 Modify `~/.eqa/config/line-alerts/*.json` to customize alerts.
 
-Due to how many line matches there are, the configuration for their reactions have been split into several json files under config/line-alerts/
+Due to how many line matches there are, the configuration for their reactions have been split into several json files under `[$HOME/.eqa]/config/line-alerts/*.json`
 
-Anything matched by the parser not found in configuration is automatically added to config/line-alerts/other.json
+Anything matched by the parser not found in configuration is automatically added to `[$HOME/.eqa]/config/line-alerts/other.json`
 
 Modify `line_type` values to customize alerts accordingly.
 
