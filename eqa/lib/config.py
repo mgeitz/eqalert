@@ -2726,6 +2726,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_you_melee_dodge": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_you_melee_miss": {
       "alert": {},
       "reaction": "false",
@@ -2839,6 +2844,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spells_distracted": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spells_fizzle_other": {
       "alert": {},
       "reaction": "false",
@@ -2863,6 +2873,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "spells_illusion_dropping_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "illusion is dropping"
     },
     "spells_interrupt_other": {
       "alert": {},
@@ -2909,7 +2924,12 @@ def build_config(base_path):
       "reaction": "raid",
       "sound": "did not hold"
     },
-    "spells_protected": {
+    "spells_protected_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_protected_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -2943,6 +2963,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "you have been summoned"
+    },
+    "spells_too_powerful": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "too powerful"
     },
     "spells_worn_off": {
       "alert": {},
@@ -7039,8 +7064,8 @@ def build_config(base_path):
     },
     "spell_line_enc_slow_other_on": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "enchanter slow"
+      "reaction": "false",
+      "sound": "false"
     },
     "spell_line_enc_slow_you_off": {
       "alert": {},
@@ -7049,8 +7074,8 @@ def build_config(base_path):
     },
     "spell_line_enc_slow_you_on": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "enchanter slow"
+      "reaction": "false",
+      "sound": "false"
     },
     "spell_line_enc_stun_other_on": {
       "alert": {},
@@ -8270,7 +8295,7 @@ def build_config(base_path):
     "spell_line_wolf_form_you_on": {
       "alert": {},
       "reaction": "solo_only",
-      "sound": "bork bork"
+      "sound": "woof"
     },
     "spell_line_word_other_on": {
       "alert": {},
@@ -10879,8 +10904,8 @@ def build_config(base_path):
     },
     "spell_travelerboots_you_on": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "why not buy journeyman boots?"
+      "reaction": "false",
+      "sound": "false"
     },
     "spell_tremor_you_on": {
       "alert": {},
@@ -11483,6 +11508,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "eat_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "location": {
       "alert": {},
       "reaction": "false",
@@ -11626,6 +11656,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "hide_drop": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "hide drop"
+    },
+    "hide_enabled": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "motd_welcome": {
       "alert": {},
       "reaction": "false",
@@ -11754,10 +11794,20 @@ def build_config(base_path):
     new_line_group_system_messages_config = """
 {
   "line": {
+    "group_alone": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "is anyone there?"
+    },
     "group_created": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "group_considering": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "considering"
     },
     "group_disbanded": {
       "alert": {},
@@ -11813,6 +11863,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "true"
+    },
+    "group_removed_other": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
     }
   },
   "version": "%s"
@@ -11842,12 +11897,22 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "trade_cancel_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "I have altered the deal"
+    },
     "trade_item": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
     "trade_money": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "trade_money_add": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
