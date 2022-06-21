@@ -10879,8 +10879,8 @@ def build_config(base_path):
     },
     "spell_travelerboots_you_on": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "why not buy journeyman boots?"
+      "reaction": "false",
+      "sound": "false"
     },
     "spell_tremor_you_on": {
       "alert": {},
