@@ -5158,7 +5158,7 @@ def check_spell_specific(line):
             elif re.fullmatch(r"^A wave crushes you\.$", line) is not None:
                 return "spell_waves_of_the_deep_sea_you_on"
 
-        elif re.fullmatch(r"^An aegis of faith engulfs you\.$", line) is not None:
+        if re.fullmatch(r"^An aegis of faith engulfs you\.$", line) is not None:
             return "spell_aegis_you_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ experiences a quickening\.$", line) is not None
