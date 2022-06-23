@@ -11656,6 +11656,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "fall_damage_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "fall_damage_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "hide_drop": {
       "alert": {},
       "reaction": "solo",

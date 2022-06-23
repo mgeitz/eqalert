@@ -817,6 +817,10 @@ def check_system_messages(line):
             return "hide_drop"
         elif re.fullmatch(r"^You begin to hide\.\.\.$", line) is not None:
             return "hide_enabled"
+        elif re.fullmatch(r"^[a-zA-Z\s]+ was injured by falling\.$", line) is not None:
+            return "fall_damage_other"
+        elif re.fullmatch(r"^YOU were injured by falling\.$", line) is not None:
+            return "fall_damage_you"
 
         return None
 
