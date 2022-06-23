@@ -817,6 +817,10 @@ def check_system_messages(line):
             return "hide_drop"
         elif re.fullmatch(r"^You begin to hide\.\.\.$", line) is not None:
             return "hide_enabled"
+        elif re.fullmatch(r"^[a-zA-Z\s]+ was injured by falling\.$", line) is not None:
+            return "fall_damage_other"
+        elif re.fullmatch(r"^YOU were injured by falling\.$", line) is not None:
+            return "fall_damage_you"
 
         return None
 
@@ -5158,7 +5162,7 @@ def check_spell_specific(line):
             elif re.fullmatch(r"^A wave crushes you\.$", line) is not None:
                 return "spell_waves_of_the_deep_sea_you_on"
 
-        elif re.fullmatch(r"^An aegis of faith engulfs you\.$", line) is not None:
+        if re.fullmatch(r"^An aegis of faith engulfs you\.$", line) is not None:
             return "spell_aegis_you_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ experiences a quickening\.$", line) is not None
