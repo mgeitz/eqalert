@@ -178,23 +178,23 @@ def main():
         + configs.characters.config["char_logs"][char + "_" + server]["file_name"]
     )
 
-    # Thread Events
-    cfg_reload = threading.Event()
-    log_reload = threading.Event()
-    exit_flag = threading.Event()
-
-    # Queues
-    keyboard_q = queue.Queue()
-    action_q = queue.Queue()
-    display_q = queue.Queue()
-    sound_q = queue.Queue()
-    system_q = queue.Queue()
-    log_q = queue.Queue()
-    encounter_q = queue.Queue()
-    timer_q = queue.Queue()
-
     # Initialize curses
     screen = eqa_curses.init(state)
+
+    # Thread Events
+    cfg_reload = threading.Event()
+    exit_flag = threading.Event()
+    log_reload = threading.Event()
+
+    # Queues
+    action_q = queue.Queue()
+    display_q = queue.Queue()
+    encounter_q = queue.Queue()
+    keyboard_q = queue.Queue()
+    log_q = queue.Queue()
+    sound_q = queue.Queue()
+    system_q = queue.Queue()
+    timer_q = queue.Queue()
 
     # Read Log File
     ## Consume char_log
@@ -228,7 +228,7 @@ def main():
 
     # Act on Keyboard Events
     ## Process keyboard_q
-    ## Produce display_q, sound_q, system_q
+    ## Produce display_q, system_q
     process_keys = threading.Thread(
         target=eqa_keys.process,
         args=(
@@ -246,12 +246,11 @@ def main():
 
     # Act on Parsed Log Lines
     ## Consume action_q
-    ## Produce display_q, sound_q, system_q
+    ## Produce display_q, encounter_q, sound_q, system_q, timer_q
 
     ### Mute List
     mute_list = []
 
-    ### Thread 1
     process_action = threading.Thread(
         target=eqa_action.process,
         args=(
@@ -272,8 +271,9 @@ def main():
     process_action.daemon = True
     process_action.start()
 
-    # Produce display_q, system_q
+    # Create Encounter Reports
     ## Consume encounter_q
+    ## Produce display_q, system_q
 
     process_encounter = threading.Thread(
         target=eqa_encounter.process,
@@ -291,8 +291,9 @@ def main():
     process_encounter.daemon = True
     process_encounter.start()
 
-    # Produce Sound
+    # Create (many) Sounds
     ## Consume sound_q
+    ## Produce sounds
 
     ### Thread 1
     process_sound_1 = threading.Thread(
@@ -315,8 +316,9 @@ def main():
     process_sound_3.daemon = True
     process_sound_3.start()
 
-    # Do something to the TUI
+    # Draw the TUI
     ## Consume display_q
+    ## Produce pretty pictures
     process_display = threading.Thread(
         target=eqa_curses.display,
         args=(screen, display_q, state, configs, exit_flag, cfg_reload),
@@ -324,9 +326,9 @@ def main():
     process_display.daemon = True
     process_display.start()
 
-    # Produce sound_q, display_q
+    # Count Down the Time
     ## Consume timer_q
-
+    ## Produce sound_q, display_q
     process_timer = threading.Thread(
         target=eqa_timer.process, args=(timer_q, sound_q, display_q, exit_flag)
     )
@@ -342,6 +344,7 @@ def main():
 
     # Manage State and Config
     ## Consume system_q
+    ## Produce a pleasant experience
     try:
         while not exit_flag.is_set():
 
@@ -635,8 +638,6 @@ def main():
                         process_keys.start()
 
                         #### Restart process_action
-
-                        ##### Thread 1
                         process_action = threading.Thread(
                             target=eqa_action.process,
                             args=(
@@ -750,6 +751,7 @@ def system_raid(configs, state, display_q, sound_q, new_message):
     """Perform system tasks for raid behavior"""
 
     try:
+        # Toggle raid state to true
         if state.raid == "false" and new_message.rx == "toggle":
             state.set_raid("true")
             eqa_config.set_last_state(state, configs)
@@ -762,6 +764,7 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                 )
             )
             sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
+        # Toggle raid state to false
         elif state.raid == "true" and new_message.rx == "toggle":
             state.set_raid("false")
             eqa_config.set_last_state(state, configs)
@@ -774,6 +777,7 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                 )
             )
             sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
+        # Set raid state to true
         elif state.raid == "false" and new_message.rx == "true":
             state.set_raid("true")
             eqa_config.set_last_state(state, configs)
@@ -785,6 +789,7 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                     new_message.payload,
                 )
             )
+        # Set raid state to false
         elif state.raid == "true" and new_message.rx == "false":
             state.set_raid("false")
             eqa_config.set_last_state(state, configs)
@@ -796,6 +801,7 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                     new_message.payload,
                 )
             )
+        # Auto-set raid state to true
         elif (
             new_message.rx == "auto"
             and new_message.payload == "true"
@@ -816,6 +822,7 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                     "speak", "Raid context will be automatically set by zone"
                 )
             )
+        # Auto-set raid state to false
         elif (
             new_message.rx == "auto"
             and new_message.payload == "false"
@@ -853,6 +860,7 @@ def system_afk(configs, state, display_q, new_message):
     """Perform system tasks for afk behavior"""
 
     try:
+        # Set afk state to true
         if new_message.payload == "true" and state.afk == "false":
             state.set_afk(new_message.payload)
             eqa_config.set_last_state(state, configs)
@@ -864,6 +872,7 @@ def system_afk(configs, state, display_q, new_message):
                     "You are now AFK",
                 )
             )
+        # Set afk state to false
         elif new_message.payload == "false" and state.afk == "true":
             state.set_afk(new_message.payload)
             eqa_config.set_last_state(state, configs)
@@ -892,7 +901,9 @@ def system_timer(configs, state, display_q, sound_q, new_message):
     """Perform system tasks for auto timer behavior"""
 
     try:
+        # If timer setting is mob related
         if new_message.rx == "mob":
+            # Set auto-mob timer to true
             if state.auto_mob_timer == "false" and new_message.payload == "true":
                 state.set_auto_mob_timer("true")
                 eqa_config.set_last_state(state, configs)
@@ -907,6 +918,7 @@ def system_timer(configs, state, display_q, sound_q, new_message):
                 sound_q.put(
                     eqa_struct.sound("speak", "Automatic mob respawn timers enabled")
                 )
+            # Set auto-mob timer to false
             elif state.auto_mob_timer == "true" and new_message.payload == "false":
                 state.set_auto_mob_timer("false")
                 eqa_config.set_last_state(state, configs)
@@ -921,6 +933,7 @@ def system_timer(configs, state, display_q, sound_q, new_message):
                 sound_q.put(
                     eqa_struct.sound("speak", "Automatic mob respawn timers disabled")
                 )
+        # If timer setting is spell related
         elif new_message.rx == "spell":
             pass
         display_q.put(
@@ -940,6 +953,7 @@ def system_debug(configs, state, display_q, sound_q, new_message):
     """Perform system tasks for debug behavior"""
 
     try:
+        # Toggle debug state to true
         if state.debug == "false" and new_message.rx == "toggle":
             state.set_debug("true")
             eqa_config.set_last_state(state, configs)
@@ -954,6 +968,7 @@ def system_debug(configs, state, display_q, sound_q, new_message):
             sound_q.put(
                 eqa_struct.sound("speak", "Displaying and logging all parser output")
             )
+        # Toggle debug state to false
         elif state.debug == "true" and new_message.rx == "toggle":
             state.set_debug("false")
             eqa_config.set_last_state(state, configs)
@@ -983,6 +998,7 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
     """Perform system tasks for encounter parse behavior"""
 
     try:
+        # Toggle encounter parse to true
         if state.encounter_parse == "false" and new_message.rx == "toggle":
             state.set_encounter_parse("true")
             eqa_config.set_last_state(state, configs)
@@ -1000,6 +1016,7 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
                 )
             )
             sound_q.put(eqa_struct.sound("speak", "Encounter Parse Enabled"))
+        # Toggle encounter parse to false
         elif state.encounter_parse == "true" and new_message.rx == "toggle":
             state.set_encounter_parse("false")
             eqa_config.set_last_state(state, configs)
@@ -1012,6 +1029,7 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
                 )
             )
             sound_q.put(eqa_struct.sound("speak", "Encounter Parse Disabled"))
+        # Set encounter parse save to false
         elif (
             state.save_parse == "true"
             and new_message.rx == "save"
@@ -1030,6 +1048,7 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
             sound_q.put(
                 eqa_struct.sound("speak", "Encounter parser will not save to a file")
             )
+        # Set encounter parse save to true
         elif (
             state.save_parse == "false"
             and new_message.rx == "save"
@@ -1050,12 +1069,14 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
                     "speak", "Encounter parser will automatically save to a file"
                 )
             )
+        # Clear encounter parse stack
         elif new_message.rx == "clear":
             encounter_q.put(
                 eqa_struct.message(
                     eqa_settings.eqa_time(), "null", "clear", "null", "null"
                 )
             )
+        # End encounter parse and resolve stack
         elif new_message.rx == "end":
             encounter_q.put(
                 eqa_struct.message(
@@ -1079,7 +1100,9 @@ def system_mute(configs, state, display_q, sound_q, new_message):
     """Perform system tasks for mute behavior"""
 
     try:
+        # Toggle mute
         if new_message.rx == "toggle" and new_message.payload == "all":
+            # to true
             if state.mute == "false":
                 sound_q.put(eqa_struct.sound("mute_speak", "true"))
                 sound_q.put(eqa_struct.sound("mute_alert", "true"))
@@ -1093,6 +1116,7 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                         "Mute Enabled",
                     )
                 )
+            # to false
             else:
                 sound_q.put(eqa_struct.sound("mute_speak", "false"))
                 sound_q.put(eqa_struct.sound("mute_alert", "false"))
@@ -1107,7 +1131,9 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                     )
                 )
                 sound_q.put(eqa_struct.sound("speak", "Mute disabled"))
+        # Toggle mute speak
         elif new_message.rx == "toggle" and new_message.payload == "speak":
+            # to speak
             if state.mute == "false":
                 sound_q.put(eqa_struct.sound("mute_speak", "true"))
                 state.set_mute("speak")
@@ -1120,6 +1146,7 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                         "Mute Speak Enabled",
                     )
                 )
+            # to true
             elif state.mute == "alert":
                 sound_q.put(eqa_struct.sound("mute_speak", "true"))
                 state.set_mute("true")
@@ -1132,6 +1159,7 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                         "Mute Enabled",
                     )
                 )
+            # to alert
             elif state.mute == "true":
                 sound_q.put(eqa_struct.sound("mute_speak", "false"))
                 state.set_mute("alert")
@@ -1145,6 +1173,7 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                     )
                 )
                 sound_q.put(eqa_struct.sound("speak", "Mute speak disabled"))
+            # to false
             else:
                 sound_q.put(eqa_struct.sound("mute_speak", "false"))
                 state.set_mute("false")
@@ -1158,7 +1187,9 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                     )
                 )
                 sound_q.put(eqa_struct.sound("speak", "Mute disabled"))
+        # Toggle mute alert
         elif new_message.rx == "toggle" and new_message.payload == "alert":
+            # to alert
             if state.mute == "false":
                 sound_q.put(eqa_struct.sound("mute_alert", "true"))
                 state.set_mute("alert")
@@ -1171,6 +1202,7 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                         "Mute Alert Enabled",
                     )
                 )
+            # to true
             elif state.mute == "speak":
                 sound_q.put(eqa_struct.sound("mute_alert", "true"))
                 state.set_mute("true")
@@ -1183,6 +1215,7 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                         "Mute Enabled",
                     )
                 )
+            # to speak
             elif state.mute == "true":
                 sound_q.put(eqa_struct.sound("mute_alert", "false"))
                 state.set_mute("speak")
@@ -1196,6 +1229,7 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                     )
                 )
                 sound_q.put(eqa_struct.sound("speak", "Mute alert disabled"))
+            # to false
             else:
                 sound_q.put(eqa_struct.sound("mute_alert", "false"))
                 state.set_mute("false")

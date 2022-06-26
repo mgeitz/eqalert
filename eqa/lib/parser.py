@@ -517,12 +517,14 @@ def check_received_chat(line):
         elif re.fullmatch(r"^\w+ says out of character, \'(.+|)\'$", line) is not None:
             return "ooc"
         elif (
-            re.fullmatch(r"^\w+ auctions, \'(.+|)(WTS|selling|Selling)(.+|)\'$", line)
+            re.fullmatch(
+                r"^\w+ auctions, \'(.+|)(wts|WTS|selling|Selling)(.+|)\'$", line
+            )
             is not None
         ):
             return "auction_wts"
         elif (
-            re.fullmatch(r"^\w+ auctions, \'(.+|)(WTB|buying|Buying)(.+|)\'$", line)
+            re.fullmatch(r"^\w+ auctions, \'(.+|)(wtb|WTB|buying|Buying)(.+|)\'$", line)
             is not None
         ):
             return "auction_wtb"
