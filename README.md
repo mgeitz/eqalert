@@ -144,13 +144,15 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 `/say parser timer respawn stop` - Stop creating timers automatically
 
-`/say parser hello`
+`/say parser what context` - Speak context state
 
-`/say parser who`
+`/say parser what state` - Speak *everything* in the state object
 
-`/say parser where`
+`/say parser hello` - Hello
 
-`/say parser what state`
+`/say parser who` - Who am I?
+
+`/say parser where` - Where am I?
 
 
 ## Custom Alerting
