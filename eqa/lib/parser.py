@@ -530,6 +530,8 @@ def check_received_chat(line):
             return "auction_wtb"
         elif re.fullmatch(r"^\w+ auctions, \'(.+|)\'$", line) is not None:
             return "auction"
+        elif re.fullmatch(r"^[a-zA-Z]+ BROADCASTS, \'(.+|)\'$", line) is not None:
+            return "broadcast"
 
         return None
 
@@ -656,6 +658,22 @@ def check_command_output(line):
             is not None
         ):
             return "command_invalid"
+        elif (
+            re.fullmatch(
+                r"^You have no friends, but you can add some with\: \/friends \<name\>$",
+                line,
+            )
+            is not None
+        ):
+            return "empty_friends"
+        elif (
+            re.fullmatch(
+                r"^If you need help, click on the EQ Menu button at the bottom of your screen and select the \"Help\" option\.$",
+                line,
+            )
+            is not None
+        ):
+            return "titanium_client_help_message"
 
         return None
 
@@ -696,7 +714,7 @@ def check_system_messages(line):
             return "you_thirsty"
         elif (
             re.fullmatch(
-                r"^Glug, glug, glug\.\.\.  [a-zA-Z]+ takes a drink from [a-zA-Z\s]+\.$",
+                r"^Glug, glug, glug\.\.\.  [a-zA-Z]+ takes a drink from [a-zA-Z\s\:\']+\.$",
                 line,
             )
             is not None
@@ -704,7 +722,7 @@ def check_system_messages(line):
             return "drink_other"
         elif (
             re.fullmatch(
-                r"^Chomp, chomp, chomp\.\.\.  [a-zA-Z]+ takes a bite from [a-zA-Z\s]+\.$",
+                r"^Chomp, chomp, chomp\.\.\.  [a-zA-Z]+ takes a bite from [a-zA-Z\s\:\']+\.$",
                 line,
             )
             is not None
@@ -819,10 +837,30 @@ def check_system_messages(line):
             return "hide_drop"
         elif re.fullmatch(r"^You begin to hide\.\.\.$", line) is not None:
             return "hide_enabled"
-        elif re.fullmatch(r"^[a-zA-Z\s]+ was injured by falling\.$", line) is not None:
+        elif re.fullmatch(r"^[a-zA-Z\s`]+ was injured by falling\.$", line) is not None:
             return "fall_damage_other"
         elif re.fullmatch(r"^YOU were injured by falling\.$", line) is not None:
             return "fall_damage_you"
+        elif (
+            re.fullmatch(r"^[a-zA-Z\s`]+ goes into a berserker frenzy\!$", line)
+            is not None
+        ):
+            return "warrior_berserk_on"
+        elif re.fullmatch(r"^[a-zA-Z\s`]+ is no longer berserk\.$", line) is not None:
+            return "warrior_berserk_off"
+        elif (
+            re.fullmatch(r"^Returning to home point, please wait\.\.\.$", line)
+            is not None
+        ):
+            return "walk_of_shame"
+        elif (
+            re.fullmatch(
+                r"^You have been given permission to drag [a-zA-Z]+\'s corpse in all zones\.$",
+                line,
+            )
+            is not None
+        ):
+            return "drag_permission_received"
 
         return None
 
@@ -2795,6 +2833,11 @@ def check_spell_specific(line):
                 return "spell_song_of_dawn_you_cast"
             elif re.fullmatch(r"^You are no longer terrified\.$", line) is not None:
                 return "spell_song_of_midnight_you_off"
+            elif (
+                re.fullmatch(r"^You feel the ground scream and heave\.$", line)
+                is not None
+            ):
+                return "spell_upheaval_you_on"
             elif re.fullmatch(r"^You hear the music of twilight\.$", line) is not None:
                 return "spell_song_of_twilight_you_on"
             elif re.fullmatch(r"^You play the music of twilight\.$", line) is not None:
@@ -3181,6 +3224,10 @@ def check_spell_specific(line):
                 # return "spell_wonderous_rapidity_you_off"
             elif re.fullmatch(r"^Your enchantments fade\.$", line) is not None:
                 return "spell_abolish_enchantment_you_on"
+            elif re.fullmatch(r"^Your knees buckle\.$", line) is not None:
+                return "spell_avatar_snare_you_on"
+            elif re.fullmatch(r"^Your legs regain strength\.$", line) is not None:
+                return "spell_avatar_snare_you_off"
             elif re.fullmatch(r"^Your eyes tingle\.$", line) is not None:
                 return "spell_line_see_invis_you_on"
                 # return "spell_acumen_you_on"
@@ -4874,13 +4921,6 @@ def check_spell_specific(line):
                 return "spell_trepidation_you_off"
             elif re.fullmatch(r"^The words soften\.$", line) is not None:
                 return "spell_turning_of_the_unnatural_you_off"
-            elif (
-                re.fullmatch(
-                    r"^The ground buckles and heaves beneath your feet\.$", line
-                )
-                is not None
-            ):
-                return "spell_upheaval_you_on"
             elif re.fullmatch(r"^The Mordinia fades\.$", line) is not None:
                 return "spell_vexing_mordinia_you_off"
             elif re.fullmatch(r"^The wrath of nature recedes\.$", line) is not None:
@@ -5166,6 +5206,8 @@ def check_spell_specific(line):
 
         if re.fullmatch(r"^An aegis of faith engulfs you\.$", line) is not None:
             return "spell_aegis_you_on"
+        elif re.fullmatch(r"^[a-zA-Z`\s]+ \'s knees buckle\.$", line) is not None:
+            return "spell_avatar_snare_other_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ experiences a quickening\.$", line) is not None
         ):
@@ -5498,6 +5540,11 @@ def check_spell_specific(line):
             return "spell_line_mag_ds_other_on"
             # return "spell_barrier_of_combustion_other_on"
             # return "spell_boon_of_immolation_other_on"
+        elif (
+            re.fullmatch(r"^[a-zA-Z`\s]+ is mauled by the moving ground\.$", line)
+            is not None
+        ):
+            return "spell_upheaval_other_on"
         elif (
             re.fullmatch(
                 r"^[a-zA-Z`\s]+ is surrounded by a swirling maelstrom of magical force\.\.$",
@@ -5840,6 +5887,11 @@ def check_spell_specific(line):
             return "spell_burn_other_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ is struck by fire\.$", line) is not None:
             return "spell_burning_vengeance_other_on"
+        elif (
+            re.fullmatch(r"^[a-zA-Z`\s]+ creates a mystic portal\.\.$", line)
+            is not None
+        ):
+            return "spell_circle_of_the_combines_other_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ creates a mystic portal\.$", line) is not None
         ):
@@ -9050,6 +9102,8 @@ def check_emotes(line):
             is not None
         ):
             return "emote_grin_you"
+        elif re.fullmatch(r"^[a-zA-Z]+ grins evilly\.$", line) is not None:
+            return "emote_grin_other"
         elif (
             re.fullmatch(
                 r"^(You groan\.|You groan at the sight of [a-zA-Z`\s]+\.)$", line
@@ -9084,6 +9138,8 @@ def check_emotes(line):
             is not None
         ):
             return "emote_hug_you"
+        elif re.fullmatch(r"^[a-zA-Z]+ hugs [a-zA-Z`\s]+\.$", line) is not None:
+            return "emote_hug_other"
         elif (
             re.fullmatch(
                 r"^(You introduce yourself\.  Hi there\!|You introduce [a-zA-Z`\s]+\.)$",
@@ -9193,6 +9249,8 @@ def check_emotes(line):
             is not None
         ):
             return "emote_point_you"
+        elif re.fullmatch(r"^[a-zA-Z]+ pokes [a-zA-Z`\s]+\.$", line) is not None:
+            return "emote_poke_other"
         elif (
             re.fullmatch(r"^(You poke yourself\.|You poke [a-zA-Z`\s]+\.)$", line)
             is not None

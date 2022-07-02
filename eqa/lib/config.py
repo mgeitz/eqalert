@@ -3302,6 +3302,21 @@ def build_config(base_path):
       "reaction": "raid",
       "sound": "avatar power"
     },
+    "spell_avatar_snare_other_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_avatar_snare_you_on": {
+      "alert": {},
+      "reaction": "raid",
+      "sound": "avatar snare"
+    },
+    "spell_avatar_snare_you_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spell_avatar_you_off": {
       "alert": {},
       "reaction": "false",
@@ -4158,6 +4173,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "spell_circle_of_summer_you_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_circle_of_the_combines_other_on": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -10972,6 +10992,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spell_upheaval_other_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spell_upheaval_you_on": {
       "alert": {},
       "reaction": "false",
@@ -11363,6 +11388,11 @@ def build_config(base_path):
       "reaction": "alert",
       "sound": "look at auction"
     },
+    "broadcast": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
+    },
     "group": {
       "alert": {
         "drop": "raid",
@@ -11513,6 +11543,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "empty_friends": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "It's OK! I'll be your friend!"
+    },
     "location": {
       "alert": {},
       "reaction": "false",
@@ -11631,6 +11666,11 @@ def build_config(base_path):
       "reaction": "all",
       "sound": "congratulations"
     },
+    "drag_permission_received": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
+    },
     "earthquake": {
       "alert": {},
       "reaction": "solo",
@@ -11686,6 +11726,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "titanium_client_help_message": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "tracking": {
       "alert": {},
       "reaction": "false",
@@ -11702,6 +11747,21 @@ def build_config(base_path):
       "sound": "false"
     },
     "weather_start_rain": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "walk_of_shame": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "warrior_berserk_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "warrior_berserk_off": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12145,6 +12205,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_grin_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_grin_you": {
       "alert": {},
       "reaction": "false",
@@ -12161,6 +12226,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "emote_happy_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_hug_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12251,6 +12321,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "emote_point_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_poke_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"

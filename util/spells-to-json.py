@@ -93,6 +93,7 @@ valid_spells = [
     "avalanche",
     "avatar",
     "avatar_power",
+    "avatar_snare",
     "bandoleer_of_luclin",
     "bane_of_nife",
     "banish_summoned",
