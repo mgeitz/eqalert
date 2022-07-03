@@ -2646,6 +2646,11 @@ def build_config(base_path):
     new_line_combat_config = """
 {
   "line": {
+    "combat_no_target": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "no target"
+    },
     "combat_other_melee": {
       "alert": {},
       "reaction": "false",
@@ -2791,6 +2796,16 @@ def build_config(base_path):
       "reaction": "solo_group_only",
       "sound": "true"
     }
+    "you_slain": {
+      "alert": {},
+      "reaction": "solo_only",
+      "sound": "true"
+    }
+    "unconscious": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    }
   },
   "version": "%s"
 }
@@ -2920,6 +2935,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "spells_scribe_begin": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_scribe_finish": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11563,6 +11583,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "drink_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "drink_you_finish": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "eat_other": {
       "alert": {},
       "reaction": "false",
@@ -11582,6 +11612,36 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "hide_corpse_all": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "list_added": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "good luck"
+    },
+    "list_none": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "list_position": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "list_out_of_range": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "list_leaving": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "leaving list area"
     },
     "location": {
       "alert": {},
@@ -11619,6 +11679,16 @@ def build_config(base_path):
       "sound": "false"
     },
     "summon_corpse": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "summon_corpse_none": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "well thats a good thing, right?"
+    },
+    "summon_corpse_no_consent": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11680,6 +11750,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "auto_inventory_full": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "inventory full"
     },
     "command_error": {
       "alert": {},
@@ -11751,7 +11826,22 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "hide_disabled": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "inspect_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "motd_welcome": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "rewind_output": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11760,6 +11850,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "too far"
+    },
+    "target_cannot_see": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "can't see"
     },
     "tell_offline": {
       "alert": {},
@@ -11771,7 +11866,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "target_lost": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "tracking": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tracking_target_lost": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11909,6 +12014,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "is anyone there?"
     },
+    "group_already": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "group_created": {
       "alert": {},
       "reaction": "false",
@@ -11978,6 +12088,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "true"
+    },
+    "guild_new_member": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "welcome"
+    },
+    "invite_no_target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     }
   },
   "version": "%s"
@@ -12006,6 +12126,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "looted_wait": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "no yet"
     },
     "trade_cancel_you": {
       "alert": {},
@@ -12310,6 +12435,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_laugh_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_laugh_you": {
       "alert": {},
       "reaction": "false",
@@ -12336,6 +12466,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "emote_nod_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_nod_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12411,6 +12546,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "emote_rofl_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_salute_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
