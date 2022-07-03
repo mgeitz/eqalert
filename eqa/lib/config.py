@@ -2839,7 +2839,12 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "cured"
     },
-    "spells_damage": {
+    "spells_damage_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_damage_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -2910,6 +2915,21 @@ def build_config(base_path):
       "sound": "false"
     },
     "spells_memorize_finish": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_scribe_begin": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_scribe_swap": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_scribe_swap_instruction": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11508,6 +11528,11 @@ def build_config(base_path):
     new_line_command_output_config = """
 {
   "line": {
+    "client_ui_load": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "command_block": {
       "alert": {},
       "reaction": "false",
@@ -11547,6 +11572,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "It's OK! I'll be your friend!"
+    },
+    "forage_cursor_empty": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "forage_standing": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "location": {
       "alert": {},
@@ -11720,6 +11755,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "target_attack_too_far": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "too far"
     },
     "tell_offline": {
       "alert": {},
@@ -12085,6 +12125,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_bye_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_bye_you": {
       "alert": {},
       "reaction": "false",
@@ -12446,6 +12491,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "emote_thirsty_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_veto_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"

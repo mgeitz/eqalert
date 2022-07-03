@@ -384,16 +384,36 @@ def check_spell(line):
             return "spells_resist_you"
         elif (
             re.fullmatch(
-                r"^.+ w(?:ere|as) hit by non-melee for \d+ ?(points of) damage\.$", line
+                r"^[a-zA-Z`\s]+ was hit by non\-melee for \d+ points of damage\.$", line
             )
             is not None
         ):
-            return "spells_damage"
+            return "spells_damage_other"
+        elif (
+            re.fullmatch(r"^You were hit by non\-melee for \d+ damage\.$", line)
+            is not None
+        ):
+            return "spells_damage_you"
         elif (
             re.fullmatch(r"^Beginning to memorize [a-zA-Z`\s\'\:]+\.\.\.$", line)
             is not None
         ):
             return "spells_memorize_begin"
+        elif (
+            re.fullmatch(r"^Beginning to scribe [a-zA-Z`\s\'\:]+\.\.\.$", line)
+            is not None
+        ):
+            return "spells_scribe_begin"
+        elif (
+            re.fullmatch(
+                r"^Right click on another Scribe Slot in your Spell Book to swap this Spell position with the new one\.$",
+                line,
+            )
+            is not None
+        ):
+            return "spells_scribe_swap_instruction"
+        elif re.fullmatch(r"^Swapping Spell Book Scribe slots\.$", line) is not None:
+            return "spells_scribe_swap"
         elif (
             re.fullmatch(r"^You have finished memorizing [a-zA-Z`\s\'\:]+\.$", line)
             is not None
@@ -674,6 +694,15 @@ def check_command_output(line):
             is not None
         ):
             return "titanium_client_help_message"
+        elif (
+            re.fullmatch(r"^Reading UI data from [a-zA-Z\\]+ directory.\.\.$", line)
+            is not None
+        ):
+            return "client_ui_load"
+        elif re.fullmatch(r"^Forage Error\: Cursor not empty\.$", line) is not None:
+            return "forage_cursor_empty"
+        elif re.fullmatch(r"^You must be standing to forage\.$", line) is not None:
+            return "forage_standing"
 
         return None
 
@@ -861,6 +890,11 @@ def check_system_messages(line):
             is not None
         ):
             return "drag_permission_received"
+        elif (
+            re.fullmatch(r"^Your target is too far away, get closer\!$", line)
+            is not None
+        ):
+            return "target_attack_too_far"
 
         return None
 
@@ -8949,6 +8983,14 @@ def check_emotes(line):
             return "emote_bye_you"
         elif (
             re.fullmatch(
+                r"^[a-zA-Z]+ waves goodbye to [a-zA-Z`\s]+\.$",
+                line,
+            )
+            is not None
+        ):
+            return "emote_bye_other"
+        elif (
+            re.fullmatch(
                 r"^(You cackle gleefully\.|You cackle gleefully at [a-zA-Z`\s]+\.)$",
                 line,
             )
@@ -9425,11 +9467,16 @@ def check_emotes(line):
             is not None
         ):
             return "emote_veto_you"
+        elif re.fullmatch(r"^\w+ vetoes [a-zA-Z`\s]+\'s idea\!$", line) is not None:
+            return "emote_veto_other"
         elif (
             re.fullmatch(r"^(You wave\.|You wave at [a-zA-Z`\s]+\.)$", line) is not None
         ):
             return "emote_wave_you"
-        elif re.fullmatch(r"^\w+ waves at [a-zA-Z`\s]+\.$", line) is not None:
+        elif (
+            re.fullmatch(r"^(\w+ waves at [a-zA-Z`\s]+\.|\w+ waves\.)$", line)
+            is not None
+        ):
             return "emote_wave_other"
         elif (
             re.fullmatch(
