@@ -425,6 +425,7 @@ def update_spell_timers(data_path, eq_spells_file_path):
             "avalanche",
             "avatar",
             "avatar_power",
+            "avatar_snare",
             "bandoleer_of_luclin",
             "bane_of_nife",
             "banish_summoned",
@@ -2651,6 +2652,16 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "no target"
     },
+    "combat_other_ds_fire_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_other_ds_thorns_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_other_melee": {
       "alert": {},
       "reaction": "false",
@@ -2702,16 +2713,6 @@ def build_config(base_path):
       "sound": "false"
     },
     "combat_other_rune_damage": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_ds_fire_damage": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "combat_other_ds_thorns_damage": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -2800,16 +2801,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo_group_only",
       "sound": "true"
-    }
-    "you_slain": {
-      "alert": {},
-      "reaction": "solo_only",
-      "sound": "true"
-    }
+    },
     "unconscious": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "you_slain": {
+      "alert": {},
+      "reaction": "solo_only",
+      "sound": "true"
     }
   },
   "version": "%s"
@@ -2939,26 +2940,6 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "spells_scribe_begin": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spells_scribe_finish": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spells_scribe_swap": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "spells_scribe_swap_instruction": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
     "spells_no_target": {
       "alert": {},
       "reaction": "false",
@@ -2995,6 +2976,26 @@ def build_config(base_path):
       "sound": "resist"
     },
     "spells_resist_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_scribe_begin": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_scribe_finish": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_scribe_swap": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_scribe_swap_instruction": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -3352,15 +3353,15 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "spell_avatar_snare_you_on": {
-      "alert": {},
-      "reaction": "raid",
-      "sound": "avatar snare"
-    },
     "spell_avatar_snare_you_off": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "spell_avatar_snare_you_on": {
+      "alert": {},
+      "reaction": "raid",
+      "sound": "avatar snare"
     },
     "spell_avatar_you_off": {
       "alert": {},
@@ -10732,6 +10733,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spell_talisman_of_the_serpent_you_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spell_taper_enchantment_other_on": {
       "alert": {},
       "reaction": "false",
@@ -11326,11 +11332,6 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
-    },
-    "spell_talisman_of_the_serpent_you_on": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
     }
   },
   "version": "%s"
@@ -11628,12 +11629,12 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "good luck"
     },
-    "list_none": {
+    "list_leaving": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "leaving list area"
     },
-    "list_position": {
+    "list_none": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11643,10 +11644,10 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "list_leaving": {
+    "list_position": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "leaving list area"
+      "reaction": "false",
+      "sound": "false"
     },
     "location": {
       "alert": {},
@@ -11688,15 +11689,15 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "summon_corpse_none": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "well thats a good thing, right?"
-    },
     "summon_corpse_no_consent": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "summon_corpse_none": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "well thats a good thing, right?"
     },
     "target": {
       "alert": {},
@@ -11751,15 +11752,15 @@ def build_config(base_path):
     new_line_system_messages_config = """
 {
   "line": {
-    "autofollow_advice": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
     "auto_inventory_full": {
       "alert": {},
       "reaction": "solo",
       "sound": "inventory full"
+    },
+    "autofollow_advice": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "command_error": {
       "alert": {},
@@ -11821,17 +11822,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "hide_disabled": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "hide_drop": {
       "alert": {},
       "reaction": "solo",
       "sound": "hide drop"
     },
     "hide_enabled": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "hide_disabled": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11866,17 +11867,17 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "can't see"
     },
+    "target_lost": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "tell_offline": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
     "titanium_client_help_message": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "target_lost": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11891,11 +11892,6 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "tracking_target_lost": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
     "tracking_player_off": {
       "alert": {},
       "reaction": "false",
@@ -11906,7 +11902,7 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "weather_start_rain": {
+    "tracking_target_lost": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11916,12 +11912,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "warrior_berserk_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "warrior_berserk_on": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
-    "warrior_berserk_off": {
+    "weather_start_rain": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12039,15 +12040,15 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "group_created": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
     "group_considering": {
       "alert": {},
       "reaction": "solo",
       "sound": "considering"
+    },
+    "group_created": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "group_disbanded": {
       "alert": {},
@@ -12132,6 +12133,16 @@ def build_config(base_path):
     new_line_loot_trade_config = """
 {
   "line": {
+    "loot_too_far": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "too far"
+    },
+    "loot_wait": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "no yet"
+    },
     "looted_item_other": {
       "alert": {},
       "reaction": "false",
@@ -12151,16 +12162,6 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
-    },
-    "loot_wait": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "no yet"
-    },
-    "loot_too_far": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "too far"
     },
     "trade_cancel_you": {
       "alert": {},
@@ -12495,12 +12496,12 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "emote_nod_you": {
+    "emote_nod_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
-    "emote_nod_other": {
+    "emote_nod_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
