@@ -983,6 +983,14 @@ def check_system_messages(line):
             )
             is not None
         ):
+            return "rewind_output_wait"
+        elif (
+            re.fullmatch(
+                r"^Rewinding to previous location\.$",
+                line,
+            )
+            is not None
+        ):
             return "rewind_output"
         elif (
             re.fullmatch(
@@ -997,6 +1005,14 @@ def check_system_messages(line):
             is not None
         ):
             return "target_cannot_see"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z]+ yells for help from (?:ahead and to the (?:righ|lef)t of you|behind you(?: and to the (?:righ|lef)t)?|off to the left of you|straight ahead of you)$",
+                line,
+            )
+            is not None
+        ):
+            return "yell_help"
 
         return None
 

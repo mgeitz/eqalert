@@ -11846,6 +11846,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "rewind_output_wait": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "target_attack_too_far": {
       "alert": {},
       "reaction": "solo",
@@ -11920,6 +11925,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "all",
       "sound": "wrong key or place"
+    },
+    "yell_help": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "help"
     },
     "you_auto_attack_off": {
       "alert": {},
