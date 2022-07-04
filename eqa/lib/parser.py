@@ -1022,6 +1022,14 @@ def check_system_messages(line):
             is not None
         ):
             return "yell_help"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z\s`]+ (?:scowls at you, ready to attack|(?:looks (?:your way apprehensive|upon you warm)|regards you (?:indifferent|as an al)|judges you amiab)ly|gl(?:ares at you threatening|owers at you dubious)ly|kindly considers you) \-\- .+",
+                line,
+            )
+            is not None
+        ):
+            return "consider"
 
         return None
 

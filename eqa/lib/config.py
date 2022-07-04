@@ -11767,6 +11767,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "consider": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "consider_no_target": {
       "alert": {},
       "reaction": "false",
