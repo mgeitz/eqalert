@@ -2716,6 +2716,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_you_cannot_see": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "can't see"
+    },
     "combat_you_ds_fire_damage": {
       "alert": {},
       "reaction": "false",
@@ -11881,6 +11886,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "tracking_begin": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "tracking_target_lost": {
       "alert": {},
       "reaction": "false",
@@ -12059,6 +12069,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "true"
     },
+    "group_invite_you_cancel": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "group_join_notify": {
       "alert": {},
       "reaction": "false",
@@ -12137,10 +12152,15 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "looted_wait": {
+    "loot_wait": {
       "alert": {},
       "reaction": "solo",
       "sound": "no yet"
+    },
+    "loot_too_far": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "too far"
     },
     "trade_cancel_you": {
       "alert": {},

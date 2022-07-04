@@ -328,6 +328,10 @@ def check_melee(line):
             is not None
         ):
             return "combat_you_ds_fire_damage"
+        elif (
+            re.fullmatch(r"^You can\'t see your target from here\.$", line) is not None
+        ):
+            return "combat_you_cannot_see"
 
         return None
 
@@ -890,6 +894,8 @@ def check_system_messages(line):
             return "tracking_player_on"
         elif re.fullmatch(r"^You have lost your tracking target\.$", line) is not None:
             return "tracking_target_lost"
+        elif re.fullmatch(r"^You begin tracking [a-zA-Z\s`]+$", line) is not None:
+            return "tracking_begin"
         elif (
             re.fullmatch(
                 r"^The Gods of Norrath emit a sinister laugh as they toy with their creations\. They are reanimating creatures to provide a greater challenge to the mortals$",
@@ -932,7 +938,10 @@ def check_system_messages(line):
         ):
             return "autofollow_advice"
         elif (
-            re.fullmatch(r"^You have moved and are no longer hidden\!\!$", line)
+            re.fullmatch(
+                r"^You (?:have moved and are no longer hidden\!\!|are no longer hidden\.)$",
+                line,
+            )
             is not None
         ):
             return "hide_drop"
@@ -1058,6 +1067,13 @@ def check_group_system_messages(line):
             is not None
         ):
             return "group_invite_instruction"
+        elif (
+            re.fullmatch(
+                r"^You cancel the invitation to join [a-zA-Z]+\'s group\.$", line
+            )
+            is not None
+        ):
+            return "group_invite_you_cancel"
         elif re.fullmatch(r"^Your group has been disbanded\.$", line) is not None:
             return "group_disbanded"
         elif (
@@ -1176,6 +1192,11 @@ def check_loot_trade(line):
             is not None
         ):
             return "loot_wait"
+        elif (
+            re.fullmatch(r"^You are too far away to loot that corpse\.$", line)
+            is not None
+        ):
+            return "loot_too_far"
 
         return None
 
