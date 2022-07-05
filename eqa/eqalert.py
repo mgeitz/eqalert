@@ -41,6 +41,7 @@ import eqa.lib.sound as eqa_sound
 import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
 import eqa.lib.timer as eqa_timer
+import eqa.lib.watch as eqa_watch
 
 
 def startup(base_path):
@@ -195,6 +196,16 @@ def main():
     sound_q = queue.Queue()
     system_q = queue.Queue()
     timer_q = queue.Queue()
+
+    # Watch Log Directory
+    ## Consume log directory for newest log
+    ## Produce character update to system_q
+    process_watch = threading.Thread(
+        target=eqa_watch.process,
+        args=(state, configs, system_q, exit_flag),
+    )
+    process_watch.daemon = True
+    process_watch.start()
 
     # Read Log File
     ## Consume char_log
@@ -739,6 +750,7 @@ def main():
         eqa_struct.display(eqa_settings.eqa_time(), "event", "events", "Exiting")
     )
     read_keys.join()
+    process_watch.join()
     process_log.join()
     process_parse.join()
     process_keys.join()
