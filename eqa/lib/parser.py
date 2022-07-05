@@ -1031,10 +1031,10 @@ def check_system_messages(line):
             return "target_attack_too_far"
         elif (
             re.fullmatch(r"^[a-za-z]+ is looking at your equipment\.\.\.$", line)
-            is not none
+            is not None
         ):
             return "inspect_you"
-        elif re.fullmatch(r"^You are inspecting [a-za-z]+\.$", line) is not none:
+        elif re.fullmatch(r"^You are inspecting [a-za-z]+\.$", line) is not None:
             return "inspect_other"
         elif re.fullmatch(r"^You have lost your target\.$", line) is not None:
             return "target_lost"

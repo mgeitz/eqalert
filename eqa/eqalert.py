@@ -398,6 +398,9 @@ def main():
                     ### Update raid status
                     elif new_message.tx == "raid":
                         system_raid(configs, state, display_q, sound_q, new_message)
+                    ### Update consider eval status
+                    elif new_message.tx == "consider":
+                        system_consider(configs, state, display_q, sound_q, new_message)
                     ### Update debug status
                     elif new_message.tx == "debug":
                         system_debug(configs, state, display_q, sound_q, new_message)
@@ -522,6 +525,7 @@ def main():
                             state.set_encounter_parse_save(new_state.save_parse)
                             state.set_auto_raid(new_state.auto_raid)
                             state.set_auto_mob_timer(new_state.auto_mob_timer)
+                            state.set_consider_eval(new_state.consider_eval)
                             eqa_config.set_last_state(state, configs)
                             char_log = new_char_log
                             # Start new log watch
@@ -594,6 +598,7 @@ def main():
                         state.set_encounter_parse_save(new_state.save_parse)
                         state.set_auto_raid(new_state.auto_raid)
                         state.set_auto_mob_timer(new_state.auto_mob_timer)
+                        state.set_consider_eval(new_state.consider_eval)
                         #### Stop state dependent processes
                         cfg_reload.set()
                         process_action.join()
@@ -943,6 +948,49 @@ def system_timer(configs, state, display_q, sound_q, new_message):
     except Exception as e:
         eqa_settings.log(
             "system debug: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def system_consider(configs, state, display_q, sound_q, new_message):
+    """Perform system tasks for consider eval behavior"""
+
+    try:
+        # Toggle consider eval state to true
+        if state.consider_eval == "false" and new_message.payload == "true":
+            state.set_consider_eval("true")
+            eqa_config.set_last_state(state, configs)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Consider evaluation enabled",
+                )
+            )
+            sound_q.put(eqa_struct.sound("speak", "Consider evaluation enabled"))
+        # Toggle consider eval state to false
+        elif state.consider_eval == "true" and new_message.payload == "false":
+            state.set_consider_eval("false")
+            eqa_config.set_last_state(state, configs)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Consider evaluation disabled",
+                )
+            )
+            sound_q.put(eqa_struct.sound("speak", "Consider evaluation disabled"))
+        display_q.put(
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "system consider: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
