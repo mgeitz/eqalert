@@ -11408,6 +11408,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "tell_npc_bank_closed": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tell_npc_bank_open": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     }
   },
   "version": "%s"
@@ -11502,6 +11512,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "true"
+    },
+    "tell_unknown_tongue": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     }
   },
   "version": "%s"
@@ -11614,12 +11629,32 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "forage_edible": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "forage_not_edible": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "forage_standing": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
     "hide_corpse_all": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "inspect_toggle_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "inspect_toggle_on": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11777,6 +11812,21 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "corpse_decay_timer": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "corpse_res_timer": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "corpse_too_old": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "ding_down": {
       "alert": {},
       "reaction": "all",
@@ -11842,10 +11892,20 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "inspect_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "inspect_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "item_dropped": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "item dropped"
     },
     "motd_welcome": {
       "alert": {},
@@ -11881,6 +11941,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "tell_yourself": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
     },
     "titanium_client_help_message": {
       "alert": {},
@@ -12184,6 +12249,16 @@ def build_config(base_path):
       "sound": "false"
     },
     "trade_money_add": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "trade_npc_item_price": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "trade_npc_item_sold": {
       "alert": {},
       "reaction": "false",
       "sound": "false"

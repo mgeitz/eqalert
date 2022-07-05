@@ -539,8 +539,32 @@ def check_received_chat(line):
     """
 
     try:
-        if re.fullmatch(r"^[a-zA-Z\.]+ tells you, \'(.+|)\'$", line) is not None:
+        if (
+            re.fullmatch(r"^[a-zA-Z\s`]+ tells you, \'Welcome to my bank\!\'$", line)
+            is not None
+        ):
+            return "tell_npc_bank_open"
+        elif (
+            re.fullmatch(r"^[a-zA-Z\s`]+ tells you, \'Come back soon\!\'$", line)
+            is not None
+        ):
+            return "tell_npc_bank_closed"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z\s`]+ tells you, \'That\'ll be .+ (for the|per) .+\.\'$", line
+            )
+            is not None
+        ):
+            return "trade_npc_item_price"
+        elif re.fullmatch(r"^[a-zA-Z\.]+ tells you, \'(.+|)\'$", line) is not None:
             return "tell"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z\.]+ tells you,in an unknown tongue, \'(.+|)\'$", line
+            )
+            is not None
+        ):
+            return "tell_unknown_tongue"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ tells you(,|) \'.+\'$", line) is not None:
             return "tell_npc"
         elif re.fullmatch(r"^\w+ says, \'(.+|)\'$", line) is not None:
@@ -549,7 +573,9 @@ def check_received_chat(line):
             return "say_npc"
         elif re.fullmatch(r"^\w+ shouts, \'(.+|)\'$", line) is not None:
             return "shout"
-        elif re.fullmatch(r"^[a-zA-Z`\s]+( |  )shouts(,|) \'.+\'$", line) is not None:
+        elif (
+            re.fullmatch(r"^[a-zA-Z`\s]+( |  )shouts(,|) \'.+(\'|)$", line) is not None
+        ):
             return "shout_npc"
         elif re.fullmatch(r"^\w+ tells the guild, \'(.+|)\'$", line) is not None:
             return "guild"
@@ -738,6 +764,15 @@ def check_command_output(line):
         elif re.fullmatch(r"^You must be standing to forage\.$", line) is not None:
             return "forage_standing"
         elif (
+            re.fullmatch(
+                r"^You have scrounged up something that doesn't look edible\.$", line
+            )
+            is not None
+        ):
+            return "forage_not_edible"
+        elif re.fullmatch(r"^You have scrounged up some .+\.$", line) is not None:
+            return "forage_edible"
+        elif (
             re.fullmatch(r"^Hiding all existing corpses except yours\.$", line)
             is not None
         ):
@@ -767,6 +802,22 @@ def check_command_output(line):
             is not None
         ):
             return "list_out_of_range"
+        elif (
+            re.fullmatch(
+                r"^You are currently able to inspect other players by right\-clicking on them\.$",
+                line,
+            )
+            is not None
+        ):
+            return "inspect_toggle_on"
+        elif (
+            re.fullmatch(
+                r"^You are currently NOT able to inspect other players by right\-clicking on them\.$",
+                line,
+            )
+            is not None
+        ):
+            return "inspect_toggle_off"
 
         return None
 
@@ -979,10 +1030,12 @@ def check_system_messages(line):
         ):
             return "target_attack_too_far"
         elif (
-            re.fullmatch(r"^[a-zA-Z]+ is looking at your equipment\.\.\.$", line)
-            is not None
+            re.fullmatch(r"^[a-za-z]+ is looking at your equipment\.\.\.$", line)
+            is not none
         ):
             return "inspect_you"
+        elif re.fullmatch(r"^You are inspecting [a-za-z]+\.$", line) is not none:
+            return "inspect_other"
         elif re.fullmatch(r"^You have lost your target\.$", line) is not None:
             return "target_lost"
         elif (
@@ -1030,6 +1083,30 @@ def check_system_messages(line):
             is not None
         ):
             return "consider"
+        elif (
+            re.fullmatch(
+                r"^There was no place to put that\!  The item has dropped to the ground\!$",
+                line,
+            )
+            is not None
+        ):
+            return "item_dropped"
+        elif re.fullmatch(r"^Talking to yourself again\?$", line) is not None:
+            return "tell_yourself"
+        elif (
+            re.fullmatch(r"^This corpse is too old to be resurrected\.$", line)
+            is not None
+        ):
+            return "corpse_too_old"
+        elif (
+            re.fullmatch(
+                r"^This corpse\'s resurrection time will expire in .+\.$", line
+            )
+            is not None
+        ):
+            return "corpse_res_timer"
+        elif re.fullmatch(r"^This corpse will decay in .+\.$", line) is not None:
+            return "corpse_decay_timer"
 
         return None
 
@@ -1160,7 +1237,7 @@ def check_loot_trade(line):
             return "looted_item_you"
         elif (
             re.fullmatch(
-                r"^You receive (\d+ platinum, |\d+ platinum |)(and |)(\d+ gold, |\d+ gold |)(and |)(\d+ silver and |)\d+ copper from the corpse\.$",
+                r"^You receive .+ from the corpse\.$",
                 line,
             )
             is not None
@@ -1168,12 +1245,20 @@ def check_loot_trade(line):
             return "looted_money_you"
         elif (
             re.fullmatch(
-                r"^You receive \d+ platinum, \d+ gold, \d+ silver, \d+ copper as your split\.$",
+                r"^You receive .+ as your split\.$",
                 line,
             )
             is not None
         ):
             return "looted_money_other"
+        elif (
+            re.fullmatch(
+                r"^You receive .+ from [a-zA-Z\s]+ for .+\.$",
+                line,
+            )
+            is not None
+        ):
+            return "trade_npc_item_sold"
         elif (
             re.fullmatch(r"^The total trade is\: \d+ PP, \d+ GP, \d+ SP, \d+ CP$", line)
             is not None
@@ -1186,12 +1271,7 @@ def check_loot_trade(line):
             is not None
         ):
             return "trade_item"
-        elif (
-            re.fullmatch(
-                r"^You give \d+ (platinum|gold|silver|copper) to [a-zA-Z`\s]+\.$", line
-            )
-            is not None
-        ):
+        elif re.fullmatch(r"^You give .+ to [a-zA-Z`\s]+\.$", line) is not None:
             return "trade_npc_payment"
         elif re.fullmatch(r"^You have cancelled the trade\.$", line) is not None:
             return "trade_cancel_you"
@@ -9234,7 +9314,7 @@ def check_emotes(line):
             return "emote_curious_you"
         elif (
             re.fullmatch(
-                r"^(You stand on your tip\-toes and do a dance of joy\!|You grab hold of [a-zA-Z`\s]+ and begin to dance with them\.)$",
+                r"^(You stand on your tip\-toes and do a dance of joy\!|You grab hold of [a-zA-Z`\s]+ and begin to dance with (him|her|it|them)\.)$",
                 line,
             )
             is not None
