@@ -1267,6 +1267,27 @@ def action_you_say_commands(
                         "null",
                     )
                 )
+            elif args[0] == "consider":
+                if state.consider_eval == "true":
+                    system_q.put(
+                        eqa_struct.message(
+                            eqa_settings.eqa_time(),
+                            "system",
+                            "consider",
+                            "eval",
+                            "false",
+                        )
+                    )
+                elif state.consider_eval == "false":
+                    system_q.put(
+                        eqa_struct.message(
+                            eqa_settings.eqa_time(),
+                            "system",
+                            "consider",
+                            "eval",
+                            "true",
+                        )
+                    )
             elif args[0] == "debug":
                 system_q.put(
                     eqa_struct.message(

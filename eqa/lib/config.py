@@ -2204,7 +2204,7 @@ def build_config(base_path):
   "last_state": {},
   "settings": {
     "consider_eval": {
-      "enabled": "true"
+      "enabled": "false"
     },
     "debug_mode": {
       "enabled": "false"

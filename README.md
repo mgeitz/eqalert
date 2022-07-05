@@ -154,6 +154,8 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 #### Misc
 
+`/say parser consider` - Toggle consider evaluation
+
 `/say parser what context` - Speak context state
 
 `/say parser what state` - Speak *everything* in the state object
