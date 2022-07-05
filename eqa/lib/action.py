@@ -195,6 +195,10 @@ def process(
                                 "Pop " + str(state.zone),
                             )
                         )
+                ## Consider Evaluation
+                if state.consider_eval == "true":
+                    if line_type == "consider":
+                        action_consider_evaluation(sound_q, check_line)
 
                 ## State Building Line Types
                 if line_type == "location":
@@ -777,6 +781,38 @@ def reaction_alert(
     except Exception as e:
         eqa_settings.log(
             "reaction alert: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_consider_evaluation(sound_q, check_line):
+    """Evaluate consider lines"""
+
+    try:
+        faction, level = check_line.split(" -- ")
+        if "threateningly" in faction or "scowls" in faction:
+            if (
+                "gamble" in level
+                or "floor" in level
+                or "tombstone" in level
+                or "formidable" in level
+            ):
+                danger = True
+            else:
+                danger = False
+        else:
+            danger = False
+
+        if danger:
+            sound_q.put(eqa_struct.sound("speak", "danger"))
+        else:
+            sound_q.put(eqa_struct.sound("speak", "safe"))
+
+    except Exception as e:
+        eqa_settings.log(
+            "action consider evaluate: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)

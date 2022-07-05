@@ -1212,11 +1212,10 @@ def draw_state(stdscr, state):
         stdscr.addstr(25, 16, ": ", curses.color_pair(1))
         stdscr.addstr(25, 18, state.encounter_parse.title(), curses.color_pair(3))
 
-        # eqalert version
-        version = str(pkg_resources.get_distribution("eqalert").version)
-        stdscr.addstr(28, 5, "Version", curses.color_pair(2))
-        stdscr.addstr(28, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(28, 18, version, curses.color_pair(3))
+        # consider evaluation state
+        stdscr.addstr(26, 5, "Consider", curses.color_pair(2))
+        stdscr.addstr(26, 16, ": ", curses.color_pair(1))
+        stdscr.addstr(26, 18, state.consider_eval.title(), curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(
@@ -1534,6 +1533,24 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         elif state.auto_mob_timer == "false":
             optscr.addstr(17, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(17, second_third + 7, "]", curses.color_pair(3))
+
+        # Consider
+        if s_option == "consider" and s_setting == "option":
+            optscr.addstr(19, first_q - 1, "Consider Evaluation", curses.color_pair(4))
+            optscr.addstr(
+                2,
+                first_q - 2,
+                "Evaluate mob consider output",
+                curses.color_pair(3),
+            )
+        else:
+            optscr.addstr(19, first_q, "Consider Evaluation", curses.color_pair(1))
+        optscr.addstr(19, second_third, "[", curses.color_pair(3))
+        if state.consider_eval == "true":
+            optscr.addstr(19, second_third + 1, "on", curses.color_pair(5))
+        elif state.consider_eval == "false":
+            optscr.addstr(19, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(19, second_third + 7, "]", curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(

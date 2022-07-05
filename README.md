@@ -104,9 +104,13 @@ This file will regenerate with each new `eqalert` version or when `data/spell-ti
 
 You can control some parser settings using `/say` in-game.  This is better suited for one monitor setups.
 
+#### Settings
+
 `/say parser raid` - Toggle raid mode
 
 `/say parser debug` - Toggle debug mode
+
+#### Mute
 
 `/say parser mute/unmute` - Toggle global mute/unmute
 
@@ -126,11 +130,15 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 > Does not effect global mute
 
+#### Encounters
+
 `/say parser encounter` - Toggle encounter parsing
 
 `/say parser encounter clear` - Clear the encounter stack
 
 `/say parser encounter end` - Sometimes, your logs don't catch an encounter end.  Use this command to fix that!
+
+#### Timers
 
 `/say parser metronome [seconds]` - Set a tick/tock metronome with n interval of [seconds]
 
@@ -144,13 +152,17 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 `/say parser timer respawn stop` - Stop creating timers automatically
 
-`/say parser hello`
+#### Misc
 
-`/say parser who`
+`/say parser what context` - Speak context state
 
-`/say parser where`
+`/say parser what state` - Speak *everything* in the state object
 
-`/say parser what state`
+`/say parser hello` - Hello
+
+`/say parser who` - Who am I?
+
+`/say parser where` - Where am I?
 
 
 ## Custom Alerting

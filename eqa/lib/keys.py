@@ -276,6 +276,8 @@ def process(
                                 option = "encounter"
                             elif option == "defaulttimer":
                                 option = "saveencounter"
+                            elif option == "consider":
+                                option = "defaulttimer"
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -298,6 +300,8 @@ def process(
                             elif option == "saveencounter":
                                 option = "defaulttimer"
                             elif option == "defaulttimer":
+                                option = "consider"
+                            elif option == "consider":
                                 pass
                             display_q.put(
                                 eqa_struct.display(
@@ -386,6 +390,16 @@ def process(
                                         "false",
                                     )
                                 )
+                            elif option == "consider" and state.consider_eval == "true":
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "consider",
+                                        "eval",
+                                        "false",
+                                    )
+                                )
                         elif key == curses.KEY_LEFT or key == ord("a"):
                             if option == "debug" and state.debug == "false":
                                 system_q.put(
@@ -463,6 +477,18 @@ def process(
                                         "system",
                                         "timer",
                                         "mob",
+                                        "true",
+                                    )
+                                )
+                            elif (
+                                option == "consider" and state.consider_eval == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "consider",
+                                        "eval",
                                         "true",
                                     )
                                 )
