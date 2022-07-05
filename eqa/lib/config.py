@@ -1984,6 +1984,9 @@ def set_last_state(state, configs):
         configs.settings.config["settings"]["debug_mode"].update(
             {"enabled": str(state.debug)}
         )
+        configs.settings.config["settings"]["detect_character"].update(
+            {"enabled": str(state.detect_char)}
+        )
         configs.settings.config["settings"]["mute"].update({"enabled": str(state.mute)})
         configs.characters.config["char_logs"][state.char + "_" + state.server].update(
             {
@@ -2094,6 +2097,7 @@ def get_last_state(configs, char_name, char_server):
         ]
         consider_eval = configs.settings.config["settings"]["consider_eval"]["enabled"]
         debug = configs.settings.config["settings"]["debug_mode"]["enabled"]
+        detect_char = configs.settings.config["settings"]["detect_character"]["enabled"]
         mute = configs.settings.config["settings"]["mute"]["enabled"]
         save_parse = configs.settings.config["settings"]["encounter_parsing"][
             "auto_save"
@@ -2129,6 +2133,7 @@ def get_last_state(configs, char_name, char_server):
             auto_raid,
             auto_mob_timer,
             consider_eval,
+            detect_char,
         )
 
         return state
@@ -2208,6 +2213,9 @@ def build_config(base_path):
     },
     "debug_mode": {
       "enabled": "false"
+    },
+    "detect_character": {
+      "enabled": "true"
     },
     "encounter_parsing": {
       "auto_save": "false",

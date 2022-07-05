@@ -278,6 +278,8 @@ def process(
                                 option = "saveencounter"
                             elif option == "consider":
                                 option = "defaulttimer"
+                            elif option == "detect_char":
+                                option = "consider"
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -302,6 +304,8 @@ def process(
                             elif option == "defaulttimer":
                                 option = "consider"
                             elif option == "consider":
+                                option = "detect_char"
+                            elif option == "detect_char":
                                 pass
                             display_q.put(
                                 eqa_struct.display(
@@ -400,6 +404,18 @@ def process(
                                         "false",
                                     )
                                 )
+                            elif (
+                                option == "detect_char" and state.detect_char == "true"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "detect_char",
+                                        "null",
+                                        "false",
+                                    )
+                                )
                         elif key == curses.KEY_LEFT or key == ord("a"):
                             if option == "debug" and state.debug == "false":
                                 system_q.put(
@@ -489,6 +505,18 @@ def process(
                                         "system",
                                         "consider",
                                         "eval",
+                                        "true",
+                                    )
+                                )
+                            elif (
+                                option == "detect_char" and state.detect_char == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "detect_char",
+                                        "null",
                                         "true",
                                     )
                                 )

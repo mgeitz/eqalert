@@ -412,6 +412,11 @@ def main():
                     ### Update consider eval status
                     elif new_message.tx == "consider":
                         system_consider(configs, state, display_q, sound_q, new_message)
+                    ### Update detect character status
+                    elif new_message.tx == "detect_char":
+                        system_detect_char(
+                            configs, state, display_q, sound_q, new_message
+                        )
                     ### Update debug status
                     elif new_message.tx == "debug":
                         system_debug(configs, state, display_q, sound_q, new_message)
@@ -996,6 +1001,53 @@ def system_consider(configs, state, display_q, sound_q, new_message):
                 )
             )
             sound_q.put(eqa_struct.sound("speak", "Consider evaluation disabled"))
+        display_q.put(
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "system consider: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def system_detect_char(configs, state, display_q, sound_q, new_message):
+    """Perform system tasks for automatic character detection"""
+
+    try:
+        # Toggle detect char state to true
+        if state.detect_char == "false" and new_message.payload == "true":
+            state.set_detect_char("true")
+            eqa_config.set_last_state(state, configs)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Automatic character detection enabled",
+                )
+            )
+            sound_q.put(
+                eqa_struct.sound("speak", "Automatic character detection enabled")
+            )
+        # Toggle detect char state to false
+        elif state.detect_char == "true" and new_message.payload == "false":
+            state.set_detect_char("false")
+            eqa_config.set_last_state(state, configs)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Automatic character detection disabled",
+                )
+            )
+            sound_q.put(
+                eqa_struct.sound("speak", "Automatic character detection disabled")
+            )
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
         )

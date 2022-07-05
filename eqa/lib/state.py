@@ -48,6 +48,7 @@ class EQA_State:
         auto_raid,
         auto_mob_timer,
         consider_eval,
+        detect_char,
     ):
         """All States"""
         self.char = char
@@ -72,6 +73,7 @@ class EQA_State:
         self.auto_raid = auto_raid
         self.auto_mob_timer = auto_mob_timer
         self.consider_eval = consider_eval
+        self.detect_char = detect_char
 
     def set_char(self, char):
         """Set Character"""
@@ -160,3 +162,7 @@ class EQA_State:
     def set_consider_eval(self, consider_eval):
         """Toggle Consider Evaluation"""
         self.consider_eval = consider_eval
+
+    def set_detect_char(self, detect_char):
+        """Toggle Automatic Character Detection"""
+        self.detect_char = detect_char
