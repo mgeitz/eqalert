@@ -12073,6 +12073,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "you_lowdrink": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "you_new_zone": {
       "alert": {},
       "reaction": "all",

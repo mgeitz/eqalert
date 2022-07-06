@@ -852,6 +852,8 @@ def check_system_messages(line):
             re.fullmatch(r"^You are out of food and low on drink\.$", line) is not None
         ):
             return "you_outfoodlowdrink"
+        elif re.fullmatch(r"^You are low on drink\.$", line) is not None:
+            return "you_lowdrink"
         elif (
             re.fullmatch(r"^You are out of drink and low on food\.$", line) is not None
         ):
