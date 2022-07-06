@@ -59,6 +59,10 @@ def startup(base_path):
         if not os.path.exists(base_path + "config/"):
             print("    - making a place for way too many config files")
             os.makedirs(base_path + "config/")
+
+        # Make the config line alerts directory
+        if not os.path.exists(base_path + "config/line-alerts/"):
+            print("    - what should we do with these lines?")
             os.makedirs(base_path + "config/line-alerts/")
 
         # Make Any Missing Config Files

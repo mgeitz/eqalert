@@ -116,7 +116,7 @@ def read_config(base_path):
 
         ## Chat Recieved NPC
         config_path_line_chat_recieved_npc = (
-            base_path + "config/line-alerts/chat-recieved-npc.json"
+            base_path + "config/line-alerts/chat-received-npc.json"
         )
         json_data = open(config_path_line_chat_recieved_npc, "r", encoding="utf-8")
         config_file_line_alerts = json.load(json_data)
@@ -125,7 +125,7 @@ def read_config(base_path):
 
         ## Chat Recieved
         config_path_line_chat_recieved = (
-            base_path + "config/line-alerts/chat-recieved.json"
+            base_path + "config/line-alerts/chat-received.json"
         )
         json_data = open(config_path_line_chat_recieved, "r", encoding="utf-8")
         config_file_line_alerts = json.load(json_data)
@@ -13000,600 +13000,136 @@ def build_config(base_path):
                 generated = True
 
         ## Line Alerts
+
         ### Combat
-        line_combat_json_path = base_path + "config/line-alerts/combat.json"
-        if not os.path.isfile(line_combat_json_path):
-            f = open(line_combat_json_path, "w", encoding="utf-8")
-            f.write(new_line_combat_config % (version))
-            f.close()
+        generated_combat = write_config_line_alert(
+            base_path, "combat", version, new_line_combat_config
+        )
+        if generated_combat:
             generated = True
-        elif os.path.isfile(line_combat_json_path):
-            json_data = open(line_combat_json_path, "r", encoding="utf-8")
-            line_combat_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/combat.json and re-generate one
-            if not line_combat_json["version"] == version:
-                old_version = str(line_combat_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/combat.json"
-                )
-                os.rename(line_combat_json_path, archive_config)
-                f = open(line_combat_json_path, "w", encoding="utf-8")
-                f.write(new_line_combat_config % (version))
-                f.close()
-                generated = True
 
         ### Spell General
-        line_spell_general_json_path = (
-            base_path + "config/line-alerts/spell-general.json"
+        generated_spells = write_config_line_alert(
+            base_path, "spell-general", version, new_line_spell_general_config
         )
-        if not os.path.isfile(line_spell_general_json_path):
-            f = open(
-                line_spell_general_json_path,
-                "w",
-                encoding="utf-8",
-            )
-            f.write(new_line_spell_general_config % (version))
-            f.close()
+        if generated_spells:
             generated = True
-        elif os.path.isfile(line_spell_general_json_path):
-            json_data = open(line_spell_general_json_path, "r", encoding="utf-8")
-            line_spell_general_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/spell-general.json and re-generate one
-            if not line_spell_general_json["version"] == version:
-                old_version = str(line_spell_general_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/spell-general.json"
-                )
-                os.rename(line_spell_general_json_path, archive_config)
-                f = open(
-                    line_spell_general_json_path,
-                    "w",
-                    encoding="utf-8",
-                )
-                f.write(new_line_spell_general_config % (version))
-                f.close()
-                generated = True
 
         ### Spell Specific
-        line_spell_specific_json_path = (
-            base_path + "config/line-alerts/spell-specific.json"
+        generated_spell = write_config_line_alert(
+            base_path, "spell-specific", version, new_line_spell_specific_config
         )
-        if not os.path.isfile(line_spell_specific_json_path):
-            f = open(
-                line_spell_specific_json_path,
-                "w",
-                encoding="utf-8",
-            )
-            f.write(new_line_spell_specific_config % (version))
-            f.close()
+        if generated_spell:
             generated = True
-        elif os.path.isfile(line_spell_specific_json_path):
-            json_data = open(line_spell_specific_json_path, "r", encoding="utf-8")
-            line_spell_specific_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/spell-specific.json and re-generate one
-            if not line_spell_specific_json["version"] == version:
-                old_version = str(line_spell_specific_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/spell-specific.json"
-                )
-                os.rename(line_spell_specific_json_path, archive_config)
-                f = open(
-                    line_spell_specific_json_path,
-                    "w",
-                    encoding="utf-8",
-                )
-                f.write(new_line_spell_specific_config % (version))
-                f.close()
-                generated = True
 
         ### Pets
-        line_pets_json_path = base_path + "config/line-alerts/pets.json"
-        if not os.path.isfile(line_pets_json_path):
-            f = open(line_pets_json_path, "w", encoding="utf-8")
-            f.write(new_line_pets_config % (version))
-            f.close()
+        generated_pets = write_config_line_alert(base_path, "pets", version, new_line_pets_config)
+        if generated_pets:
             generated = True
-        elif os.path.isfile(line_pets_json_path):
-            json_data = open(line_pets_json_path, "r", encoding="utf-8")
-            line_pets_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/pets.json and re-generate one
-            if not line_pets_json["version"] == version:
-                old_version = str(line_pets_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/pets.json"
-                )
-                os.rename(line_pets_json_path, archive_config)
-                f = open(line_pets_json_path, "w", encoding="utf-8")
-                f.write(new_line_pets_config % (version))
-                f.close()
-                generated = True
 
-        ### Chat Recieved NPC
-        line_chat_recieved_npc_json_path = (
-            base_path + "config/line-alerts/chat-recieved-npc.json"
+        ### Chat Received NPC
+        generated_received_npc = write_config_line_alert(
+            base_path, "chat-received-npc", version, new_line_chat_recieved_npc_config
         )
-        if not os.path.isfile(line_chat_recieved_npc_json_path):
-            f = open(
-                line_chat_recieved_npc_json_path,
-                "w",
-                encoding="utf-8",
-            )
-            f.write(new_line_chat_recieved_npc_config % (version))
-            f.close()
+        if generated_received_npc:
             generated = True
-        elif os.path.isfile(line_chat_recieved_npc_json_path):
-            json_data = open(line_chat_recieved_npc_json_path, "r", encoding="utf-8")
-            line_chat_recieved_npc_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/chat-recieved-npc.json and re-generate one
-            if not line_chat_recieved_npc_json["version"] == version:
-                old_version = str(line_chat_recieved_npc_json["version"]).replace(
-                    ".", "-"
-                )
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/chat-recieved-npc.json"
-                )
-                os.rename(line_chat_recieved_npc_json_path, archive_config)
-                f = open(
-                    line_chat_recieved_npc_json_path,
-                    "w",
-                    encoding="utf-8",
-                )
-                f.write(new_line_chat_recieved_npc_config % (version))
-                f.close()
-                generated = True
 
-        ### Chat Recieved
-        line_chat_recieved_json_path = (
-            base_path + "config/line-alerts/chat-recieved.json"
+        ### Chat Received
+        generated_received = write_config_line_alert(
+            base_path, "chat-received", version, new_line_chat_recieved_config
         )
-        if not os.path.isfile(line_chat_recieved_json_path):
-            f = open(
-                line_chat_recieved_json_path,
-                "w",
-                encoding="utf-8",
-            )
-            f.write(new_line_chat_recieved_config % (version))
-            f.close()
+        if generated_received:
             generated = True
-        elif os.path.isfile(line_chat_recieved_json_path):
-            json_data = open(line_chat_recieved_json_path, "r", encoding="utf-8")
-            line_chat_recieved_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/chat-recieved.json and re-generate one
-            if not line_chat_recieved_json["version"] == version:
-                old_version = str(line_chat_recieved_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/chat-recieved.json"
-                )
-                os.rename(line_chat_recieved_json_path, archive_config)
-                f = open(
-                    line_chat_recieved_json_path,
-                    "w",
-                    encoding="utf-8",
-                )
-                f.write(new_line_chat_recieved_config % (version))
-                f.close()
-                generated = True
 
         ### Chat Sent
-        line_chat_sent_json_path = base_path + "config/line-alerts/chat-sent.json"
-        if not os.path.isfile(line_chat_sent_json_path):
-            f = open(line_chat_sent_json_path, "w", encoding="utf-8")
-            f.write(new_line_chat_sent_config % (version))
-            f.close()
+        generated_sent = write_config_line_alert(
+            base_path, "chat-sent", version, new_line_chat_sent_config
+        )
+        if generated_sent:
             generated = True
-        elif os.path.isfile(line_chat_sent_json_path):
-            json_data = open(line_chat_sent_json_path, "r", encoding="utf-8")
-            line_chat_sent_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/chat-sent.json and re-generate one
-            if not line_chat_sent_json["version"] == version:
-                old_version = str(line_chat_sent_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/chat-sent.json"
-                )
-                os.rename(line_chat_sent_json_path, archive_config)
-                f = open(
-                    line_chat_sent_json_path,
-                    "w",
-                    encoding="utf-8",
-                )
-                f.write(new_line_chat_sent_config % (version))
-                f.close()
-                generated = True
 
         ### Command Output
-        line_command_output_json_path = (
-            base_path + "config/line-alerts/command-output.json"
+        generated_command = write_config_line_alert(
+            base_path, "command-output", version, new_line_command_output_config
         )
-        if not os.path.isfile(line_command_output_json_path):
-            f = open(
-                line_command_output_json_path,
-                "w",
-                encoding="utf-8",
-            )
-            f.write(new_line_command_output_config % (version))
-            f.close()
+        if generated_command:
             generated = True
-        elif os.path.isfile(line_command_output_json_path):
-            json_data = open(line_command_output_json_path, "r", encoding="utf-8")
-            line_command_output_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/command-output.json and re-generate one
-            if not line_command_output_json["version"] == version:
-                old_version = str(line_chat_sent_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/command-output.json"
-                )
-                os.rename(line_command_output_json_path, archive_config)
-                f = open(
-                    line_command_output_json_path,
-                    "w",
-                    encoding="utf-8",
-                )
-                f.write(new_line_command_output_config % (version))
-                f.close()
-                generated = True
 
         ### System Messages
-        line_system_messages_json_path = (
-            base_path + "config/line-alerts/system-messages.json"
+        generated_system = write_config_line_alert(
+            base_path, "system-messages", version, new_line_system_messages_config
         )
-        if not os.path.isfile(line_system_messages_json_path):
-            f = open(
-                line_system_messages_json_path,
-                "w",
-                encoding="utf-8",
-            )
-            f.write(new_line_system_messages_config % (version))
-            f.close()
+        if generated_system:
             generated = True
-        elif os.path.isfile(line_system_messages_json_path):
-            json_data = open(line_system_messages_json_path, "r", encoding="utf-8")
-            line_system_messages_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/system-messages.json and re-generate one
-            if not line_system_messages_json["version"] == version:
-                old_version = str(line_system_messages_json["version"]).replace(
-                    ".", "-"
-                )
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/system-messages.json"
-                )
-                os.rename(line_system_messages_json_path, archive_config)
-                f = open(
-                    line_system_messages_json_path,
-                    "w",
-                    encoding="utf-8",
-                )
-                f.write(new_line_system_messages_config % (version))
-                f.close()
-                generated = True
 
         ### Group System Messages
-        line_group_system_messages_json_path = (
-            base_path + "config/line-alerts/group-system-messages.json"
+        generated_group_system = write_config_line_alert(
+            base_path,
+            "group-system-messages",
+            version,
+            new_line_group_system_messages_config,
         )
-        if not os.path.isfile(line_group_system_messages_json_path):
-            f = open(
-                line_group_system_messages_json_path,
-                "w",
-                encoding="utf-8",
-            )
-            f.write(new_line_group_system_messages_config % (version))
-            f.close()
+        if generated_group_system:
             generated = True
-        elif os.path.isfile(line_group_system_messages_json_path):
-            json_data = open(
-                line_group_system_messages_json_path, "r", encoding="utf-8"
-            )
-            line_group_system_messages_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/group-system-messages.json and re-generate one
-            if not line_group_system_messages_json["version"] == version:
-                old_version = str(line_group_system_messages_json["version"]).replace(
-                    ".", "-"
-                )
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/group-system-messages.json"
-                )
-                os.rename(line_group_system_messages_json_path, archive_config)
-                f = open(
-                    line_group_system_messages_json_path,
-                    "w",
-                    encoding="utf-8",
-                )
-                f.write(new_line_group_system_messages_config % (version))
-                f.close()
-                generated = True
 
-        ### Loot Trade Messages
-        line_loot_trade_json_path = base_path + "config/line-alerts/loot-trade.json"
-        if not os.path.isfile(line_loot_trade_json_path):
-            f = open(line_loot_trade_json_path, "w", encoding="utf-8")
-            f.write(new_line_loot_trade_config % (version))
-            f.close()
+        ### Loot Trade
+        generated_loot_trade = write_config_line_alert(
+            base_path, "loot-trade", version, new_line_loot_trade_config
+        )
+        if generated_loot_trade:
             generated = True
-        elif os.path.isfile(line_loot_trade_json_path):
-            json_data = open(line_loot_trade_json_path, "r", encoding="utf-8")
-            line_loot_trade_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/loot-trade.json and re-generate one
-            if not line_loot_trade_json["version"] == version:
-                old_version = str(line_loot_trade_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/loot-trade.json"
-                )
-                os.rename(line_loot_trade_json_path, archive_config)
-                f = open(
-                    line_loot_trade_json_path,
-                    "w",
-                    encoding="utf-8",
-                )
-                f.write(new_line_loot_trade_config % (version))
-                f.close()
-                generated = True
 
         ### Emotes
-        line_emotes_json_path = base_path + "config/line-alerts/emotes.json"
-        if not os.path.isfile(line_emotes_json_path):
-            f = open(line_emotes_json_path, "w", encoding="utf-8")
-            f.write(new_line_emotes_config % (version))
-            f.close()
+        generated_emotes = write_config_line_alert(
+            base_path, "emotes", version, new_line_emotes_config
+        )
+        if generated_emotes:
             generated = True
-        elif os.path.isfile(line_emotes_json_path):
-            json_data = open(line_emotes_json_path, "r", encoding="utf-8")
-            line_emotes_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/emotes.json and re-generate one
-            if not line_emotes_json["version"] == version:
-                old_version = str(line_emotes_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/emotes.json"
-                )
-                os.rename(line_emotes_json_path, archive_config)
-                f = open(line_emotes_json_path, "w", encoding="utf-8")
-                f.write(new_line_emotes_config % (version))
-                f.close()
-                generated = True
 
         ### Who
-        line_who_json_path = base_path + "config/line-alerts/who.json"
-        if not os.path.isfile(line_who_json_path):
-            f = open(line_who_json_path, "w", encoding="utf-8")
-            f.write(new_line_who_config % (version))
-            f.close()
+        generated_who = write_config_line_alert(base_path, "who", version, new_line_who_config)
+        if generated_who:
             generated = True
-        elif os.path.isfile(line_who_json_path):
-            json_data = open(line_who_json_path, "r", encoding="utf-8")
-            line_who_json = json.load(json_data)
-            json_data.close()
-            # Archive old line-alerts/who.json and re-generate one
-            if not line_who_json["version"] == version:
-                old_version = str(line_who_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/line-alerts/"
-                ):
-                    os.makedirs(
-                        base_path + "config/archive/" + old_version + "/line-alerts/"
-                    )
-                archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/who.json"
-                )
-                os.rename(line_who_json_path, archive_config)
-                f = open(line_who_json_path, "w", encoding="utf-8")
-                f.write(new_line_who_config % (version))
-                f.close()
-                generated = True
 
         ### Other
-        line_other_json_path = base_path + "config/line-alerts/other.json"
-        if not os.path.isfile(line_other_json_path):
-            f = open(line_other_json_path, "w", encoding="utf-8")
-            f.write(new_line_other_config % (version))
+        generated_other = write_config_line_alert(
+            base_path, "other", version, new_line_other_config
+        )
+        if generated_other:
+            generated = True
+
+        return generated
+
+    except Exception as e:
+        print(
+            "build config: Error on line"
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def write_config_line_alert(base_path, config_name, version, new_config):
+    """Create any missing config files"""
+    try:
+        # Determine Config Path
+        generated = False
+        line_json_path = base_path + "config/line-alerts/" + config_name + ".json"
+
+        ## If the config does not exist
+        if not os.path.isfile(line_json_path):
+            f = open(line_json_path, "w", encoding="utf-8")
+            f.write(new_config % (version))
             f.close()
             generated = True
-        elif os.path.isfile(line_other_json_path):
-            json_data = open(line_other_json_path, "r", encoding="utf-8")
-            line_other_json = json.load(json_data)
+        ## If the config exists
+        elif os.path.isfile(line_json_path):
+            json_data = open(line_json_path, "r", encoding="utf-8")
+            line_json = json.load(json_data)
             json_data.close()
-            # Archive old line-alerts/other.json and re-generate one
-            if not line_other_json["version"] == version:
-                old_version = str(line_other_json["version"]).replace(".", "-")
+            ### Archive the old and regenerate a new config
+            if not line_json["version"] == version:
+                old_version = str(line_json["version"]).replace(".", "-")
                 if not os.path.exists(base_path + "config/archive/"):
                     os.makedirs(base_path + "config/archive/")
                 if not os.path.exists(
@@ -13607,13 +13143,10 @@ def build_config(base_path):
                         base_path + "config/archive/" + old_version + "/line-alerts/"
                     )
                 archive_config = (
-                    base_path
-                    + "config/archive/"
-                    + old_version
-                    + "/line-alerts/other.json"
+                    base_path + "config/archive/" + old_version + config_name
                 )
-                os.rename(line_other_json_path, archive_config)
-                f = open(line_other_json_path, "w", encoding="utf-8")
+                os.rename(line_json_path, archive_config)
+                f = open(line_json_path, "w", encoding="utf-8")
                 f.write(new_line_other_config % (version))
                 f.close()
                 generated = True
@@ -13622,7 +13155,7 @@ def build_config(base_path):
 
     except Exception as e:
         print(
-            "build config: Error on line"
+            "write config line alert: Error on line"
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
