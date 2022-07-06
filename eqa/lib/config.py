@@ -12279,6 +12279,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "I have altered the deal"
     },
+    "trade_interest": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "let's trade"
+    },
     "trade_item": {
       "alert": {},
       "reaction": "false",

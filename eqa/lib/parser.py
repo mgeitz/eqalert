@@ -1287,6 +1287,11 @@ def check_loot_trade(line):
             is not None
         ):
             return "loot_too_far"
+        elif (
+            re.fullmatch(r"^[a-zA-Z`\s]+ is interested in making a trade\.$", line)
+            is not None
+        ):
+            return "trade_interest"
 
         return None
 
