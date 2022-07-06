@@ -60,11 +60,9 @@ Spot check these default paths generated in `config/settings.json`
 
 ### Spell Timers
 
-On first run, eqalert will try to generate `data/spell-timers.json` by parsing `spells_us.txt` in your EverQuest directory.
+EQ Alert will generate a file for spell timers in `~/.eqa/data/spell-timers.json` by default by parsing `spells_us.txt` in your EverQuest directory.
 
-This file will regenerate with each new `eqalert` version or when `data/spell-timers.json` doesn't exist.
-
-> If there is a project1999 update it is recommended to delete `data/spell-timers.json` to force `data/spell-timers.json` regeneration
+This file will only regenerate if it is missing, malformed, or a newer `spells_us.txt` file is present.
 
 
 ## Controls
