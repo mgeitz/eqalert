@@ -38,25 +38,26 @@ def process(state, configs, system_q, exit_flag):
 
         while not exit_flag.is_set():
             time.sleep(1)
-            for log_file in os.listdir(logs_directory):
-                if log_file.startswith("eqlog_"):
-                    modified_time = os.stat(logs_directory + log_file).st_mtime
-                    if modified_time > most_recent:
-                        most_recent = modified_time
-                        game, char, server_dirty = log_file.split("_")
-                        server, extension = server_dirty.split(".")
+            if state.detect_char == "true":
+                for log_file in os.listdir(logs_directory):
+                    if log_file.startswith("eqlog_"):
+                        modified_time = os.stat(logs_directory + log_file).st_mtime
+                        if modified_time > most_recent:
+                            most_recent = modified_time
+                            game, char, server_dirty = log_file.split("_")
+                            server, extension = server_dirty.split(".")
 
-            if char != state.char or server != state.server:
-                char_server = char + "_" + server
-                system_q.put(
-                    eqa_struct.message(
-                        eqa_settings.eqa_time(),
-                        "system",
-                        "new_character",
-                        "null",
-                        char_server,
+                if char != state.char or server != state.server:
+                    char_server = char + "_" + server
+                    system_q.put(
+                        eqa_struct.message(
+                            eqa_settings.eqa_time(),
+                            "system",
+                            "new_character",
+                            "null",
+                            char_server,
+                        )
                     )
-                )
 
     except Exception as e:
         eqa_settings.log(
