@@ -22,6 +22,7 @@ import os
 import sys
 import pkg_resources
 import re
+import hashlib
 
 import eqa.lib.settings as eqa_settings
 import eqa.lib.state as eqa_state
@@ -1838,7 +1839,6 @@ def update_spell_timers(data_path, eq_spells_file_path):
             "zumaiks_animation",
         ]
 
-        version = str(pkg_resources.get_distribution("eqalert").version)
         spell_timers_file_name = "spell-timers.json"
         spell_timer_file = data_path + spell_timers_file_name
 
@@ -1847,16 +1847,36 @@ def update_spell_timers(data_path, eq_spells_file_path):
         eq_spells_file_lines = eq_spells_file.readlines()
         eq_spells_file.close()
 
+        # Calculate file hash
+        BLOCKSIZE = 65536
+        file_hash = hashlib.md5()
+        with open(eq_spells_file_path, "r") as spells_file:
+            buf = spells_file.read(BLOCKSIZE)
+            while len(buf) > 0:
+                file_hash.update(buf.encode("utf-8"))
+                buf = spells_file.read(BLOCKSIZE)
+        spells_file.close()
+        spells_hash = file_hash.hexdigest()
+
         # Check spell-timers.json version
         if os.path.isfile(spell_timer_file):
+
+            # Generate Spell Timers
             json_data = open(spell_timer_file, "r", encoding="utf-8")
-            spell_timers_version_check = json.load(json_data)
-            if not spell_timers_version_check["version"] == version:
-                print(
-                    "Generating new spell-timers.json. This may take up to 45 seconds . . ."
-                )
+            spell_timers_hash_check = json.load(json_data)
+
+            if "hash" not in spell_timers_hash_check.keys():
+                generate_spell_timer_file = True
+            else:
+                if not spell_timers_hash_check["hash"] == spells_hash:
+                    generate_spell_timer_file = True
+                else:
+                    generate_spell_timer_file = False
+
+            if generate_spell_timer_file:
+                print("Generating new spell-timers.json. This may take a minute . . .")
                 # Bootstrap new spell-timers.json
-                spell_timer_json = {"spells": {}, "version": version}
+                spell_timer_json = {"spells": {}, "hash": spells_hash}
 
                 # Read spells_us.txt line
                 for line in eq_spells_file_lines:
@@ -1893,15 +1913,15 @@ def update_spell_timers(data_path, eq_spells_file_path):
                             }
                         )
 
+                    spell_timer_json.update({"hash": spells_hash})
+
                     json_data = open(spell_timer_file, "w")
                     json.dump(spell_timer_json, json_data, sort_keys=True, indent=2)
                     json_data.close()
         else:
-            print(
-                "Generating new spell-timers.json. This may take up to 45 seconds . . ."
-            )
+            print("Generating new spell-timers.json. This may take a minute . . .")
             # Bootstrap new spell-timers.json
-            spell_timer_json = {"spells": {}, "version": version}
+            spell_timer_json = {"spells": {}, "hash": spells_hash}
 
             # Read spells_us.txt line
             for line in eq_spells_file_lines:
