@@ -12936,136 +12936,104 @@ def build_config(base_path):
             generated = True
 
         ## Settings
-        settings_json_path = base_path + "config/settings.json"
-        if not os.path.isfile(settings_json_path):
-            f = open(settings_json_path, "w", encoding="utf-8")
-            f.write(
-                new_settings_config
-                % (base_path, base_path, base_path, home, home, base_path, version)
-            )
-            f.close()
+        generated_settings = write_config(
+            base_path, "settings", version, new_settings_config
+        )
+        if generated_settings:
             generated = True
-        elif os.path.isfile(settings_json_path):
-            json_data = open(settings_json_path, "r", encoding="utf-8")
-            settings_json = json.load(json_data)
-            json_data.close()
-            # Archive old settings.json and re-generate one
-            if not settings_json["version"] == version:
-                old_version = str(settings_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                archive_config = (
-                    base_path + "config/archive/" + old_version + "/settings.json"
-                )
-                os.rename(settings_json_path, archive_config)
-                f = open(settings_json_path, "w", encoding="utf-8")
-                f.write(
-                    new_settings_config
-                    % (base_path, base_path, base_path, home, home, base_path, version)
-                )
-                f.close()
-                generated = True
 
         ## Zones
-        zones_json_path = base_path + "config/zones.json"
-        if not os.path.isfile(zones_json_path):
-            f = open(zones_json_path, "w", encoding="utf-8")
-            f.write(new_zones_config % (version))
-            f.close()
+        generated_zones = write_config(base_path, "zones", version, new_zones_config)
+        if generated_zones:
             generated = True
-        elif os.path.isfile(zones_json_path):
-            json_data = open(zones_json_path, "r", encoding="utf-8")
-            zones_json = json.load(json_data)
-            json_data.close()
-            # Archive old zones.json and re-generate one
-            if not zones_json["version"] == version:
-                old_version = str(zones_json["version"]).replace(".", "-")
-                if not os.path.exists(base_path + "config/archive/"):
-                    os.makedirs(base_path + "config/archive/")
-                if not os.path.exists(
-                    base_path + "config/archive/" + old_version + "/"
-                ):
-                    os.makedirs(base_path + "config/archive/" + old_version + "/")
-                archive_config = (
-                    base_path + "config/archive/" + old_version + "/zones.json"
-                )
-                os.rename(zones_json_path, archive_config)
-                f = open(zones_json_path, "w", encoding="utf-8")
-                f.write(new_zones_config % (version))
-                f.close()
-                generated = True
 
         ## Line Alerts
 
         ### Combat
-        generated_combat = write_config_line_alert(
-            base_path, "combat", version, new_line_combat_config
+        generated_combat = write_config(
+            base_path, "line-alerts/combat", version, new_line_combat_config
         )
         if generated_combat:
             generated = True
 
         ### Spell General
-        generated_spells = write_config_line_alert(
-            base_path, "spell-general", version, new_line_spell_general_config
+        generated_spells = write_config(
+            base_path,
+            "line-alerts/spell-general",
+            version,
+            new_line_spell_general_config,
         )
         if generated_spells:
             generated = True
 
         ### Spell Specific
-        generated_spell = write_config_line_alert(
-            base_path, "spell-specific", version, new_line_spell_specific_config
+        generated_spell = write_config(
+            base_path,
+            "line-alerts/spell-specific",
+            version,
+            new_line_spell_specific_config,
         )
         if generated_spell:
             generated = True
 
         ### Pets
-        generated_pets = write_config_line_alert(base_path, "pets", version, new_line_pets_config)
+        generated_pets = write_config(
+            base_path, "line-alerts/pets", version, new_line_pets_config
+        )
         if generated_pets:
             generated = True
 
         ### Chat Received NPC
-        generated_received_npc = write_config_line_alert(
-            base_path, "chat-received-npc", version, new_line_chat_recieved_npc_config
+        generated_received_npc = write_config(
+            base_path,
+            "line-alerts/chat-received-npc",
+            version,
+            new_line_chat_recieved_npc_config,
         )
         if generated_received_npc:
             generated = True
 
         ### Chat Received
-        generated_received = write_config_line_alert(
-            base_path, "chat-received", version, new_line_chat_recieved_config
+        generated_received = write_config(
+            base_path,
+            "line-alerts/chat-received",
+            version,
+            new_line_chat_recieved_config,
         )
         if generated_received:
             generated = True
 
         ### Chat Sent
-        generated_sent = write_config_line_alert(
-            base_path, "chat-sent", version, new_line_chat_sent_config
+        generated_sent = write_config(
+            base_path, "line-alerts/chat-sent", version, new_line_chat_sent_config
         )
         if generated_sent:
             generated = True
 
         ### Command Output
-        generated_command = write_config_line_alert(
-            base_path, "command-output", version, new_line_command_output_config
+        generated_command = write_config(
+            base_path,
+            "line-alerts/command-output",
+            version,
+            new_line_command_output_config,
         )
         if generated_command:
             generated = True
 
         ### System Messages
-        generated_system = write_config_line_alert(
-            base_path, "system-messages", version, new_line_system_messages_config
+        generated_system = write_config(
+            base_path,
+            "line-alerts/system-messages",
+            version,
+            new_line_system_messages_config,
         )
         if generated_system:
             generated = True
 
         ### Group System Messages
-        generated_group_system = write_config_line_alert(
+        generated_group_system = write_config(
             base_path,
-            "group-system-messages",
+            "line-alerts/group-system-messages",
             version,
             new_line_group_system_messages_config,
         )
@@ -13073,27 +13041,29 @@ def build_config(base_path):
             generated = True
 
         ### Loot Trade
-        generated_loot_trade = write_config_line_alert(
-            base_path, "loot-trade", version, new_line_loot_trade_config
+        generated_loot_trade = write_config(
+            base_path, "line-alerts/loot-trade", version, new_line_loot_trade_config
         )
         if generated_loot_trade:
             generated = True
 
         ### Emotes
-        generated_emotes = write_config_line_alert(
-            base_path, "emotes", version, new_line_emotes_config
+        generated_emotes = write_config(
+            base_path, "line-alerts/emotes", version, new_line_emotes_config
         )
         if generated_emotes:
             generated = True
 
         ### Who
-        generated_who = write_config_line_alert(base_path, "who", version, new_line_who_config)
+        generated_who = write_config(
+            base_path, "line-alerts/who", version, new_line_who_config
+        )
         if generated_who:
             generated = True
 
         ### Other
-        generated_other = write_config_line_alert(
-            base_path, "other", version, new_line_other_config
+        generated_other = write_config(
+            base_path, "line-alerts/other", version, new_line_other_config
         )
         if generated_other:
             generated = True
@@ -13109,12 +13079,12 @@ def build_config(base_path):
         )
 
 
-def write_config_line_alert(base_path, config_name, version, new_config):
+def write_config(base_path, config_name, version, new_config):
     """Create any missing config files"""
     try:
         # Determine Config Path
         generated = False
-        line_json_path = base_path + "config/line-alerts/" + config_name + ".json"
+        line_json_path = base_path + "config/" + config_name + ".json"
 
         ## If the config does not exist
         if not os.path.isfile(line_json_path):
