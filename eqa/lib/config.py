@@ -12948,7 +12948,6 @@ def build_config(base_path):
             generated = True
 
         ## Line Alerts
-
         ### Combat
         generated_combat = write_config(
             base_path, "line-alerts/combat", version, new_line_combat_config
@@ -13084,6 +13083,7 @@ def write_config(base_path, config_name, version, new_config):
     try:
         # Determine Config Path
         generated = False
+        generate_config = False
         line_json_path = base_path + "config/" + config_name + ".json"
 
         ## If the config does not exist
@@ -13094,12 +13094,22 @@ def write_config(base_path, config_name, version, new_config):
             generated = True
         ## If the config exists
         elif os.path.isfile(line_json_path):
-            json_data = open(line_json_path, "r", encoding="utf-8")
-            line_json = json.load(json_data)
-            json_data.close()
-            ### Archive the old and regenerate a new config
-            if not line_json["version"] == version:
+            ### Validate file is readable
+
+            old_version = "unknown/"
+            generate_config = False
+            try:
+                json_data = open(line_json_path, "r", encoding="utf-8")
+                line_json = json.load(json_data)
+                json_data.close()
                 old_version = str(line_json["version"]).replace(".", "-")
+
+                if not line_json["version"] == version:
+                    generate_config = True
+            except:
+                generate_config = True
+            ### Archive the old and regenerate a new config
+            if generate_config:
                 if not os.path.exists(base_path + "config/archive/"):
                     os.makedirs(base_path + "config/archive/")
                 if not os.path.exists(
@@ -13117,7 +13127,7 @@ def write_config(base_path, config_name, version, new_config):
                 )
                 os.rename(line_json_path, archive_config)
                 f = open(line_json_path, "w", encoding="utf-8")
-                f.write(new_line_other_config % (version))
+                f.write(new_config % (version))
                 f.close()
                 generated = True
 
