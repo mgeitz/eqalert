@@ -620,6 +620,7 @@ def main():
                         process_sound_2.join()
                         process_sound_3.join()
                         process_timer.join()
+                        process_watch.join()
                         process_keys.join()
                         process_display.join()
                         cfg_reload.clear()
@@ -727,6 +728,14 @@ def main():
                         )
                         process_timer.daemon = True
                         process_timer.start()
+
+                        #### Restart process_watch
+                        process_watch = threading.Thread(
+                            target=eqa_watch.process,
+                            args=(state, configs, system_q, exit_flag),
+                        )
+                        process_watch.daemon = True
+                        process_watch.start()
 
                         #### Notify successful configuration reload
                         display_q.put(
