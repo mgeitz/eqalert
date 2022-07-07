@@ -41,6 +41,7 @@ import eqa.lib.sound as eqa_sound
 import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
 import eqa.lib.timer as eqa_timer
+import eqa.lib.watch as eqa_watch
 
 
 def startup(base_path):
@@ -58,6 +59,10 @@ def startup(base_path):
         if not os.path.exists(base_path + "config/"):
             print("    - making a place for way too many config files")
             os.makedirs(base_path + "config/")
+
+        # Make the config line alerts directory
+        if not os.path.exists(base_path + "config/line-alerts/"):
+            print("    - what should we do with these lines?")
             os.makedirs(base_path + "config/line-alerts/")
 
         # Make Any Missing Config Files
@@ -196,6 +201,16 @@ def main():
     system_q = queue.Queue()
     timer_q = queue.Queue()
 
+    # Watch Log Directory
+    ## Consume log directory for newest log
+    ## Produce character update to system_q
+    process_watch = threading.Thread(
+        target=eqa_watch.process,
+        args=(state, configs, system_q, exit_flag),
+    )
+    process_watch.daemon = True
+    process_watch.start()
+
     # Read Log File
     ## Consume char_log
     ## Produce log_q
@@ -330,17 +345,10 @@ def main():
     ## Consume timer_q
     ## Produce sound_q, display_q
     process_timer = threading.Thread(
-        target=eqa_timer.process, args=(timer_q, sound_q, display_q, exit_flag)
+        target=eqa_timer.process, args=(configs, timer_q, sound_q, display_q, exit_flag)
     )
     process_timer.daemon = True
     process_timer.start()
-
-    # Signal Startup Complete
-    display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "events", "null"))
-    display_q.put(
-        eqa_struct.display(eqa_settings.eqa_time(), "event", "events", "Initialized")
-    )
-    sound_q.put(eqa_struct.sound("speak", "initialized"))
 
     # Manage State and Config
     ## Consume system_q
@@ -401,6 +409,11 @@ def main():
                     ### Update consider eval status
                     elif new_message.tx == "consider":
                         system_consider(configs, state, display_q, sound_q, new_message)
+                    ### Update detect character status
+                    elif new_message.tx == "detect_char":
+                        system_detect_char(
+                            configs, state, display_q, sound_q, new_message
+                        )
                     ### Update debug status
                     elif new_message.tx == "debug":
                         system_debug(configs, state, display_q, sound_q, new_message)
@@ -606,6 +619,7 @@ def main():
                         process_sound_1.join()
                         process_sound_2.join()
                         process_sound_3.join()
+                        process_timer.join()
                         process_keys.join()
                         process_display.join()
                         cfg_reload.clear()
@@ -706,6 +720,14 @@ def main():
                         process_sound_3.daemon = True
                         process_sound_3.start()
 
+                        #### Restart process_timer
+                        process_timer = threading.Thread(
+                            target=eqa_timer.process,
+                            args=(configs, timer_q, sound_q, display_q, exit_flag),
+                        )
+                        process_timer.daemon = True
+                        process_timer.start()
+
                         #### Notify successful configuration reload
                         display_q.put(
                             eqa_struct.display(
@@ -735,10 +757,15 @@ def main():
         pass
 
     # Exit
+
+    ## Goodbye message
     display_q.put(
         eqa_struct.display(eqa_settings.eqa_time(), "event", "events", "Exiting")
     )
+
+    ## Close threads
     read_keys.join()
+    process_watch.join()
     process_log.join()
     process_parse.join()
     process_keys.join()
@@ -749,6 +776,8 @@ def main():
     process_sound_2.join()
     process_sound_3.join()
     process_display.join()
+
+    ## Close curses
     eqa_curses.close_screens(screen)
 
 
@@ -984,6 +1013,53 @@ def system_consider(configs, state, display_q, sound_q, new_message):
                 )
             )
             sound_q.put(eqa_struct.sound("speak", "Consider evaluation disabled"))
+        display_q.put(
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "system consider: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def system_detect_char(configs, state, display_q, sound_q, new_message):
+    """Perform system tasks for automatic character detection"""
+
+    try:
+        # Toggle detect char state to true
+        if state.detect_char == "false" and new_message.payload == "true":
+            state.set_detect_char("true")
+            eqa_config.set_last_state(state, configs)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Automatic character detection enabled",
+                )
+            )
+            sound_q.put(
+                eqa_struct.sound("speak", "Automatic character detection enabled")
+            )
+        # Toggle detect char state to false
+        elif state.detect_char == "true" and new_message.payload == "false":
+            state.set_detect_char("false")
+            eqa_config.set_last_state(state, configs)
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    "Automatic character detection disabled",
+                )
+            )
+            sound_q.put(
+                eqa_struct.sound("speak", "Automatic character detection disabled")
+            )
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
         )
