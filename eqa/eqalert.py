@@ -345,17 +345,10 @@ def main():
     ## Consume timer_q
     ## Produce sound_q, display_q
     process_timer = threading.Thread(
-        target=eqa_timer.process, args=(timer_q, sound_q, display_q, exit_flag)
+        target=eqa_timer.process, args=(configs, timer_q, sound_q, display_q, exit_flag)
     )
     process_timer.daemon = True
     process_timer.start()
-
-    # Signal Startup Complete
-    display_q.put(eqa_struct.display(eqa_settings.eqa_time(), "draw", "events", "null"))
-    display_q.put(
-        eqa_struct.display(eqa_settings.eqa_time(), "event", "events", "Initialized")
-    )
-    sound_q.put(eqa_struct.sound("speak", "initialized"))
 
     # Manage State and Config
     ## Consume system_q
@@ -626,6 +619,7 @@ def main():
                         process_sound_1.join()
                         process_sound_2.join()
                         process_sound_3.join()
+                        process_timer.join()
                         process_keys.join()
                         process_display.join()
                         cfg_reload.clear()
@@ -726,6 +720,14 @@ def main():
                         process_sound_3.daemon = True
                         process_sound_3.start()
 
+                        #### Restart process_timer
+                        process_timer = threading.Thread(
+                            target=eqa_timer.process,
+                            args=(configs, timer_q, sound_q, display_q, exit_flag),
+                        )
+                        process_timer.daemon = True
+                        process_timer.start()
+
                         #### Notify successful configuration reload
                         display_q.put(
                             eqa_struct.display(
@@ -755,9 +757,13 @@ def main():
         pass
 
     # Exit
+
+    ## Goodbye message
     display_q.put(
         eqa_struct.display(eqa_settings.eqa_time(), "event", "events", "Exiting")
     )
+
+    ## Close threads
     read_keys.join()
     process_watch.join()
     process_log.join()
@@ -770,6 +776,8 @@ def main():
     process_sound_2.join()
     process_sound_3.join()
     process_display.join()
+
+    ## Close curses
     eqa_curses.close_screens(screen)
 
 

@@ -22,12 +22,14 @@ import heapq
 import datetime
 import time
 import sys
+import json
+import os
 
 import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
 
 
-def process(timer_q, sound_q, display_q, exit_flag):
+def process(configs, timer_q, sound_q, display_q, exit_flag):
     """
     Process: timer_q
     Produce: display_q, sound_q
@@ -36,8 +38,45 @@ def process(timer_q, sound_q, display_q, exit_flag):
     timers = []
     tock = False
     metronome_stop = False
+    saved_timers_path = (
+        configs.settings.config["settings"]["paths"]["data"] + "saved-timers.json"
+    )
 
     try:
+        # Load timers
+        if os.path.exists(saved_timers_path):
+            try:
+                json_data = open(saved_timers_path, "r", encoding="utf-8")
+                saved_timers = json.load(json_data)
+                json_data.close()
+                parse_saved_timers = True
+            except:
+                parse_saved_timers = False
+
+            if parse_saved_timers:
+                now = datetime.datetime.now()
+                for item in saved_timers["timers"].keys():
+                    item_time = datetime.datetime.strptime(
+                        saved_timers["timers"][item]["time"], "%Y-%m-%d %H:%M:%S.%f"
+                    )
+                    item_type = saved_timers["timers"][item]["type"]
+                    item_seconds = saved_timers["timers"][item]["seconds"]
+                    item_payload = saved_timers["timers"][item]["payload"]
+                    if not item_time <= now:
+                        heapq.heappush(
+                            timers,
+                            eqa_struct.timer(
+                                item_time,
+                                item_type,
+                                item_seconds,
+                                item_payload,
+                            ),
+                        )
+
+            # Remove saved timer file
+            os.remove(saved_timers_path)
+
+        # Consume timer_q
         while not exit_flag.is_set():
 
             # Sleep between empty checks
@@ -137,6 +176,42 @@ def process(timer_q, sound_q, display_q, exit_flag):
     except Exception as e:
         eqa_settings.log(
             "timer_process: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+    # Save timers
+    try:
+        if len(timers) > 0:
+            saved_timers_path = (
+                configs.settings.config["settings"]["paths"]["data"]
+                + "saved-timers.json"
+            )
+            saved_timers_json = {"timers": {}}
+            count = 1
+            while len(timers) > 0:
+                timer = heapq.heappop(timers)
+                timer_name = "timer_" + str(count)
+                count += 1
+                saved_timers_json["timers"].update(
+                    {
+                        timer_name: {
+                            "time": str(timer.time),
+                            "type": str(timer.type),
+                            "seconds": str(timer.seconds),
+                            "payload": str(timer.payload),
+                        }
+                    }
+                )
+
+            json_data = open(saved_timers_path, "w")
+            json.dump(saved_timers_json, json_data, sort_keys=True, indent=2)
+            json_data.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "timer_process (save timers): Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
