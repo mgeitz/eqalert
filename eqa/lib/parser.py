@@ -618,21 +618,21 @@ def check_sent_chat(line):
 
     try:
         if (
-            re.fullmatch(r"^You told [a-zA-Z\.]+(, \'| \'\[queued\],).+\'$", line)
+            re.fullmatch(r"^You told [a-zA-Z\.]+(, \'| \'\[queued\],)(.+|))\'$", line)
             is not None
         ):
             return "tell_you"
-        elif re.fullmatch(r"^You say, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You say, \'(.+|)\'$", line) is not None:
             return "say_you"
-        elif re.fullmatch(r"^You shout, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You shout, \'(.+|)\'$", line) is not None:
             return "shout_you"
-        elif re.fullmatch(r"^You say to your guild, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You say to your guild, \'(.+|)\'$", line) is not None:
             return "guild_you"
-        elif re.fullmatch(r"^You tell your party, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You tell your party, \'(.+|)\'$", line) is not None:
             return "group_you"
-        elif re.fullmatch(r"^You say out of character, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You say out of character, \'(.+|)\'$", line) is not None:
             return "ooc_you"
-        elif re.fullmatch(r"^You auction, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You auction, \'(.+|)\'$", line) is not None:
             return "auction_you"
 
         return None
@@ -788,6 +788,14 @@ def check_command_output(line):
         ):
             return "list_leaving"
         elif (
+            re.fullmatch(
+                r"^You have re\-entered the range for your Item List\. Please remain in the area to refresh your range timer\.$",
+                line,
+            )
+            is not None
+        ):
+            return "list_re_entered"
+        elif (
             re.fullmatch(r"^There are no lists in this zone to join\.$", line)
             is not None
         ):
@@ -854,6 +862,8 @@ def check_system_messages(line):
             return "you_outfoodlowdrink"
         elif re.fullmatch(r"^You are low on drink\.$", line) is not None:
             return "you_lowdrink"
+        elif re.fullmatch(r"^You are low on food\.$", line) is not None:
+            return "you_lowfood"
         elif (
             re.fullmatch(r"^You are out of drink and low on food\.$", line) is not None
         ):
@@ -947,7 +957,7 @@ def check_system_messages(line):
             return "tracking_player_on"
         elif re.fullmatch(r"^You have lost your tracking target\.$", line) is not None:
             return "tracking_target_lost"
-        elif re.fullmatch(r"^You begin tracking [a-zA-Z\s`]+$", line) is not None:
+        elif re.fullmatch(r"^You begin tracking [a-zA-Z\s`]+\.$", line) is not None:
             return "tracking_begin"
         elif (
             re.fullmatch(

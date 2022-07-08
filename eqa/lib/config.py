@@ -11720,6 +11720,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "list_re_entering": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "back in list area"
+    },
     "location": {
       "alert": {},
       "reaction": "false",
@@ -12074,6 +12079,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "you_lowdrink": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_lowfood": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
