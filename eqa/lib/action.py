@@ -196,9 +196,8 @@ def process(
                             )
                         )
                 ## Consider Evaluation
-                if state.consider_eval == "true":
-                    if line_type == "consider":
-                        action_consider_evaluation(sound_q, check_line)
+                if state.consider_eval == "true" and line_type == "consider":
+                    action_consider_evaluation(sound_q, check_line)
 
                 ## State Building Line Types
                 if line_type == "location":

@@ -138,7 +138,7 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 #### Timers
 
-`/say parser metronome [seconds]` - Set a tick/tock metronome with n interval of [seconds]
+`/say parser metronome [seconds]` - Set a tick/tock metronome with interval of [seconds]
 
 `/say parser metronome stop` - Stop the metronome
 
@@ -146,9 +146,9 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 `/say parser timer clear` - Clear all timers
 
-`/say parser timer respawn` - Create timers for the default current zone time after seeing an experience message. Timer response is "pop zone"
+`/say parser timer respawn` - Create timers for the default current zone time after seeing an experience message. Timer response is "pop [zone name]"
 
-`/say parser timer respawn stop` - Stop creating timers automatically
+`/say parser timer respawn stop` - Stop creating mob respawn timers automatically
 
 #### Misc
 
@@ -177,18 +177,14 @@ Modify `line_type` values to customize alerts accordingly.
 
 ### Line Types
 
-Here is a an example configuration for a given line type a config file:
+Example configuration for a line type:
 ```
-    "line_type": {
+    "line_type_name": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
 ```
-
-There is a configuration entry for all lines matched by the parser.  If a new one is discovered, it is automatically added to config/line-alerts/other.json with the values in the example above.
-
-`line_type` here is whatever semi-arbitrary name I've given for a certain line match.  For each given line type you can configure alerts, a reaction, and a sound.
 
 #### Reaction Values
 

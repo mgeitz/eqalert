@@ -578,7 +578,7 @@ def draw_events_default_lower(stdscr):
             "Use /char to view your bind point",
             "Set /loc to common macros",
             "Firiona Vie is a lie",
-            "Use shift+t to look behind you",
+            "Use shift + t to look behind you",
             "Press 'd' to toggle debug mode",
             "Press 'e' to toggle encounter parsing",
             "Press 'm' to toggle mute",

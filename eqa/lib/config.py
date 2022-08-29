@@ -12262,7 +12262,7 @@ def build_config(base_path):
     "loot_wait": {
       "alert": {},
       "reaction": "solo",
-      "sound": "no yet"
+      "sound": "not yet"
     },
     "looted_item_other": {
       "alert": {},

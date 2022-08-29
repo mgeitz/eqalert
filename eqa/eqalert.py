@@ -224,8 +224,6 @@ def main():
     # Parse Log Lines to Determine Line Type
     ## Process log_q
     ## Produce action_q
-
-    ### Thread 1
     process_parse = threading.Thread(
         target=eqa_parser.process, args=(exit_flag, log_q, action_q)
     )
@@ -289,7 +287,6 @@ def main():
     # Create Encounter Reports
     ## Consume encounter_q
     ## Produce display_q, system_q
-
     process_encounter = threading.Thread(
         target=eqa_encounter.process,
         args=(
