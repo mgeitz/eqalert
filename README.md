@@ -70,22 +70,22 @@ This file will only regenerate if it is missing, malformed, or a newer `spells_u
 ### Keyboard Controls
 
 #### Global
+  - 0       : Reload config
   - 1       : Events
   - 2       : State
   - 3       : Parse
   - 4       : Settings
-  - 0       : Reload config
   - q / esc : Quit
   - h       : Help
 
 #### Events
   - c       : Clear event box
-  - r       : Toggle raid mode
   - d       : Toggle debug mode
   - e       : Toggle encounter parsing
   - m       : Toggle global audio mute
-  - t       : Toggle automatic mob respawn timers
   - p       : Toggle encounter parse save
+  - r       : Toggle raid mode
+  - t       : Toggle automatic mob respawn timers
 
 #### Settings
   - up      : Up in selection
