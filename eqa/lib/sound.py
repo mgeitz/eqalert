@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/sound.py
-   Copyright (C) 2022 Michael Geitz
+   Copyright (C) 2023 M Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
