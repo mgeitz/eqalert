@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/curses.py
-   Copyright (C) 2022 Michael Geitz
+   Copyright (C) 2023 M Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -578,7 +578,7 @@ def draw_events_default_lower(stdscr):
             "Use /char to view your bind point",
             "Set /loc to common macros",
             "Firiona Vie is a lie",
-            "Use shift+t to look behind you",
+            "Use shift + t to look behind you",
             "Press 'd' to toggle debug mode",
             "Press 'e' to toggle encounter parsing",
             "Press 'm' to toggle mute",
@@ -1779,7 +1779,7 @@ def draw_help(stdscr):
         mid_help_x = int(help_x / 2)
 
         # Title
-        helpscr.addstr(2, mid_help_x - 8, "EQAlert Help Menu", curses.color_pair(2))
+        helpscr.addstr(2, mid_help_x - 9, "EQ Alert Help Menu", curses.color_pair(2))
 
         # Commands
         helpscr.addstr(5, 5, "Keyboard Controls:", curses.color_pair(1))
@@ -1787,33 +1787,33 @@ def draw_help(stdscr):
         # Global commands
         helpscr.addstr(7, 7, "Global", curses.color_pair(1))
 
-        helpscr.addstr(8, 9, "1", curses.color_pair(2))
+        helpscr.addstr(8, 9, "0", curses.color_pair(2))
         helpscr.addstr(8, 15, ":", curses.color_pair(1))
-        helpscr.addstr(8, 17, "Events", curses.color_pair(3))
+        helpscr.addstr(8, 17, "Reload config", curses.color_pair(3))
 
-        helpscr.addstr(9, 9, "2", curses.color_pair(2))
+        helpscr.addstr(9, 9, "1", curses.color_pair(2))
         helpscr.addstr(9, 15, ":", curses.color_pair(1))
-        helpscr.addstr(9, 17, "State", curses.color_pair(3))
+        helpscr.addstr(9, 17, "Events", curses.color_pair(3))
 
-        helpscr.addstr(10, 9, "3", curses.color_pair(2))
+        helpscr.addstr(10, 9, "2", curses.color_pair(2))
         helpscr.addstr(10, 15, ":", curses.color_pair(1))
-        helpscr.addstr(10, 17, "Parse", curses.color_pair(3))
+        helpscr.addstr(10, 17, "State", curses.color_pair(3))
 
-        helpscr.addstr(11, 9, "4", curses.color_pair(2))
+        helpscr.addstr(11, 9, "3", curses.color_pair(2))
         helpscr.addstr(11, 15, ":", curses.color_pair(1))
-        helpscr.addstr(11, 17, "Settings", curses.color_pair(3))
+        helpscr.addstr(11, 17, "Parse", curses.color_pair(3))
 
-        helpscr.addstr(12, 9, "q", curses.color_pair(2))
+        helpscr.addstr(12, 9, "4", curses.color_pair(2))
         helpscr.addstr(12, 15, ":", curses.color_pair(1))
-        helpscr.addstr(12, 17, "Quit", curses.color_pair(3))
+        helpscr.addstr(12, 17, "Settings", curses.color_pair(3))
 
-        helpscr.addstr(13, 9, "h", curses.color_pair(2))
+        helpscr.addstr(13, 9, "q", curses.color_pair(2))
         helpscr.addstr(13, 15, ":", curses.color_pair(1))
-        helpscr.addstr(13, 17, "Help", curses.color_pair(3))
+        helpscr.addstr(13, 17, "Quit", curses.color_pair(3))
 
-        helpscr.addstr(14, 9, "0", curses.color_pair(2))
+        helpscr.addstr(14, 9, "h", curses.color_pair(2))
         helpscr.addstr(14, 15, ":", curses.color_pair(1))
-        helpscr.addstr(14, 17, "Reload config", curses.color_pair(3))
+        helpscr.addstr(14, 17, "Help", curses.color_pair(3))
 
         # Events commands
         helpscr.addstr(16, 7, "Events", curses.color_pair(1))
@@ -1822,31 +1822,31 @@ def draw_help(stdscr):
         helpscr.addstr(17, 15, ":", curses.color_pair(1))
         helpscr.addstr(17, 17, "Clear events", curses.color_pair(3))
 
-        helpscr.addstr(18, 9, "r", curses.color_pair(2))
+        helpscr.addstr(18, 9, "d", curses.color_pair(2))
         helpscr.addstr(18, 15, ":", curses.color_pair(1))
-        helpscr.addstr(18, 17, "Toggle raid mode", curses.color_pair(3))
+        helpscr.addstr(18, 17, "Toggle debug mode", curses.color_pair(3))
 
-        helpscr.addstr(19, 9, "d", curses.color_pair(2))
+        helpscr.addstr(19, 9, "e", curses.color_pair(2))
         helpscr.addstr(19, 15, ":", curses.color_pair(1))
-        helpscr.addstr(19, 17, "Toggle debug mode", curses.color_pair(3))
+        helpscr.addstr(19, 17, "Toggle encounter parsing", curses.color_pair(3))
 
-        helpscr.addstr(20, 9, "e", curses.color_pair(2))
+        helpscr.addstr(20, 9, "m", curses.color_pair(2))
         helpscr.addstr(20, 15, ":", curses.color_pair(1))
-        helpscr.addstr(20, 17, "Toggle encounter parsing", curses.color_pair(3))
+        helpscr.addstr(20, 17, "Toggle mute", curses.color_pair(3))
 
-        helpscr.addstr(21, 9, "m", curses.color_pair(2))
+        helpscr.addstr(21, 9, "p", curses.color_pair(2))
         helpscr.addstr(21, 15, ":", curses.color_pair(1))
-        helpscr.addstr(21, 17, "Toggle mute", curses.color_pair(3))
+        helpscr.addstr(21, 17, "Toggle encounter parse save", curses.color_pair(3))
 
-        helpscr.addstr(22, 9, "t", curses.color_pair(2))
+        helpscr.addstr(22, 9, "r", curses.color_pair(2))
         helpscr.addstr(22, 15, ":", curses.color_pair(1))
-        helpscr.addstr(
-            22, 17, "Toggle automatic mob respawn timers", curses.color_pair(3)
-        )
+        helpscr.addstr(22, 17, "Toggle raid mode", curses.color_pair(3))
 
-        helpscr.addstr(23, 9, "p", curses.color_pair(2))
+        helpscr.addstr(23, 9, "t", curses.color_pair(2))
         helpscr.addstr(23, 15, ":", curses.color_pair(1))
-        helpscr.addstr(23, 17, "Toggle encounter parse save", curses.color_pair(3))
+        helpscr.addstr(
+            23, 17, "Toggle automatic mob respawn timers", curses.color_pair(3)
+        )
 
         # Settings commands
         helpscr.addstr(25, 7, "Settings", curses.color_pair(1))

@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/parser.py
-   Copyright (C) 2022 Michael Geitz
+   Copyright (C) 2023 M Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -332,6 +332,14 @@ def check_melee(line):
             re.fullmatch(r"^You can\'t see your target from here\.$", line) is not None
         ):
             return "combat_you_cannot_see"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z`\s]+ executes a FLURRY of attacks on [a-zA-Z0-9\'\s]+\!$",
+                line,
+            )
+            is not None
+        ):
+            return "combat_other_flurry"
 
         return None
 
@@ -375,6 +383,8 @@ def check_spell(line):
             return "spells_interrupt_other"
         elif re.fullmatch(r"^Your spell is interrupted\.$", line) is not None:
             return "spells_interrupt_you"
+        elif re.fullmatch(r"^[a-zA-Z]+\'s song ends abruptly\.$", line) is not None:
+            return "spells_song_end"
         elif (
             re.fullmatch(r"^You are too distracted to cast a spell now\!$", line)
             is not None
@@ -479,6 +489,8 @@ def check_spell(line):
             re.fullmatch(r"^You feel as if you are about to fall\.$", line) is not None
         ):
             return "spells_levitate_dropping_you"
+        elif re.fullmatch(r"^You can\'t levitate in this zone\.$", line) is not None:
+            return "spells_levitate_block"
         elif (
             re.fullmatch(
                 r"^You feel as if you are about to look like yourself again\.$", line
@@ -507,6 +519,11 @@ def check_spell(line):
         ):
             return "spells_heal_you"
         elif (
+            re.fullmatch(r"^\w+ has healed you for \d+ points of damage\.$", line)
+            is not None
+        ):
+            return "spells_heal_other"
+        elif (
             re.fullmatch(
                 r"^Your spell is too powerful for your intended target\.$", line
             )
@@ -521,6 +538,8 @@ def check_spell(line):
             is not None
         ):
             return "spells_protected_you"
+        elif re.fullmatch(r"^You can't cast spells while stunned\!$", line) is not None:
+            return "spells_stun_cast_block"
 
         return None
 
@@ -551,7 +570,8 @@ def check_received_chat(line):
             return "tell_npc_bank_closed"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s`]+ tells you, \'That\'ll be .+ (for the|per) .+\.\'$", line
+                r"^[a-zA-Z\s`]+ tells you, \'(That\'ll be|I\'ll give you) .+ (for the|per) .+\.\'$",
+                line,
             )
             is not None
         ):
@@ -618,21 +638,21 @@ def check_sent_chat(line):
 
     try:
         if (
-            re.fullmatch(r"^You told [a-zA-Z\.]+(, \'| \'\[queued\],).+\'$", line)
+            re.fullmatch(r"^You told [a-zA-Z\.]+(, \'| \'\[queued\],)(.+|)\'$", line)
             is not None
         ):
             return "tell_you"
-        elif re.fullmatch(r"^You say, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You say, \'(.+|)\'$", line) is not None:
             return "say_you"
-        elif re.fullmatch(r"^You shout, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You shout, \'(.+|)\'$", line) is not None:
             return "shout_you"
-        elif re.fullmatch(r"^You say to your guild, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You say to your guild, \'(.+|)\'$", line) is not None:
             return "guild_you"
-        elif re.fullmatch(r"^You tell your party, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You tell your party, \'(.+|)\'$", line) is not None:
             return "group_you"
-        elif re.fullmatch(r"^You say out of character, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You say out of character, \'(.+|)\'$", line) is not None:
             return "ooc_you"
-        elif re.fullmatch(r"^You auction, \'.+\'$", line) is not None:
+        elif re.fullmatch(r"^You auction, \'(.+|)\'$", line) is not None:
             return "auction_you"
 
         return None
@@ -788,6 +808,14 @@ def check_command_output(line):
         ):
             return "list_leaving"
         elif (
+            re.fullmatch(
+                r"^You have re\-entered the range for your Item List\. Please remain in the area to refresh your range timer\.$",
+                line,
+            )
+            is not None
+        ):
+            return "list_re_entered"
+        elif (
             re.fullmatch(r"^There are no lists in this zone to join\.$", line)
             is not None
         ):
@@ -854,6 +882,8 @@ def check_system_messages(line):
             return "you_outfoodlowdrink"
         elif re.fullmatch(r"^You are low on drink\.$", line) is not None:
             return "you_lowdrink"
+        elif re.fullmatch(r"^You are low on food\.$", line) is not None:
+            return "you_lowfood"
         elif (
             re.fullmatch(r"^You are out of drink and low on food\.$", line) is not None
         ):
@@ -947,7 +977,7 @@ def check_system_messages(line):
             return "tracking_player_on"
         elif re.fullmatch(r"^You have lost your tracking target\.$", line) is not None:
             return "tracking_target_lost"
-        elif re.fullmatch(r"^You begin tracking [a-zA-Z\s`]+$", line) is not None:
+        elif re.fullmatch(r"^You begin tracking [a-zA-Z\s`]+\.$", line) is not None:
             return "tracking_begin"
         elif (
             re.fullmatch(
@@ -1109,6 +1139,20 @@ def check_system_messages(line):
             return "corpse_res_timer"
         elif re.fullmatch(r"^This corpse will decay in .+\.$", line) is not None:
             return "corpse_decay_timer"
+        elif re.fullmatch(r"^You are too fatigued to jump\!$", line) is not None:
+            return "jump_fatigue"
+        elif (
+            re.fullmatch(r"^You are being bandaged\. Stay relatively still\.$", line)
+            is not None
+        ):
+            return "bandage_you"
+        elif (
+            re.fullmatch(
+                r"^You cannot have your wounds bound above \d+\% hitpoints\.$", line
+            )
+            is not None
+        ):
+            return "bandage_cap"
 
         return None
 
@@ -3794,7 +3838,10 @@ def check_spell_specific(line):
             elif re.fullmatch(r"^Your body fades away\.$", line) is not None:
                 return "spell_camouflage_you_on"
             elif (
-                re.fullmatch(r"^Your body aches as your mind clears\.$", line)
+                re.fullmatch(
+                    r"^Your body aches as your mind clears\. You have taken \d+ points of damage.$",
+                    line,
+                )
                 is not None
             ):
                 return "spell_line_cannibalize_you_on"
@@ -7692,7 +7739,7 @@ def check_spell_specific(line):
             # return "spell_sunskin_other_on"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z`\s]+ is surrounded by an aura which shimmers and then fades away\.$",
+                r"^[a-zA-Z`\s]+ is surrounded by an aura which shimmers\, and then fades away\.$",
                 line,
             )
             is not None

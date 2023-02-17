@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/action.py
-   Copyright (C) 2022 Michael Geitz
+   Copyright (C) 2023 M Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -196,9 +196,8 @@ def process(
                             )
                         )
                 ## Consider Evaluation
-                if state.consider_eval == "true":
-                    if line_type == "consider":
-                        action_consider_evaluation(sound_q, check_line)
+                if state.consider_eval == "true" and line_type == "consider":
+                    action_consider_evaluation(sound_q, check_line)
 
                 ## State Building Line Types
                 if line_type == "location":

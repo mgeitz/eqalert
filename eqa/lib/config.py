@@ -3,7 +3,8 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/config.py
-   Copyright (C) 2022 Michael Geitz
+   Copyright (C) 2023 M Geitz
+
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation; either version 2 of the License, or
@@ -2698,6 +2699,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_other_flurry": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_other_melee": {
       "alert": {},
       "reaction": "false",
@@ -2931,6 +2937,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "gate collapse"
     },
+    "spells_heal_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spells_heal_you": {
       "alert": {},
       "reaction": "false",
@@ -2955,6 +2966,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "invis is dropping"
+    },
+    "spells_levitate_block": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "levitate blocked"
     },
     "spells_levitate_dropping_you": {
       "alert": {},
@@ -3040,6 +3056,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "spells_song_end": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spells_stun_cast_block": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "cant cast"
     },
     "spells_summoned_you": {
       "alert": {},
@@ -11720,6 +11746,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "list_re_entering": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "back in list area"
+    },
     "location": {
       "alert": {},
       "reaction": "false",
@@ -11833,6 +11864,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "bandage_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "bandage_cap": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "bandage cap"
+    },
     "command_error": {
       "alert": {},
       "reaction": "false",
@@ -11942,6 +11983,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "item dropped"
+    },
+    "jump_fatigue": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "no stamina"
     },
     "motd_welcome": {
       "alert": {},
@@ -12074,6 +12120,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "you_lowdrink": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_lowfood": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12252,7 +12303,7 @@ def build_config(base_path):
     "loot_wait": {
       "alert": {},
       "reaction": "solo",
-      "sound": "no yet"
+      "sound": "not yet"
     },
     "looted_item_other": {
       "alert": {},
@@ -13085,11 +13136,18 @@ def write_config(base_path, config_name, version, new_config):
         generated = False
         generate_config = False
         line_json_path = base_path + "config/" + config_name + ".json"
+        home = os.path.expanduser("~")
 
         ## If the config does not exist
         if not os.path.isfile(line_json_path):
             f = open(line_json_path, "w", encoding="utf-8")
-            f.write(new_config % (version))
+            if config_name == "settings":
+                f.write(
+                    new_config
+                    % (base_path, base_path, base_path, home, home, base_path, version)
+                )
+            else:
+                f.write(new_config % (version))
             f.close()
             generated = True
         ## If the config exists
@@ -13123,11 +13181,30 @@ def write_config(base_path, config_name, version, new_config):
                         base_path + "config/archive/" + old_version + "/line-alerts/"
                     )
                 archive_config = (
-                    base_path + "config/archive/" + old_version + config_name
+                    base_path
+                    + "config/archive/"
+                    + old_version
+                    + "/"
+                    + config_name
+                    + ".json"
                 )
                 os.rename(line_json_path, archive_config)
                 f = open(line_json_path, "w", encoding="utf-8")
-                f.write(new_config % (version))
+                if config_name == "settings":
+                    f.write(
+                        new_config
+                        % (
+                            base_path,
+                            base_path,
+                            base_path,
+                            home,
+                            home,
+                            base_path,
+                            version,
+                        )
+                    )
+                else:
+                    f.write(new_config % (version))
                 f.close()
                 generated = True
 

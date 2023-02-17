@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/eqalert.py
-   Copyright (C) 2022 Michael Geitz
+   Copyright (C) 2023 M Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -224,8 +224,6 @@ def main():
     # Parse Log Lines to Determine Line Type
     ## Process log_q
     ## Produce action_q
-
-    ### Thread 1
     process_parse = threading.Thread(
         target=eqa_parser.process, args=(exit_flag, log_q, action_q)
     )
@@ -289,7 +287,6 @@ def main():
     # Create Encounter Reports
     ## Consume encounter_q
     ## Produce display_q, system_q
-
     process_encounter = threading.Thread(
         target=eqa_encounter.process,
         args=(
@@ -620,6 +617,7 @@ def main():
                         process_sound_2.join()
                         process_sound_3.join()
                         process_timer.join()
+                        process_watch.join()
                         process_keys.join()
                         process_display.join()
                         cfg_reload.clear()
@@ -727,6 +725,14 @@ def main():
                         )
                         process_timer.daemon = True
                         process_timer.start()
+
+                        #### Restart process_watch
+                        process_watch = threading.Thread(
+                            target=eqa_watch.process,
+                            args=(state, configs, system_q, exit_flag),
+                        )
+                        process_watch.daemon = True
+                        process_watch.start()
 
                         #### Notify successful configuration reload
                         display_q.put(

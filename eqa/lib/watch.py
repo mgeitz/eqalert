@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/watch.py
-   Copyright (C) 2022 Michael Geitz
+   Copyright (C) 2023 M Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -36,9 +36,13 @@ def process(state, configs, system_q, exit_flag):
         most_recent = 0.00
         logs_directory = configs.settings.config["settings"]["paths"]["everquest_logs"]
 
+        # Watch log directory
         while not exit_flag.is_set():
             time.sleep(1)
+
+            ## Only check when enabled
             if state.detect_char == "true":
+                ### Find newest eqlog_ prefixed file
                 for log_file in os.listdir(logs_directory):
                     if log_file.startswith("eqlog_"):
                         modified_time = os.stat(logs_directory + log_file).st_mtime
@@ -47,6 +51,7 @@ def process(state, configs, system_q, exit_flag):
                             game, char, server_dirty = log_file.split("_")
                             server, extension = server_dirty.split(".")
 
+                ### If newest file is a different character, change characters
                 if char != state.char or server != state.server:
                     char_server = char + "_" + server
                     system_q.put(
