@@ -570,7 +570,8 @@ def check_received_chat(line):
             return "tell_npc_bank_closed"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s`]+ tells you, \'That\'ll be .+ (for the|per) .+\.\'$", line
+                r"^[a-zA-Z\s`]+ tells you, \'(That\'ll be|I\'ll give you) .+ (for the|per) .+\.\'$",
+                line,
             )
             is not None
         ):
@@ -637,7 +638,7 @@ def check_sent_chat(line):
 
     try:
         if (
-            re.fullmatch(r"^You told [a-zA-Z\.]+(, \'| \'\[queued\],)(.+|))\'$", line)
+            re.fullmatch(r"^You told [a-zA-Z\.]+(, \'| \'\[queued\],)(.+|)\'$", line)
             is not None
         ):
             return "tell_you"
