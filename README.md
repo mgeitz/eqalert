@@ -17,7 +17,8 @@ $ pip3 install eqalert
 _or_ install manually from github
 ```sh
 $ git clone git@github.com:mgeitz/eqalert.git
-$ python3 -m pip install -e ./eqalert
+$ cd eqalert
+$ python3 -m pip install -e .
 ```
 
 
