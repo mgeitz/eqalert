@@ -4,3 +4,4 @@ util/spells_us.json
 MANIFEST
 build/*
 *.pyc
+eqalert.egg-info/*
