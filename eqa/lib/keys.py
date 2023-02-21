@@ -51,7 +51,6 @@ def process(
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
-
             # Sleep between empty checks
             if keyboard_q.qsize() < 1:
                 time.sleep(0.01)

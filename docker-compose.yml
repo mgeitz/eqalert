@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  eqalert: &base
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command:
+    - eqalert
+    devices:
+    - "/dev/snd:/dev/snd"
+    environment:
+    - PULSE_SERVER=unix:${XDG_RUNTIME_DIR}/pulse/native
+    volumes:
+    - type: bind
+      source: "${HOME}/.wine/drive_c/Program Files/Sony/EverQuest"
+      target: "/home/eqalert/.wine/drive_c/Program Files/Sony/EverQuest"
+      bind:
+        create_host_path: false
+    - type: bind
+      source: ${HOME}/.eqa
+      target: /home/eqalert/.eqa
+      bind:
+        create_host_path: false
+    - type: bind
+      source: ${XDG_RUNTIME_DIR}/pulse/native
+      target: ${XDG_RUNTIME_DIR}/pulse/native
+      bind:
+        create_host_path: false
+    - type: bind
+      source: ${HOME}/.config/pulse/cookie
+      target: /home/eqalert/.config/pulse/cookie
+      bind:
+        create_host_path: false

@@ -50,7 +50,6 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
-
             # Sleep between empty checks
             if display_q.qsize() < 1:
                 time.sleep(0.01)
@@ -233,7 +232,6 @@ def draw_page(
 
 
 def init(state):
-
     try:
         """Create new stdscr in terminal"""
         stdscr = curses.initscr()
@@ -735,7 +733,6 @@ def draw_events_encounter(stdscr, encounter_report):
         players = list(encounter_report["participants"].keys())
 
         if len(players) > 0:
-
             # Top P1 Title
             name_padding = third_quarter - int(len(players[0]) / 2)
             encounterscr.addstr(
@@ -792,7 +789,6 @@ def draw_events_encounter(stdscr, encounter_report):
                 count += 1
 
         if len(players) > 1:
-
             # Top P2 Title
             name_padding = third_quarter - int(len(players[1]) / 2)
             encounterscr.addstr(
@@ -918,7 +914,6 @@ def draw_parse(stdscr, state, encounter_report):
         if state.encounter_parse == "true":
             ## If we have a report to show
             if encounter_report is not None:
-
                 target_name = encounter_report["target"]["name"].title()
 
                 # Target Line

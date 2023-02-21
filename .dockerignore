@@ -1,0 +1,7 @@
+dist/
+util/
+MANIFEST
+build/
+*.pyc
+.git
+.gitignore

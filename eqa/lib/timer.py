@@ -78,7 +78,6 @@ def process(configs, timer_q, sound_q, display_q, exit_flag):
 
         # Consume timer_q
         while not exit_flag.is_set():
-
             # Sleep between empty checks
             if timer_q.qsize() < 1:
                 time.sleep(0.01)

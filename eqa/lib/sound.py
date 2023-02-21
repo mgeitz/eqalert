@@ -45,7 +45,6 @@ def process(configs, sound_q, exit_flag, cfg_reload, state):
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
-
             # Sleep between empty checks
             if sound_q.qsize() < 1:
                 time.sleep(0.01)

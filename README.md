@@ -14,13 +14,22 @@ Install from pypi
 $ pip3 install eqalert
 ```
 
-_or_ install manually from github
+_or_ install manually to your host machine
 ```sh
 $ git clone git@github.com:mgeitz/eqalert.git
 $ cd eqalert
 $ python3 -m pip install -e .
 ```
 
+_or_ install and run through docker
+```sh
+$ git clone git@github.com:mgeitz/eqalert.git
+$ cd eqalert
+$ docker compose build
+$ docker compose run eqalert
+```
+
+> Note: If running through docker after installing and running on your host, update or regenerate `~/.eqa/config/settings.json` to reflect local container paths in `/home/eqalert`
 
 ## Getting Started
 
