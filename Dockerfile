@@ -7,7 +7,7 @@ RUN groupadd -g 1000 eqalert && \
     useradd -r -u 1000 -g eqalert eqalert && \
     usermod -a -G audio eqalert
 
-WORKDIR /usr/apt/eqalert
+WORKDIR /usr/src/eqalert
 
 RUN apt-get update && \
     apt-get upgrade -y && \
