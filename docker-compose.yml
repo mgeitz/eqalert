@@ -1,0 +1,11 @@
+version: '3'
+services:
+  eqalert: &base
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: eqalert
+    volumes:
+      - "${HOME}/.wine/drive_c/Program Files/Sony/EverQuest/:${HOME}/.wine/drive_c/Program Files/Sony/EverQuest/"
+      - ${HOME}/.eqa/:/home/eqalert/.eqa/
+      - /dev/snd:/dev/snd
