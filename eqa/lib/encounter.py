@@ -46,7 +46,6 @@ def process(
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
-
             # Sleep between empty checks
             if encounter_q.qsize() < 1:
                 time.sleep(0.01)
@@ -163,7 +162,6 @@ def encounter_combat(line_type, line_time, line, encounter_stack, state):
     """Handle combat lines for encounters"""
 
     try:
-
         source = None
         target = None
         mode = None
@@ -1248,7 +1246,6 @@ def encounter_analysis(
     """Analyze encounter stack before reporting"""
 
     try:
-
         ## Uncommenting this will print the contents of the encounter stack, update the path
         # import time
 

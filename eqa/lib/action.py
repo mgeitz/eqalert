@@ -52,7 +52,6 @@ def process(
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
-
             # Sleep between empty checks
             queue_size = action_q.qsize()
             if queue_size < 1:
@@ -260,7 +259,6 @@ def process(
 
                 ## If line_type exists in the config
                 if line_type in configs.alerts.config["line"].keys():
-
                     reaction = configs.alerts.config["line"][line_type]["reaction"]
 
                     ### Handle Alert Reactions
@@ -1797,7 +1795,6 @@ def action_matched(line_type, line, base_path):
     """Debug function to log all log lines and matches log lines"""
 
     try:
-
         matched_log = base_path + "log/debug/matched-lines.txt"
         if os.path.exists(matched_log):
             file_size = os.path.getsize(matched_log)

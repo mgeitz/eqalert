@@ -53,7 +53,6 @@ def init(base_path):
 def read_config(base_path):
     """All the config"""
     try:
-
         line_alerts = {}
 
         # Characters
@@ -1861,7 +1860,6 @@ def update_spell_timers(data_path, eq_spells_file_path):
 
         # Check spell-timers.json version
         if os.path.isfile(spell_timer_file):
-
             # Generate Spell Timers
             json_data = open(spell_timer_file, "r", encoding="utf-8")
             spell_timers_hash_check = json.load(json_data)

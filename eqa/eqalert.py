@@ -48,7 +48,6 @@ def startup(base_path):
     """Start things up"""
 
     try:
-
         # Make the main folder
         if not os.path.exists(base_path):
             print("Bootstrapping for first run . . .")
@@ -352,7 +351,6 @@ def main():
     ## Produce a pleasant experience
     try:
         while not exit_flag.is_set():
-
             # Sleep between empty checks
             queue_size = system_q.qsize()
             if queue_size < 1:

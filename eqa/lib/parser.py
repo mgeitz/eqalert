@@ -35,7 +35,6 @@ def process(exit_flag, log_q, action_q):
 
     try:
         while not exit_flag.is_set():
-
             # Sleep between empty checks
             queue_size = log_q.qsize()
             if queue_size < 1:
