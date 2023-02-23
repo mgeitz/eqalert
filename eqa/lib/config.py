@@ -11792,12 +11792,12 @@ def build_config(base_path):
     "played_session": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": "false"
     },
     "played_total": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": "false"
     },
     "random": {
       "alert": {},
