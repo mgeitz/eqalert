@@ -1,4 +1,4 @@
-from python:3.9.16-slim-buster
+FROM python:3.9.16-slim-buster
 
 LABEL maintainer="mgeitz" \
       description="A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface for Linux"
