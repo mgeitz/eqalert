@@ -955,7 +955,7 @@ def check_system_messages(line):
             is not None
         ):
             return "eat_other"
-        elif re.fullmatch(r"^You are hungry\.", line) is not None:
+        elif re.fullmatch(r"^You are hungry\.$", line) is not None:
             return "you_hungry"
         elif re.fullmatch(r"^You are no longer encumbered\.$", line) is not None:
             return "encumbered_off"
@@ -967,12 +967,12 @@ def check_system_messages(line):
         ):
             return "skill_up"
         elif (
-            re.fullmatch(r"^(You have gained a level\! |)Welcome to level \d+\!", line)
+            re.fullmatch(r"^(You have gained a level\! |)Welcome to level \d+\!$", line)
             is not None
         ):
             return "ding_up"
         elif (
-            re.fullmatch(r"^You LOST a level\! You are now level \d+\!", line)
+            re.fullmatch(r"^You LOST a level\! You are now level \d+\!$", line)
             is not None
         ):
             return "ding_down"
