@@ -419,6 +419,8 @@ def check_spell(line):
             is not None
         ):
             return "spells_damage_you"
+        elif re.fullmatch(r"^Aborting memorization of spell\.$", line) is not None:
+            return "spells_memorize_abort"
         elif (
             re.fullmatch(r"^Beginning to memorize [a-zA-Z`\s\'\:]+\.\.\.$", line)
             is not None
@@ -510,6 +512,14 @@ def check_spell(line):
             re.fullmatch(r"^You feel yourself starting to appear\.$", line) is not None
         ):
             return "spells_invis_dropping_you"
+        elif (
+            re.fullmatch(
+                r"^\w+ tries to cast an invisibility spell on you, but you are already invisible\.$",
+                line,
+            )
+            is not None
+        ):
+            return "spells_invis_already"
         elif re.fullmatch(r"^You have been summoned\!$", line) is not None:
             return "spells_summoned_you"
         elif (
@@ -796,6 +806,14 @@ def check_command_output(line):
             is not None
         ):
             return "hide_corpse_all"
+        elif (
+            re.fullmatch(
+                r"^Now any corpse you loot, except your own, will be hidden when you finish looting but leave items on the corpse\.$",
+                line,
+            )
+            is not None
+        ):
+            return "hide_corpse_looted"
         elif re.fullmatch(r"^You have been added to the list\.$", line) is not None:
             return "list_added"
         elif (
@@ -845,6 +863,30 @@ def check_command_output(line):
             is not None
         ):
             return "inspect_toggle_off"
+        elif (
+            re.fullmatch(
+                r"^\w+\'s birthdate\: .+\.$",
+                line,
+            )
+            is not None
+        ):
+            return "birthdate"
+        elif (
+            re.fullmatch(
+                r"^This session\: .+$",
+                line,
+            )
+            is not None
+        ):
+            return "played_session"
+        elif (
+            re.fullmatch(
+                r"^Total time playing \w\: .+$",
+                line,
+            )
+            is not None
+        ):
+            return "played_total"
 
         return None
 
@@ -924,7 +966,10 @@ def check_system_messages(line):
             is not None
         ):
             return "skill_up"
-        elif re.fullmatch(r"^Welcome to level \d+\!", line) is not None:
+        elif (
+            re.fullmatch(r"^(You have gained a level\! |)Welcome to level \d+\!", line)
+            is not None
+        ):
             return "ding_up"
         elif (
             re.fullmatch(r"^You LOST a level\! You are now level \d+\!", line)
@@ -1001,6 +1046,10 @@ def check_system_messages(line):
             return "tell_offline"
         elif re.fullmatch(r"^Consider whom\?$", line) is not None:
             return "consider_no_target"
+        elif (
+            re.fullmatch(r"^It is futile to consider the dead\.\.\.$", line) is not None
+        ):
+            return "consider_dead"
         elif re.fullmatch(r"^Auto attack off\.$", line) is not None:
             return "you_auto_attack_off"
         elif re.fullmatch(r"^Auto attack on\.$", line) is not None:
@@ -1061,8 +1110,7 @@ def check_system_messages(line):
         ):
             return "target_attack_too_far"
         elif (
-            re.fullmatch(r"^[a-za-z]+ is looking at your equipment\.\.\.$", line)
-            is not None
+            re.fullmatch(r"^\w+ is looking at your equipment\.\.\.$", line) is not None
         ):
             return "inspect_you"
         elif re.fullmatch(r"^You are inspecting [a-za-z]+\.$", line) is not None:
@@ -1152,6 +1200,20 @@ def check_system_messages(line):
             is not None
         ):
             return "bandage_cap"
+        elif (
+            re.fullmatch(r"^All Discipline Timers have been Reset\.$", line) is not None
+        ):
+            return "gm_reset_discipline"
+        elif re.fullmatch(r"^All Ability Timers have been Reset.$", line) is not None:
+            return "gm_reset_ability"
+        elif (
+            re.fullmatch(
+                r"^\[Achievement\] Congratulations to .+ for becoming the first .+\!$",
+                line,
+            )
+            is not None
+        ):
+            return "achievement_first"
 
         return None
 
@@ -1251,6 +1313,8 @@ def check_group_system_messages(line):
             re.fullmatch(r"^[a-zA-Z]+ is now a regular member of your guild\.$", line)
             is not None
         ):
+            return "guild_member"
+        elif re.fullmatch(r"^[a-zA-Z]+ has joined your guild\.$", line) is not None:
             return "guild_new_member"
 
         return None
@@ -1271,12 +1335,16 @@ def check_loot_trade(line):
 
     try:
         if (
-            re.fullmatch(r"^\-\-\w+ has looted [a-zA-Z`\s\:\'\.]+\.\-\-$", line)
+            re.fullmatch(
+                r"^\-\-\w+ has looted [a-zA-Z0-9`\s\:\'\.\-\(\)]+\.\-\-$", line
+            )
             is not None
         ):
             return "looted_item_other"
         elif (
-            re.fullmatch(r"^\-\-You have looted [a-zA-Z`\s\:\'\.]+\.\-\-$", line)
+            re.fullmatch(
+                r"^\-\-You have looted [a-zA-Z0-9`\s\:\'\.\-\(\)]+\.\-\-$", line
+            )
             is not None
         ):
             return "looted_item_you"
@@ -1320,11 +1388,20 @@ def check_loot_trade(line):
             return "trade_npc_payment"
         elif re.fullmatch(r"^You have cancelled the trade\.$", line) is not None:
             return "trade_cancel_you"
+        elif re.fullmatch(r"^\w+ has cancelled the trade\.$", line) is not None:
+            return "trade_cancel_other"
         elif (
             re.fullmatch(r"^You may not loot this corpse at this time\.$", line)
             is not None
         ):
             return "loot_wait"
+        elif (
+            re.fullmatch(
+                r"^Error\: OP\_LootRequest\: Corpse not found \(ent \= 0\)$", line
+            )
+            is not None
+        ):
+            return "loot_error"
         elif (
             re.fullmatch(r"^You are too far away to loot that corpse\.$", line)
             is not None
@@ -1335,6 +1412,18 @@ def check_loot_trade(line):
             is not None
         ):
             return "trade_interest"
+        elif (
+            re.fullmatch(r"^[a-zA-Z]+ has fashioned [a-zA-Z\s\:\-]+\.$", line)
+            is not None
+        ):
+            return "tradeskill_create_other"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z]+ was not successful in making [a-zA-Z\s\:\-]+\.$", line
+            )
+            is not None
+        ):
+            return "tradeskill_fail_other"
 
         return None
 

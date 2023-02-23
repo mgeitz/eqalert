@@ -2960,6 +2960,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spells_invis_already": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spells_invis_dropping_you": {
       "alert": {},
       "reaction": "solo",
@@ -2974,6 +2979,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "levitate is dropping"
+    },
+    "spells_memorize_abort": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "spells_memorize_already": {
       "alert": {},
@@ -11629,6 +11639,11 @@ def build_config(base_path):
     new_line_command_output_config = """
 {
   "line": {
+    "birthdate": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "ah, the memories"
+    },
     "client_ui_load": {
       "alert": {},
       "reaction": "false",
@@ -11709,6 +11724,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "hide_corpse_looted": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "inspect_toggle_off": {
       "alert": {},
       "reaction": "false",
@@ -11767,6 +11787,16 @@ def build_config(base_path):
     "player_linkdead": {
       "alert": {},
       "reaction": "group",
+      "sound": "true"
+    },
+    "played_session": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
+    },
+    "played_total": {
+      "alert": {},
+      "reaction": "solo",
       "sound": "true"
     },
     "random": {
@@ -11852,6 +11882,11 @@ def build_config(base_path):
     new_line_system_messages_config = """
 {
   "line": {
+    "achievement_first": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
+    },
     "auto_inventory_full": {
       "alert": {},
       "reaction": "solo",
@@ -11881,6 +11916,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "consider_dead": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "she's dead, jim"
     },
     "consider_no_target": {
       "alert": {},
@@ -11951,6 +11991,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "gm_reset_ability": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "Abilities reset"
+    },
+    "gm_reset_discipline": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "Disciplines reset"
     },
     "hide_disabled": {
       "alert": {},
@@ -12275,6 +12325,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "true"
     },
+    "guild_member": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "guild_new_member": {
       "alert": {},
       "reaction": "solo",
@@ -12298,10 +12353,15 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "too far"
     },
+    "loot_error": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "loot error"
+    },
     "loot_wait": {
       "alert": {},
       "reaction": "solo",
-      "sound": "not yet"
+      "sound": "can't loot"
     },
     "looted_item_other": {
       "alert": {},
@@ -12323,10 +12383,25 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "tradeskill_create_other": {
+      "alert": {},
+      "reaction": "solo_group_only",
+      "sound": "false"
+    },
+    "tradeskill_fail_other": {
+      "alert": {},
+      "reaction": "solo_group_only",
+      "sound": "false"
+    },
+    "trade_cancel_other": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "nevermind"
+    },
     "trade_cancel_you": {
       "alert": {},
       "reaction": "solo",
-      "sound": "I have altered the deal"
+      "sound": "I am altering the deal"
     },
     "trade_interest": {
       "alert": {},
