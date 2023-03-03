@@ -2682,6 +2682,11 @@ def build_config(base_path):
     new_line_combat_config = """
 {
   "line": {
+    "combat_ranger_drake": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "ranger drake"
+    },
     "combat_no_target": {
       "alert": {},
       "reaction": "solo",
@@ -2935,6 +2940,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "gate collapse"
     },
+    "spells_gate_npc_casting": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "mob gating"
+    },
     "spells_heal_other": {
       "alert": {},
       "reaction": "false",
@@ -3075,6 +3085,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "too powerful"
     },
+    "spells_charm_worn_off": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
+    }
     "spells_worn_off": {
       "alert": {},
       "reaction": "solo",
@@ -3514,6 +3529,16 @@ def build_config(base_path):
       "sound": "bedlam dropped"
     },
     "spell_bedlam_you_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_berserker_spirit_you_off": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "berserker spirit dropped"
+    },
+    "spell_berserker_spirit_you_on": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -6876,7 +6901,7 @@ def build_config(base_path):
     "spell_line_brd_strands_fade_you_off": {
       "alert": {},
       "reaction": "solo",
-      "sound": "bard strands dropped"
+      "sound": "lyssas solidarity of vision dropped"
     },
     "spell_line_brd_tuyen_other_on": {
       "alert": {},
@@ -8120,8 +8145,8 @@ def build_config(base_path):
     },
     "spell_line_shm_hp_you_off": {
       "alert": {},
-      "reaction": "shaman HP buff spell dropped",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "shaman HP buff spell dropped"
     },
     "spell_line_shm_hp_you_on": {
       "alert": {},
@@ -8526,7 +8551,7 @@ def build_config(base_path):
     "spell_lyssas_veracious_concord_you_off": {
       "alert": {},
       "reaction": "solo",
-      "sound": "lyssas solidarity of vision dropped"
+      "sound": "see invis dropped"
     },
     "spell_lyssas_veracious_concord_you_on": {
       "alert": {},
@@ -9262,6 +9287,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "spell_rain_of_molten_lava_you_on": {
+      "alert": {},
+      "reaction": "raid",
+      "sound": "rain of molten lava"
     },
     "spell_rapture_other_on": {
       "alert": {},

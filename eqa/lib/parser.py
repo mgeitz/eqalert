@@ -163,6 +163,13 @@ def check_melee(line):
     try:
         # Melee Combat
         if (
+            re.fullmatch(r"^A (shimmer|glimmering) drake (kicks|tries to kick).*\.$",
+            line,
+            )
+            is not None
+        ):
+            return "combat_ranger_drake"
+        elif (
             re.fullmatch(
                 r"^[a-zA-Z`\s]+ (mauls|hits|crushes|slashes|pierces|bashes|backstabs|bites|kicks|claws|gores|punches|strikes|slices) (you|YOU) for \d+ point(s|) of damage\.$",
                 line,
@@ -458,6 +465,8 @@ def check_spell(line):
             return "spells_memorize_already"
         elif re.fullmatch(r"^You forget .+\.", line) is not None:
             return "spells_forget"
+        elif re.fullmatch(r"^Your charm spell has worn off\.$", line) is not None:
+            return "spells_charm_worn_off"
         elif re.fullmatch(r"^Your [a-zA-Z\s]+ spell has worn off\.$", line) is not None:
             return "spells_worn_off"
         elif (
@@ -506,6 +515,11 @@ def check_spell(line):
             is not None
         ):
             return "spells_gate_collapse"
+        elif (
+            re.fullmatch(r"^[\w\s'`]+ begins to cast the gate spell\.$", line)
+            is not None
+        ):
+            return "spells_gate_npc_casting"
         elif (
             re.fullmatch(r"^You feel yourself starting to appear\.$", line) is not None
         ):
@@ -569,7 +583,7 @@ def check_received_chat(line):
             return "tell_npc_bank_closed"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z\s`]+ tells you, \'(That\'ll be|I\'ll give you) .+ (for the|per) .+\.\'$",
+                r"^[a-zA-Z\s`]+ tells you, \'(That\'ll be|I\'ll give you) .+ (for the|per) .+\'$",
                 line,
             )
             is not None
@@ -939,7 +953,7 @@ def check_system_messages(line):
             return "you_cannot_reach"
         elif (
             re.fullmatch(
-                r"^Your faction standing with \w+ (?:could not possibly get any|got) (?:better|worse)\.$",
+                r"^Your faction standing with [\w`\']+ (?:could not possibly get any|got) (?:better|worse)\.$",
                 line,
             )
             is not None
@@ -1271,12 +1285,12 @@ def check_loot_trade(line):
 
     try:
         if (
-            re.fullmatch(r"^\-\-\w+ has looted [a-zA-Z`\s\:\'\.]+\.\-\-$", line)
+            re.fullmatch(r"^\-\-\w+ has looted .+\.\-\-$", line)
             is not None
         ):
             return "looted_item_other"
         elif (
-            re.fullmatch(r"^\-\-You have looted [a-zA-Z`\s\:\'\.]+\.\-\-$", line)
+            re.fullmatch(r"^\-\-You have looted .+\.\-\-$", line)
             is not None
         ):
             return "looted_item_you"
@@ -3718,6 +3732,11 @@ def check_spell_specific(line):
             elif re.fullmatch(r"^Your bedlam fades\.$", line) is not None:
                 return "spell_bedlam_you_off"
             elif (
+                re.fullmatch(r"^Your spirit screams with berserker strength\.$", line)
+                is not None
+            ):
+                return "spell_berserker_spirit_you_on"
+            elif (
                 re.fullmatch(r"^Your muscles bulge with berserker strength\.$", line)
                 is not None
             ):
@@ -4462,7 +4481,7 @@ def check_spell_specific(line):
                 is not None
             ):
                 return "spell_selos_song_of_travel_you_on"
-            elif re.fullmatch(r"^Your image fades.$", line) is not None:
+            elif re.fullmatch(r"^Your image fades\.$", line) is not None:
                 return "spell_shade_you_on"
             elif re.fullmatch(r"^Your image fades into shadow\.$", line) is not None:
                 return "spell_shadow_you_on"
@@ -4809,6 +4828,8 @@ def check_spell_specific(line):
                 # return "spell_ros_fiery_sundering_you_off"
                 # return "spell_shield_of_flame_you_off"
                 # return "spell_shield_of_lava_you_off"
+            elif re.fullmatch(r"^The berserker spirit fades\.", line) is not None:
+                return "spell_berserker_spirit_you_off"
             elif re.fullmatch(r"^The maelstrom dissipates\.$", line) is not None:
                 return "spell_barrier_of_force_you_off"
             elif re.fullmatch(r"^The aura fades\.$", line) is not None:
@@ -5923,6 +5944,7 @@ def check_spell_specific(line):
             # return "spell_berserker_madness_ii_other_on"
             # return "spell_berserker_madness_iii_other_on"
             # return "spell_berserker_madness_iv_other_on"
+            # return "spell_berserker_spirit_other_on"
         elif (
             re.fullmatch(
                 r"^[a-zA-Z`\s]+\'s muscles bulge with berserker strength\.$", line
@@ -6975,7 +6997,7 @@ def check_spell_specific(line):
             is not None
         ):
             return "spell_draught_of_jiva_other_on"
-        elif re.fullmatch(r"^[a-zA-Z`\s]+ yawns\.$", line) is not None:
+        elif re.fullmatch(r"^[\w\s`\']+ (?<!opens (his|her|its) mouth wide and )yawns\.$", line) is not None:
             return "spell_line_slow_other_on"
             # return "spell_drowsy_other_on"
             # return "spell_tagars_insects_other_on"
@@ -7152,7 +7174,7 @@ def check_spell_specific(line):
             return "spell_eye_of_confusion_other_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+\'s eyes glow green\.$", line) is not None:
             return "spell_eyes_of_the_cat_other_on"
-        elif re.fullmatch(r"^[a-zA-Z`\s]+ fades\.$", line) is not None:
+        elif re.fullmatch(r"^[a-zA-Z`]+ fades\.$", line) is not None:
             return "spell_fade_other_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ screams in poisoned agony\.$", line)
@@ -8266,6 +8288,10 @@ def check_spell_specific(line):
             is not None
         ):
             return "spell_rage_of_zek_other_on"
+        elif (
+            re.fullmatch(r"^Lava sears your skin\.  You have taken [0-9]+ points of damage\.$", line) is not None
+        ):
+            return "spell_rain_of_molten_lava_you_on"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ swoons in raptured bliss\.$", line) is not None
         ):
