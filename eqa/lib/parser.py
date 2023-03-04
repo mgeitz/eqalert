@@ -960,7 +960,7 @@ def check_command_output(line):
             return "played_session"
         elif (
             re.fullmatch(
-                r"^Total time playing \w\: .+$",
+                r"^Total time playing \w+\: .+$",
                 line,
             )
             is not None
