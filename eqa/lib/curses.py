@@ -594,7 +594,7 @@ def draw_events_default_lower(stdscr):
             "Use `/hidecorpse looted` to reduce client lag",
             "Remember to load junk buffs first",
             "Using `/viewport x y w h` can restore a 4:3 ratio",
-            "Using `/viewport reset` will restore a 4:3 ratio",
+            "Using `/viewport reset` will reset your viewport",
             "There are 93 emote commands",
             "EverQuest released March 16 1999",
             "FPS determines the rate of turning",
