@@ -212,6 +212,14 @@ def check_melee(line):
             return "combat_other_melee_invulnerable"
         elif (
             re.fullmatch(
+                r"^You try to (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z\s]+, but [a-zA-Z`\s]+ is INVULNERABLE\!$",
+                line,
+            )
+            is not None
+        ):
+            return "combat_you_melee_invulnerable"
+        elif (
+            re.fullmatch(
                 r"^[a-zA-Z`\s]+ tries to (maul|hit|crush|slash|pierce|bash|backstab|bite|kick|claw|gore|punch|strike|slice) [a-zA-Z`\s]+, but [a-zA-Z`\s]+ parries\!$",
                 line,
             )
@@ -432,7 +440,9 @@ def check_spell(line):
         ):
             return "spells_scribe_begin"
         elif (
-            re.fullmatch(r"^You have finished scribing [a-zA-Z`\s\'\:]+\.\.\.$", line)
+            re.fullmatch(
+                r"^You have finished scribing [a-zA-Z`\s\'\:]+(\.\.\.|\.)$", line
+            )
             is not None
         ):
             return "spells_scribe_finish"
@@ -753,6 +763,10 @@ def check_command_output(line):
         ):
             return "summon_corpse_no_consent"
         elif (
+            re.fullmatch(r"^The corpse is too far away to summon\.$", line) is not None
+        ):
+            return "summon_corpse_too_far"
+        elif (
             re.fullmatch(r"^You can\'t use that command while casting\.\.\.$", line)
             is not None
         ):
@@ -762,6 +776,18 @@ def check_command_output(line):
             is not None
         ):
             return "command_block"
+        elif (
+            re.fullmatch(
+                r"^You must be completely stopped before doing this action\.$", line
+            )
+            is not None
+        ):
+            return "command_block_moving"
+        elif (
+            re.fullmatch(r"^You can't attack with your spell book open\.$", line)
+            is not None
+        ):
+            return "command_block_spellbook"
         elif (
             re.fullmatch(r"^That is not a valid command\.  Please use \/help\.$", line)
             is not None
@@ -774,7 +800,23 @@ def check_command_output(line):
             )
             is not None
         ):
-            return "empty_friends"
+            return "friend_empty"
+        elif (
+            re.fullmatch(
+                r"^\w+ is no longer your friend\.$",
+                line,
+            )
+            is not None
+        ):
+            return "friend_remove"
+        elif (
+            re.fullmatch(
+                r"^\w+  is now your friend\.$",
+                line,
+            )
+            is not None
+        ):
+            return "friend_add"
         elif (
             re.fullmatch(
                 r"^If you need help, click on the EQ Menu button at the bottom of your screen and select the \"Help\" option\.$",
@@ -801,6 +843,8 @@ def check_command_output(line):
             return "forage_not_edible"
         elif re.fullmatch(r"^You have scrounged up some .+\.$", line) is not None:
             return "forage_edible"
+        elif re.fullmatch(r"^You fail to locate any food nearby\.$", line) is not None:
+            return "forage_fail"
         elif (
             re.fullmatch(r"^Hiding all existing corpses except yours\.$", line)
             is not None
@@ -887,6 +931,22 @@ def check_command_output(line):
             is not None
         ):
             return "played_total"
+        elif (
+            re.fullmatch(
+                r"^To remove consent, use \/deny \<playername\>$",
+                line,
+            )
+            is not None
+        ):
+            return "corpse_consent"
+        elif (
+            re.fullmatch(
+                r"^You have not received any tells, so you cannot reply\.$",
+                line,
+            )
+            is not None
+        ):
+            return "reply_empty"
 
         return None
 
@@ -962,7 +1022,7 @@ def check_system_messages(line):
         elif re.fullmatch(r"^You are encumbered\!$", line) is not None:
             return "encumbered_on"
         elif (
-            re.fullmatch(r"^You have become better at [a-zA-Z\s]+\! \(\d+\)$", line)
+            re.fullmatch(r"^You have become better at [0-9a-zA-Z\s]+\! \(\d+\)$", line)
             is not None
         ):
             return "skill_up"
@@ -1214,6 +1274,30 @@ def check_system_messages(line):
             is not None
         ):
             return "achievement_first"
+        elif (
+            re.fullmatch(
+                r"^Try attacking someone other than yourself, it\'s more productive\.$",
+                line,
+            )
+            is not None
+        ):
+            return "attack_self"
+        elif (
+            re.fullmatch(
+                r"^You cannot assist yourself\!$",
+                line,
+            )
+            is not None
+        ):
+            return "assist_self"
+        elif (
+            re.fullmatch(
+                r"^You must target the person you wish to assist, or type their name after the command\.$",
+                line,
+            )
+            is not None
+        ):
+            return "assist_no_target"
 
         return None
 
@@ -1266,6 +1350,14 @@ def check_group_system_messages(line):
             is not None
         ):
             return "group_invite_you_cancel"
+        elif (
+            re.fullmatch(
+                r"^You cannot invite someone to join your group, only your leader may do so\.$",
+                line,
+            )
+            is not None
+        ):
+            return "group_invite_not_lead"
         elif re.fullmatch(r"^Your group has been disbanded\.$", line) is not None:
             return "group_disbanded"
         elif (
@@ -1407,6 +1499,11 @@ def check_loot_trade(line):
             is not None
         ):
             return "loot_too_far"
+        elif (
+            re.fullmatch(r"^Someone is already looting that corpse\.$", line)
+            is not None
+        ):
+            return "loot_corpse_locked"
         elif (
             re.fullmatch(r"^[a-zA-Z`\s]+ is interested in making a trade\.$", line)
             is not None
@@ -9934,6 +10031,11 @@ def check_who(line):
             return "who_top_lfg"
         elif re.fullmatch(r"^---------------------------$", line) is not None:
             return "who_line"
+        elif (
+            re.fullmatch(r"^Your who request was cut short..too many players\.$", line)
+            is not None
+        ):
+            return "who_etc"
         elif re.fullmatch(r"^---------------------------------$", line) is not None:
             return "who_line_friends"
         elif (

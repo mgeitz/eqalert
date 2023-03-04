@@ -2782,6 +2782,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_you_melee_invulnerable": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_you_melee_miss": {
       "alert": {},
       "reaction": "false",
@@ -8130,8 +8135,8 @@ def build_config(base_path):
     },
     "spell_line_shm_hp_you_off": {
       "alert": {},
-      "reaction": "shaman HP buff spell dropped",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "shaman HP buff spell dropped"
     },
     "spell_line_shm_hp_you_on": {
       "alert": {},
@@ -11649,12 +11654,27 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "corpse_consent": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "command_block": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
     "command_block_casting": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "command_block_moving": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "command_block_spellbook": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11694,10 +11714,20 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "empty_friends": {
+    "friend_add": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "friend_empty": {
       "alert": {},
       "reaction": "solo",
       "sound": "It's OK! I'll be your friend!"
+    },
+    "friend_remove": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "forage_cursor_empty": {
       "alert": {},
@@ -11705,6 +11735,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "forage_edible": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "forage_fail": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11804,6 +11839,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "reply_empty": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "server_message": {
       "alert": {},
       "reaction": "all",
@@ -11828,6 +11868,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "well thats a good thing, right?"
+    },
+    "summon_corpse_too_far": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "too far"
     },
     "target": {
       "alert": {},
@@ -11886,6 +11931,21 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "true"
+    },
+    "assist_self": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "wrong target"
+    },
+    "assist_no_target": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "no target"
+    },
+    "attack_self": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "stop hitting yourself"
     },
     "auto_inventory_full": {
       "alert": {},
@@ -12270,6 +12330,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "group_invite_not_lead": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "group_invite_other": {
       "alert": {},
       "reaction": "false",
@@ -12348,6 +12413,11 @@ def build_config(base_path):
     new_line_loot_trade_config = """
 {
   "line": {
+    "loot_corpse_locked": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "locked"
+    },
     "loot_too_far": {
       "alert": {},
       "reaction": "solo",
@@ -12959,6 +13029,11 @@ def build_config(base_path):
     new_line_who_config = """
 {
   "line": {
+    "who_etc": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "who_line": {
       "alert": {},
       "reaction": "false",
