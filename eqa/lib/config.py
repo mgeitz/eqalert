@@ -2782,7 +2782,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_you_melee_dodge": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_you_melee_invulnerable": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_you_melee_parry": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11909,6 +11919,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "you_camping_standing": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "you_lfg_off": {
       "alert": {},
       "reaction": "false",
@@ -11966,6 +11981,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "bandage cap"
+    },
+    "boat_operator": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "aye, aye, captain!"
+    },
+    "chat_disconnected": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "chat disconnected"
     },
     "command_error": {
       "alert": {},
@@ -12096,6 +12121,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "no stamina"
+    },
+    "npc_guild_wrong": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "motd_welcome": {
       "alert": {},
@@ -12395,7 +12425,12 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "guild_new_member": {
+    "guild_member_invite": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_member_new": {
       "alert": {},
       "reaction": "solo",
       "sound": "welcome"
