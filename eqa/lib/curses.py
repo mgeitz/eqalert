@@ -620,7 +620,7 @@ def draw_events_default_lower(stdscr):
             "We don't talk about Derubael",
             "Nilbog will fix it",
             "Fill your ammo slot to leave corpses",
-            "Use `/pause` to add delays to your macros",
+            "Use `/pause #` to add delays to your macros",
             "Relive the classic Everquest experience",
             "Right click to lock UI elements",
             "Use 'alt + o' to view in-game options",
