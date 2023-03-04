@@ -603,9 +603,9 @@ def draw_events_default_lower(stdscr):
             + " by "
             + str(default_win_y)
             + " cells",
-            "Use 'shift + click' to move item stacks",
+            "Use 'shift + left click' to move item stacks",
             "Use `/autoinventory` when foraging",
-            "Use 'ctrl + click' to move a single item",
+            "Use 'ctrl + left click' to move a single item",
             "Remember to train sense heading",
             "Always tip your porter",
             "Using `/who` will update your eqalert char info",
@@ -642,17 +642,19 @@ def draw_events_default_lower(stdscr):
             "Don't panic and always carry a DA Idol",
             "Is Wuoshi up?",
             "Use `/load ui` if you must leave an empty corpse",
-            "Use `/emote [anything]` to create custom emotes",
-            "Some mobs won't flee if they have friends close",
+            "Use `/em [anything]` to create custom emotes",
+            "Some mobs won't flee if they have friends nearby",
             "Use `/corpse` to drag a corpse",
             "Some mobs aggro when a corpse is dragged",
             "You can use your corpse to store lore items",
+            "You can use your corpse to store no rent items",
             "In a pinch, you can use sneak to bank",
             "You can use parser say commands in macros",
             "Use instant click items to refresh your GCD",
             "Trading coins will briefly remove their weight",
             "Diagonal running is the fastest",
             "Using 'F7' can target anyone for any buff",
+            "'PgUp' & 'PgDn' modify the z-axis in 3rd person",
         ]
         response = random.choice(responses)
 
