@@ -1204,7 +1204,7 @@ def check_system_messages(line):
             re.fullmatch(r"^All Discipline Timers have been Reset\.$", line) is not None
         ):
             return "gm_reset_discipline"
-        elif re.fullmatch(r"^All Ability Timers have been Reset.$", line) is not None:
+        elif re.fullmatch(r"^All Ability Timers have been Reset\.$", line) is not None:
             return "gm_reset_ability"
         elif (
             re.fullmatch(
