@@ -2673,6 +2673,10 @@ def build_config(base_path):
     "Western Wastes": {
       "raid_mode": "true",
       "timer": "0"
+    },
+    "unavailable": {
+      "raid_mode": "false",
+      "timer": "0"
     }
   },
   "version": "%s"
@@ -11981,6 +11985,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "feign_failure": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
     },
     "hide_disabled": {
       "alert": {},
