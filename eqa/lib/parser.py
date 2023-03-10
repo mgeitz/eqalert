@@ -495,7 +495,7 @@ def check_spell(line):
             return "spells_forget"
         elif re.fullmatch(r"^Your charm spell has worn off\.$", line) is not None:
             return "spells_charm_worn_off"
-        elif re.fullmatch(r"^Your [a-zA-Z\s]+ spell has worn off\.$", line) is not None:
+        elif re.fullmatch(r"^Your [a-zA-Z`\'\s]+ spell has worn off\.$", line) is not None:
             return "spells_worn_off"
         elif (
             re.fullmatch(
@@ -544,7 +544,7 @@ def check_spell(line):
         ):
             return "spells_gate_collapse"
         elif (
-            re.fullmatch(r"^[\w\s'`]+ begins to cast the gate spell\.$", line)
+            re.fullmatch(r"^[\w\s\'`]+ begins to cast the gate spell\.$", line)
             is not None
         ):
             return "spells_gate_npc_casting"
@@ -1163,6 +1163,8 @@ def check_system_messages(line):
             is not None
         ):
             return "autofollow_advice"
+        elif re.fullmatch(r"^\w+ has fallen to the ground\.", line) is not None:
+            return "feign_failure"
         elif (
             re.fullmatch(
                 r"^You (?:have moved and are no longer hidden\!\!|are no longer hidden\.)$",
@@ -1260,6 +1262,14 @@ def check_system_messages(line):
         elif (
             re.fullmatch(
                 r"^There was no place to put that\!  The item has dropped to the ground\!$",
+                line,
+            )
+            is not None
+        ):
+            return "item_dropped"
+        elif (
+            re.fullmatch(
+                r"^You just dropped your .+\.",
                 line,
             )
             is not None
