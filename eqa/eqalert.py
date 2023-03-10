@@ -554,15 +554,15 @@ def main():
                                     + state.server,
                                 )
                             )
-                            sound_q.put(
-                                eqa_struct.sound(
-                                    "speak",
-                                    "Character changed to "
-                                    + state.char
-                                    + " on "
-                                    + state.server,
-                                )
-                            )
+                            # sound_q.put(
+                            #    eqa_struct.sound(
+                            #        "speak",
+                            #        "Character changed to "
+                            #        + state.char
+                            #        + " on "
+                            #        + state.server,
+                            #    )
+                            # )
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(), "draw", "redraw", "null"
