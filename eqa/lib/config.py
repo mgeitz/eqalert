@@ -39,7 +39,7 @@ def init(base_path):
             print("One or more new versioned configuration files have been generated.")
             print("Older files have been archived under config/archive/\n")
             print("Please validate your config/settings.json and relaunch eqalert.")
-            exit(1)
+            exit(0)
 
     except Exception as e:
         eqa_settings.log(
@@ -11583,6 +11583,7 @@ def build_config(base_path):
     "guild": {
       "alert": {
         "assist": "raid",
+        "bump": "raid",
         "crippled": "raid",
         "dispelled": "raid",
         "feared": "raid",
