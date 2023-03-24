@@ -1802,7 +1802,7 @@ def action_matched(line_type, line, base_path):
         matched_log = base_path + "log/debug/matched-lines.txt"
         if os.path.exists(matched_log):
             file_size = os.path.getsize(matched_log)
-            if file_size > 5000000:
+            if file_size >= 10000000:
                 version = str(
                     pkg_resources.get_distribution("eqalert").version
                 ).replace(".", "-")
