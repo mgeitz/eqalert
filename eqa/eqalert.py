@@ -493,6 +493,14 @@ def main():
                         system_mute(configs, state, display_q, sound_q, new_message)
                     ### Update character
                     elif new_message.tx == "new_character":
+                        #### Handle new character created since eqalert launch
+                        if (
+                            new_message.payload
+                            not in configs.characters.config["char_logs"].keys()
+                        ):
+                            new_char, new_server = new_message.payload.split("_")
+                            eqa_config.add_char_log(new_char, new_server, configs)
+                        #### Swap to character log
                         new_char_log = (
                             configs.settings.config["settings"]["paths"][
                                 "everquest_logs"
@@ -554,15 +562,6 @@ def main():
                                     + state.server,
                                 )
                             )
-                            # sound_q.put(
-                            #    eqa_struct.sound(
-                            #        "speak",
-                            #        "Character changed to "
-                            #        + state.char
-                            #        + " on "
-                            #        + state.server,
-                            #    )
-                            # )
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(), "draw", "redraw", "null"
