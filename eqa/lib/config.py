@@ -3029,6 +3029,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spells_memorize_too_high": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spells_no_target": {
       "alert": {},
       "reaction": "false",
@@ -11759,6 +11764,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "eat_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "eat_you_finish": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "friend_add": {
       "alert": {},
       "reaction": "false",
@@ -11774,10 +11789,15 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "forage_cursor_empty": {
+    "forage_attacking": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "forage_cursor_empty": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "remove items from cursor"
     },
     "forage_edible": {
       "alert": {},
@@ -11894,6 +11914,11 @@ def build_config(base_path):
       "reaction": "all",
       "sound": "true"
     },
+    "skill_max": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "skill_up": {
       "alert": {},
       "reaction": "false",
@@ -12007,6 +12032,21 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "autofollow_no_target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "autofollow_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "autofollow_on": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "onward my steed"
+    },
     "bandage_you": {
       "alert": {},
       "reaction": "false",
@@ -12022,10 +12062,20 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "aye, aye, captain!"
     },
+    "cast_night_only": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "chat_disconnected": {
       "alert": {},
       "reaction": "solo",
       "sound": "chat disconnected"
+    },
+    "chilly_weather": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "I feel cold"
     },
     "command_error": {
       "alert": {},
@@ -12142,6 +12192,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "item_too_big": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "thats too big"
+    },
     "inspect_other": {
       "alert": {},
       "reaction": "false",
@@ -12178,6 +12233,21 @@ def build_config(base_path):
       "sound": "false"
     },
     "rewind_output_wait": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "roleplay_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "roleplay_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "target_attack_sitting": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12292,6 +12362,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "you_dead": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "you_hungry": {
       "alert": {},
       "reaction": "false",
@@ -12303,6 +12378,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "you_lowfood": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_lowfoodlowdrink": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12460,20 +12540,30 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "true"
     },
-    "guild_member": {
+    "guild_member_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
-    "guild_member_invite": {
-      "alert": {},
-      "reaction": "false",
-      "sound": "false"
-    },
-    "guild_member_new": {
+    "guild_member_other_accept": {
       "alert": {},
       "reaction": "solo",
       "sound": "welcome"
+    },
+    "guild_member_other_invite": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_member_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_member_you_accept": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "invite_no_target": {
       "alert": {},
@@ -12524,6 +12614,31 @@ def build_config(base_path):
       "sound": "false"
     },
     "looted_money_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "looted_money_you_split": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "split_invalid": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "split_format": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "split_format_example": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "split_on": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
