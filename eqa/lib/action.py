@@ -183,9 +183,21 @@ def process(
                         timer_seconds = configs.zones.config["zones"][str(state.zone)][
                             "timer"
                         ]
-                        timer_seconds = str(int(timer_seconds)-10)
-                        if (int(timer_seconds) < 0):
+                        timer_seconds = str(
+                            int(timer_seconds) - int(state.auto_mob_timer_delay)
+                        )
+                        if int(timer_seconds) < 0:
                             timer_seconds = "0"
+                        if int(state.auto_mob_timer_delay) <= 0:
+                            pop_message = "Pop " + str(state.zone)
+                        else:
+                            pop_message = (
+                                "Pop "
+                                + str(state.zone)
+                                + " in "
+                                + str(state.auto_mob_timer_delay)
+                                + " seconds."
+                            )
                         timer_q.put(
                             eqa_struct.timer(
                                 (
@@ -194,8 +206,7 @@ def process(
                                 ),
                                 "timer",
                                 str(timer_seconds),
-                                # "Pop " + str(state.zone),
-                                "Repop in ten",
+                                pop_message,
                             )
                         )
                 ## Consider Evaluation

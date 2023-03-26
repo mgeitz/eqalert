@@ -390,8 +390,9 @@ def check_melee(line):
         ):
             return "combat_other_flurry"
         elif (
-            re.fullmatch(r"^A (shimmer|glimmering) drake (kicks|tries to kick).*\.$",
-            line,
+            re.fullmatch(
+                r"^A (shimmer|glimmering) drake (kicks|tries to kick).*\.$",
+                line,
             )
             is not None
         ):
@@ -526,7 +527,10 @@ def check_spell(line):
             return "spells_memorize_already"
         elif re.fullmatch(r"^You forget .+\.", line) is not None:
             return "spells_forget"
-        elif re.fullmatch(r"^Your [a-zA-Z`\'\s]+ spell has worn off\.$", line) is not None:
+        elif (
+            re.fullmatch(r"^Your [a-zA-Z`\'\s]+ spell has worn off\.$", line)
+            is not None
+        ):
             return "spells_worn_off"
         elif (
             re.fullmatch(
@@ -7747,7 +7751,12 @@ def check_spell_specific(line):
             is not None
         ):
             return "spell_draught_of_jiva_other_on"
-        elif re.fullmatch(r"^[\w\s`\']+ (?<!opens (his|her|its) mouth wide and )yawns\.$", line) is not None:
+        elif (
+            re.fullmatch(
+                r"^[\w\s`\']+ (?<!opens (his|her|its) mouth wide and )yawns\.$", line
+            )
+            is not None
+        ):
             return "spell_line_slow_other_on"
             # return "spell_drowsy_other_on"
             # return "spell_tagars_insects_other_on"
@@ -9039,7 +9048,11 @@ def check_spell_specific(line):
         ):
             return "spell_rage_of_zek_other_on"
         elif (
-            re.fullmatch(r"^Lava sears your skin\.  You have taken [0-9]+ points of damage\.$", line) is not None
+            re.fullmatch(
+                r"^Lava sears your skin\.  You have taken [0-9]+ points of damage\.$",
+                line,
+            )
+            is not None
         ):
             return "spell_rain_of_molten_lava_you_on"
         elif (

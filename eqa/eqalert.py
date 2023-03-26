@@ -542,6 +542,9 @@ def main():
                             state.set_encounter_parse_save(new_state.save_parse)
                             state.set_auto_raid(new_state.auto_raid)
                             state.set_auto_mob_timer(new_state.auto_mob_timer)
+                            state.set_auto_mob_timer_delay(
+                                new_state.auto_mob_timer_delay
+                            )
                             state.set_consider_eval(new_state.consider_eval)
                             eqa_config.set_last_state(state, configs)
                             char_log = new_char_log
@@ -606,6 +609,7 @@ def main():
                         state.set_encounter_parse_save(new_state.save_parse)
                         state.set_auto_raid(new_state.auto_raid)
                         state.set_auto_mob_timer(new_state.auto_mob_timer)
+                        state.set_auto_mob_timer_delay(new_state.auto_mob_timer_delay)
                         state.set_consider_eval(new_state.consider_eval)
                         #### Stop state dependent processes
                         cfg_reload.set()

@@ -1997,6 +1997,11 @@ def set_last_state(state, configs):
                 "auto_mob_timer": str(state.auto_mob_timer),
             }
         )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "auto_mob_timer_delay": str(state.auto_mob_timer_delay),
+            }
+        )
         configs.settings.config["settings"]["consider_eval"].update(
             {"enabled": str(state.consider_eval)}
         )
@@ -2123,6 +2128,9 @@ def get_last_state(configs, char_name, char_server):
         ]
         auto_raid = configs.settings.config["settings"]["raid_mode"]["auto_set"]
         auto_mob_timer = configs.settings.config["settings"]["timers"]["auto_mob_timer"]
+        auto_mob_timer_delay = configs.settings.config["settings"]["timers"][
+            "auto_mob_timer_delay"
+        ]
         mute = configs.settings.config["settings"]["mute"]["enabled"]
 
         # Get chars
@@ -2151,6 +2159,7 @@ def get_last_state(configs, char_name, char_server):
             save_parse,
             auto_raid,
             auto_mob_timer,
+            auto_mob_timer_delay,
             consider_eval,
             detect_char,
         )
@@ -2256,7 +2265,8 @@ def build_config(base_path):
       "auto_set": "true"
     },
     "timers": {
-      "auto_mob_timer": "false"
+      "auto_mob_timer": "false",
+      "auto_mob_timer_delay": "10"
     }
   },
   "version": "%s"
@@ -2686,11 +2696,6 @@ def build_config(base_path):
     new_line_combat_config = """
 {
   "line": {
-    "combat_ranger_drake": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "ranger drake"
-    },
     "combat_no_target": {
       "alert": {},
       "reaction": "solo",
@@ -2765,6 +2770,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "combat_ranger_drake": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "ranger drake"
     },
     "combat_you_cannot_hit": {
       "alert": {},
