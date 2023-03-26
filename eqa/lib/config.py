@@ -12367,6 +12367,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "can't see"
     },
+    "target_group_member": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "target group member"
+    },
     "target_lost": {
       "alert": {},
       "reaction": "false",

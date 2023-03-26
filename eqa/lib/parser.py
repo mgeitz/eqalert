@@ -1592,6 +1592,10 @@ def check_system_messages(line):
             return "equip_block"
         elif re.fullmatch(r"^You cannot remove this effect\.$", line) is not None:
             return "effect_removal_block"
+        elif (
+            re.fullmatch(r"^You must first target a group member\.$", line) is not None
+        ):
+            return "target_group_member"
 
         return None
 
@@ -10644,7 +10648,7 @@ def check_who(line):
             return "who_line_friends"
         elif (
             re.fullmatch(
-                r"^(AFK | AFK |\<LINKDEAD\>| \<LINKDEAD\>| AFK  \<LINKDEAD\>|\* GM\-Mgmt \*|\* GM \* |\* Guide \*|)\[(\d+ [a-zA-Z\s]+|ANONYMOUS)\] \w+( \([a-zA-Z\s]+\)|)( \<[a-zA-Z\s\']+\>|  \<[a-zA-Z\s\']+\>|)( ZONE\: \w+|  ZONE\: \w+|)( LFG|  LFG|)$",
+                r"^(AFK | AFK |\<LINKDEAD\>| \<LINKDEAD\>| AFK  \<LINKDEAD\>|\* GM\-Mgmt \*|\* GM \* |\* Guide \*|)\[(\d+ [a-zA-Z\s]+|ANONYMOUS)\] \w+( \([a-zA-Z\s]+\)|)( \<[a-zA-Z\s\']+\>|  \<[a-zA-Z\s\']+\>|)( ZONE\: \w+|  ZONE\: \w+| ZONE\:|  ZONE\:|)( LFG|  LFG|)$",
                 line,
             )
             is not None
