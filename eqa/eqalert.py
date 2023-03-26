@@ -341,7 +341,8 @@ def main():
     ## Consume timer_q
     ## Produce sound_q, display_q
     process_timer = threading.Thread(
-        target=eqa_timer.process, args=(configs, timer_q, sound_q, display_q, exit_flag)
+        target=eqa_timer.process,
+        args=(configs, timer_q, sound_q, display_q, exit_flag, cfg_reload),
     )
     process_timer.daemon = True
     process_timer.start()
@@ -493,6 +494,14 @@ def main():
                         system_mute(configs, state, display_q, sound_q, new_message)
                     ### Update character
                     elif new_message.tx == "new_character":
+                        #### Handle new character created since eqalert launch
+                        if (
+                            new_message.payload
+                            not in configs.characters.config["char_logs"].keys()
+                        ):
+                            new_char, new_server = new_message.payload.split("_")
+                            eqa_config.add_char_log(new_char, new_server, configs)
+                        #### Swap to character log
                         new_char_log = (
                             configs.settings.config["settings"]["paths"][
                                 "everquest_logs"
@@ -533,6 +542,9 @@ def main():
                             state.set_encounter_parse_save(new_state.save_parse)
                             state.set_auto_raid(new_state.auto_raid)
                             state.set_auto_mob_timer(new_state.auto_mob_timer)
+                            state.set_auto_mob_timer_delay(
+                                new_state.auto_mob_timer_delay
+                            )
                             state.set_consider_eval(new_state.consider_eval)
                             eqa_config.set_last_state(state, configs)
                             char_log = new_char_log
@@ -554,15 +566,6 @@ def main():
                                     + state.server,
                                 )
                             )
-                            # sound_q.put(
-                            #    eqa_struct.sound(
-                            #        "speak",
-                            #        "Character changed to "
-                            #        + state.char
-                            #        + " on "
-                            #        + state.server,
-                            #    )
-                            # )
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(), "draw", "redraw", "null"
@@ -606,6 +609,7 @@ def main():
                         state.set_encounter_parse_save(new_state.save_parse)
                         state.set_auto_raid(new_state.auto_raid)
                         state.set_auto_mob_timer(new_state.auto_mob_timer)
+                        state.set_auto_mob_timer_delay(new_state.auto_mob_timer_delay)
                         state.set_consider_eval(new_state.consider_eval)
                         #### Stop state dependent processes
                         cfg_reload.set()
@@ -719,7 +723,14 @@ def main():
                         #### Restart process_timer
                         process_timer = threading.Thread(
                             target=eqa_timer.process,
-                            args=(configs, timer_q, sound_q, display_q, exit_flag),
+                            args=(
+                                configs,
+                                timer_q,
+                                sound_q,
+                                display_q,
+                                exit_flag,
+                                cfg_reload,
+                            ),
                         )
                         process_timer.daemon = True
                         process_timer.start()

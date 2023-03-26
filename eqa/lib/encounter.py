@@ -42,6 +42,7 @@ def process(
     """
 
     encounter_stack = deque([])
+    encounter_zone = "undetermined"
     active_encounter = False
 
     try:
@@ -73,6 +74,7 @@ def process(
                     ):
                         #### Set active encounter
                         active_encounter = True
+                        encounter_zone = re.sub(r"[^\w\s]", "", state.zone)
                 ## Or if active encounter
                 else:
                     ### And we see a line that indicates an encounter ends
@@ -93,6 +95,7 @@ def process(
                                     state,
                                     configs,
                                     display_q,
+                                    encounter_zone,
                                 )
                             else:
                                 encounter_stack.append(
@@ -113,6 +116,7 @@ def process(
                                 state,
                                 configs,
                                 display_q,
+                                encounter_zone,
                             )
 
                     if line_type == "you_new_zone":
@@ -127,11 +131,13 @@ def process(
                             state,
                             configs,
                             display_q,
+                            encounter_zone,
                         )
 
                     elif interaction == "start":
                         #### Set active encounter
                         active_encounter = True
+                        encounter_zone = re.sub(r"[^\w\s]", "", state.zone)
 
                 ## If we're in an encounter
                 if active_encounter == True:
@@ -1241,7 +1247,14 @@ def encounter_spell(line_type, line_time, line, encounter_stack, state):
 
 
 def encounter_analysis(
-    line_type, line_time, line, encounter_stack, state, configs, display_q
+    line_type,
+    line_time,
+    line,
+    encounter_stack,
+    state,
+    configs,
+    display_q,
+    encounter_zone,
 ):
     """Analyze encounter stack before reporting"""
 
@@ -1388,6 +1401,7 @@ def encounter_analysis(
                 state,
                 configs,
                 display_q,
+                encounter_zone,
             )
         elif state.debug == "true":
             eqa_settings.log("Encounter Report: Unable to determine encounter target")
@@ -1406,7 +1420,13 @@ def encounter_analysis(
 
 
 def encounter_report(
-    encounter_target, encounter_duration, encounter_stack, state, configs, display_q
+    encounter_target,
+    encounter_duration,
+    encounter_stack,
+    state,
+    configs,
+    display_q,
+    encounter_zone,
 ):
     """Report encounter stats"""
 
@@ -1419,11 +1439,10 @@ def encounter_report(
         encounter_parse_date = datetime.now().strftime("%Y-%m-%d")
 
         encounter_path = configs.settings.config["settings"]["paths"]["encounter"]
-        clean_zone = re.sub(r"[^\w\s]", "", state.zone)
         if not os.path.exists(encounter_path):
             os.makedirs(encounter_path)
         encounter_zone_path = (
-            encounter_path + clean_zone.lower().replace(" ", "-") + "/"
+            encounter_path + encounter_zone.lower().replace(" ", "-") + "/"
         )
         if not os.path.exists(encounter_zone_path):
             os.makedirs(encounter_zone_path)
@@ -1652,7 +1671,7 @@ def encounter_report(
         encounter_report["header"]["time"] = str(encounter_parse_time)
         encounter_report["encounter_summary"]["character"] = str(state.char)
         encounter_report["encounter_summary"]["server"] = str(state.server)
-        encounter_report["encounter_summary"]["zone"] = str(state.zone)
+        encounter_report["encounter_summary"]["zone"] = str(encounter_zone)
         if state.loc != ["0.00", "0.00", "0.00"]:
             encounter_report["encounter_summary"]["location"] = str(state.loc)
         if state.afk == "true":

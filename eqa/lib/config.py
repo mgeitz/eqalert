@@ -39,7 +39,7 @@ def init(base_path):
             print("One or more new versioned configuration files have been generated.")
             print("Older files have been archived under config/archive/\n")
             print("Please validate your config/settings.json and relaunch eqalert.")
-            exit(1)
+            exit(0)
 
     except Exception as e:
         eqa_settings.log(
@@ -1997,6 +1997,11 @@ def set_last_state(state, configs):
                 "auto_mob_timer": str(state.auto_mob_timer),
             }
         )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "auto_mob_timer_delay": str(state.auto_mob_timer_delay),
+            }
+        )
         configs.settings.config["settings"]["consider_eval"].update(
             {"enabled": str(state.consider_eval)}
         )
@@ -2123,6 +2128,9 @@ def get_last_state(configs, char_name, char_server):
         ]
         auto_raid = configs.settings.config["settings"]["raid_mode"]["auto_set"]
         auto_mob_timer = configs.settings.config["settings"]["timers"]["auto_mob_timer"]
+        auto_mob_timer_delay = configs.settings.config["settings"]["timers"][
+            "auto_mob_timer_delay"
+        ]
         mute = configs.settings.config["settings"]["mute"]["enabled"]
 
         # Get chars
@@ -2151,6 +2159,7 @@ def get_last_state(configs, char_name, char_server):
             save_parse,
             auto_raid,
             auto_mob_timer,
+            auto_mob_timer_delay,
             consider_eval,
             detect_char,
         )
@@ -2256,7 +2265,8 @@ def build_config(base_path):
       "auto_set": "true"
     },
     "timers": {
-      "auto_mob_timer": "false"
+      "auto_mob_timer": "false",
+      "auto_mob_timer_delay": "10"
     }
   },
   "version": "%s"
@@ -2686,11 +2696,6 @@ def build_config(base_path):
     new_line_combat_config = """
 {
   "line": {
-    "combat_ranger_drake": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "ranger drake"
-    },
     "combat_no_target": {
       "alert": {},
       "reaction": "solo",
@@ -2766,6 +2771,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_ranger_drake": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "ranger drake"
+    },
+    "combat_you_cannot_hit": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "can't hit"
+    },
     "combat_you_cannot_see": {
       "alert": {},
       "reaction": "solo",
@@ -2806,6 +2821,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "combat_you_melee_riposte": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "combat_you_melee_miss": {
       "alert": {},
       "reaction": "false",
@@ -2815,6 +2835,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "afk",
       "sound": "danger will robinson"
+    },
+    "combat_you_rune_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_your_rune_damage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "experience_group": {
       "alert": {},
@@ -3029,6 +3059,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spells_memorize_too_high": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "I need more experience before learning that"
+    },
     "spells_no_target": {
       "alert": {},
       "reaction": "false",
@@ -3114,11 +3149,6 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "too powerful"
     },
-    "spells_charm_worn_off": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "true"
-    }
     "spells_worn_off": {
       "alert": {},
       "reaction": "solo",
@@ -11583,6 +11613,7 @@ def build_config(base_path):
     "guild": {
       "alert": {
         "assist": "raid",
+        "bump": "raid",
         "crippled": "raid",
         "dispelled": "raid",
         "feared": "raid",
@@ -11627,6 +11658,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "shout_unknown_tongue": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "tell": {
       "alert": {},
       "reaction": "solo",
@@ -11665,6 +11701,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "petition_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "fingers crossed"
+    },
     "say_you": {
       "alert": {},
       "reaction": "false",
@@ -11688,6 +11729,11 @@ def build_config(base_path):
     new_line_command_output_config = """
 {
   "line": {
+    "account_subscription": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "the secret ingredient is crime"
+    },
     "birthdate": {
       "alert": {},
       "reaction": "solo",
@@ -11758,6 +11804,21 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "eat_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "eat_you_finish": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "eat_you_full": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "I'm stuffed!"
+    },
     "friend_add": {
       "alert": {},
       "reaction": "false",
@@ -11773,10 +11834,15 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "forage_cursor_empty": {
+    "forage_attacking": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "forage_cursor_empty": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "remove items from cursor"
     },
     "forage_edible": {
       "alert": {},
@@ -11808,6 +11874,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "hide_corpse_none": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "ignore_add": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "inspect_toggle_off": {
       "alert": {},
       "reaction": "false",
@@ -11827,6 +11903,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "leaving list area"
+    },
+    "list_leaving_zone": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "Toto, I have a feeling we're not in Kansas anymore."
     },
     "list_none": {
       "alert": {},
@@ -11892,6 +11973,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "all",
       "sound": "true"
+    },
+    "skill_max": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "the power!"
+    },
+    "skill_max_tradeskill": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "skill_up": {
       "alert": {},
@@ -11981,6 +12072,16 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "true"
     },
+    "anon_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "anon_on": {
+      "alert": {},
+      "reaction": "raid",
+      "sound": "you must be up to no good!"
+    },
     "assist_self": {
       "alert": {},
       "reaction": "solo",
@@ -12006,6 +12107,21 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "autofollow_no_target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "autofollow_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "autofollow_on": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "onward my steed"
+    },
     "bandage_you": {
       "alert": {},
       "reaction": "false",
@@ -12021,6 +12137,16 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "aye, aye, captain!"
     },
+    "cast_animal_only": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "cast_night_only": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "chat_disconnected": {
       "alert": {},
       "reaction": "solo",
@@ -12030,6 +12156,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "concious_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "you got this!"
     },
     "consider": {
       "alert": {},
@@ -12061,6 +12192,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "dead_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "dead_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "ding_down": {
       "alert": {},
       "reaction": "all",
@@ -12081,6 +12222,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "earthquake!"
     },
+    "effect_removal_block": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "I'm sorry, Dave. I'm afraid I can't do that."
+    },
     "encumbered_off": {
       "alert": {},
       "reaction": "false",
@@ -12095,6 +12241,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "all",
       "sound": "true"
+    },
+    "equip_block": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "I can't wear that"
     },
     "faction_line": {
       "alert": {},
@@ -12111,10 +12262,10 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "feign_failure": {
+    "feign_failure_other": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": "feign fail"
     },
     "gm_reset_ability": {
       "alert": {},
@@ -12140,6 +12291,16 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "hide_moving": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "item_too_big": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "thats too big"
     },
     "inspect_other": {
       "alert": {},
@@ -12181,6 +12342,21 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "roleplay_off": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "roleplay_on": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "bravo six, going dark"
+    },
+    "target_attack_sitting": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "target_attack_too_far": {
       "alert": {},
       "reaction": "solo",
@@ -12190,6 +12366,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "can't see"
+    },
+    "target_group_member": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "target group member"
     },
     "target_lost": {
       "alert": {},
@@ -12205,6 +12386,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "true"
+    },
+    "tell_queued_offline": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "titanium_client_help_message": {
       "alert": {},
@@ -12271,6 +12457,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "help"
     },
+    "yell_help_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "you_auto_attack_off": {
       "alert": {},
       "reaction": "false",
@@ -12302,6 +12493,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "you_lowfood": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "you_lowfoodlowdrink": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12414,12 +12610,22 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "true"
     },
+    "group_invite_yourself": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
+    },
     "group_invite_you_cancel": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
     "group_join_notify": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_join_reject": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12459,20 +12665,70 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "true"
     },
-    "guild_member": {
+    "guild_invite_instructions": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
-    "guild_member_invite": {
+    "guild_invite_other_decline": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
-    "guild_member_new": {
+    "guild_member_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_member_other_accept": {
       "alert": {},
       "reaction": "solo",
       "sound": "welcome"
+    },
+    "guild_member_other_invite": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_member_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_member_you_accept": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_officer_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_officer_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "movin on up"
+    },
+    "guild_remove_fail": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_remove_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "not like this"
+    },
+    "guild_remove_you_attempt": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_status_officer": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "invite_no_target": {
       "alert": {},
@@ -12492,15 +12748,25 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "locked"
     },
+    "loot_error_corpse": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "loot error"
+    },
+    "loot_error_item": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "loot error"
+    },
+    "loot_lore": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "you already have one of those"
+    },
     "loot_too_far": {
       "alert": {},
       "reaction": "solo",
       "sound": "too far"
-    },
-    "loot_error": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "loot error"
     },
     "loot_wait": {
       "alert": {},
@@ -12527,15 +12793,80 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "looted_money_you_split": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "split_format": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "split_format_example": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "split_invalid": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "split_off": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "helping the monks"
+    },
+    "split_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "split_shared": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "ka-ching"
+    },
+    "trade_error": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "oh no"
+    },
     "tradeskill_create_other": {
       "alert": {},
       "reaction": "solo_group_only",
+      "sound": "false"
+    },
+    "tradeskill_create_you": {
+      "alert": {},
+      "reaction": "false",
       "sound": "false"
     },
     "tradeskill_fail_other": {
       "alert": {},
       "reaction": "solo_group_only",
       "sound": "false"
+    },
+    "tradeskill_fail_you": {
+      "alert": {},
+      "reaction": "solo_group_only",
+      "sound": "womp"
+    },
+    "tradeskill_hands_full": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "empty cursor"
+    },
+    "tradeskill_skill_cap": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "tradeskill_wrong_container": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "wrong container"
     },
     "trade_cancel_other": {
       "alert": {},
@@ -12581,6 +12912,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "trade_too_far": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "too far"
     }
   },
   "version": "%s"

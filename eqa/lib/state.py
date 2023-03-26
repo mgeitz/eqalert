@@ -47,6 +47,7 @@ class EQA_State:
         save_parse,
         auto_raid,
         auto_mob_timer,
+        auto_mob_timer_delay,
         consider_eval,
         detect_char,
     ):
@@ -72,6 +73,7 @@ class EQA_State:
         self.save_parse = save_parse
         self.auto_raid = auto_raid
         self.auto_mob_timer = auto_mob_timer
+        self.auto_mob_timer_delay = auto_mob_timer_delay
         self.consider_eval = consider_eval
         self.detect_char = detect_char
 
@@ -158,6 +160,10 @@ class EQA_State:
     def set_auto_mob_timer(self, auto_mob_timer):
         """Toggle Automatic Mob Timers"""
         self.auto_mob_timer = auto_mob_timer
+
+    def set_auto_mob_timer_delay(self, auto_mob_timer_delay):
+        """Toggle Automatic Mob Timers"""
+        self.auto_mob_timer_delay = auto_mob_timer_delay
 
     def set_consider_eval(self, consider_eval):
         """Toggle Consider Evaluation"""
