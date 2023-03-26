@@ -341,7 +341,8 @@ def main():
     ## Consume timer_q
     ## Produce sound_q, display_q
     process_timer = threading.Thread(
-        target=eqa_timer.process, args=(configs, timer_q, sound_q, display_q, exit_flag)
+        target=eqa_timer.process,
+        args=(configs, timer_q, sound_q, display_q, exit_flag, cfg_reload),
     )
     process_timer.daemon = True
     process_timer.start()
@@ -718,7 +719,14 @@ def main():
                         #### Restart process_timer
                         process_timer = threading.Thread(
                             target=eqa_timer.process,
-                            args=(configs, timer_q, sound_q, display_q, exit_flag),
+                            args=(
+                                configs,
+                                timer_q,
+                                sound_q,
+                                display_q,
+                                exit_flag,
+                                cfg_reload,
+                            ),
                         )
                         process_timer.daemon = True
                         process_timer.start()

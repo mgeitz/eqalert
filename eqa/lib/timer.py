@@ -29,7 +29,7 @@ import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
 
 
-def process(configs, timer_q, sound_q, display_q, exit_flag):
+def process(configs, timer_q, sound_q, display_q, exit_flag, cfg_reload):
     """
     Process: timer_q
     Produce: display_q, sound_q
@@ -77,7 +77,7 @@ def process(configs, timer_q, sound_q, display_q, exit_flag):
             os.remove(saved_timers_path)
 
         # Consume timer_q
-        while not exit_flag.is_set():
+        while not exit_flag.is_set() and not cfg_reload.is_set():
             # Sleep between empty checks
             if timer_q.qsize() < 1:
                 time.sleep(0.01)
