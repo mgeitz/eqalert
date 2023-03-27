@@ -2761,7 +2761,7 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "combat_other_melee_reposte": {
+    "combat_other_melee_riposte": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -2812,6 +2812,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "combat_you_melee_invulnerable": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "combat_your_melee_invulnerable": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11829,6 +11834,21 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "It's OK! I'll be your friend!"
     },
+    "friend_list_header": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "friend_list_line": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "friend_list_total": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "friend_remove": {
       "alert": {},
       "reaction": "false",
@@ -11864,6 +11884,51 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "help_command_chat": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "help_command_emote": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "help_command_format": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "help_command_guild": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "help_command_header": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "help_command_line": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "help_command_normal": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "help_command_output": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "help_command_voice": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "hide_corpse_all": {
       "alert": {},
       "reaction": "false",
@@ -11880,6 +11945,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "ignore_add": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "ignore_list_header": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11924,7 +11994,12 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "list_re_entering": {
+    "list_removed_range": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "removed from list"
+    },
+    "list_re_entered": {
       "alert": {},
       "reaction": "solo",
       "sound": "back in list area"
@@ -12010,6 +12085,11 @@ def build_config(base_path):
       "sound": "too far"
     },
     "target": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "target_command_format": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12139,13 +12219,23 @@ def build_config(base_path):
     },
     "cast_animal_only": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "true"
+    },
+    "cast_change_form_block": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "I can't do that here"
     },
     "cast_night_only": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "solo",
+      "sound": "true"
+    },
+    "cast_outdoors_only": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "true"
     },
     "chat_disconnected": {
       "alert": {},
@@ -12176,6 +12266,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "container_container": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "It's bigger on the inside"
     },
     "corpse_decay_timer": {
       "alert": {},
@@ -12267,6 +12362,51 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "feign fail"
     },
+    "fishing_cast": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "fishing_caught_nothing": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "fishing_caught_something": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "yay"
+    },
+    "fishing_creatively": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "fishing_holding": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "fishing_lost_bait": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "fishing_no_pole": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "fishing_pole_broke": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "fishing_spill_beer": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "not again!"
+    },
     "gm_reset_ability": {
       "alert": {},
       "reaction": "solo",
@@ -12276,6 +12416,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "Disciplines reset"
+    },
+    "hide_attacking": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "hide_disabled": {
       "alert": {},
@@ -12317,10 +12462,20 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "item dropped"
     },
+    "item_must_equip": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "must equip"
+    },
     "jump_fatigue": {
       "alert": {},
       "reaction": "solo",
       "sound": "no stamina"
+    },
+    "lore_pickup": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "I already have this"
     },
     "npc_guild_wrong": {
       "alert": {},
@@ -12331,6 +12486,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "required_pick": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "let me in!"
     },
     "rewind_output": {
       "alert": {},
@@ -12397,6 +12557,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "too_many_pets": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "You already have a pet"
+    },
     "tracking": {
       "alert": {},
       "reaction": "false",
@@ -12421,6 +12586,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "use_block": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "I can't use that"
     },
     "walk_of_shame": {
       "alert": {},
@@ -12725,6 +12895,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "guild_status_instructions": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_status_none": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "guild_status_officer": {
       "alert": {},
       "reaction": "false",
@@ -12832,6 +13012,11 @@ def build_config(base_path):
       "alert": {},
       "reaction": "solo",
       "sound": "oh no"
+    },
+    "trade_lore_item": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "lore item in trade"
     },
     "tradeskill_create_other": {
       "alert": {},
