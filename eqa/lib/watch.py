@@ -26,7 +26,7 @@ import eqa.lib.settings as eqa_settings
 import eqa.lib.struct as eqa_struct
 
 
-def process(state, configs, system_q, exit_flag):
+def process(state, configs, system_q, exit_flag, cfg_reload):
     """
     Process: Watch log directory for most recently modified log file
     Produce: Auto-Swap Characters
@@ -37,7 +37,7 @@ def process(state, configs, system_q, exit_flag):
         logs_directory = configs.settings.config["settings"]["paths"]["everquest_logs"]
 
         # Watch log directory
-        while not exit_flag.is_set():
+        while not exit_flag.is_set() and not cfg_reload.is_set():
             time.sleep(1)
 
             ## Only check when enabled

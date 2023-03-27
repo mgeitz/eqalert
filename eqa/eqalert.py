@@ -205,7 +205,7 @@ def main():
     ## Produce character update to system_q
     process_watch = threading.Thread(
         target=eqa_watch.process,
-        args=(state, configs, system_q, exit_flag),
+        args=(state, configs, system_q, exit_flag, cfg_reload),
     )
     process_watch.daemon = True
     process_watch.start()
@@ -738,7 +738,7 @@ def main():
                         #### Restart process_watch
                         process_watch = threading.Thread(
                             target=eqa_watch.process,
-                            args=(state, configs, system_q, exit_flag),
+                            args=(state, configs, system_q, exit_flag, cfg_reload),
                         )
                         process_watch.daemon = True
                         process_watch.start()
