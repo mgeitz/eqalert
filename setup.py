@@ -1,5 +1,8 @@
 from distutils.core import setup
 
+with open('README.md') as f:
+    readme = f.read()
+
 setup(
     name="eqalert",
     version="3.4.5",
@@ -20,5 +23,6 @@ setup(
         ],
     },
     description="Configurable and Context Driven Project 1999 Log Parser",
+    long_description=readme,
     url="https://github.com/mgeitz/eqalert",
 )
