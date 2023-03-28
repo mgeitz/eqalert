@@ -437,12 +437,19 @@ def draw_events_status_bar(stdscr, state):
 
         ## Location
         if state.loc != ["0.00", "0.00", "0.00"]:
-            offset = (
-                len(state.direction)
-                + len(str(state.loc[0]))
-                + len(str(state.loc[1]))
-                + len(str(state.loc[2]))
-            )
+            if state.direction == "unavailable":
+                offset = (
+                    len(str(state.loc[0]))
+                    + len(str(state.loc[1]))
+                    + len(str(state.loc[2]))
+                )
+            else:
+                offset = (
+                    len(state.direction)
+                    + len(str(state.loc[0]))
+                    + len(str(state.loc[1]))
+                    + len(str(state.loc[2]))
+                )
             stdscr.addstr(
                 center_y + 1,
                 x - offset - 7,

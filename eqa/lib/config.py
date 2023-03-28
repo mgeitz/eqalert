@@ -2999,6 +2999,11 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "mob gating"
     },
+    "spells_gated_npc": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "mob gated"
+    },
     "spells_heal_other": {
       "alert": {},
       "reaction": "false",
@@ -5743,6 +5748,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "spell_flames_of_ro_you_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_flavor_nec_hp": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -11598,6 +11608,11 @@ def build_config(base_path):
       "reaction": "alert",
       "sound": "look at auction"
     },
+    "auction_unknown_tongue": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "broadcast": {
       "alert": {},
       "reaction": "solo",
@@ -11657,6 +11672,11 @@ def build_config(base_path):
       },
       "reaction": "alert",
       "sound": "look at say"
+    },
+    "say_unknown_tongue": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "shout": {
       "alert": {},
@@ -12247,6 +12267,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "command_usage": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "concious_you": {
       "alert": {},
       "reaction": "solo",
@@ -12312,6 +12337,21 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "true"
     },
+    "duel_accept_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "duel_challenge": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "Now witness the firepower of this fully ARMED and OPERATIONAL battle station!"
+    },
+    "duel_end_fled": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "earthquake": {
       "alert": {},
       "reaction": "solo",
@@ -12360,7 +12400,7 @@ def build_config(base_path):
     "feign_failure_other": {
       "alert": {},
       "reaction": "solo",
-      "sound": "feign fail"
+      "sound": "true"
     },
     "fishing_cast": {
       "alert": {},
@@ -12393,6 +12433,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "fishing_no_pole": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "fishing_no_water": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12462,10 +12507,20 @@ def build_config(base_path):
       "reaction": "solo",
       "sound": "item dropped"
     },
+    "item_dropped_no_room": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "item dropped"
+    },
     "item_must_equip": {
       "alert": {},
       "reaction": "solo",
       "sound": "must equip"
+    },
+    "item_no_drop": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
     },
     "jump_fatigue": {
       "alert": {},
@@ -12760,12 +12815,22 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "group_invite_already": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "group_invite_instruction": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
     "group_invite_not_lead": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "group_invite_npc": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -12866,6 +12931,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "guild_member_you_accept": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "guild_motd_wrong_command": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13111,6 +13181,11 @@ def build_config(base_path):
     new_line_emotes_config = """
 {
   "line": {
+    "emote_agree_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_agree_you": {
       "alert": {},
       "reaction": "false",
@@ -13126,12 +13201,27 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_bird_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_bird_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
+    "emote_bite_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_bite_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_bleed_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13142,6 +13232,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "emote_blink_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_blush_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13191,6 +13286,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_burp_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_burp_you": {
       "alert": {},
       "reaction": "false",
@@ -13226,7 +13326,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_chuckle_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_chuckle_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_clap_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13236,7 +13346,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_comfort_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_comfort_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_congratulate_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13256,10 +13376,15 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "emote_cry_you": {
+    "emote_cry_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
+    },
+    "emote_cry_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "there there"
     },
     "emote_curious_you": {
       "alert": {},
@@ -13296,7 +13421,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_flex_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_flex_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_frown_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13306,7 +13441,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_gasp_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_gasp_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_giggle_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13361,6 +13506,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_introduce_other": {
+      "alert": {},
+      "reaction": "all",
+      "sound": "why, hello there"
+    },
     "emote_introduce_you": {
       "alert": {},
       "reaction": "all",
@@ -13371,7 +13521,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_kiss_other": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "love is in the air"
+    },
     "emote_kiss_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_kneel_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13406,6 +13566,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_mourn_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_mourn_you": {
       "alert": {},
       "reaction": "false",
@@ -13431,7 +13596,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_pat_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_pat_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_peer_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13441,7 +13616,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_plead_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_plead_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_point_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13457,6 +13642,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "emote_poke_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_ponder_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13486,7 +13676,17 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_roar_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_roar_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_rofl_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13506,12 +13706,27 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_shiver_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_shiver_you": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
     },
+    "emote_shrug_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_shrug_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_sigh_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13536,6 +13751,11 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "emote_smirk_other": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "emote_smirk_you": {
       "alert": {},
       "reaction": "false",
@@ -13552,6 +13772,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "emote_stare_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_tap_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -13607,6 +13832,11 @@ def build_config(base_path):
       "sound": "false"
     },
     "emote_whistle_you": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "emote_yawn_other": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
