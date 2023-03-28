@@ -8,7 +8,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="eqalert",
-    version="3.4.6",
+    version="3.4.7",
     author="M Geitz",
     author_email="git@geitz.xyz",
     install_requires=[
