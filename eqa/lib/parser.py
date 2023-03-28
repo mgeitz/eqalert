@@ -2627,12 +2627,6 @@ def check_spell_specific(line):
                 # return "spell_siphon_life_you_on"
                 # return "spell_spirit_tap_you_on"
                 # return "spell_strike_of_the_chosen_you_on"
-            # TODO: spell_flavor_nec_hp  matches when tested in isolation, but never here.  I'm stumped...
-            elif (
-                re.fullmatch(r"^[a-zA-Z`\s]+ beams a smile at [a-zA-Z`\s]+$", line)
-                is not None
-            ):
-                return "spell_flavor_nec_hp"
             elif (
                 re.fullmatch(r"^You feel your skin burn from your body\.$", line)
                 is not None
@@ -6648,6 +6642,11 @@ def check_spell_specific(line):
 
         if re.fullmatch(r"^An aegis of faith engulfs you\.$", line) is not None:
             return "spell_aegis_you_on"
+        elif (
+            re.fullmatch(r"^[a-zA-Z`\s]+ beams a smile at [a-zA-Z`\s]+$", line)
+            is not None
+        ):
+            return "spell_flavor_nec_hp"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ \'s knees buckle\.$", line) is not None:
             return "spell_avatar_snare_other_on"
         elif (
