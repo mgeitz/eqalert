@@ -2264,6 +2264,10 @@ def build_config(base_path):
     "raid_mode": {
       "auto_set": "true"
     },
+    "speech": {
+      "tld": "com",
+      "lang": "en"
+    },
     "timers": {
       "auto_mob_timer": "false",
       "auto_mob_timer_delay": "10"
