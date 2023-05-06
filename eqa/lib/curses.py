@@ -661,6 +661,7 @@ def draw_events_default_lower(stdscr):
             "Trading coins will briefly remove their weight",
             "Diagonal running is the fastest",
             "Using 'F7' can target anyone for any buff",
+            "You can send tells between servers",
             "'PgUp' & 'PgDn' modify the z-axis in 3rd person",
         ]
         response = random.choice(responses)

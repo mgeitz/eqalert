@@ -2265,6 +2265,7 @@ def build_config(base_path):
       "auto_set": "true"
     },
     "speech": {
+      "expand_lingo": "true",
       "tld": "com",
       "lang": "en"
     },
