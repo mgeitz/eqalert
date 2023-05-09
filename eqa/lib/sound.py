@@ -99,6 +99,9 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])atm(?=[^A-z])", "at the moment", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])bb(?=[^A-z])", "butcherblock", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])bbl(?=[^A-z])", "be back later", line, flags=re.I)
+    line = re.sub(
+        r"(?<=[^A-z])bbm(?=[^A-z])", "butcherblock mountains", line, flags=re.I
+    )
     line = re.sub(r"(?<=[^A-z])brb(?=[^A-z])", "be right back", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])bc(?=[^A-z])", "because", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])bp(?=[^A-z])", "bat phone", line, flags=re.I)
@@ -182,7 +185,9 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])pom(?=[^A-z])", "plane of mischief", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])pov(?=[^A-z])", "point of view", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])pst(?=[^A-z])", "please send tell", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])rh(?=[^A-z])", "right here", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])rl(?=[^A-z])", "real life", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])rn(?=[^A-z])", "right now", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])rog(?=[^A-z])", "rog", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])rw(?=[^A-z])", "ring war", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])shm(?=[^A-z])", "shaman", line, flags=re.I)
@@ -192,7 +197,9 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])thx(?=[^A-z])", "thanks", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])tl(?=[^A-z])", "translocate", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])tmi(?=[^A-z])", "too much information", line, flags=re.I)
-    line = re.sub(r"(?<=[^A-z])tofs(?=[^A-z])", "tower of frozen shadow", line, flags=re.I)
+    line = re.sub(
+        r"(?<=[^A-z])tofs(?=[^A-z])", "tower of frozen shadow", line, flags=re.I
+    )
     line = re.sub(r"(?<=[^A-z])tov(?=[^A-z])", "temple of veeshan", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])tox(?=[^A-z])", "toxxulia forrest", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])ttyl(?=[^A-z])", "talk to you later", line, flags=re.I)

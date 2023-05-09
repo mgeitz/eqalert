@@ -18,6 +18,7 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+import collections
 import datetime
 import sys
 import time
@@ -44,11 +45,14 @@ def process(
     exit_flag,
     cfg_reload,
     mute_list,
+    player_list,
 ):
     """
     Process: action_q
     Produce: sound_q, display_q, system_q, encounter_q
     """
+
+    spell_casting_buffer = collections.deque(maxlen=20)
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
@@ -84,7 +88,7 @@ def process(
 
                 ## Encounter Parsing
                 if state.encounter_parse == "true":
-                    if line_type.startswith("combat_"):
+                    if re.fullmatch(r"^combat\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -94,7 +98,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type.startswith("you_auto_attack_"):
+                    elif re.fullmatch(r"^you\_auto\_attack\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -104,7 +108,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type.startswith("mob_slain_"):
+                    elif re.fullmatch(r"^mob\_slain\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -144,7 +148,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type.startswith("experience_"):
+                    elif re.fullmatch(r"^experience\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -164,7 +168,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type.startswith("spells_"):
+                    elif re.fullmatch(r"^spells\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -174,41 +178,47 @@ def process(
                                 check_line,
                             )
                         )
-                ## Default Timers
+                ## Mob Timers
                 if state.auto_mob_timer == "true":
                     if (
                         line_type == "experience_solo"
                         or line_type == "experience_group"
                     ):
-                        timer_seconds = configs.zones.config["zones"][str(state.zone)][
-                            "timer"
-                        ]
-                        timer_seconds = str(
-                            int(timer_seconds) - int(state.auto_mob_timer_delay)
+                        action_mob_timer(
+                            timer_q,
+                            configs.zones.config["zones"][str(state.zone)]["timer"],
+                            state.auto_mob_timer_delay,
+                            state.zone,
                         )
-                        if int(timer_seconds) < 0:
-                            timer_seconds = "0"
-                        if int(state.auto_mob_timer_delay) <= 0:
-                            pop_message = "Pop " + str(state.zone)
-                        else:
-                            pop_message = (
-                                "Pop "
-                                + str(state.zone)
-                                + " in "
-                                + str(state.auto_mob_timer_delay)
-                                + " seconds."
-                            )
-                        timer_q.put(
-                            eqa_struct.timer(
-                                (
-                                    datetime.datetime.now()
-                                    + datetime.timedelta(seconds=int(timer_seconds))
-                                ),
-                                "timer",
-                                str(timer_seconds),
-                                pop_message,
-                            )
+
+                ## Spell Casting Buffer
+                if re.fullmatch(r"^spells\_cast\_(other|you)", line_type) is not None:
+                    action_spell_casting(
+                        check_line, line_type, line_time, spell_casting_buffer
+                    )
+
+                ## Self Spell Timers
+                if state.spell_timer_self == "true":
+                    if re.fullmatch(r"^spell\_.+\_you_on$", line_type) is not None:
+                        action_spell_timer(
+                            timer_q,
+                            line_type,
+                            check_line,
+                            state.spell_timer_delay,
+                            spell_casting_buffer,
                         )
+
+                ## Other Spell Timers
+                if state.spell_timer_other == "true":
+                    if re.fullmatch(r"^spell\_.+\_other_on$", line_type) is not None:
+                        action_spell_timer(
+                            timer_q,
+                            line_type,
+                            check_line,
+                            state.spell_timer_delay,
+                            spell_casting_buffer,
+                        )
+
                 ## Consider Evaluation
                 if state.consider_eval == "true" and line_type == "consider":
                     action_consider_evaluation(sound_q, check_line)
@@ -359,6 +369,90 @@ def process(
         )
 
     sys.exit(0)
+
+
+def action_spell_casting(check_line, line_type, line_time, spell_casting_buffer):
+    """Populate Spell Casting Buffer"""
+
+    try:
+        if line_type == "spells_cast_other":
+            caster = re.findall(r"[a-zA-Z\s\'`]+(?= begins)", line)[0].lower()
+            spell = "unknown"
+        elif line_type == "spells_cast_you":
+            caster = "you"
+            spell = re.findall(r"(?<=casting\ )[a-zA-Z\s]+", line)[0].lower()
+
+    except Exception as e:
+        eqa_settings.log(
+            "acton spell casting: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+    spell_casting_buffer.append({"caster": caster, "spell": spell, "time": line_time})
+
+
+def action_spell_timer(
+    timer_q, line_type, line, spell_timer_delay, spell_casting_buffer
+):
+    """Set timer for spell duration"""
+
+    try:
+        # determine spell from spell_*_*_on line type
+        # determine spell forumla
+        # if spell formula needs a level
+        #   determine spell caster - buffer spells_cast_other line_type events and check those after a spell_*_*_on line type for most recent cast at least a spell cast duration ago of the right class?
+        #   determine spell caster level? Build player database of sorts from /who output? Use class info to help determine caster? This feels like overkill
+        # determine spell target, ezpz
+        # determine spell duration
+
+        # submit timer
+        # timer_seconds = int(spell_duration) - int(spell_timer_delay)
+        # if int(spell_timer_delay) <= 0:
+        #    message = "$SPELL has worn off"
+        #    # check if line_type in config is already false for this
+        # else:
+        #    message = "$SPELL is wearing off"
+        # timer_q.put(
+        #    eqa_struct.timer(
+        #        (datetime.datetime.now() + datetime.timedelta(seconds=int(timer_seconds))),
+        #        "timer",
+        #        str(timer_seconds),
+        #        message,
+        #    )
+        # )
+        pass
+
+    except Exception as e:
+        eqa_settings.log(
+            "acton spell timer: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_mob_timer(timer_q, timer_seconds, auto_mob_timer_delay, zone):
+    """Set timer for mob spawn using default zone timer value"""
+
+    timer_seconds = str(int(timer_seconds) - int(auto_mob_timer_delay))
+    if int(timer_seconds) < 0:
+        timer_seconds = "0"
+    if int(auto_mob_timer_delay) <= 0:
+        pop_message = "Pop " + str(zone)
+    else:
+        pop_message = (
+            "Pop " + str(zone) + " in " + str(auto_mob_timer_delay) + " seconds."
+        )
+    timer_q.put(
+        eqa_struct.timer(
+            (datetime.datetime.now() + datetime.timedelta(seconds=int(timer_seconds))),
+            "timer",
+            str(timer_seconds),
+            pop_message,
+        )
+    )
 
 
 def send_alerts(line_type, check_line, configs, sound_q, display_q, mute_list):
@@ -1715,6 +1809,12 @@ def action_who_player(system_q, state, line):
                         char_guild,
                     )
                 )
+        else:
+            player_q.put(
+                eqa_struct.message(
+                    eqa_settings.eqa_time(), "null", "null", "null", line
+                )
+            )
 
     except Exception as e:
         eqa_settings.log(

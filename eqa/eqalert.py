@@ -36,6 +36,7 @@ import eqa.lib.encounter as eqa_encounter
 import eqa.lib.keys as eqa_keys
 import eqa.lib.log as eqa_log
 import eqa.lib.parser as eqa_parser
+import eqa.lib.players as eqa_players
 import eqa.lib.settings as eqa_settings
 import eqa.lib.sound as eqa_sound
 import eqa.lib.state as eqa_state
@@ -128,6 +129,11 @@ def startup(base_path):
                 + eq_spells_file_path
             )
 
+        # Generate Players File
+        player_data_file = data_path + "players.json"
+        if not os.path.isfile(player_data_file):
+            eqa_config.generate_players_file(player_data_file)
+
         # Make the encounter directory
         if not os.path.exists(encounter_path):
             print("    - making a place for encounter logs")
@@ -199,6 +205,20 @@ def main():
     sound_q = queue.Queue()
     system_q = queue.Queue()
     timer_q = queue.Queue()
+    player_q = queue.Queue()
+
+    ### Player List
+    player_list = {}
+
+    # Player Data
+    ## Consume player_q
+    ## Produce player_list
+    process_players = threading.Thread(
+        target=eqa_players.process,
+        args=(state, configs, player_list, player_q, exit_flag, cfg_reload),
+    )
+    process_players.daemon = True
+    process_players.start()
 
     # Watch Log Directory
     ## Consume log directory for newest log
@@ -278,6 +298,7 @@ def main():
             exit_flag,
             cfg_reload,
             mute_list,
+            player_list,
         ),
     )
     process_action.daemon = True
@@ -620,6 +641,7 @@ def main():
                         process_sound_3.join()
                         process_timer.join()
                         process_watch.join()
+                        process_players.join()
                         process_keys.join()
                         process_display.join()
                         cfg_reload.clear()
@@ -743,6 +765,14 @@ def main():
                         process_watch.daemon = True
                         process_watch.start()
 
+                        #### Restart process_players
+                        process_players = threading.Thread(
+                            target=eqa_players.process,
+                            args=(state, configs, player_list, player_q, exit_flag, cfg_reload),
+                        )
+                        process_players.daemon = True
+                        process_players.start()
+
                         #### Notify successful configuration reload
                         display_q.put(
                             eqa_struct.display(
@@ -781,6 +811,7 @@ def main():
     ## Close threads
     read_keys.join()
     process_watch.join()
+    process_players.join()
     process_log.join()
     process_parse.join()
     process_keys.join()

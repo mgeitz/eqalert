@@ -2223,6 +2223,23 @@ def add_zone(zone, base_path):
         )
 
 
+def generate_players_file(player_data_file):
+    """Bootstrap Player Data File"""
+
+    try:
+        json_data = open(player_data_file, "w", encoding="utf-8")
+        json.dump(new_players_data, json_data, sort_keys=True, indent=2)
+        json_data.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "generate players file: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def build_config(base_path):
     """Build a default config"""
 
@@ -2271,10 +2288,27 @@ def build_config(base_path):
     },
     "timers": {
       "auto_mob_timer": "false",
-      "auto_mob_timer_delay": "10"
+      "auto_mob_timer_delay": "10",
+      "spell_timer_delay": "18",
+      "spell_timer_other": "true",
+      "spell_timer_other_guild_only": "false",
+      "spell_timer_self": "true"
     }
   },
   "version": "%s"
+}
+"""
+
+    new_players_data = """
+{
+  "server": {
+    "P1999Green": {
+      "players": {}
+    },
+    "project1999": {
+      "players": {}
+    }
+  }
 }
 """
 
