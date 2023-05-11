@@ -72,6 +72,93 @@ def process(state, configs, player_list, player_q, exit_flag, cfg_reload):
 
                 char_name = re.findall(r"(?<=\]\ )[a-zA-Z]+(?=[\ \(])", line)[0].lower()
 
+                char_class = char_class.lower()
+
+                if (
+                    char_class == "minstrel"
+                    or char_class == "troubadour"
+                    or char_class == "virtuoso"
+                ):
+                    char_class = "bard"
+                elif (
+                    char_class == "vicar"
+                    or char_class == "templar"
+                    or char_class == "high priest"
+                ):
+                    char_class = "cleric"
+                elif (
+                    char_class == "wanderer"
+                    or char_class == "preserver"
+                    or char_class == "hierophant"
+                ):
+                    char_class = "druid"
+                elif (
+                    char_class == "illusionist"
+                    or char_class == "beguiler"
+                    or char_class == "phantasmist"
+                ):
+                    char_class = "enchanter"
+                elif (
+                    char_class == "elementalist"
+                    or char_class == "conjurer"
+                    or char_class == "arch mage"
+                ):
+                    char_class = "magician"
+                elif (
+                    char_class == "disciple"
+                    or char_class == "master"
+                    or char_class == "grandmaster"
+                ):
+                    char_class = "monk"
+                elif (
+                    char_class == "heretic"
+                    or char_class == "defiler"
+                    or char_class == "warlock"
+                ):
+                    char_class = "necromancer"
+                elif (
+                    char_class == "cavalier"
+                    or char_class == "knight"
+                    or char_class == "crusader"
+                ):
+                    char_class = "paladin"
+                elif (
+                    char_class == "pathfinder"
+                    or char_class == "outrider"
+                    or char_class == "warder"
+                ):
+                    char_class = "ranger"
+                elif (
+                    char_class == "rake"
+                    or char_class == "blackguard"
+                    or char_class == "assassin"
+                ):
+                    char_class = "rogue"
+                elif (
+                    char_class == "reaver"
+                    or char_class == "revenant"
+                    or char_class == "grave lord"
+                ):
+                    char_class = "shadow knight"
+                elif (
+                    char_class == "mystic"
+                    or char_class == "luminary"
+                    or char_class == "oracle"
+                ):
+                    char_class = "shaman"
+                elif (
+                    char_class == "champion"
+                    or char_class == "myrmidon"
+                    or char_class == "warlord"
+                ):
+                    char_class = "warrior"
+                elif (
+                    char_class == "channeler"
+                    or char_class == "evoker"
+                    or char_class == "sorcerer"
+                ):
+                    char_class = "wizard"
+
                 if char_name in player_list.keys():
                     if (
                         char_guild != "none"
@@ -85,12 +172,12 @@ def process(state, configs, player_list, player_q, exit_flag, cfg_reload):
                         player_list[char_name]["level"] = char_level
                     if (
                         char_class != "unknown"
-                        and char_class.lower() != player_list[char_name]["class"]
+                        and char_class != player_list[char_name]["class"]
                     ):
-                        player_list[char_name]["class"] = char_class.lower()
+                        player_list[char_name]["class"] = char_class
                 else:
                     player_list[char_name] = {
-                        "class": char_class.lower(),
+                        "class": char_class,
                         "level": char_level,
                         "guild": char_guild,
                     }

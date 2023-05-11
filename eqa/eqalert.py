@@ -129,6 +129,9 @@ def startup(base_path):
                 + eq_spells_file_path
             )
 
+        # Generate spell-lines.json
+        update_spell_lines(data_path)
+
         # Generate Players File
         player_data_file = data_path + "players.json"
         if not os.path.isfile(player_data_file):
@@ -768,7 +771,14 @@ def main():
                         #### Restart process_players
                         process_players = threading.Thread(
                             target=eqa_players.process,
-                            args=(state, configs, player_list, player_q, exit_flag, cfg_reload),
+                            args=(
+                                state,
+                                configs,
+                                player_list,
+                                player_q,
+                                exit_flag,
+                                cfg_reload,
+                            ),
                         )
                         process_players.daemon = True
                         process_players.start()

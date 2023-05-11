@@ -2433,7 +2433,7 @@ def check_spell_specific(line):
                 re.fullmatch(r"^You feel your body pulse with energy\.$", line)
                 is not None
             ):
-                return "spell_line_haste_you_on"
+                return "spell_line_haste_stats_you_on"
                 # return "spell_augment_you_on"
                 # return "spell_augmentation_you_on"
                 # return "spell_inner_fire_you_on"
@@ -2568,7 +2568,7 @@ def check_spell_specific(line):
             elif (
                 re.fullmatch(r"^You feel your heart begin to race\.$", line) is not None
             ):
-                return "spell_line_haste_you_on"
+                return "spell_line_npc_item_haste_you_on"
                 # return "spell_blessing_of_the_grove_you_on"
                 # return "spell_haste_you_on"
                 # return "spell_swift_spirit_you_on"
@@ -2643,7 +2643,7 @@ def check_spell_specific(line):
                 return "spell_bone_shatter_you_on"
                 # return "spell_bone_shatter_you_cast"
             elif re.fullmatch(r"^You are enveloped in lava\.$", line) is not None:
-                return "spell_line_mag_ds_you_on"
+                return "spell_line_high_mag_ds_you_on"
                 # return "spell_boon_of_immolation_you_on"
                 # return "spell_shield_of_lava_you_on"
             elif re.fullmatch(r"^You feel\.\.\. strange\.$", line) is not None:
@@ -3715,7 +3715,7 @@ def check_spell_specific(line):
             ):
                 return "spell_inferno_of_alkabor_you_on"
             elif re.fullmatch(r"^You are enveloped in flame\.$", line) is not None:
-                return "spell_line_mag_ds_you_on"
+                return "spell_line_low_mag_ds_you_on"
                 # return "spell_inferno_shield_you_on"
                 # return "spell_shield_of_flame_you_on"
             elif re.fullmatch(r"^You are healed\.$", line) is not None:
@@ -7870,7 +7870,7 @@ def check_spell_specific(line):
             # return "spell_deadly_poison_other_on"
             # return "spell_dizzy_i_other_on"
             # return "spell_dizzy_ii_other_on"
-            # return "spell_dizzy_ii_other_on"
+            # return "spell_dizzy_iii_other_on"
             # return "spell_dizzy_iv_other_on"
             # return "spell_envenomed_bolt_other_on"
             # return "spell_feeble_mind_i_other_on"

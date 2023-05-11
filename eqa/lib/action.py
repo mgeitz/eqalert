@@ -52,9 +52,18 @@ def process(
     Produce: sound_q, display_q, system_q, encounter_q
     """
 
-    spell_casting_buffer = collections.deque(maxlen=20)
-
     try:
+        spell_casting_buffer = collections.deque(maxlen=20)
+        spell_timers = get_spell_timers(
+            configs.settings.config["settings"]["paths"]["data"]
+        )
+        spell_lines = get_spell_lines(
+            configs.settings.config["settings"]["paths"]["data"]
+        )
+        spell_casters = get_spell_casters(
+            configs.settings.config["settings"]["paths"]["data"]
+        )
+
         while not exit_flag.is_set() and not cfg_reload.is_set():
             # Sleep between empty checks
             queue_size = action_q.qsize()
@@ -201,22 +210,34 @@ def process(
                 if state.spell_timer_self == "true":
                     if re.fullmatch(r"^spell\_.+\_you_on$", line_type) is not None:
                         action_spell_timer(
+                            state,
                             timer_q,
                             line_type,
                             check_line,
                             state.spell_timer_delay,
                             spell_casting_buffer,
+                            spell_timers,
+                            spell_lines,
+                            spell_casters,
+                            player_list,
                         )
+                    elif re.fullmatch(r"^spell\_.+\_you_off$", line_type) is not None:
+                        action_spell_remove_timer(timer_q, spell_lines, line_type)
 
                 ## Other Spell Timers
                 if state.spell_timer_other == "true":
                     if re.fullmatch(r"^spell\_.+\_other_on$", line_type) is not None:
                         action_spell_timer(
+                            state,
                             timer_q,
                             line_type,
                             check_line,
                             state.spell_timer_delay,
                             spell_casting_buffer,
+                            spell_timers,
+                            spell_lines,
+                            spell_casters,
+                            player_list,
                         )
 
                 ## Consider Evaluation
@@ -393,20 +414,161 @@ def action_spell_casting(check_line, line_type, line_time, spell_casting_buffer)
     spell_casting_buffer.append({"caster": caster, "spell": spell, "time": line_time})
 
 
+def spell_formulas(formula, level, duration):
+    """Calculate spell duration"""
+
+    try:
+        if formula == "1":
+            if (int(level) / 2) < int(duration):
+                spell_duration = int(level) / 2
+            else:
+                spell_duration = int(duration)
+        elif formula == "2":
+            spell_duration = (int(duration) / 5) * 3
+        elif formula == "3":
+            if (int(level) * 30) < int(duration):
+                spell_duration = int(level) * 30
+            else:
+                spell_duration = int(duration)
+        elif formula == "4":
+            if int(duration) > 0:
+                spell_duration = int(duration)
+            else:
+                spell_duration = 50
+        elif formula == "5":
+            if int(duration) < 3:
+                spell_duration = int(duration)
+            else:
+                spell_duration = 3
+        elif formula == "6":
+            if (int(level) / 2) < int(duration):
+                spell_duration = int(level) / 2
+            else:
+                spell_duration = int(duration)
+        elif formula == "7":
+            if int(duration) != 0:
+                spell_duration = int(duration)
+            else:
+                spell_duration = int(level)
+        elif formula == "8":
+            if (int(level) + 10) < int(duration):
+                spell_duration = int(level) + 10
+            else:
+                spell_duration = int(duration)
+        elif formula == "9":
+            if ((int(level) * 2) + 10) < int(duration):
+                spell_duration = (int(level) * 2) + 10
+            else:
+                spell_duration = int(duration)
+        elif formula == "10":
+            if ((int(level) * 3) + 10) < int(duration):
+                spell_duration = (int(level) * 3) + 10
+            else:
+                spell_duration = int(duration)
+        elif formula == "11":
+            spell_duration = int(duration)
+        elif formula == "12":
+            spell_duration = int(duration)
+        elif formula == "50":
+            spell_duration = 72000
+        elif formula == "3600":
+            if int(duration) != 0:
+                spell_duration = int(duration)
+            else:
+                spell_duration = 3600
+        else:
+            spell_duration = 0
+
+        return spell_duration * 6
+
+    except Exception as e:
+        eqa_settings.log(
+            "spell formulas: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_spell_remove_timer(timer_q, spell_lines, line_type):
+    """Remove timer for spell that dropped"""
+
+    try:
+        # send message to timer_q, have timer_q consume message and remove any timers on you for target spell
+        pass
+
+    except Exception as e:
+        eqa_settings.log(
+            "acton spell remove timer: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def action_spell_timer(
-    timer_q, line_type, line, spell_timer_delay, spell_casting_buffer
+    state,
+    timer_q,
+    line_type,
+    line,
+    spell_timer_delay,
+    spell_casting_buffer,
+    spell_timers,
+    spell_lines,
+    spell_casters,
+    player_list,
 ):
     """Set timer for spell duration"""
 
     try:
-        # determine spell from spell_*_*_on line type
-        # determine spell forumla
-        # if spell formula needs a level
-        #   determine spell caster - buffer spells_cast_other line_type events and check those after a spell_*_*_on line type for most recent cast at least a spell cast duration ago of the right class?
-        #   determine spell caster level? Build player database of sorts from /who output? Use class info to help determine caster? This feels like overkill
-        # determine spell target, ezpz
-        # determine spell duration
+        guess_spell = False
 
+        if (
+            re.fullmatch(r"^spell\_line\_[a-zA-Z\s\_]+(?=\_you\_on)", line_type)
+            is not None
+        ):
+            target = state.char
+            spell_line = re.findall(
+                r"(?<=spell\_line\_)[a-zA-Z\s\_]+(?=\_you\_on)", line
+            )
+            guess_spell = True
+        elif (
+            re.fullmatch(r"^spell\_line\_[a-zA-Z\s\_]+(?=\_other\_on)", line_type)
+            is not None
+        ):
+            target = re.findall(r"(?:^|(?:[.!?]\s))(\w+)", line)
+            spell_line = re.findall(
+                r"(?<=spell\_line\_)[a-zA-Z\s\_]+(?=\_other\_on)", line
+            )
+            guess_spell = True
+        elif re.fullmatch(r".+\_you\_on$", line_type) is not None:
+            spell = re.findall(r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_you\_on)", line)
+            target = state.char
+        elif re.fullmatch(r".+\_other\_on", line_type) is not None:
+            spell = re.findall(r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_other\_on)", line)
+            target = re.findall(r"(?:^|(?:[.!?]\s))(\w+)", line)
+
+        # if guess_spell:
+        # retrieve possible spells from spell-lines.json
+        # for each spell
+        # retrieve all possible class/level casters from spell-casters.json
+        # else
+        # retrieve all possible class/level casters from spell-casters.json
+
+        # for each spell cast_time
+        # check if spell cast buffer +/- 1s has event
+        # if player in player list
+        # check character class/level against spell requirement
+        # keep highest level match
+        # else:
+        # if no player matches, maybe an npc
+        # check if any possible spells are npc spells
+        # otherwise assume it is an NPC of state.level (your level)
+        # no matching events in the spell cast buffer, give up
+
+        # if spell_event is found:
+        # retrieve spell duration
+        # set target, caster, spell, duration
         # submit timer
         # timer_seconds = int(spell_duration) - int(spell_timer_delay)
         # if int(spell_timer_delay) <= 0:
