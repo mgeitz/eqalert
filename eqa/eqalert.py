@@ -132,6 +132,9 @@ def startup(base_path):
         # Generate spell-lines.json
         update_spell_lines(data_path)
 
+        # Generate spell-casters.json
+        update_spell_casters(data_path)
+
         # Generate Players File
         player_data_file = data_path + "players.json"
         if not os.path.isfile(player_data_file):
