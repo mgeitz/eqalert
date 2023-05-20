@@ -22,6 +22,7 @@ from collections import deque
 import sys
 import time
 import re
+import datetime
 
 import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
@@ -56,7 +57,12 @@ def process(exit_flag, log_q, action_q):
                 ):
                     ### Split timestamp and message payload
                     timestamp, payload = line[1:].split("] ", 1)
-                    timestamp = timestamp.split(" ")[3] + ".00"
+                    timestamp = (
+                        timestamp.split(" ")[3]
+                        + "."
+                        + datetime.datetime.now().strftime("%f")[:1]
+                        + "0"
+                    )
                     ### Determine line type
                     line_type = determine(payload)
                     ### Build and queue action
@@ -6404,7 +6410,7 @@ def check_spell_specific(line):
             ):
                 return "spell_call_of_the_zero_you_on"
             elif (
-                re.fullmatch(r"^A soft breeze slips through your mind\.\.$", line)
+                re.fullmatch(r"^A soft breeze slips through your mind(\.|)\.$", line)
                 is not None
             ):
                 return "spell_line_clarity_ii_you_on"

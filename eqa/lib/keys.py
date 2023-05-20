@@ -318,6 +318,8 @@ def process(
                                 option = "spell_other"
                             elif option == "spell_other":
                                 option = "spell_guild"
+                            elif option == "spell_guild":
+                                option = "spell_guess"
                             elif option == "spell_guess":
                                 pass
                             display_q.put(
@@ -359,7 +361,7 @@ def process(
                                         "null",
                                     )
                                 )
-                            elif option == "autoraid" and state.autoraid == "true":
+                            elif option == "autoraid" and state.auto_raid == "true":
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
@@ -512,7 +514,7 @@ def process(
                                         "all",
                                     )
                                 )
-                            elif option == "autoraid" and state.autoraid == "false":
+                            elif option == "autoraid" and state.auto_raid == "false":
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),

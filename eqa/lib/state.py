@@ -195,10 +195,10 @@ class EQA_State:
         """Set Spell Timer Other"""
         self.spell_timer_other = spell_timer_other
 
-    def set_spell_timer_guild_only(self, spell_timer_):
+    def set_spell_timer_guild_only(self, spell_timer_guild_only):
         """Set Spell Timer Guild Only"""
         self.spell_timer_guild_only = spell_timer_guild_only
 
-    def set_spell_timer_(self, spell_timer_self):
+    def set_spell_timer_self(self, spell_timer_self):
         """Set Spell Timer Self"""
         self.spell_timer_self = spell_timer_self

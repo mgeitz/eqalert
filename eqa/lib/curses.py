@@ -1602,9 +1602,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(14, first_q, "Self Spell Timers", curses.color_pair(1))
         optscr.addstr(14, second_third, "[", curses.color_pair(3))
-        if state.detect_char == "true":
+        if state.spell_timer_self == "true":
             optscr.addstr(14, second_third + 1, "on", curses.color_pair(5))
-        elif state.detect_char == "false":
+        elif state.spell_timer_self == "false":
             optscr.addstr(14, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(14, second_third + 7, "]", curses.color_pair(3))
 
@@ -1620,9 +1620,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(15, first_q, "Other Spell Timers", curses.color_pair(1))
         optscr.addstr(15, second_third, "[", curses.color_pair(3))
-        if state.detect_char == "true":
+        if state.spell_timer_other == "true":
             optscr.addstr(15, second_third + 1, "on", curses.color_pair(5))
-        elif state.detect_char == "false":
+        elif state.spell_timer_other == "false":
             optscr.addstr(15, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(15, second_third + 7, "]", curses.color_pair(3))
 
@@ -1638,9 +1638,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(16, first_q, "Guild Timer Filter", curses.color_pair(1))
         optscr.addstr(16, second_third, "[", curses.color_pair(3))
-        if state.detect_char == "true":
+        if state.spell_timer_guild_only == "true":
             optscr.addstr(16, second_third + 1, "on", curses.color_pair(5))
-        elif state.detect_char == "false":
+        elif state.spell_timer_guild_only == "false":
             optscr.addstr(16, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(16, second_third + 7, "]", curses.color_pair(3))
 
@@ -1656,9 +1656,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(17, first_q, "Guess Spells", curses.color_pair(1))
         optscr.addstr(17, second_third, "[", curses.color_pair(3))
-        if state.detect_char == "true":
+        if state.spell_timer_guess == "true":
             optscr.addstr(17, second_third + 1, "on", curses.color_pair(5))
-        elif state.detect_char == "false":
+        elif state.spell_timer_guess == "false":
             optscr.addstr(17, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(17, second_third + 7, "]", curses.color_pair(3))
 

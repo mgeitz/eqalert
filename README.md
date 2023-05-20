@@ -83,7 +83,7 @@ Many spells cast in EverQuest share the same log output lines.  EQ Alert will ge
 
 ### Players
 
-EQ Alert uses in-game `/who` output to keep an up-to-date list of each seen players class, level, and guild organized by server in `data/players.json`.
+EQ Alert uses in-game `/who` output to keep an up-to-date list of each seen players class, level, and guild organized by server in `data/players.json` for alerting spell duration.
 
 
 ## Controls
@@ -181,7 +181,7 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 `/say parser hello` - Hello
 
-`/say parser who` - Who am I?
+`/say parser who [player_name]` - Speaks player level, class, and guild if known
 
 `/say parser where` - Where am I?
 
@@ -206,6 +206,7 @@ Settings and options can be modified in `config/settings.json`
 - `spell timer other`: Set spell timers for spells that land on other players
 - `spell timer guild only`: Filter all spell timer events so they are only for yourself or guild members
 - `spell timer self`: Set spell timers for spells that land on yourself
+- `persist player data`: Save /who player output for spell timers
 
 
 ## Custom Alerting

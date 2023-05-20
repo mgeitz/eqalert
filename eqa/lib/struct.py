@@ -23,6 +23,10 @@ from collections import namedtuple
 message = namedtuple("data", ["timestamp", "type", "tx", "rx", "payload"])
 display = namedtuple("data", ["timestamp", "type", "screen", "payload"])
 timer = namedtuple("data", ["time", "type", "seconds", "payload"])
+spell_timer = namedtuple(
+    "data",
+    ["time", "type", "caster", "target", "spell", "duration", "landed", "payload"],
+)
 sound = namedtuple("data", ["sound", "payload"])
 config_file = namedtuple("data", ["name", "path", "config"])
 configs = namedtuple(

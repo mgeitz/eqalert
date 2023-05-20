@@ -29,7 +29,7 @@ import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
 
 
-def process(configs, timer_q, sound_q, display_q, exit_flag, cfg_reload):
+def process(configs, state, timer_q, sound_q, display_q, exit_flag, cfg_reload):
     """
     Process: timer_q
     Produce: display_q, sound_q
@@ -112,9 +112,12 @@ def process(configs, timer_q, sound_q, display_q, exit_flag, cfg_reload):
                         tock = False
                 elif timer_event.type == "timer":
                     heapq.heappush(timers, timer_event)
+                elif timer_event.type == "spell":
+                    # add_spell_timer(timers, timer_event)
+                    heapq.heappush(timers, timer_event)
                 elif timer_event.type == "remove timer":
-                    timers = remove_timer(timers, timer_event)
-                    heapq.heapify(timers)
+                    timers = remove_spell_timer(state, timers, timer_event)
+                    eqa_settings.log("New timer set: " + str(timers))
                 elif timer_event.type == "metronome_stop":
                     if len(timers) == 0:
                         metronome_stop = False
@@ -222,18 +225,60 @@ def process(configs, timer_q, sound_q, display_q, exit_flag, cfg_reload):
     sys.exit()
 
 
-def remove_timer(timers, timer_event):
+def remove_spell_timer(state, timers, remove_timer):
     """Remove some timers"""
 
     try:
-        count = 0
-        for timer in timers:
-            if timer.type == "timer":
-                if str(timer.seconds) == timer_event.seconds:
-                    timer.pop(count)
-            count = count + 1
+        if state.debug == "true":
+            eqa_settings.log("Removal request: " + remove_timer.seconds)
+        new_timers = []
+        for timer_event in timers:
+            if timer_event.type == "timer":
+                if timer_event.seconds == remove_timer.seconds:
+                    if state.debug == "true":
+                        eqa_settings.log("Removing timer: " + timer_event.seconds)
+                else:
+                    if state.debug == "true":
+                        eqa_settings.log("Keeping timer: " + timer_event.seconds)
+                    heapq.heappush(new_timers, timer_event)
+            else:
+                if state.debug == "true":
+                    eqa_settings.log("Keeping timer: " + timer_event.seconds)
+                heapq.heappush(new_timers, timer_event)
 
-        return timers
+        return new_timers
+
+    except Exception as e:
+        eqa_settings.log(
+            "Remove timer: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def add_spell_timer(state, timers, remove_timer):
+    """Add a timers"""
+
+    try:
+        if state.debug == "true":
+            eqa_settings.log("Removal request: " + remove_timer.seconds)
+        new_timers = []
+        for timer_event in timers:
+            if timer_event.type == "timer":
+                if timer_event.seconds == remove_timer.seconds:
+                    if state.debug == "true":
+                        eqa_settings.log("Removing timer: " + timer_event.seconds)
+                else:
+                    if state.debug == "true":
+                        eqa_settings.log("Keeping timer: " + timer_event.seconds)
+                    heapq.heappush(new_timers, timer_event)
+            else:
+                if state.debug == "true":
+                    eqa_settings.log("Keeping timer: " + timer_event.seconds)
+                heapq.heappush(new_timers, timer_event)
+
+        return new_timers
 
     except Exception as e:
         eqa_settings.log(
