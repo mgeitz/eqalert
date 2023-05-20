@@ -2120,6 +2120,31 @@ def set_last_state(state, configs):
                 "auto_mob_timer_delay": str(state.auto_mob_timer_delay),
             }
         )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_delay": str(state.spell_timer_delay),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_guess": str(state.spell_timer_guess),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_other": str(state.spell_timer_other),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_guild_only": str(state.spell_timer_guild_only),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_self": str(state.spell_timer_self),
+            }
+        )
         configs.settings.config["settings"]["consider_eval"].update(
             {"enabled": str(state.consider_eval)}
         )
@@ -2249,6 +2274,21 @@ def get_last_state(configs, char_name, char_server):
         auto_mob_timer_delay = configs.settings.config["settings"]["timers"][
             "auto_mob_timer_delay"
         ]
+        spell_timer_delay = configs.settings.config["settings"]["timers"][
+            "spell_timer_delay"
+        ]
+        spell_timer_guess = configs.settings.config["settings"]["timers"][
+            "spell_timer_guess"
+        ]
+        spell_timer_other = configs.settings.config["settings"]["timers"][
+            "spell_timer_other"
+        ]
+        spell_timer_guild_only = configs.settings.config["settings"]["timers"][
+            "spell_timer_guild_only"
+        ]
+        spell_timer_self = configs.settings.config["settings"]["timers"][
+            "spell_timer_self"
+        ]
         mute = configs.settings.config["settings"]["mute"]["enabled"]
 
         # Get chars
@@ -2280,6 +2320,11 @@ def get_last_state(configs, char_name, char_server):
             auto_mob_timer_delay,
             consider_eval,
             detect_char,
+            spell_timer_delay,
+            spell_timer_guess,
+            spell_timer_other,
+            spell_timer_guild_only,
+            spell_timer_self,
         )
 
         return state
@@ -2408,8 +2453,9 @@ def build_config(base_path):
       "auto_mob_timer": "false",
       "auto_mob_timer_delay": "10",
       "spell_timer_delay": "18",
+      "spell_timer_guess": "true",
       "spell_timer_other": "true",
-      "spell_timer_other_guild_only": "false",
+      "spell_timer_guild_only": "false",
       "spell_timer_self": "true"
     }
   },

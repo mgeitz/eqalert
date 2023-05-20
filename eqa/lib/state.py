@@ -50,6 +50,11 @@ class EQA_State:
         auto_mob_timer_delay,
         consider_eval,
         detect_char,
+        spell_timer_delay,
+        spell_timer_guess,
+        spell_timer_other,
+        spell_timer_guild_only,
+        spell_timer_self,
     ):
         """All States"""
         self.char = char
@@ -76,6 +81,11 @@ class EQA_State:
         self.auto_mob_timer_delay = auto_mob_timer_delay
         self.consider_eval = consider_eval
         self.detect_char = detect_char
+        self.spell_timer_delay = spell_timer_delay
+        self.spell_timer_guess = spell_timer_guess
+        self.spell_timer_other = spell_timer_other
+        self.spell_timer_guild_only = spell_timer_guild_only
+        self.spell_timer_self = spell_timer_self
 
     def set_char(self, char):
         """Set Character"""
@@ -172,3 +182,23 @@ class EQA_State:
     def set_detect_char(self, detect_char):
         """Toggle Automatic Character Detection"""
         self.detect_char = detect_char
+
+    def set_spell_timer_delay(self, spell_timer_delay):
+        """Set Spell Timer Delay"""
+        self.spell_timer_delay = spell_timer_delay
+
+    def set_spell_timer_guess(self, spell_timer_guess):
+        """Set Spell Timer Guess"""
+        self.spell_timer_guess = spell_timer_guess
+
+    def set_spell_timer_other(self, spell_timer_other):
+        """Set Spell Timer Other"""
+        self.spell_timer_other = spell_timer_other
+
+    def set_spell_timer_guild_only(self, spell_timer_):
+        """Set Spell Timer Guild Only"""
+        self.spell_timer_guild_only = spell_timer_guild_only
+
+    def set_spell_timer_(self, spell_timer_self):
+        """Set Spell Timer Self"""
+        self.spell_timer_self = spell_timer_self

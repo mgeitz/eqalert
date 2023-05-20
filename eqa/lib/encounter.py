@@ -1928,7 +1928,7 @@ def prune_encounter_stack(encounter_end_time, encounter_stack):
                 event = encounter_stack.popleft()
                 time, source, target, mode, result = event
                 this_hour, this_minute, this_second_m = time.split(":")
-                this_second, this_milli = last_second_m.split(".")
+                this_second, this_milli = this_second_m.split(".")
                 this_message_time = datetime(
                     2020, 12, 30, int(this_hour), int(this_minute), int(this_second)
                 )

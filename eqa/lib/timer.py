@@ -112,6 +112,9 @@ def process(configs, timer_q, sound_q, display_q, exit_flag, cfg_reload):
                         tock = False
                 elif timer_event.type == "timer":
                     heapq.heappush(timers, timer_event)
+                elif timer_event.type == "remove timer":
+                    timers = remove_timer(timers, timer_event)
+                    heapq.heapify(timers)
                 elif timer_event.type == "metronome_stop":
                     if len(timers) == 0:
                         metronome_stop = False
@@ -217,6 +220,28 @@ def process(configs, timer_q, sound_q, display_q, exit_flag, cfg_reload):
         )
 
     sys.exit()
+
+
+def remove_timer(timers, timer_event):
+    """Remove some timers"""
+
+    try:
+        count = 0
+        for timer in timers:
+            if timer.type == "timer":
+                if str(timer.seconds) == timer_event.seconds:
+                    timer.pop(count)
+            count = count + 1
+
+        return timers
+
+    except Exception as e:
+        eqa_settings.log(
+            "Remove timer: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
 
 
 if __name__ == "__main__":

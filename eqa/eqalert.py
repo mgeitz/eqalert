@@ -572,6 +572,13 @@ def main():
                             state.set_auto_mob_timer_delay(
                                 new_state.auto_mob_timer_delay
                             )
+                            state.set_spell_timer_delay(new_state.spell_timer_delay)
+                            state.set_spell_timer_guess(new_state.spell_timer_guess)
+                            state.set_spell_timer_other(new_state.spell_timer_other)
+                            state.set_spell_timer_guild_only(
+                                new_state.spell_timer_guild_only
+                            )
+                            state.set_spell_timer_self(new_state.spell_timer_self)
                             state.set_consider_eval(new_state.consider_eval)
                             eqa_config.set_last_state(state, configs)
                             char_log = new_char_log
@@ -637,6 +644,13 @@ def main():
                         state.set_auto_raid(new_state.auto_raid)
                         state.set_auto_mob_timer(new_state.auto_mob_timer)
                         state.set_auto_mob_timer_delay(new_state.auto_mob_timer_delay)
+                        state.set_spell_timer_delay(new_state.spell_timer_delay)
+                        state.set_spell_timer_guess(new_state.spell_timer_guess)
+                        state.set_spell_timer_other(new_state.spell_timer_other)
+                        state.set_spell_timer_guild_only(
+                            new_state.spell_timer_guild_only
+                        )
+                        state.set_spell_timer_self(new_state.spell_timer_self)
                         state.set_consider_eval(new_state.consider_eval)
                         #### Stop state dependent processes
                         cfg_reload.set()
@@ -700,6 +714,7 @@ def main():
                                 exit_flag,
                                 cfg_reload,
                                 mute_list,
+                                player_list,
                             ),
                         )
                         process_action.daemon = True

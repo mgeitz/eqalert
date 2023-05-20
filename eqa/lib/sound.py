@@ -160,6 +160,7 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])lfg(?=[^A-z])", "looking for group", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])lguk(?=[^A-z])", "lower guck", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])ls(?=[^A-z])", "lavastorm", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])lvl(?=[^A-z])", "level", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])ma(?=[^A-z])", "main assist", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])med(?=[^A-z])", "meditate", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])mt(?=[^A-z])", "mistell", line, flags=re.I)
