@@ -426,12 +426,15 @@ def main():
                     ### Update afk status
                     elif new_message.tx == "afk":
                         system_afk(configs, state, display_q, new_message)
+
                     ### Update raid status
                     elif new_message.tx == "raid":
                         system_raid(configs, state, display_q, sound_q, new_message)
+
                     ### Update consider eval status
                     elif new_message.tx == "consider":
                         system_consider(configs, state, display_q, sound_q, new_message)
+
                     ### Update detect character status
                     elif new_message.tx == "detect_char":
                         system_detect_char(
@@ -440,6 +443,7 @@ def main():
                     ### Update debug status
                     elif new_message.tx == "debug":
                         system_debug(configs, state, display_q, sound_q, new_message)
+
                     ### Update encounter parse status
                     elif new_message.tx == "encounter":
                         system_encounter(
@@ -450,6 +454,7 @@ def main():
                             encounter_q,
                             new_message,
                         )
+
                     ### Update group status
                     elif new_message.tx == "group":
                         state.set_group(new_message.payload)
@@ -459,6 +464,7 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
+
                     ### Update group leader status
                     elif new_message.tx == "leader":
                         state.set_leader(new_message.payload)
@@ -468,6 +474,7 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
+
                     ### Update encumbered status
                     elif new_message.tx == "encumbered":
                         state.set_encumbered(new_message.payload)
@@ -477,9 +484,15 @@ def main():
                                 eqa_settings.eqa_time(), "draw", "redraw", "null"
                             )
                         )
+
                     ### Update automatic timer status
                     elif new_message.tx == "timer":
                         system_timer(configs, state, display_q, sound_q, new_message)
+
+                    ### Update spell timer status
+                    elif new_message.tx == "spell":
+                        system_spell_timer(state, display_q, sound_q, new_message)
+
                     ### Update bind status
                     elif new_message.tx == "bind":
                         state.set_bind(new_message.payload)
@@ -519,6 +532,7 @@ def main():
                     ### Update mute status
                     elif new_message.tx == "mute":
                         system_mute(configs, state, display_q, sound_q, new_message)
+
                     ### Update character
                     elif new_message.tx == "new_character":
                         #### Handle new character created since eqalert launch
@@ -1050,7 +1064,146 @@ def system_timer(configs, state, display_q, sound_q, new_message):
 
     except Exception as e:
         eqa_settings.log(
-            "system debug: Error on line "
+            "system timers: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def system_spell_timer(state, display_q, sound_q, new_message):
+    """Update spell timer states"""
+
+    try:
+        if new_message.rx == "self":
+            if state.set_spell_timer_self == "true":
+                state.set_spell_timer_self = "false"
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Spell timers disabled for spells targetting you",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Spell timers disabled for spells targetting you"
+                    )
+                )
+            else:
+                state.set_spell_timer_self = "true"
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Spell timers enabled for spells targetting you",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Spell timers enabled for spells targetting you"
+                    )
+                )
+        elif new_message.rx == "other":
+            if state.set_spell_timer_other == "true":
+                state.set_spell_timer_other = "false"
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Spell timers disabled for spells targetting others",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Spell timers disabled for spells targetting others"
+                    )
+                )
+            else:
+                state.set_spell_timer_other = "true"
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Spell timers enabled for spells targetting others",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Spell timers enabled for spells targetting others"
+                    )
+                )
+        elif new_message.rx == "guild":
+            if state.set_spell_timer_guild_only == "true":
+                state.set_spell_timer_guild_only = "false"
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Spell timers will no longer filter for guild members",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Spell timers will no longer filter for guild members"
+                    )
+                )
+            else:
+                state.set_spell_timer_guild_only = "true"
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Spell timers will filter for guild members",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Spell timers will filter for guild members"
+                    )
+                )
+        elif new_message.rx == "guess":
+            if state.set_spell_timer_guess == "true":
+                state.set_spell_timer_guess = "false"
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Spell timers will no longer guess some uncertain spell timers",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak",
+                        "Spell timers will no longer guess some uncertain spell timers",
+                    )
+                )
+            else:
+                state.set_spell_timer_guess = "true"
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Spell timers will guess some uncertain spell timers",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Spell timers will guess some uncertain spell timers"
+                    )
+                )
+
+    except Exception as e:
+        eqa_settings.log(
+            "system spell timers: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)

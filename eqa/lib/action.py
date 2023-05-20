@@ -529,9 +529,7 @@ def action_spell_remove_timer(timer_q, spell_lines, line_type):
                 # Submit timer removal
                 timer_q.put(
                     eqa_struct.timer(
-                        (
-                            datetime.datetime.now()
-                        ),
+                        (datetime.datetime.now()),
                         "remove timer",
                         spell + "_" + state.char.lower(),
                         "remove timer",
@@ -542,9 +540,7 @@ def action_spell_remove_timer(timer_q, spell_lines, line_type):
             # Submit timer removal
             timer_q.put(
                 eqa_struct.timer(
-                    (
-                        datetime.datetime.now()
-                    ),
+                    (datetime.datetime.now()),
                     "remove timer",
                     spell + "_" + state.char.lower(),
                     "remove timer",

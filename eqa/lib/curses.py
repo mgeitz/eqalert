@@ -1590,6 +1590,78 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
             optscr.addstr(13, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(13, second_third + 7, "]", curses.color_pair(3))
 
+        # Spell Timer Self
+        if s_option == "spell_self" and s_setting == "option":
+            optscr.addstr(14, first_q - 1, "Self Spell Timers", curses.color_pair(4))
+            optscr.addstr(
+                2,
+                first_q - 2,
+                "Spells targetting you",
+                curses.color_pair(3),
+            )
+        else:
+            optscr.addstr(14, first_q, "Self Spell Timers", curses.color_pair(1))
+        optscr.addstr(14, second_third, "[", curses.color_pair(3))
+        if state.detect_char == "true":
+            optscr.addstr(14, second_third + 1, "on", curses.color_pair(5))
+        elif state.detect_char == "false":
+            optscr.addstr(14, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(14, second_third + 7, "]", curses.color_pair(3))
+
+        # Spell Timer Other
+        if s_option == "spell_other" and s_setting == "option":
+            optscr.addstr(15, first_q - 1, "Other Spell Timers", curses.color_pair(4))
+            optscr.addstr(
+                2,
+                first_q - 2,
+                "Spells targetting others",
+                curses.color_pair(3),
+            )
+        else:
+            optscr.addstr(15, first_q, "Other Spell Timers", curses.color_pair(1))
+        optscr.addstr(15, second_third, "[", curses.color_pair(3))
+        if state.detect_char == "true":
+            optscr.addstr(15, second_third + 1, "on", curses.color_pair(5))
+        elif state.detect_char == "false":
+            optscr.addstr(15, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(15, second_third + 7, "]", curses.color_pair(3))
+
+        # Spell Timer Guild Only
+        if s_option == "spell_guild" and s_setting == "option":
+            optscr.addstr(16, first_q - 1, "Guild Timer Filter", curses.color_pair(4))
+            optscr.addstr(
+                2,
+                first_q - 2,
+                "Filter for spells on guildies",
+                curses.color_pair(3),
+            )
+        else:
+            optscr.addstr(16, first_q, "Guild Timer Filter", curses.color_pair(1))
+        optscr.addstr(16, second_third, "[", curses.color_pair(3))
+        if state.detect_char == "true":
+            optscr.addstr(16, second_third + 1, "on", curses.color_pair(5))
+        elif state.detect_char == "false":
+            optscr.addstr(16, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(16, second_third + 7, "]", curses.color_pair(3))
+
+        # Spell Timer Guessing
+        if s_option == "spell_guess" and s_setting == "option":
+            optscr.addstr(17, first_q - 1, "Guess Spells", curses.color_pair(4))
+            optscr.addstr(
+                2,
+                first_q - 2,
+                "Make a guess instead of nothing",
+                curses.color_pair(3),
+            )
+        else:
+            optscr.addstr(17, first_q, "Guess Spells", curses.color_pair(1))
+        optscr.addstr(17, second_third, "[", curses.color_pair(3))
+        if state.detect_char == "true":
+            optscr.addstr(17, second_third + 1, "on", curses.color_pair(5))
+        elif state.detect_char == "false":
+            optscr.addstr(17, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(17, second_third + 7, "]", curses.color_pair(3))
+
     except Exception as e:
         eqa_settings.log(
             "draw settings options: Error on line "
