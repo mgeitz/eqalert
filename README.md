@@ -69,9 +69,21 @@ Spot check these default paths generated in `config/settings.json`
 
 ### Spell Timers
 
-EQ Alert will generate a file for spell timers in `~/.eqa/data/spell-timers.json` by default by parsing `spells_us.txt` in your EverQuest directory.
+EQ Alert will generate a file for spell timers in `data/spell-timers.json` by default by parsing `spells_us.txt` in your EverQuest directory.
 
 This file will only regenerate if it is missing, malformed, or a newer `spells_us.txt` file is present.
+
+### Spell Casters
+
+EQ Alert will generate/overwrite `data/spell-casters.json` each version.  This file contains which classes can cast a given buff which timers should be made for.
+
+### Spell Lines
+
+Many spells cast in EverQuest share the same log output lines.  EQ Alert will generate/overwrite `data/spell-lines.json` each version as a mapping of which possible spells a given output line could be associated to.
+
+### Players
+
+EQ Alert uses in-game `/who` output to keep an up-to-date list of each seen players class, level, and guild organized by server in `data/players.json`.
 
 
 ## Controls
@@ -172,6 +184,28 @@ You can control some parser settings using `/say` in-game.  This is better suite
 `/say parser who` - Who am I?
 
 `/say parser where` - Where am I?
+
+
+## Settings & Options
+
+Settings and options can be modified in `config/settings.json`
+
+- `consider eval`: Speak "safe" or "danger" based on consider output
+- `debug mode`: Slows down parser performance and produces lots of file output
+- `detect character`: Automatically set parser to listen to the most recently active eqlog
+- `encounter parsing`: Parse encounter damage
+- `encounter parsing auto save`: Save verbose encounter parse results to a file
+- `mute`: Disable all text-to-speech output
+- `speech expand lingo`: When speaking a line, replace common EQ abbreviations with complete words
+- `speech tld`: Top-level domain for the Google Translate host - [gTTS documentation reference](https://gtts.readthedocs.io/en/latest/module.html)
+- `speech lang`: The language (IETF language tag) to read the text in - [gTTS documentation reference](https://gtts.readthedocs.io/en/latest/module.html)
+- `auto mob timer`: Create timer events after gaining experience for a duration based on the zone you are in
+- `auto mob timer delay`: Set a delay for the auto mob timer notification n seconds before the actual event
+- `spell timer delay`: Set a delay for all spell timer notifications n seconds before the actual event
+- `spell timer guess`: If there is moderate uncertainty in guessing a spell, go for it
+- `spell timer other`: Set spell timers for spells that land on other players
+- `spell timer guild only`: Filter all spell timer events so they are only for yourself or guild members
+- `spell timer self`: Set spell timers for spells that land on yourself
 
 
 ## Custom Alerting
