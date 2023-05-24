@@ -118,6 +118,11 @@ def startup(base_path):
             print("    - making a place for data")
             os.makedirs(data_path)
 
+        # Generate timers directory
+        timers_save_directory = data_path + "timers/"
+        if not os.path.exists(timers_save_directory):
+            os.makedirs(timers_save_directory)
+
         # Generate Spell Timers
         eq_spells_file_path = eq_files_path + "spells_us.txt"
         if os.path.isfile(eq_spells_file_path):
@@ -199,7 +204,7 @@ def main():
     # Thread Events
     cfg_reload = threading.Event()
     exit_flag = threading.Event()
-    log_reload = threading.Event()
+    change_char = threading.Event()
 
     # Queues
     action_q = queue.Queue()
@@ -226,7 +231,7 @@ def main():
     ## Produce log_q
     process_log = threading.Thread(
         target=eqa_log.process,
-        args=(log_reload, exit_flag, char_log, log_q),
+        args=(change_char, exit_flag, char_log, log_q),
     )
     process_log.daemon = True
     process_log.start()
@@ -289,6 +294,7 @@ def main():
             exit_flag,
             cfg_reload,
             mute_list,
+            change_char,
         ),
     )
     process_action.daemon = True
@@ -353,7 +359,16 @@ def main():
     ## Produce sound_q, display_q
     process_timer = threading.Thread(
         target=eqa_timer.process,
-        args=(configs, state, timer_q, sound_q, display_q, exit_flag, cfg_reload),
+        args=(
+            configs,
+            state,
+            timer_q,
+            sound_q,
+            display_q,
+            exit_flag,
+            cfg_reload,
+            change_char,
+        ),
     )
     process_timer.daemon = True
     process_timer.start()
@@ -541,10 +556,12 @@ def main():
                         if os.path.exists(new_char_log):
                             # Record old char state before swapping
                             eqa_config.set_last_state(state, configs)
-                            # Stop watch on current log
-                            log_reload.set()
+                            # Stop watch on current log, save timers and reload players
+                            change_char.set()
+                            process_action.join()
                             process_log.join()
-                            log_reload.clear()
+                            process_timer.join()
+                            change_char.clear()
                             # Set new character
                             char_name, char_server = new_message.payload.split("_")
                             new_state = eqa_config.get_last_state(
@@ -582,13 +599,55 @@ def main():
                             state.set_consider_eval(new_state.consider_eval)
                             eqa_config.set_last_state(state, configs)
                             char_log = new_char_log
+
                             # Start new log watch
                             process_log = threading.Thread(
                                 target=eqa_log.process,
-                                args=(log_reload, exit_flag, char_log, log_q),
+                                args=(change_char, exit_flag, char_log, log_q),
                             )
                             process_log.daemon = True
                             process_log.start()
+
+                            #### Restart process_timer
+                            process_timer = threading.Thread(
+                                target=eqa_timer.process,
+                                args=(
+                                    configs,
+                                    state,
+                                    timer_q,
+                                    sound_q,
+                                    display_q,
+                                    exit_flag,
+                                    cfg_reload,
+                                    change_char,
+                                ),
+                            )
+                            process_timer.daemon = True
+                            process_timer.start()
+
+                            #### Restart process_action
+                            process_action = threading.Thread(
+                                target=eqa_action.process,
+                                args=(
+                                    configs,
+                                    base_path,
+                                    state,
+                                    action_q,
+                                    encounter_q,
+                                    timer_q,
+                                    system_q,
+                                    display_q,
+                                    sound_q,
+                                    exit_flag,
+                                    cfg_reload,
+                                    mute_list,
+                                    change_char,
+                                ),
+                            )
+                            process_action.daemon = True
+                            process_action.start()
+
+                            # Display notification
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -713,6 +772,7 @@ def main():
                                 exit_flag,
                                 cfg_reload,
                                 mute_list,
+                                change_char,
                             ),
                         )
                         process_action.daemon = True
@@ -772,6 +832,7 @@ def main():
                                 display_q,
                                 exit_flag,
                                 cfg_reload,
+                                change_char,
                             ),
                         )
                         process_timer.daemon = True

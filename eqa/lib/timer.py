@@ -29,37 +29,43 @@ import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
 
 
-def process(configs, state, timer_q, sound_q, display_q, exit_flag, cfg_reload):
+def process(
+    configs, state, timer_q, sound_q, display_q, exit_flag, cfg_reload, change_char
+):
     """
     Process: timer_q
     Produce: display_q, sound_q
     """
 
-    timers = []
-    tock = False
-    metronome_stop = False
-    saved_timers_path = (
-        configs.settings.config["settings"]["paths"]["data"] + "saved-timers.json"
-    )
-
     try:
-        # Load timers
-        if os.path.exists(saved_timers_path):
-            try:
-                json_data = open(saved_timers_path, "r", encoding="utf-8")
-                saved_timers = json.load(json_data)
-                json_data.close()
-                parse_saved_timers = True
-            except:
-                parse_saved_timers = False
+        timers = []
+        tock = False
+        metronome_stop = False
+        saved_timers_path = (
+            configs.settings.config["settings"]["paths"]["data"]
+            + "timers/"
+            + state.char.lower()
+            + "_"
+            + state.server.lower()
+            + "-timers.json"
+        )
 
-            if parse_saved_timers:
-                now = datetime.datetime.now()
-                for item in saved_timers["timers"].keys():
+        # Load timers
+        if os.path.isfile(saved_timers_path):
+            json_data = open(saved_timers_path, "r", encoding="utf-8")
+            saved_timers = json.load(json_data)
+            json_data.close()
+
+            now = datetime.datetime.now()
+            file_saved = datetime.datetime.strptime(
+                saved_timers["time"], "%Y-%m-%d %H:%M:%S.%f"
+            )
+            for item in saved_timers["timers"].keys():
+                item_type = saved_timers["timers"][item]["type"]
+                if item_type == "timer":
                     item_time = datetime.datetime.strptime(
                         saved_timers["timers"][item]["time"], "%Y-%m-%d %H:%M:%S.%f"
                     )
-                    item_type = saved_timers["timers"][item]["type"]
                     item_seconds = saved_timers["timers"][item]["seconds"]
                     item_payload = saved_timers["timers"][item]["payload"]
                     if not item_time <= now:
@@ -72,12 +78,52 @@ def process(configs, state, timer_q, sound_q, display_q, exit_flag, cfg_reload):
                                 item_payload,
                             ),
                         )
+                elif item_type == "spell":
+                    item_target = saved_timers["timers"][item]["target"]
+                    item_type = saved_timers["timers"][item]["type"]
+                    item_caster = saved_timers["timers"][item]["caster"]
+                    item_spell = saved_timers["timers"][item]["spell"]
+                    item_duration = saved_timers["timers"][item]["duration"]
+                    item_landed = datetime.datetime.strptime(
+                        saved_timers["timers"][item]["landed"], "%Y-%m-%d %H:%M:%S.%f"
+                    )
+                    item_payload = saved_timers["timers"][item]["payload"]
+                    if item_target == state.char.lower():
+                        spell_seconds_used = (file_saved - item_landed).total_seconds()
+                        spell_seconds_left = int(item_duration) - int(
+                            spell_seconds_used
+                        )
+                        item_time = datetime.datetime.now() + datetime.timedelta(
+                            seconds=spell_seconds_left
+                        )
+                    else:
+                        item_time = datetime.datetime.strptime(
+                            saved_timers["timers"][item]["time"], "%Y-%m-%d %H:%M:%S.%f"
+                        )
+                    if not item_time <= now:
+                        heapq.heappush(
+                            timers,
+                            eqa_struct.spell_timer(
+                                item_time,
+                                item_type,
+                                item_caster,
+                                item_target,
+                                item_spell,
+                                item_duration,
+                                item_landed,
+                                item_payload,
+                            ),
+                        )
 
             # Remove saved timer file
             os.remove(saved_timers_path)
 
         # Consume timer_q
-        while not exit_flag.is_set() and not cfg_reload.is_set():
+        while (
+            not exit_flag.is_set()
+            and not cfg_reload.is_set()
+            and not change_char.is_set()
+        ):
             # Sleep between empty checks
             if timer_q.qsize() < 1:
                 time.sleep(0.01)
@@ -113,11 +159,9 @@ def process(configs, state, timer_q, sound_q, display_q, exit_flag, cfg_reload):
                 elif timer_event.type == "timer":
                     heapq.heappush(timers, timer_event)
                 elif timer_event.type == "spell":
-                    # add_spell_timer(timers, timer_event)
-                    heapq.heappush(timers, timer_event)
-                elif timer_event.type == "remove timer":
+                    timers = add_spell_timer(state, timers, timer_event)
+                elif timer_event.type == "remove_spell_timer":
                     timers = remove_spell_timer(state, timers, timer_event)
-                    eqa_settings.log("New timer set: " + str(timers))
                 elif timer_event.type == "metronome_stop":
                     if len(timers) == 0:
                         metronome_stop = False
@@ -166,6 +210,9 @@ def process(configs, state, timer_q, sound_q, display_q, exit_flag, cfg_reload):
                                 )
                             )
                     else:
+                        eqa_settings.log(
+                            "Timer expire: " + str(timer.time) + " <= " + str(now)
+                        )
                         sound_q.put(eqa_struct.sound("speak", str(timer.payload)))
                         display_q.put(
                             eqa_struct.display(
@@ -178,37 +225,43 @@ def process(configs, state, timer_q, sound_q, display_q, exit_flag, cfg_reload):
                 else:
                     heapq.heappush(timers, timer)
 
-    except Exception as e:
-        eqa_settings.log(
-            "timer_process: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-
-    # Save timers
-    try:
+        # Save timers
         if len(timers) > 0:
-            saved_timers_path = (
-                configs.settings.config["settings"]["paths"]["data"]
-                + "saved-timers.json"
-            )
-            saved_timers_json = {"timers": {}}
+            saved_timers_json = {
+                "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"),
+                "timers": {},
+            }
             count = 1
             while len(timers) > 0:
                 timer = heapq.heappop(timers)
                 timer_name = "timer_" + str(count)
                 count += 1
-                saved_timers_json["timers"].update(
-                    {
-                        timer_name: {
-                            "time": str(timer.time),
-                            "type": str(timer.type),
-                            "seconds": str(timer.seconds),
-                            "payload": str(timer.payload),
+                if timer.type == "timer":
+                    saved_timers_json["timers"].update(
+                        {
+                            timer_name: {
+                                "time": str(timer.time),
+                                "type": str(timer.type),
+                                "seconds": str(timer.seconds),
+                                "payload": str(timer.payload),
+                            }
                         }
-                    }
-                )
+                    )
+                elif timer.type == "spell":
+                    saved_timers_json["timers"].update(
+                        {
+                            timer_name: {
+                                "time": str(timer.time),
+                                "type": str(timer.type),
+                                "caster": str(timer.caster),
+                                "target": str(timer.target),
+                                "spell": str(timer.spell),
+                                "duration": str(timer.duration),
+                                "landed": str(timer.landed),
+                                "payload": str(timer.payload),
+                            }
+                        }
+                    )
 
             json_data = open(saved_timers_path, "w")
             json.dump(saved_timers_json, json_data, sort_keys=True, indent=2)
@@ -216,7 +269,7 @@ def process(configs, state, timer_q, sound_q, display_q, exit_flag, cfg_reload):
 
     except Exception as e:
         eqa_settings.log(
-            "timer_process (save timers): Error on line "
+            "timer_process: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
@@ -230,59 +283,111 @@ def remove_spell_timer(state, timers, remove_timer):
 
     try:
         if state.debug == "true":
-            eqa_settings.log("Removal request: " + remove_timer.seconds)
+            eqa_settings.log(
+                "Removal request: " + remove_timer.spell + " on " + remove_timer.target
+            )
         new_timers = []
         for timer_event in timers:
-            if timer_event.type == "timer":
-                if timer_event.seconds == remove_timer.seconds:
+            if timer_event.type == "spell":
+                if (
+                    remove_timer.target == timer_event.target
+                    and remove_timer.spell == timer_event.spell
+                ):
                     if state.debug == "true":
-                        eqa_settings.log("Removing timer: " + timer_event.seconds)
+                        eqa_settings.log(
+                            "Removing timer: "
+                            + timer_event.spell
+                            + " on "
+                            + timer_event.target
+                        )
                 else:
                     if state.debug == "true":
-                        eqa_settings.log("Keeping timer: " + timer_event.seconds)
+                        eqa_settings.log(
+                            "Keeping timer: "
+                            + timer_event.spell
+                            + " on "
+                            + timer_event.target
+                        )
                     heapq.heappush(new_timers, timer_event)
             else:
                 if state.debug == "true":
-                    eqa_settings.log("Keeping timer: " + timer_event.seconds)
+                    eqa_settings.log(
+                        "Keeping timer: "
+                        + timer_event.spell
+                        + " on "
+                        + timer_event.target
+                    )
                 heapq.heappush(new_timers, timer_event)
 
         return new_timers
 
     except Exception as e:
         eqa_settings.log(
-            "Remove timer: Error on line "
+            "Remove spell timer: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
         )
 
 
-def add_spell_timer(state, timers, remove_timer):
-    """Add a timers"""
+def add_spell_timer(state, timers, new_timer_event):
+    """Add a timer"""
 
     try:
         if state.debug == "true":
-            eqa_settings.log("Removal request: " + remove_timer.seconds)
+            eqa_settings.log(
+                "Add request: "
+                + new_timer_event.spell
+                + " on "
+                + new_timer_event.target
+            )
         new_timers = []
         for timer_event in timers:
-            if timer_event.type == "timer":
-                if timer_event.seconds == remove_timer.seconds:
+            if timer_event.type == "spell":
+                if (
+                    new_timer_event.target == timer_event.target
+                    and new_timer_event.spell == timer_event.spell
+                ):
                     if state.debug == "true":
-                        eqa_settings.log("Removing timer: " + timer_event.seconds)
+                        eqa_settings.log(
+                            "Removing old timer: "
+                            + timer_event.spell
+                            + " on "
+                            + timer_event.target
+                        )
                 else:
                     if state.debug == "true":
-                        eqa_settings.log("Keeping timer: " + timer_event.seconds)
+                        eqa_settings.log(
+                            "Keeping timer: "
+                            + timer_event.spell
+                            + " on "
+                            + timer_event.target
+                        )
                     heapq.heappush(new_timers, timer_event)
             else:
                 if state.debug == "true":
-                    eqa_settings.log("Keeping timer: " + timer_event.seconds)
+                    eqa_settings.log(
+                        "Keeping timer: "
+                        + timer_event.spell
+                        + " on "
+                        + timer_event.target
+                    )
                 heapq.heappush(new_timers, timer_event)
+
+        if state.debug == "true":
+            eqa_settings.log(
+                "Adding timer: "
+                + new_timer_event.spell
+                + " on "
+                + new_timer_event.target
+            )
+        heapq.heappush(new_timers, new_timer_event)
 
         return new_timers
 
     except Exception as e:
         eqa_settings.log(
-            "Remove timer: Error on line "
+            "Add spell timer: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)

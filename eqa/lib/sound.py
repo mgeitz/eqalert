@@ -221,6 +221,7 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])yw(?=[^A-z])", "you're welcome", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])<3(?=[^A-z])", "heart", line, flags=re.I)
     line = re.sub(r"(\d+)p(?![A-z])", r"\1 platinum", line, flags=re.I)
+    line = re.sub(r"(\d+)m(?![A-z])", r"\1 mana", line, flags=re.I)
 
     return line
 

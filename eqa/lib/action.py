@@ -45,6 +45,7 @@ def process(
     exit_flag,
     cfg_reload,
     mute_list,
+    change_char,
 ):
     """
     Process: action_q
@@ -76,7 +77,11 @@ def process(
             configs.settings.config["settings"]["paths"]["data"], state.server
         )
 
-        while not exit_flag.is_set() and not cfg_reload.is_set():
+        while (
+            not exit_flag.is_set()
+            and not cfg_reload.is_set()
+            and not change_char.is_set()
+        ):
             # Sleep between empty checks
             queue_size = action_q.qsize()
             if queue_size < 1:
@@ -574,22 +579,30 @@ def action_spell_remove_timer(state, timer_q, spell_lines, line_type):
                 for spell in spell_lines["spell_lines"][line_type].keys():
                     # Submit timer removal
                     timer_q.put(
-                        eqa_struct.timer(
+                        eqa_struct.spell_timer(
                             (datetime.datetime.now()),
-                            "remove timer",
-                            spell + "_" + state.char.lower(),
-                            "remove timer",
+                            "remove_spell_timer",
+                            "null",
+                            state.char.lower(),
+                            spell,
+                            "null",
+                            "null",
+                            "null",
                         )
                     )
         else:
             spell = re.findall(r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_you\_off)", line_type)[0]
             # Submit timer removal
             timer_q.put(
-                eqa_struct.timer(
+                eqa_struct.spell_timer(
                     (datetime.datetime.now()),
-                    "remove timer",
-                    spell + "_" + state.char.lower(),
-                    "remove timer",
+                    "remove_spell_timer",
+                    "null",
+                    state.char.lower(),
+                    spell,
+                    "null",
+                    "null",
+                    "null",
                 )
             )
 
@@ -781,7 +794,7 @@ def action_spell_timer(
                                             int(
                                                 spell_casters["spells"][
                                                     spell_caster["spell"]
-                                                ]["classes"][player_class]["level"]
+                                                ]["classes"][player_class]
                                             )
                                             <= player_level
                                         ):
@@ -1076,15 +1089,27 @@ def action_spell_timer(
                             + " is wearing off"
                         )
 
+                # This doesn't work with the container due to timezone stuff
+                # datetime_line_time = (
+                #    datetime.datetime.now().strftime("%Y-%m-%d") + " " + line_time
+                # )
+                # datetime_event = datetime.datetime.strptime(
+                #    datetime_line_time, "%Y-%m-%d %H:%M:%S.%f"
+                # )
+                # datetime_expire = datetime_event + datetime.timedelta(
+                #    seconds=int(spell_duration)
+                # )
                 # Submit timer
                 timer_q.put(
-                    eqa_struct.timer(
-                        (
-                            datetime.datetime.now()
-                            + datetime.timedelta(seconds=int(spell_duration))
-                        ),
-                        "timer",
-                        identified_spell + "_" + identified_spell_target,
+                    eqa_struct.spell_timer(
+                        datetime.datetime.now()
+                        + datetime.timedelta(seconds=int(spell_duration)),
+                        "spell",
+                        identified_spell_caster,
+                        identified_spell_target,
+                        identified_spell,
+                        spell_duration,
+                        datetime.datetime.now(),
                         message,
                     )
                 )
@@ -1608,6 +1633,7 @@ def action_motd_welcome(system_q):
     """Perform actions for motd welcome line types"""
 
     try:
+        # Remove group
         system_q.put(
             eqa_struct.message(
                 eqa_settings.eqa_time(),
@@ -1617,6 +1643,7 @@ def action_motd_welcome(system_q):
                 "false",
             )
         )
+        # Remove group leader
         system_q.put(
             eqa_struct.message(
                 eqa_settings.eqa_time(),
@@ -1626,6 +1653,7 @@ def action_motd_welcome(system_q):
                 "false",
             )
         )
+        # Remove AFK
         system_q.put(
             eqa_struct.message(
                 eqa_settings.eqa_time(),
