@@ -287,6 +287,8 @@ def process(
                                 option = "spell_other"
                             elif option == "spell_guess":
                                 option = "spell_guild"
+                            elif option == "spell_yours":
+                                option = "spell_guess"
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -321,6 +323,8 @@ def process(
                             elif option == "spell_guild":
                                 option = "spell_guess"
                             elif option == "spell_guess":
+                                option = "spell_yours"
+                            elif option == "spell_yours":
                                 pass
                             display_q.put(
                                 eqa_struct.display(
@@ -483,6 +487,19 @@ def process(
                                         "false",
                                     )
                                 )
+                            elif (
+                                option == "spell_yours"
+                                and state.spell_timer_yours_only == "true"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "yours",
+                                        "false",
+                                    )
+                                )
                         elif key == curses.KEY_LEFT or key == ord("a"):
                             if option == "debug" and state.debug == "false":
                                 system_q.put(
@@ -636,6 +653,19 @@ def process(
                                         "system",
                                         "spell",
                                         "guess",
+                                        "true",
+                                    )
+                                )
+                            elif (
+                                option == "spell_yours"
+                                and state.spell_timer_yours_only == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "yours",
                                         "true",
                                     )
                                 )

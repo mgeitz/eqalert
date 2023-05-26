@@ -245,6 +245,7 @@ def process(
                 if (
                     state.spell_timer_self == "true"
                     or state.spell_timer_guild_only == "true"
+                    or state.spell_timer_yours_only == "true"
                 ):
                     if re.fullmatch(r"^spell\_.+\_you_on$", line_type) is not None:
                         action_spell_timer(
@@ -268,6 +269,7 @@ def process(
                 ## Other Spell Timers
                 if (
                     state.spell_timer_other == "true"
+                    or state.spell_timer_guild_only == "true"
                     or state.spell_timer_guild_only == "true"
                 ):
                     if re.fullmatch(r"^spell\_.+\_other_on$", line_type) is not None:
@@ -1053,6 +1055,10 @@ def action_spell_timer(
                         eqa_settings.log(
                             "We don't know who the caster is and guild filter is on"
                         )
+                    make_timer = False
+
+            if state.spell_timer_yous_only == "true":
+                if identified_spell_caster != state.char.lower():
                     make_timer = False
 
             # See if this is a timer which will at least last longer than spell timer delay

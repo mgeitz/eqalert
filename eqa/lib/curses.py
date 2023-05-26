@@ -1662,6 +1662,24 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
             optscr.addstr(17, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(17, second_third + 7, "]", curses.color_pair(3))
 
+        # Spell Timer Yours Only
+        if s_option == "spell_yours" and s_setting == "option":
+            optscr.addstr(18, first_q - 1, "Your Timer Filter", curses.color_pair(4))
+            optscr.addstr(
+                2,
+                first_q - 2,
+                "Filter for only your spells",
+                curses.color_pair(3),
+            )
+        else:
+            optscr.addstr(18, first_q, "Your Timer Filter", curses.color_pair(1))
+        optscr.addstr(18, second_third, "[", curses.color_pair(3))
+        if state.spell_timer_yours_only == "true":
+            optscr.addstr(18, second_third + 1, "on", curses.color_pair(5))
+        elif state.spell_timer_yours_only == "false":
+            optscr.addstr(18, second_third + 4, "off", curses.color_pair(6))
+        optscr.addstr(18, second_third + 7, "]", curses.color_pair(3))
+
     except Exception as e:
         eqa_settings.log(
             "draw settings options: Error on line "

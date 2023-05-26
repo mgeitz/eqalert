@@ -8119,6 +8119,11 @@ def set_last_state(state, configs):
         )
         configs.settings.config["settings"]["timers"].update(
             {
+                "spell_timer_yours_only": str(state.spell_timer_yours_only),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
                 "spell_timer_other": str(state.spell_timer_other),
             }
         )
@@ -8268,6 +8273,9 @@ def get_last_state(configs, char_name, char_server):
         spell_timer_guild_only = configs.settings.config["settings"]["timers"][
             "spell_timer_guild_only"
         ]
+        spell_timer_yours_only = configs.settings.config["settings"]["timers"][
+            "spell_timer_yours_only"
+        ]
         spell_timer_self = configs.settings.config["settings"]["timers"][
             "spell_timer_self"
         ]
@@ -8307,6 +8315,7 @@ def get_last_state(configs, char_name, char_server):
             spell_timer_other,
             spell_timer_guild_only,
             spell_timer_self,
+            spell_timer_yours_only,
         )
 
         return state
@@ -8503,6 +8512,7 @@ def build_config(base_path):
       "spell_timer_guess": "true",
       "spell_timer_other": "true",
       "spell_timer_guild_only": "false",
+      "spell_timer_yours_only": "false",
       "spell_timer_self": "true"
     }
   },

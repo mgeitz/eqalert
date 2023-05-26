@@ -55,6 +55,7 @@ class EQA_State:
         spell_timer_other,
         spell_timer_guild_only,
         spell_timer_self,
+        spell_timer_yours_only,
     ):
         """All States"""
         self.char = char
@@ -86,6 +87,7 @@ class EQA_State:
         self.spell_timer_other = spell_timer_other
         self.spell_timer_guild_only = spell_timer_guild_only
         self.spell_timer_self = spell_timer_self
+        self.spell_timer_yours_only = spell_timer_yours_only
 
     def set_char(self, char):
         """Set Character"""
@@ -202,3 +204,7 @@ class EQA_State:
     def set_spell_timer_self(self, spell_timer_self):
         """Set Spell Timer Self"""
         self.spell_timer_self = spell_timer_self
+
+    def set_spell_timer_yours_only(self, spell_timer_yours_only):
+        """Set Spell Timer Yours Only"""
+        self.spell_timer_yours_only = spell_timer_yours_only

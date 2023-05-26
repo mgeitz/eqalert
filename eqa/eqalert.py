@@ -596,6 +596,9 @@ def main():
                                 new_state.spell_timer_guild_only
                             )
                             state.set_spell_timer_self(new_state.spell_timer_self)
+                            state.set_spell_timer_yours_only(
+                                new_state.spell_timer_yours_only
+                            )
                             state.set_consider_eval(new_state.consider_eval)
                             eqa_config.set_last_state(state, configs)
                             char_log = new_char_log
@@ -710,6 +713,9 @@ def main():
                             new_state.spell_timer_guild_only
                         )
                         state.set_spell_timer_self(new_state.spell_timer_self)
+                        state.set_spell_timer_yours_only(
+                            new_state.spell_timer_yours_only
+                        )
                         state.set_consider_eval(new_state.consider_eval)
                         #### Stop state dependent processes
                         cfg_reload.set()
@@ -1202,6 +1208,39 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                 sound_q.put(
                     eqa_struct.sound(
                         "speak", "Spell timers will filter for guild members"
+                    )
+                )
+        elif new_message.rx == "yours":
+            if state.spell_timer_yours_only == "true":
+                state.set_spell_timer_yours_only("false")
+                eqa_config.set_last_state(state, configs)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Spell timers will no longer filter only your spells",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Spell timers will no longer filter only your spells"
+                    )
+                )
+            else:
+                state.set_spell_timer_yours_only("true")
+                eqa_config.set_last_state(state, configs)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Spell timers will filter for only your spells",
+                    )
+                )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Spell timers will filter for only your spells"
                     )
                 )
         elif new_message.rx == "guess":
