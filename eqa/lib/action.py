@@ -291,6 +291,16 @@ def process(
                 if state.consider_eval == "true" and line_type == "consider":
                     action_consider_evaluation(sound_q, check_line)
 
+                if line_type == "zoning":
+                    timer_q.put(
+                        eqa_struct.timer(
+                            datetime.datetime.now(),
+                            "zoning",
+                            None,
+                            None,
+                        )
+                    )
+
                 ## State Building Line Types
                 if line_type == "location":
                     action_location(system_q, check_line)
@@ -346,6 +356,7 @@ def process(
                         system_q,
                         display_q,
                         sound_q,
+                        timer_q,
                         state,
                         configs,
                         check_line,
@@ -636,14 +647,6 @@ def action_spell_timer(
         is_spell_line = False
         find_time = False
 
-        if state.debug == "true":
-            eqa_settings.log(
-                "spell casting buffer you: " + str(spell_casting_buffer_you)
-            )
-            eqa_settings.log(
-                "spell casting buffer other: " + str(spell_casting_buffer_other)
-            )
-
         if re.fullmatch(r"^spell\_line\_[a-zA-Z\s\_]+\_you\_on", line_type) is not None:
             target = state.char.lower()
             spell_line = re.findall(
@@ -694,8 +697,6 @@ def action_spell_timer(
                             )
 
                 # First check if the player could have cast this
-                if state.debug == "true":
-                    eqa_settings.log("Checking if player cast this")
                 if spell_casting_buffer_you:
                     # If the most recent player cast spell is in the possible spell list
                     if (
@@ -733,8 +734,6 @@ def action_spell_timer(
                             )
                             == 0
                         ):
-                            if state.debug == "true":
-                                eqa_settings.log("Found spell line cast by you")
                             identified_spell_caster = state.char.lower()
                             identified_spell_level = state.char_level
                             identified_spell = spell_casting_buffer_you["spell"]
@@ -743,8 +742,6 @@ def action_spell_timer(
 
                 # Then check spell cast buffer other cast time ago for each possible spell
                 if not find_time:
-                    if state.debug == "true":
-                        eqa_settings.log("Checking spell line for other players")
                     # For each possible spell
                     for spell_caster in check_for_spells:
                         # Retrieve cast time for the possible spell
@@ -810,10 +807,6 @@ def action_spell_timer(
                                                 identified_spell = spell_caster["spell"]
                                                 identified_spell_target = target
                                                 find_time = True
-                                                if state.debug == "true":
-                                                    eqa_settings.log(
-                                                        "Found spell_line cast by other player"
-                                                    )
                                             # Favor matched spell with highest level casting requirements
                                             elif int(
                                                 spell_casters["spells"][
@@ -849,20 +842,12 @@ def action_spell_timer(
             # If we have spell_caster info on this spell
             if spell in spell_casters["spells"].keys():
                 # Check if player has cast anything
-                if state.debug == "true":
-                    eqa_settings.log(
-                        "Checking if spell casting buffer you has anything"
-                    )
                 if spell_casting_buffer_you:
-                    if state.debug == "true":
-                        eqa_settings.log("Checking if its in spell_casters")
                     # If the spell cast by the player is in the spell casters file
                     if (
                         spell_casting_buffer_you["spell"]
                         in spell_casters["spells"].keys()
                     ):
-                        if state.debug == "true":
-                            eqa_settings.log("Checking cast time")
                         # If most recent player cast spell occurred spell time ago to this spell landing
                         if (
                             int(
@@ -887,8 +872,6 @@ def action_spell_timer(
                             identified_spell = spell_casting_buffer_you["spell"]
                             identified_spell_target = target
                             find_time = True
-                            if state.debug == "true":
-                                eqa_settings.log("Found spell cast by you")
                         # This spell has no listed classes listed and can be an item cast and you cast it
                         elif (
                             not spell_casters["spells"][spell]["classes"]
@@ -899,8 +882,6 @@ def action_spell_timer(
                             identified_spell = spell_casting_buffer_you["spell"]
                             identified_spell_target = target
                             find_time = True
-                            if state.debug == "true":
-                                eqa_settings.log("Found spell item cast by you")
                         # The spell cannot be cast by your class and can be an item cast and you cast it but not spell cast time ago
                         # elif (
                         #    state.char_class.lower()
@@ -917,8 +898,6 @@ def action_spell_timer(
 
                 # Check for matching spell cast event
                 if not find_time:
-                    if state.debug == "true":
-                        eqa_settings.log("Checking if spell was cast by other player")
                     for recent_cast_event in spell_casting_buffer_other:
                         if state.debug == "true":
                             eqa_settings.log("Checking " + recent_cast_event["caster"])
@@ -1008,10 +987,6 @@ def action_spell_timer(
                                     identified_spell = spell
                                     identified_spell_target = target
                                     find_time = True
-                                    if state.debug == "true":
-                                        eqa_settings.log(
-                                            "Found spell but we guessed the caster level"
-                                        )
 
                                 # If this is a known npc only spell, just set to current player level
                                 elif spell_casters["spells"][spell]["npc"] == "true":
@@ -1022,19 +997,11 @@ def action_spell_timer(
                                     identified_spell = spell
                                     identified_spell_target = target
                                     find_time = True
-                                    if state.debug == "true":
-                                        eqa_settings.log(
-                                            "Found spell but its NPC only so it was set to your level"
-                                        )
 
         if find_time:
-            if state.debug == "true":
-                eqa_settings.log("Trying to make timer")
             make_timer = True
             # If we only want self or guild spell timers
             if state.spell_timer_guild_only == "true":
-                if state.debug == "true":
-                    eqa_settings.log("Guild only spell filter is on")
                 # If this was cast by myself or another player
                 if identified_spell_caster in player_list.keys():
                     # If a guildie didn't cast it
@@ -1051,13 +1018,9 @@ def action_spell_timer(
                                 make_timer = False
                 # If we don't know anything about the identified caster
                 else:
-                    if state.debug == "true":
-                        eqa_settings.log(
-                            "We don't know who the caster is and guild filter is on"
-                        )
                     make_timer = False
 
-            if state.spell_timer_yous_only == "true":
+            if state.spell_timer_yours_only == "true":
                 if identified_spell_caster != state.char.lower():
                     make_timer = False
 
@@ -1095,21 +1058,16 @@ def action_spell_timer(
                             + " is wearing off"
                         )
 
-                # This doesn't work with the container due to timezone stuff
-                # datetime_line_time = (
-                #    datetime.datetime.now().strftime("%Y-%m-%d") + " " + line_time
-                # )
-                # datetime_event = datetime.datetime.strptime(
-                #    datetime_line_time, "%Y-%m-%d %H:%M:%S.%f"
-                # )
-                # datetime_expire = datetime_event + datetime.timedelta(
-                #    seconds=int(spell_duration)
-                # )
+                spell_timer_expire = (
+                    datetime.datetime.now()
+                    + datetime.timedelta(seconds=int(spell_duration))
+                    - datetime.timedelta(seconds=int(state.spell_timer_delay))
+                )
+
                 # Submit timer
                 timer_q.put(
                     eqa_struct.spell_timer(
-                        datetime.datetime.now()
-                        + datetime.timedelta(seconds=int(spell_duration)),
+                        spell_timer_expire,
                         "spell",
                         identified_spell_caster,
                         identified_spell_target,
@@ -1158,7 +1116,7 @@ def action_mob_timer(timer_q, timer_seconds, auto_mob_timer_delay, zone):
     timer_q.put(
         eqa_struct.timer(
             (datetime.datetime.now() + datetime.timedelta(seconds=int(timer_seconds))),
-            "spell",
+            "timer",
             str(timer_seconds),
             pop_message,
         )
@@ -2681,7 +2639,7 @@ def action_who_player(configs, system_q, state, line, player_list):
 
 
 def action_you_new_zone(
-    base_path, system_q, display_q, sound_q, state, configs, check_line
+    base_path, system_q, display_q, sound_q, timer_q, state, configs, check_line
 ):
     """Perform actions for you new zone line types"""
 
@@ -2751,6 +2709,15 @@ def action_you_new_zone(
                         "Raid mode auto-disabled",
                     )
                 )
+
+        timer_q.put(
+            eqa_struct.timer(
+                datetime.datetime.now(),
+                "new_zone",
+                None,
+                None,
+            )
+        )
 
     except Exception as e:
         eqa_settings.log(

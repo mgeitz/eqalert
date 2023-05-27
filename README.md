@@ -208,6 +208,7 @@ Settings and options can be modified in `config/settings.json`
 - `spell timer self`: Set spell timers for spells that land on yourself
 - `persist player data`: Save /who player output for spell timers
 - `spell timer yours only`: Filter all spell timer events to be only spells you cast
+- `spell timer zone drift`: If enabled add time between zoning to spell timers targetting yourself
 
 
 ## Custom Alerting

@@ -8508,12 +8508,13 @@ def build_config(base_path):
     "timers": {
       "auto_mob_timer": "false",
       "auto_mob_timer_delay": "10",
-      "spell_timer_delay": "18",
+      "spell_timer_delay": "24",
       "spell_timer_guess": "true",
       "spell_timer_other": "true",
       "spell_timer_guild_only": "false",
-      "spell_timer_yours_only": "false",
-      "spell_timer_self": "true"
+      "spell_timer_yours_only": "true",
+      "spell_timer_self": "true",
+      "spell_timer_zone_drift": "true"
     }
   },
   "version": "%s"

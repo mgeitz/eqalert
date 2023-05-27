@@ -39,6 +39,7 @@ def process(
 
     try:
         timers = []
+        zoning_start_time = None
         tock = False
         metronome_stop = False
         saved_timers_path = (
@@ -167,6 +168,24 @@ def process(
                         metronome_stop = False
                     elif metronome_stop == False:
                         metronome_stop = True
+                elif timer_event.type == "new_zone":
+                    if (
+                        configs.settings.config["settings"]["timers"][
+                            "spell_timer_zone_drift"
+                        ]
+                        == "true"
+                    ):
+                        if zoning_start_time is not None:
+                            adjustment = (
+                                timer_event.time - zoning_start_time
+                            ).total_seconds()
+                            # If the zone duration is more than a minute, give up something is wrong
+                            if adjustment <= 45:
+                                timers = self_spell_timer_drift(
+                                    state, timers, adjustment
+                                )
+                elif timer_event.type == "zoning":
+                    zoning_start_time = timer_event.time
                 elif timer_event.type == "clear":
                     timers = []
 
@@ -210,9 +229,6 @@ def process(
                                 )
                             )
                     else:
-                        eqa_settings.log(
-                            "Timer expire: " + str(timer.time) + " <= " + str(now)
-                        )
                         sound_q.put(eqa_struct.sound("speak", str(timer.payload)))
                         display_q.put(
                             eqa_struct.display(
@@ -282,10 +298,6 @@ def remove_spell_timer(state, timers, remove_timer):
     """Remove some timers"""
 
     try:
-        if state.debug == "true":
-            eqa_settings.log(
-                "Removal request: " + remove_timer.spell + " on " + remove_timer.target
-            )
         new_timers = []
         for timer_event in timers:
             if timer_event.type == "spell":
@@ -301,22 +313,8 @@ def remove_spell_timer(state, timers, remove_timer):
                             + timer_event.target
                         )
                 else:
-                    if state.debug == "true":
-                        eqa_settings.log(
-                            "Keeping timer: "
-                            + timer_event.spell
-                            + " on "
-                            + timer_event.target
-                        )
                     heapq.heappush(new_timers, timer_event)
             else:
-                if state.debug == "true":
-                    eqa_settings.log(
-                        "Keeping timer: "
-                        + timer_event.spell
-                        + " on "
-                        + timer_event.target
-                    )
                 heapq.heappush(new_timers, timer_event)
 
         return new_timers
@@ -334,13 +332,6 @@ def add_spell_timer(state, timers, new_timer_event):
     """Add a timer"""
 
     try:
-        if state.debug == "true":
-            eqa_settings.log(
-                "Add request: "
-                + new_timer_event.spell
-                + " on "
-                + new_timer_event.target
-            )
         new_timers = []
         for timer_event in timers:
             if timer_event.type == "spell":
@@ -356,31 +347,10 @@ def add_spell_timer(state, timers, new_timer_event):
                             + timer_event.target
                         )
                 else:
-                    if state.debug == "true":
-                        eqa_settings.log(
-                            "Keeping timer: "
-                            + timer_event.spell
-                            + " on "
-                            + timer_event.target
-                        )
                     heapq.heappush(new_timers, timer_event)
             else:
-                if state.debug == "true":
-                    eqa_settings.log(
-                        "Keeping timer: "
-                        + timer_event.spell
-                        + " on "
-                        + timer_event.target
-                    )
                 heapq.heappush(new_timers, timer_event)
 
-        if state.debug == "true":
-            eqa_settings.log(
-                "Adding timer: "
-                + new_timer_event.spell
-                + " on "
-                + new_timer_event.target
-            )
         heapq.heappush(new_timers, new_timer_event)
 
         return new_timers
@@ -388,6 +358,44 @@ def add_spell_timer(state, timers, new_timer_event):
     except Exception as e:
         eqa_settings.log(
             "Add spell timer: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def self_spell_timer_drift(state, timers, adjustment):
+    """Adjust timers on self for zoning times"""
+
+    try:
+        new_timers = []
+        for timer_event in timers:
+            if timer_event.type == "spell":
+                if timer_event.target == state.char.lower():
+                    new_time = timer_event.time + datetime.timedelta(seconds=adjustment)
+                    heapq.heappush(
+                        new_timers,
+                        eqa_struct.spell_timer(
+                            new_time,
+                            timer_event.type,
+                            timer_event.caster,
+                            timer_event.target,
+                            timer_event.spell,
+                            timer_event.duration,
+                            timer_event.landed,
+                            timer_event.payload,
+                        ),
+                    )
+                else:
+                    heapq.heappush(new_timers, timer_event)
+            else:
+                heapq.heappush(new_timers, timer_event)
+
+        return new_timers
+
+    except Exception as e:
+        eqa_settings.log(
+            "Self spell timer drift: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
