@@ -22,6 +22,7 @@ from collections import deque
 import sys
 import time
 import re
+import datetime
 
 import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
@@ -56,7 +57,12 @@ def process(exit_flag, log_q, action_q):
                 ):
                     ### Split timestamp and message payload
                     timestamp, payload = line[1:].split("] ", 1)
-                    timestamp = timestamp.split(" ")[3] + ".00"
+                    timestamp = (
+                        timestamp.split(" ")[3]
+                        + "."
+                        + datetime.datetime.now().strftime("%f")[:1]
+                        + "0"
+                    )
                     ### Determine line type
                     line_type = determine(payload)
                     ### Build and queue action
@@ -2433,7 +2439,7 @@ def check_spell_specific(line):
                 re.fullmatch(r"^You feel your body pulse with energy\.$", line)
                 is not None
             ):
-                return "spell_line_haste_you_on"
+                return "spell_line_haste_stats_you_on"
                 # return "spell_augment_you_on"
                 # return "spell_augmentation_you_on"
                 # return "spell_inner_fire_you_on"
@@ -2568,7 +2574,7 @@ def check_spell_specific(line):
             elif (
                 re.fullmatch(r"^You feel your heart begin to race\.$", line) is not None
             ):
-                return "spell_line_haste_you_on"
+                return "spell_line_npc_item_haste_you_on"
                 # return "spell_blessing_of_the_grove_you_on"
                 # return "spell_haste_you_on"
                 # return "spell_swift_spirit_you_on"
@@ -2627,12 +2633,6 @@ def check_spell_specific(line):
                 # return "spell_siphon_life_you_on"
                 # return "spell_spirit_tap_you_on"
                 # return "spell_strike_of_the_chosen_you_on"
-            # TODO: spell_flavor_nec_hp  matches when tested in isolation, but never here.  I'm stumped...
-            elif (
-                re.fullmatch(r"^[a-zA-Z`\s]+ beams a smile at [a-zA-Z`\s]+$", line)
-                is not None
-            ):
-                return "spell_flavor_nec_hp"
             elif (
                 re.fullmatch(r"^You feel your skin burn from your body\.$", line)
                 is not None
@@ -2649,7 +2649,7 @@ def check_spell_specific(line):
                 return "spell_bone_shatter_you_on"
                 # return "spell_bone_shatter_you_cast"
             elif re.fullmatch(r"^You are enveloped in lava\.$", line) is not None:
-                return "spell_line_mag_ds_you_on"
+                return "spell_line_high_mag_ds_you_on"
                 # return "spell_boon_of_immolation_you_on"
                 # return "spell_shield_of_lava_you_on"
             elif re.fullmatch(r"^You feel\.\.\. strange\.$", line) is not None:
@@ -3721,7 +3721,7 @@ def check_spell_specific(line):
             ):
                 return "spell_inferno_of_alkabor_you_on"
             elif re.fullmatch(r"^You are enveloped in flame\.$", line) is not None:
-                return "spell_line_mag_ds_you_on"
+                return "spell_line_low_mag_ds_you_on"
                 # return "spell_inferno_shield_you_on"
                 # return "spell_shield_of_flame_you_on"
             elif re.fullmatch(r"^You are healed\.$", line) is not None:
@@ -6410,7 +6410,7 @@ def check_spell_specific(line):
             ):
                 return "spell_call_of_the_zero_you_on"
             elif (
-                re.fullmatch(r"^A soft breeze slips through your mind\.\.$", line)
+                re.fullmatch(r"^A soft breeze slips through your mind(\.|)\.$", line)
                 is not None
             ):
                 return "spell_line_clarity_ii_you_on"
@@ -6648,6 +6648,11 @@ def check_spell_specific(line):
 
         if re.fullmatch(r"^An aegis of faith engulfs you\.$", line) is not None:
             return "spell_aegis_you_on"
+        elif (
+            re.fullmatch(r"^[a-zA-Z`\s]+ beams a smile at [a-zA-Z`\s]+$", line)
+            is not None
+        ):
+            return "spell_flavor_nec_hp"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ \'s knees buckle\.$", line) is not None:
             return "spell_avatar_snare_other_on"
         elif (
@@ -7871,7 +7876,7 @@ def check_spell_specific(line):
             # return "spell_deadly_poison_other_on"
             # return "spell_dizzy_i_other_on"
             # return "spell_dizzy_ii_other_on"
-            # return "spell_dizzy_ii_other_on"
+            # return "spell_dizzy_iii_other_on"
             # return "spell_dizzy_iv_other_on"
             # return "spell_envenomed_bolt_other_on"
             # return "spell_feeble_mind_i_other_on"
@@ -11219,8 +11224,6 @@ def check_who(line):
             is not None
         ):
             return "who_etc"
-        elif re.fullmatch(r"^---------------------------------$", line) is not None:
-            return "who_line_friends"
         elif re.fullmatch(r"^---------------------------------$", line) is not None:
             return "who_line_friends"
         elif (

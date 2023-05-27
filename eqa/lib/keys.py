@@ -279,6 +279,16 @@ def process(
                                 option = "defaulttimer"
                             elif option == "detect_char":
                                 option = "consider"
+                            elif option == "spell_self":
+                                option = "detect_char"
+                            elif option == "spell_other":
+                                option = "spell_self"
+                            elif option == "spell_guild":
+                                option = "spell_other"
+                            elif option == "spell_guess":
+                                option = "spell_guild"
+                            elif option == "spell_yours":
+                                option = "spell_guess"
                             display_q.put(
                                 eqa_struct.display(
                                     eqa_settings.eqa_time(),
@@ -305,6 +315,16 @@ def process(
                             elif option == "consider":
                                 option = "detect_char"
                             elif option == "detect_char":
+                                option = "spell_self"
+                            elif option == "spell_self":
+                                option = "spell_other"
+                            elif option == "spell_other":
+                                option = "spell_guild"
+                            elif option == "spell_guild":
+                                option = "spell_guess"
+                            elif option == "spell_guess":
+                                option = "spell_yours"
+                            elif option == "spell_yours":
                                 pass
                             display_q.put(
                                 eqa_struct.display(
@@ -345,7 +365,7 @@ def process(
                                         "null",
                                     )
                                 )
-                            elif option == "autoraid" and state.autoraid == "true":
+                            elif option == "autoraid" and state.auto_raid == "true":
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
@@ -415,6 +435,71 @@ def process(
                                         "false",
                                     )
                                 )
+                            elif (
+                                option == "spell_self"
+                                and state.spell_timer_self == "true"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "self",
+                                        "false",
+                                    )
+                                )
+                            elif (
+                                option == "spell_other"
+                                and state.spell_timer_other == "true"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "other",
+                                        "false",
+                                    )
+                                )
+                            elif (
+                                option == "spell_guild"
+                                and state.spell_timer_guild_only == "true"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "guild",
+                                        "false",
+                                    )
+                                )
+                            elif (
+                                option == "spell_guess"
+                                and state.spell_timer_guess == "true"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "guess",
+                                        "false",
+                                    )
+                                )
+                            elif (
+                                option == "spell_yours"
+                                and state.spell_timer_yours_only == "true"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "yours",
+                                        "false",
+                                    )
+                                )
                         elif key == curses.KEY_LEFT or key == ord("a"):
                             if option == "debug" and state.debug == "false":
                                 system_q.put(
@@ -446,7 +531,7 @@ def process(
                                         "all",
                                     )
                                 )
-                            elif option == "autoraid" and state.autoraid == "false":
+                            elif option == "autoraid" and state.auto_raid == "false":
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
@@ -516,6 +601,71 @@ def process(
                                         "system",
                                         "detect_char",
                                         "null",
+                                        "true",
+                                    )
+                                )
+                            elif (
+                                option == "spell_self"
+                                and state.spell_timer_self == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "self",
+                                        "true",
+                                    )
+                                )
+                            elif (
+                                option == "spell_other"
+                                and state.spell_timer_other == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "other",
+                                        "true",
+                                    )
+                                )
+                            elif (
+                                option == "spell_guild"
+                                and state.spell_timer_guild_only == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "guild",
+                                        "true",
+                                    )
+                                )
+                            elif (
+                                option == "spell_guess"
+                                and state.spell_timer_guess == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "guess",
+                                        "true",
+                                    )
+                                )
+                            elif (
+                                option == "spell_yours"
+                                and state.spell_timer_yours_only == "false"
+                            ):
+                                system_q.put(
+                                    eqa_struct.message(
+                                        eqa_settings.eqa_time(),
+                                        "system",
+                                        "spell",
+                                        "yours",
                                         "true",
                                     )
                                 )

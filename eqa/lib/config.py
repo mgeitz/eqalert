@@ -354,8 +354,6112 @@ def get_config_chars(configs):
         )
 
 
+def get_spell_timers(data_path):
+    """Return spell timers file"""
+
+    try:
+        spell_timers_file = data_path + "spell-timers.json"
+        json_data = open(spell_timers_file, "r", encoding="utf-8")
+        spell_timers = json.load(json_data)
+        json_data.close()
+
+        return spell_timers
+
+    except Exception as e:
+        eqa_settings.log(
+            "get spell timers: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def get_spell_casters(data_path):
+    """Return spell casters file"""
+
+    try:
+        spell_casters_file = data_path + "spell-casters.json"
+        json_data = open(spell_casters_file, "r", encoding="utf-8")
+        spell_casters = json.load(json_data)
+        json_data.close()
+
+        return spell_casters
+
+    except Exception as e:
+        eqa_settings.log(
+            "get spell casters: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def update_spell_casters(data_path):
+    """Update data/spell-casters.json"""
+
+    new_spell_caster_data = """
+{
+  "spells": {
+    "aanyas_quickening": {
+      "classes": {
+        "enchanter": "53"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "accuracy": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "acid_jet": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "acumen": {
+      "classes": {
+        "shaman": 56
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "adorning_grace": {
+      "classes": {
+        "enchanter": "49"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "adroitness": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aegis": {
+      "classes": {
+        "cleric": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "aegis_of_bathezid": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aegis_of_ro": {
+      "classes": {
+        "magician": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "aegolism": {
+      "classes": {
+        "cleric": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "affliction": {
+      "classes": {
+        "shaman": 19
+      },
+      "npc": "true",
+      "item": "false"
+    },
+    "agility": {
+      "classes": {
+        "shaman": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "agilmentes_aria_of_eagles": {
+      "classes": {
+        "bard": 31
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "alacrity": {
+      "classes": {
+        "enchanter": "24",
+        "shaman": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "allure": {
+      "classes": {
+        "enchanter": "49"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "allure_of_death": {
+      "classes": {
+        "necromancer": 20
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "allure_of_the_wild": {
+      "classes": {
+        "druid": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "alluring_aura": {
+      "classes": {
+        "shaman": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "alluring_whispers": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aloe_sweat": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "ancient_breath": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "anthem_de_arms": {
+      "classes": {
+        "bard": 10
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "arch_lich": {
+      "classes": {
+        "necromancer": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "arch_shielding": {
+      "classes": {
+        "enchanter": "44",
+        "magician": 44,
+        "necromancer": 44,
+        "wizard": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "armor_of_faith": {
+      "classes": {
+        "cleric": 39,
+        "paladin": 49
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "armor_of_protection": {
+      "classes": {
+        "cleric": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "asphyxiate": {
+      "classes": {
+        "enchanter": "59"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "assiduous_vision": {
+      "classes": {
+        "shaman": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "asystole": {
+      "classes": {
+        "necromancer": 44,
+        "shadow knight": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "atols_spectral_shackles": {
+      "classes": {
+        "wizard": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "augment": {
+      "classes": {
+        "enchanter": "56"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "augment_death": {
+      "classes": {
+        "necromancer": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "augmentation": {
+      "classes": {
+        "enchanter": "29"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "augmentation_of_death": {
+      "classes": {
+        "necromancer": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "aura_of_antibody": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aura_of_battle": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aura_of_black_petals": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aura_of_blue_petals": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aura_of_cold": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aura_of_green_petals": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aura_of_heat": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aura_of_marr": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aura_of_purity": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aura_of_red_petals": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "aura_of_white_petals": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "avatar": {
+      "classes": {
+        "shaman": "60"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "avatar_snare": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "bane_of_nife": {
+      "classes": {
+        "shaman": 56
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "banshee_aura": {
+      "classes": {
+        "necromancer": 16,
+        "shadow knight": 54
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "barbcoat": {
+      "classes": {
+        "druid": 19,
+        "ranger": 30
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "barrier_of_combustion": {
+      "classes": {
+        "magician": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "barrier_of_force": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "battery_vision": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "bedlam": {
+      "classes": {
+        "enchanter": "58"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "befriend_animal": {
+      "classes": {
+        "druid": 14,
+        "shaman": 29
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "beguile": {
+      "classes": {
+        "enchanter": "24"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "beguile_animals": {
+      "classes": {
+        "druid": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "beguile_plants": {
+      "classes": {
+        "druid": 29
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "beguile_undead": {
+      "classes": {
+        "necromancer": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "bellowing_winds": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "berserker_madness_i": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "berserker_madness_ii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "berserker_madness_iii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "berserker_madness_iv": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "berserker_spirit": {
+      "classes": {
+        "enchanter": "49"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "berserker_strength": {
+      "classes": {
+        "enchanter": "20"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "bind_sight": {
+      "classes": {
+        "enchanter": "8",
+        "ranger": 22,
+        "wizard": 16
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "bladecoat": {
+      "classes": {
+        "druid": 56
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "blessing_of_nature": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "blessing_of_the_grove": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "blinding_fear": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "blinding_luminance": {
+      "classes": {
+        "cleric": 34,
+        "shaman": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "blinding_poison_i": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "blinding_poison_iii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "blinding_step": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "blood_claw": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "bobbing_corpse": {
+      "classes": {
+        "shadow knight": 55
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "boil_blood": {
+      "classes": {
+        "necromancer": 29,
+        "shadow knight": 53
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "boiling_blood": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "boltrans_agacerie": {
+      "classes": {
+        "enchanter": "53"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "bond_of_death": {
+      "classes": {
+        "necromancer": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "bonds_of_force": {
+      "classes": {
+        "wizard": 29
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "bonds_of_tunare": {
+      "classes": {
+        "druid": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "bone_melt": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "boon_of_immolation": {
+      "classes": {
+        "magician": 53
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "boon_of_the_clear_mind": {
+      "classes": {
+        "enchanter": "52"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "boon_of_the_garou": {
+      "classes": {
+        "enchanter": "44"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "bramblecoat": {
+      "classes": {
+        "druid": 29,
+        "ranger": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "bravery": {
+      "classes": {
+        "cleric": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "breath_of_ro": {
+      "classes": {
+        "druid": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "breath_of_the_dead": {
+      "classes": {
+        "necromancer": 24,
+        "shadow knight": 49
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "breath_of_the_sea": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "breeze": {
+      "classes": {
+        "enchanter": "16"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "brilliance": {
+      "classes": {
+        "enchanter": "44"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "brittle_haste_i": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "brittle_haste_ii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "brittle_haste_iii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "brittle_haste_iv": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "bulwark_of_faith": {
+      "classes": {
+        "cleric": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "burnout": {
+      "classes": {
+        "magician": 255
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "burnout_ii": {
+      "classes": {
+        "magician": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "burnout_iii": {
+      "classes": {
+        "magician": 49
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "burnout_iv": {
+      "classes": {
+        "magician": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "burrowing_scarab": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "burst_of_strength": {
+      "classes": {
+        "shaman": 14
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "cadeau_of_flame": {
+      "classes": {
+        "magician": 56
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "cajole_undead": {
+      "classes": {
+        "necromancer": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "calimony": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "call_of_bones": {
+      "classes": {
+        "necromancer": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "call_of_earth": {
+      "classes": {
+        "ranger": 50
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "call_of_karana": {
+      "classes": {
+        "druid": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "call_of_sky": {
+      "classes": {
+        "ranger": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "call_of_the_predator": {
+      "classes": {
+        "ranger": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "calm": {
+      "classes": {
+        "cleric": 19,
+        "enchanter": "20",
+        "paladin": 49
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "calm_animal": {
+      "classes": {
+        "druid": 19,
+        "ranger": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "camouflage": {
+      "classes": {
+        "druid": 5,
+        "ranger": 15
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "captain_nalots_quickening": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "cascading_darkness": {
+      "classes": {
+        "necromancer": 49,
+        "shadow knight": 59
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "cassindras_chant_of_clarity": {
+      "classes": {
+        "bard": 20
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "cassindras_elegy": {
+      "classes": {
+        "bard": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "cassindras_insipid_ditty": {
+      "classes": {
+        "bard": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "cast_sight": {
+      "classes": {
+        "enchanter": "34"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "celerity": {
+      "classes": {
+        "enchanter": "39",
+        "shaman": 56
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "celestial_cleansing": {
+      "classes": {
+        "paladin": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "celestial_healing": {
+      "classes": {
+        "cleric": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "celestial_tranquility": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "center": {
+      "classes": {
+        "cleric": 9,
+        "paladin": 22
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "cessation_of_cor": {
+      "classes": {
+        "necromancer": 56
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "chant_of_battle": {
+      "classes": {
+        "bard": 1
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "charisma": {
+      "classes": {
+        "shaman": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "chase_the_moon": {
+      "classes": {
+        "enchanter": "16"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "chill_bones": {
+      "classes": {
+        "necromancer": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "chill_of_unlife": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "chill_sight": {
+      "classes": {
+        "ranger": 56,
+        "wizard": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "chilling_embrace": {
+      "classes": {
+        "necromancer": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "chloroplast": {
+      "classes": {
+        "druid": 44,
+        "ranger": 55,
+        "shaman": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "choke": {
+      "classes": {
+        "enchanter": "12"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "chords_of_dissonance": {
+      "classes": {
+        "bard": 2
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "cindas_charismatic_carillon": {
+      "classes": {
+        "bard": 11
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "circle_of_summer": {
+      "classes": {
+        "druid": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "circle_of_winter": {
+      "classes": {
+        "druid": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "clarity": {
+      "classes": {
+        "enchanter": "29"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "clarity_ii": {
+      "classes": {
+        "enchanter": "54"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "clinging_darkness": {
+      "classes": {
+        "necromancer": 4,
+        "shadow knight": 15
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "clockwork_poison": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "cloud": {
+      "classes": {
+        "enchanter": "20"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "cloud_of_disempowerment": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "cloud_of_fear": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "cloud_of_silence": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "cog_boost": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "cohesion": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "composition_of_ervaj": {
+      "classes": {
+        "bard": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "courage": {
+      "classes": {
+        "cleric": 1,
+        "paladin": 9
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "creeping_crud": {
+      "classes": {
+        "druid": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "creeping_vision": {
+      "classes": {
+        "shaman": 24
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "cripple": {
+      "classes": {
+        "enchanter": "53",
+        "shaman": 53
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "crissions_pixie_strike": {
+      "classes": {
+        "bard": 28
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "curse_of_the_simple_mind": {
+      "classes": {
+        "enchanter": "29"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "curse_of_the_spirits": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "dance_of_the_blade": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "daring": {
+      "classes": {
+        "cleric": 19,
+        "paladin": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "dark_pact": {
+      "classes": {
+        "necromancer": 8
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "dawncall": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "dazzle": {
+      "classes": {
+        "enchanter": "49"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "dead_man_floating": {
+      "classes": {
+        "necromancer": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "dead_men_floating": {
+      "classes": {
+        "necromancer": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "deadeye": {
+      "classes": {
+        "necromancer": 8,
+        "shadow knight": 22
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "deadly_poison": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "deadly_velium_poison": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "death_pact": {
+      "classes": {
+        "cleric": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "deftness": {
+      "classes": {
+        "shaman": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "deliriously_nimble": {
+      "classes": {
+        "shaman": 53
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "demi_lich": {
+      "classes": {
+        "necromancer": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "denons_bereavement": {
+      "classes": {
+        "bard": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "denons_disruptive_discord": {
+      "classes": {
+        "bard": 18
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "desperate_hope": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "devouring_darkness": {
+      "classes": {
+        "necromancer": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "dexterity": {
+      "classes": {
+        "shaman": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "dexterous_aura": {
+      "classes": {
+        "shaman": 1
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "diamondskin": {
+      "classes": {
+        "necromancer": 44,
+        "shadow knight": 59,
+        "wizard": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "dictate": {
+      "classes": {
+        "enchanter": "60"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "disease": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "disease_cloud": {
+      "classes": {
+        "necromancer": 1,
+        "shadow knight": 9
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "diseased_cloud": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "disempower": {
+      "classes": {
+        "enchanter": "16",
+        "shaman": 14
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "divine_aura": {
+      "classes": {
+        "cleric": 1,
+        "paladin": 55
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "divine_barrier": {
+      "classes": {
+        "cleric": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "divine_favor": {
+      "classes": {
+        "paladin": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "divine_glory": {
+      "classes": {
+        "paladin": 53
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "divine_intervention": {
+      "classes": {
+        "cleric": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "divine_might": {
+      "classes": {
+        "paladin": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "divine_purpose": {
+      "classes": {
+        "paladin": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "divine_strength": {
+      "classes": {
+        "paladin": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "dizzy_i": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "dizzy_ii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "dizzy_iii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "dizzy_iv": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "dominate_undead": {
+      "classes": {
+        "necromancer": 20
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "dooming_darkness": {
+      "classes": {
+        "necromancer": 29,
+        "shadow knight": 49
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "draconic_rage": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "dragon_charm": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "dragon_roar": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "drifting_death": {
+      "classes": {
+        "druid": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "drones_of_doom": {
+      "classes": {
+        "druid": 34,
+        "ranger": 54
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "drowsy": {
+      "classes": {
+        "shaman": 5
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "dulsehound": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "dyns_dizzying_draught": {
+      "classes": {
+        "enchanter": "29"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "earthcall": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "earthelementalattack": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "ebbing_strength": {
+      "classes": {
+        "enchanter": "12"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "echinacea_infusion": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "elemental_armor": {
+      "classes": {
+        "magician": 44,
+        "wizard": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "elemental_maelstrom": {
+      "classes": {
+        "magician": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "elemental_rhythms": {
+      "classes": {
+        "bard": 9
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "elemental_shield": {
+      "classes": {
+        "magician": 20,
+        "wizard": 20
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "embrace_of_the_kelpmaiden": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "endure_cold": {
+      "classes": {
+        "cleric": 14,
+        "druid": 9,
+        "necromancer": 4,
+        "ranger": 22,
+        "shadow knight": 15,
+        "shaman": 1
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "endure_disease": {
+      "classes": {
+        "cleric": 14,
+        "druid": 19,
+        "paladin": 39,
+        "shadow knight": 30,
+        "shaman": 9,
+        "necromancer": 12
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "endure_fire": {
+      "classes": {
+        "cleric": 9,
+        "druid": 1,
+        "ranger": 9,
+        "shaman": 5
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "endure_magic": {
+      "classes": {
+        "cleric": 19,
+        "druid": 34,
+        "enchanter": "20",
+        "paladin": 30,
+        "shaman": 19
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "endure_poison": {
+      "classes": {
+        "cleric": 9,
+        "druid": 19,
+        "paladin": 22,
+        "shaman": 14
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "enduring_breath": {
+      "classes": {
+        "druid": 9,
+        "enchanter": "12",
+        "ranger": 22,
+        "shaman": 14
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "energy_sap": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "enfeeblement": {
+      "classes": {
+        "enchanter": "4"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "engulfing_darkness": {
+      "classes": {
+        "necromancer": 12,
+        "shadow knight": 22
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "enlightenment": {
+      "classes": {
+        "enchanter": "57"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "enslave_death": {
+      "classes": {
+        "necromancer": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "ensnare": {
+      "classes": {
+        "druid": 29,
+        "ranger": 51
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "enthrall": {
+      "classes": {
+        "enchanter": "16"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "entrance": {
+      "classes": {
+        "enchanter": "34"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "envenomed_bolt": {
+      "classes": {
+        "necromancer": 51,
+        "shaman": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "envenomed_breath": {
+      "classes": {
+        "shaman": 24
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "everlasting_breath": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "expedience": {
+      "classes": {
+        "magician": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "extended_regeneration": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "eye_of_confusion": {
+      "classes": {
+        "enchanter": "8"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "eye_of_tallon": {
+      "classes": {
+        "magician": 57,
+        "wizard": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "eye_of_zomm": {
+      "classes": {
+        "magician": 8,
+        "wizard": 8
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "eyes_of_the_cat": {
+      "classes": {
+        "ranger": 30
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "fascination": {
+      "classes": {
+        "enchanter": "52"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "feast_of_blood": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "feckless_might": {
+      "classes": {
+        "enchanter": "20"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "feeble_poison": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "feedback": {
+      "classes": {
+        "enchanter": "29"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "feet_like_cat": {
+      "classes": {
+        "ranger": 15,
+        "shaman": 5
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "fellspine": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "feral_spirit": {
+      "classes": {
+        "druid": 19
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "fetter": {
+      "classes": {
+        "enchanter": "58",
+        "wizard": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "fiery_might": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "fire": {
+      "classes": {
+        "druid": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "firefist": {
+      "classes": {
+        "druid": 9,
+        "ranger": 22
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "fist_of_water": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "fixation_of_ro": {
+      "classes": {
+        "druid": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "flame_lick": {
+      "classes": {
+        "druid": 1,
+        "ranger": 9
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "flash_of_light": {
+      "classes": {
+        "cleric": 1,
+        "paladin": 9,
+        "shaman": 1
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "fleeting_fury": {
+      "classes": {
+        "shaman": 5
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "flesh_rot_i": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "flesh_rot_ii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "flesh_rot_iii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "flurry": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "focus_of_spirit": {
+      "classes": {
+        "shaman": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "forlorn_deeds": {
+      "classes": {
+        "enchanter": "57"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "form_of_the_great_bear": {
+      "classes": {
+        "shaman": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "form_of_the_great_wolf": {
+      "classes": {
+        "druid": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "form_of_the_howler": {
+      "classes": {
+        "druid": 54
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "form_of_the_hunter": {
+      "classes": {
+        "druid": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "fortitude": {
+      "classes": {
+        "cleric": 55
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "freezing_breath": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "frenzied_strength": {
+      "classes": {
+        "cleric": 34,
+        "paladin": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "frenzy": {
+      "classes": {
+        "shaman": 19
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "froglok_poison": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "frost_storm": {
+      "classes": {
+        "wizard": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "frostbite": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "frostreavers_blessing": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "fufils_curtailing_chant": {
+      "classes": {
+        "bard": "30"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "fungal_regrowth": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "fungus_spores": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "furious_strength": {
+      "classes": {
+        "shaman": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "fury": {
+      "classes": {
+        "shaman": 34
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "garzicors_vengeance": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "gasping_embrace": {
+      "classes": {
+        "enchanter": "49"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "gaze": {
+      "classes": {
+        "wizard": 12
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "gift_of_brilliance": {
+      "classes": {
+        "enchanter": "60"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "gift_of_insight": {
+      "classes": {
+        "enchanter": "55"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "gift_of_magic": {
+      "classes": {
+        "enchanter": "34"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "gift_of_pure_thought": {
+      "classes": {
+        "enchanter": "59"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "girdle_of_karana": {
+      "classes": {
+        "druid": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "glamour": {
+      "classes": {
+        "shaman": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "glamour_of_kintaz": {
+      "classes": {
+        "enchanter": "54"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "glamour_of_tunare": {
+      "classes": {
+        "druid": 53
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "glimpse": {
+      "classes": {
+        "druid": 4,
+        "ranger": 9
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "graveyard_dust": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "grease_injection": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "greater_shielding": {
+      "classes": {
+        "enchanter": "34",
+        "magician": 34,
+        "necromancer": 34,
+        "wizard": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "greater_wolf_form": {
+      "classes": {
+        "druid": 34,
+        "ranger": 56
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "greenmist": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "grim_aura": {
+      "classes": {
+        "necromancer": 4,
+        "shadow knight": 22
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "group_resist_magic": {
+      "classes": {
+        "enchanter": "49"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "guard": {
+      "classes": {
+        "cleric": 29,
+        "paladin": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "guardian": {
+      "classes": {
+        "shaman": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "guardian_rhythms": {
+      "classes": {
+        "bard": 17
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "harmony": {
+      "classes": {
+        "druid": 5,
+        "ranger": 22
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "harmshield": {
+      "classes": {
+        "necromancer": 20
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "harpy_voice": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "haste": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "haze": {
+      "classes": {
+        "enchanter": "4"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "health": {
+      "classes": {
+        "shaman": 34
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "heart_flutter": {
+      "classes": {
+        "necromancer": 16,
+        "shadow knight": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "heat_blood": {
+      "classes": {
+        "necromancer": 12,
+        "shadow knight": 30
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "heat_sight": {
+      "classes": {
+        "wizard": 16
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "heroic_bond": {
+      "classes": {
+        "cleric": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "heroism": {
+      "classes": {
+        "cleric": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "holy_armor": {
+      "classes": {
+        "cleric": 5,
+        "paladin": 15
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "hug": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "hymn_of_restoration": {
+      "classes": {
+        "bard": 6
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "ice": {
+      "classes": {
+        "druid": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "ice_breath": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "ice_strike": {
+      "classes": {
+        "shaman": 54
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "ignite_blood": {
+      "classes": {
+        "necromancer": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "ignite_bones": {
+      "classes": {
+        "necromancer": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "ikatiars_revenge": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "immolate": {
+      "classes": {
+        "druid": 29,
+        "ranger": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "immolating_breath": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "impart_strength": {
+      "classes": {
+        "necromancer": 8
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "incapacitate": {
+      "classes": {
+        "enchanter": "44",
+        "shaman": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "infectious_cloud": {
+      "classes": {
+        "necromancer": 16,
+        "shaman": 19
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "inferno_shield": {
+      "classes": {
+        "magician": 29
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "inner_fire": {
+      "classes": {
+        "shaman": 1
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "insidious_decay": {
+      "classes": {
+        "shaman": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "insidious_fever": {
+      "classes": {
+        "shaman": 19
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "insidious_malady": {
+      "classes": {
+        "shaman": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "insight": {
+      "classes": {
+        "enchanter": "255"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "insipid_weakness": {
+      "classes": {
+        "enchanter": "34"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "inspire_fear": {
+      "classes": {
+        "cleric": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "intensify_death": {
+      "classes": {
+        "necromancer": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "invigor": {
+      "classes": {
+        "cleric": 9,
+        "druid": 14,
+        "enchanter": "24",
+        "paladin": 22,
+        "ranger": 30,
+        "shaman": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "jonthans_inspiration": {
+      "classes": {
+        "bard": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "jonthans_provocation": {
+      "classes": {
+        "bard": 45
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "jonthans_whistling_warsong": {
+      "classes": {
+        "bard": 7
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "kazumis_note_of_preservation": {
+      "classes": {
+        "bard": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "kelins_lucid_lullaby": {
+      "classes": {
+        "bard": 15
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "kelins_lugubrious_lament": {
+      "classes": {
+        "bard": 8
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "kilvas_skin_of_flame": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "kylies_venom": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "languid_pace": {
+      "classes": {
+        "enchanter": "12"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "largarns_lamentation": {
+      "classes": {
+        "enchanter": "55"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "largos_absonant_binding": {
+      "classes": {
+        "bard": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "largos_melodic_binding": {
+      "classes": {
+        "bard": 20
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "leach": {
+      "classes": {
+        "necromancer": 12
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "leatherskin": {
+      "classes": {
+        "necromancer": 24,
+        "wizard": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "legacy_of_spike": {
+      "classes": {
+        "druid": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "legacy_of_thorn": {
+      "classes": {
+        "druid": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "lesser_shielding": {
+      "classes": {
+        "enchanter": "8",
+        "magician": 8,
+        "necromancer": 8,
+        "wizard": 8
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "levitate": {
+      "classes": {
+        "druid": 14,
+        "enchanter": "16",
+        "ranger": 39,
+        "shaman": 14,
+        "wizard": 24
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "levitation": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "lich": {
+      "classes": {
+        "necromancer": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "listless_power": {
+      "classes": {
+        "enchanter": "29",
+        "shaman": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "lower_resists_i": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "lower_resists_ii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "lower_resists_iii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "lower_resists_iv": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "lull": {
+      "classes": {
+        "cleric": 1,
+        "enchanter": "1",
+        "paladin": 15
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "lull_animal": {
+      "classes": {
+        "druid": 1,
+        "ranger": 9
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "lyssas_solidarity_of_vision": {
+      "classes": {
+        "bard": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "lyssas_veracious_concord": {
+      "classes": {
+        "bard": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "magi_curse": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "magnify": {
+      "classes": {
+        "wizard": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "major_shielding": {
+      "classes": {
+        "enchanter": "24",
+        "magician": 24,
+        "necromancer": 24,
+        "wizard": 24
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "mala": {
+      "classes": {
+        "magician": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "malevolent_grasp": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "malo": {
+      "classes": {
+        "shaman": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "malosi": {
+      "classes": {
+        "magician": 51,
+        "shaman": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "malosini": {
+      "classes": {
+        "magician": 58,
+        "shaman": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "mana_flare": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "mana_shroud": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "manasink": {
+      "classes": {
+        "wizard": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "manaskin": {
+      "classes": {
+        "necromancer": 52,
+        "wizard": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "maniacal_strength": {
+      "classes": {
+        "shaman": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "manticore_poison": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "mark_of_karn": {
+      "classes": {
+        "cleric": 56
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "mask_of_the_hunter": {
+      "classes": {
+        "druid": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "mcvaxius_berserker_crescendo": {
+      "classes": {
+        "bard": 42
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "mcvaxius_rousing_rondo": {
+      "classes": {
+        "bard": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "melody_of_ervaj": {
+      "classes": {
+        "bard": 50
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "mesmerization": {
+      "classes": {
+        "enchanter": "16"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "mesmerize": {
+      "classes": {
+        "enchanter": "4"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "mesmerizing_breath": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "mind_cloud": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "minion_of_hate": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "minor_shielding": {
+      "classes": {
+        "enchanter": "1",
+        "magician": 1,
+        "necromancer": 1,
+        "wizard": 1
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "mist": {
+      "classes": {
+        "enchanter": "12"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "mortal_deftness": {
+      "classes": {
+        "shaman": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "muscle_lock_i": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "muscle_lock_ii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "muscle_lock_iii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "muscle_lock_iv": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "mystic_precision": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "naltrons_mark": {
+      "classes": {
+        "cleric": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "natures_melody": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "natureskin": {
+      "classes": {
+        "druid": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "nillipus_march_of_the_wee": {
+      "classes": {
+        "bard": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "nimble": {
+      "classes": {
+        "shaman": 34
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "nivs_harmonic": {
+      "classes": {
+        "bard": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "nivs_melody_of_preservation": {
+      "classes": {
+        "bard": 47
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "null_aura": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "numb_the_dead": {
+      "classes": {
+        "necromancer": 4,
+        "shadow knight": 15
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "obscure": {
+      "classes": {
+        "enchanter": "29"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "obsidian_shatter": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "occlusion_of_sound": {
+      "classes": {
+        "bard": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "okeils_flickering_flame": {
+      "classes": {
+        "wizard": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "okeils_radiation": {
+      "classes": {
+        "wizard": 4
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "one_hundred_blows": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "overwhelming_splendor": {
+      "classes": {
+        "enchanter": "56"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "pacify": {
+      "classes": {
+        "cleric": 39,
+        "enchanter": "39",
+        "paladin": 51
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "pack_chloroplast": {
+      "classes": {
+        "druid": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "pack_regeneration": {
+      "classes": {
+        "druid": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "pack_spirit": {
+      "classes": {
+        "druid": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "pact_of_shadow": {
+      "classes": {
+        "necromancer": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "panic": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "panic_animal": {
+      "classes": {
+        "druid": 1,
+        "ranger": 22
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "panic_the_dead": {
+      "classes": {
+        "cleric": 29,
+        "necromancer": 29,
+        "shadow knight": 54
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "paralyzing_poison_i": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "paralyzing_poison_ii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "paralyzing_poison_iii": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "phantom_armor": {
+      "classes": {
+        "magician": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "phantom_chain": {
+      "classes": {
+        "magician": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "phantom_leather": {
+      "classes": {
+        "magician": 16
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "phantom_plate": {
+      "classes": {
+        "magician": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "plague": {
+      "classes": {
+        "necromancer": 52,
+        "shaman": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "plagueratdisease": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "plainsight": {
+      "classes": {
+        "wizard": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "poison": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "poison_bolt": {
+      "classes": {
+        "necromancer": 4
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "poison_breath": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "power": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "pox_of_bertoxxulous": {
+      "classes": {
+        "shaman": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "primal_avatar": {
+      "classes": {
+        "shaman": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "primal_essence": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "prime_healers_blessing": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "protect": {
+      "classes": {
+        "shaman": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "protection_of_the_glades": {
+      "classes": {
+        "druid": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "psalm_of_cooling": {
+      "classes": {
+        "bard": 33
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "psalm_of_mystic_shielding": {
+      "classes": {
+        "bard": 41
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "psalm_of_purity": {
+      "classes": {
+        "bard": 37
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "psalm_of_vitality": {
+      "classes": {
+        "bard": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "psalm_of_warmth": {
+      "classes": {
+        "bard": 25
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "purifying_rhythms": {
+      "classes": {
+        "bard": 13
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "putrefy_flesh": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "putrid_breath": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "pyrocruor": {
+      "classes": {
+        "necromancer": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "quickness": {
+      "classes": {
+        "enchanter": "16",
+        "shaman": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "quivering_veil_of_xarn": {
+      "classes": {
+        "necromancer": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "rabies": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "radiant_visage": {
+      "classes": {
+        "enchanter": "34"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "rage": {
+      "classes": {
+        "shaman": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "rage_of_tallon": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "rage_of_vallon": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "rage_of_zek": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "rampage": {
+      "classes": {
+        "enchanter": "39"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "rapture": {
+      "classes": {
+        "enchanter": "59"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "reckless_health": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "reckless_strength": {
+      "classes": {
+        "cleric": 5,
+        "paladin": 22
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "regeneration": {
+      "classes": {
+        "druid": 34,
+        "shaman": 24
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "regrowth": {
+      "classes": {
+        "druid": 54,
+        "shaman": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "regrowth_of_the_grove": {
+      "classes": {
+        "druid": 58
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "rejuvenation": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "repulse_animal": {
+      "classes": {
+        "druid": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "resist_cold": {
+      "classes": {
+        "cleric": 39,
+        "druid": 34,
+        "necromancer": 24,
+        "ranger": 55,
+        "shadow knight": 39,
+        "shaman": 24
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "resist_disease": {
+      "classes": {
+        "cleric": 39,
+        "druid": 44,
+        "necromancer": 34,
+        "paladin": 51,
+        "shaman": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "resist_fire": {
+      "classes": {
+        "cleric": 34,
+        "druid": 24,
+        "ranger": 49,
+        "shaman": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "resist_magic": {
+      "classes": {
+        "cleric": 44,
+        "druid": 49,
+        "enchanter": "39",
+        "paladin": 55,
+        "shaman": 44
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "resist_poison": {
+      "classes": {
+        "cleric": 34,
+        "druid": 44,
+        "shaman": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "resistance_to_magic": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "resistant_skin": {
+      "classes": {
+        "wizard": 12
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "resolution": {
+      "classes": {
+        "cleric": 44,
+        "paladin": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "rest_the_dead": {
+      "classes": {
+        "necromancer": 24,
+        "shadow knight": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "resurrection_effects": {
+      "classes": {},
+      "npc": "false",
+      "item": "false"
+    },
+    "riotous_health": {
+      "classes": {
+        "shaman": 54
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "rising_dexterity": {
+      "classes": {
+        "shaman": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "rodricks_gift": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "ros_fiery_sundering": {
+      "classes": {
+        "druid": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "rotting_flesh": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "rubicite_aura": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "rune_i": {
+      "classes": {
+        "enchanter": "16"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "rune_ii": {
+      "classes": {
+        "enchanter": "24"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "rune_iii": {
+      "classes": {
+        "enchanter": "34"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "rune_iv": {
+      "classes": {
+        "enchanter": "44"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "rune_v": {
+      "classes": {
+        "enchanter": "52"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "savage_spirit": {
+      "classes": {
+        "druid": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "scale_of_wolf": {
+      "classes": {
+        "druid": 24,
+        "shaman": 24
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "scale_skin": {
+      "classes": {
+        "shaman": 5
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "scarab_storm": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "scent_of_darkness": {
+      "classes": {
+        "necromancer": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "scent_of_dusk": {
+      "classes": {
+        "necromancer": 12
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "scent_of_shadow": {
+      "classes": {
+        "necromancer": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "scent_of_terris": {
+      "classes": {
+        "necromancer": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "scorching_skin": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "scourge": {
+      "classes": {
+        "necromancer": 39,
+        "shaman": 34
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "screaming_mace": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "screaming_terror": {
+      "classes": {
+        "necromancer": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "sear": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "sebilite_pox": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "see_invisible": {
+      "classes": {
+        "druid": 14,
+        "enchanter": "8",
+        "magician": 16,
+        "ranger": 39,
+        "wizard": 4
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "seething_fury": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "selos_accelerando": {
+      "classes": {
+        "bard": 4
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "selos_assonant_strane": {
+      "classes": {
+        "bard": 54
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "selos_chords_of_cessation": {
+      "classes": {
+        "bard": 48
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "selos_consonant_chain": {
+      "classes": {
+        "bard": 23
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "selos_song_of_travel": {
+      "classes": {
+        "bard": 51
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "serpent_sight": {
+      "classes": {
+        "enchanter": "12",
+        "shaman": 9
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shade": {
+      "classes": {
+        "enchanter": "39"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shadow": {
+      "classes": {
+        "enchanter": "49"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shadow_compact": {
+      "classes": {
+        "necromancer": 20
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shadow_sight": {
+      "classes": {
+        "necromancer": 24,
+        "shadow knight": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shadow_vortex": {
+      "classes": {
+        "necromancer": 20,
+        "shadow knight": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shadowbond": {
+      "classes": {
+        "necromancer": 54
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shallow_breath": {
+      "classes": {
+        "enchanter": "1"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "share_wolf_form": {
+      "classes": {
+        "druid": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shauris_sonorous_clouding": {
+      "classes": {
+        "bard": 19
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shield_of_barbs": {
+      "classes": {
+        "druid": 19
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shield_of_blades": {
+      "classes": {
+        "druid": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shield_of_brambles": {
+      "classes": {
+        "druid": 29,
+        "ranger": 49
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shield_of_fire": {
+      "classes": {
+        "magician": 8
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shield_of_flame": {
+      "classes": {
+        "magician": 20
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shield_of_lava": {
+      "classes": {
+        "magician": 49
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shield_of_song": {
+      "classes": {
+        "bard": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shield_of_spikes": {
+      "classes": {
+        "druid": 39,
+        "ranger": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shield_of_the_magi": {
+      "classes": {
+        "enchanter": "54",
+        "magician": 54,
+        "necromancer": 54,
+        "wizard": 54
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shield_of_thistles": {
+      "classes": {
+        "druid": 9,
+        "ranger": 30
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shield_of_words": {
+      "classes": {
+        "cleric": 49,
+        "paladin": 60
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shielding": {
+      "classes": {
+        "enchanter": "16",
+        "magician": 16,
+        "necromancer": 16,
+        "wizard": 16
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shieldskin": {
+      "classes": {
+        "necromancer": 16,
+        "shadow knight": 34,
+        "wizard": 16
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shifting_shield": {
+      "classes": {
+        "shaman": 34
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shifting_sight": {
+      "classes": {
+        "enchanter": "20",
+        "wizard": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shiftless_deeds": {
+      "classes": {
+        "enchanter": "44"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "shroud_of_death": {
+      "classes": {
+        "shadow knight": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shroud_of_hate": {
+      "classes": {
+        "shadow knight": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shroud_of_pain": {
+      "classes": {
+        "shadow knight": 50
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shroud_of_the_spirits": {
+      "classes": {
+        "shaman": 54
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "shroud_of_undeath": {
+      "classes": {
+        "shadow knight": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "sicken": {
+      "classes": {
+        "shaman": 5
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "sight": {
+      "classes": {
+        "wizard": 20
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "sight_graft": {
+      "classes": {
+        "necromancer": 12
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "silver_skin": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "siphon_strength": {
+      "classes": {
+        "necromancer": 1,
+        "shadow knight": 9
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "siphon_strength_recourse": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "skin_like_diamond": {
+      "classes": {
+        "druid": 39,
+        "ranger": 54
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "skin_like_nature": {
+      "classes": {
+        "druid": 49,
+        "ranger": 59
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "skin_like_rock": {
+      "classes": {
+        "druid": 14,
+        "ranger": 22
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "skin_like_steel": {
+      "classes": {
+        "druid": 24,
+        "ranger": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "skin_like_wood": {
+      "classes": {
+        "druid": 1,
+        "ranger": 9
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "skin_of_the_shadow": {
+      "classes": {
+        "necromancer": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "skunkspray": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "slime_mist": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "snare": {
+      "classes": {
+        "druid": 1,
+        "ranger": 9
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "solons_bewitching_bravura": {
+      "classes": {
+        "bard": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "solons_charismatic_concord": {
+      "classes": {
+        "bard": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "solons_song_of_the_sirens": {
+      "classes": {
+        "bard": 27
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "song_of_midnight": {
+      "classes": {
+        "bard": 56
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "song_of_the_deep_seas": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "song_of_twilight": {
+      "classes": {
+        "bard": 53
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "soothe": {
+      "classes": {
+        "cleric": 9,
+        "enchanter": "8",
+        "paladin": 30
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "soul_bond": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "soul_consumption": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "soul_well": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "speed_of_the_shissar": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "spikecoat": {
+      "classes": {
+        "druid": 39,
+        "ranger": 49
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "spin_the_bottle": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "spirit_armor": {
+      "classes": {
+        "cleric": 19,
+        "necromancer": 16,
+        "paladin": 30
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "spirit_of_bear": {
+      "classes": {
+        "shaman": 9
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "spirit_of_cat": {
+      "classes": {
+        "shaman": 19
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "spirit_of_cheetah": {
+      "classes": {
+        "druid": 24,
+        "shaman": 24
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "spirit_of_monkey": {
+      "classes": {
+        "shaman": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "spirit_of_oak": {
+      "classes": {
+        "druid": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "spirit_of_ox": {
+      "classes": {
+        "shaman": 24
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "spirit_of_scale": {
+      "classes": {
+        "druid": 53,
+        "shaman": 52
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "spirit_of_snake": {
+      "classes": {
+        "shaman": 14
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "spirit_of_wolf": {
+      "classes": {
+        "druid": 14,
+        "ranger": 30,
+        "shaman": 9
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "spirit_quickening": {
+      "classes": {
+        "shaman": 50
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "spirit_sight": {
+      "classes": {
+        "shaman": 9
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "spirit_strength": {
+      "classes": {
+        "shaman": 19
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "splurt": {
+      "classes": {
+        "necromancer": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "spook_the_dead": {
+      "classes": {
+        "cleric": 1,
+        "necromancer": 12,
+        "paladin": 9,
+        "shadow knight": 22
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "stability": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "stalking_probe": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "stalwart_regeneration": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "stamina": {
+      "classes": {
+        "shaman": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "steal_strength": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "steam_overload": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "steelskin": {
+      "classes": {
+        "necromancer": 34,
+        "shadow knight": 56,
+        "wizard": 34
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "stinging_swarm": {
+      "classes": {
+        "druid": 14,
+        "ranger": 30
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "storm_strength": {
+      "classes": {
+        "druid": 44,
+        "ranger": 53
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "stream_of_acid": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "strength": {
+      "classes": {
+        "shaman": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "strength_of_earth": {
+      "classes": {
+        "druid": 9,
+        "ranger": 30
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "strength_of_nature": {
+      "classes": {
+        "ranger": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "strength_of_stone": {
+      "classes": {
+        "druid": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "strength_of_the_kunzar": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "strengthen": {
+      "classes": {
+        "enchanter": "1",
+        "shaman": 1
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "strengthen_death": {
+      "classes": {
+        "shadow knight": 29
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "strike_of_thunder": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "strong_disease": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "strong_poison": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "suffocate": {
+      "classes": {
+        "enchanter": "29"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "suffocating_sphere": {
+      "classes": {
+        "enchanter": "4"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "sunbeam": {
+      "classes": {
+        "druid": 24
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "sunskin": {
+      "classes": {
+        "cleric": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "surge_of_enfeeblement": {
+      "classes": {
+        "necromancer": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "swarm_of_retribution": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "swarming_pain": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "swift_like_the_wind": {
+      "classes": {
+        "enchanter": "49"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "swift_spirit": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "sympathetic_aura": {
+      "classes": {
+        "enchanter": "20"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "tagars_insects": {
+      "classes": {
+        "shaman": 29
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "tainted_breath": {
+      "classes": {
+        "shaman": 9
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "talisman_of_altuna": {
+      "classes": {
+        "shaman": 44
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "talisman_of_jasinth": {
+      "classes": {
+        "shaman": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "talisman_of_kragg": {
+      "classes": {
+        "shaman": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "talisman_of_shadoo": {
+      "classes": {
+        "shaman": 53
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "talisman_of_the_brute": {
+      "classes": {
+        "shaman": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "talisman_of_the_cat": {
+      "classes": {
+        "shaman": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "talisman_of_the_raptor": {
+      "classes": {
+        "shaman": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "talisman_of_the_rhino": {
+      "classes": {
+        "shaman": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "talisman_of_the_serpent": {
+      "classes": {
+        "shaman": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "talisman_of_tnarg": {
+      "classes": {
+        "shaman": 34
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "tarews_aquatic_ayre": {
+      "classes": {
+        "bard": 16
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "tashan": {
+      "classes": {
+        "enchanter": "4"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "tashani": {
+      "classes": {
+        "enchanter": "20"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "tashania": {
+      "classes": {
+        "enchanter": "44"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "tashanian": {
+      "classes": {
+        "enchanter": "255"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "telescope": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "tepid_deeds": {
+      "classes": {
+        "enchanter": "24"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "terrorize_animal": {
+      "classes": {
+        "druid": 19
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "the_unspoken_word": {
+      "classes": {
+        "cleric": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "thistlecoat": {
+      "classes": {
+        "druid": 9,
+        "ranger": 15
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "thorncoat": {
+      "classes": {
+        "druid": 49,
+        "ranger": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "thorny_shield": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "thrall_of_bones": {
+      "classes": {
+        "necromancer": 54
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "thunder_blast": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "tigirs_insects": {
+      "classes": {
+        "shaman": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "torment": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "torment_of_argli": {
+      "classes": {
+        "enchanter": "56"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "torment_of_shadows": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "torpor": {
+      "classes": {
+        "shaman": 60
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "track_corpse": {
+      "classes": {
+        "necromancer": 20
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "travelerboots": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "treeform": {
+      "classes": {
+        "druid": 9
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "trepidation": {
+      "classes": {
+        "cleric": 57,
+        "enchanter": "56",
+        "necromancer": 56
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "tumultuous_strength": {
+      "classes": {
+        "shaman": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "tunares_request": {
+      "classes": {
+        "druid": 55
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "turgurs_insects": {
+      "classes": {
+        "shaman": 51
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "turning_of_the_unnatural": {
+      "classes": {
+        "cleric": 255
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "tuyens_chant_of_flame": {
+      "classes": {
+        "bard": 38
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "tuyens_chant_of_frost": {
+      "classes": {
+        "bard": 46
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "ultravision": {
+      "classes": {
+        "enchanter": "29",
+        "shaman": 29
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "umbra": {
+      "classes": {
+        "enchanter": "57"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "unfailing_reverence": {
+      "classes": {
+        "shaman": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "valiant_companion": {
+      "classes": {
+        "magician": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "valor": {
+      "classes": {
+        "cleric": 34,
+        "paladin": 49
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "vampire_charm": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "velocity": {
+      "classes": {
+        "magician": 58
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "vengeance_of_the_glades": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "venom_of_the_snake": {
+      "classes": {
+        "necromancer": 34,
+        "shaman": 39
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "vexing_mordinia": {
+      "classes": {
+        "necromancer": 57
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "vigor": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "vision": {
+      "classes": {
+        "shaman": 19
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "visions_of_grandeur": {
+      "classes": {
+        "enchanter": "60"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "voice_graft": {
+      "classes": {
+        "necromancer": 16
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "voice_of_the_berserker": {
+      "classes": {
+        "shaman": 59
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "wake_of_tranquility": {
+      "classes": {
+        "cleric": 55,
+        "enchanter": "51"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "walking_sleep": {
+      "classes": {
+        "shaman": 14
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "wandering_mind": {
+      "classes": {
+        "enchanter": "39"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "wave_of_enfeeblement": {
+      "classes": {
+        "necromancer": 12,
+        "shadow knight": 30
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "wave_of_fear": {
+      "classes": {
+        "cleric": 24
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "wave_of_heat": {
+      "classes": {},
+      "npc": "true",
+      "item": "false"
+    },
+    "waves_of_the_deep_sea": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "weak_poison": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "weaken": {
+      "classes": {
+        "enchanter": "1"
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "weakness": {
+      "classes": {
+        "enchanter": "44"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "whirl_till_you_hurl": {
+      "classes": {
+        "enchanter": "12"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "whirlwind": {
+      "classes": {},
+      "npc": "true",
+      "item": "true"
+    },
+    "wind_of_tishani": {
+      "classes": {
+        "enchanter": "55"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "wind_of_tishanian": {
+      "classes": {
+        "enchanter": "60"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "winged_death": {
+      "classes": {
+        "druid": 53
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "wolf_form": {
+      "classes": {
+        "druid": 24,
+        "ranger": 49
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "wonderous_rapidity": {
+      "classes": {
+        "enchanter": "58"
+      },
+      "npc": "false",
+      "item": "false"
+    },
+    "wrath_of_nature": {
+      "classes": {},
+      "npc": "false",
+      "item": "true"
+    },
+    "yaulp": {
+      "classes": {
+        "cleric": 1,
+        "paladin": 9
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "yaulp_ii": {
+      "classes": {
+        "cleric": 19,
+        "paladin": 39
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "yaulp_iii": {
+      "classes": {
+        "cleric": 44,
+        "paladin": 56
+      },
+      "npc": "false",
+      "item": "true"
+    },
+    "yaulp_iv": {
+      "classes": {
+        "cleric": 53,
+        "paladin": 60
+      },
+      "npc": "false",
+      "item": "true"
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    try:
+        version = str(pkg_resources.get_distribution("eqalert").version)
+        spell_casters_path = data_path + "spell-casters.json"
+        generate = True
+
+        if os.path.isfile(spell_casters_path):
+            json_data = open(spell_casters_path, "r", encoding="utf-8")
+            spell_casters = json.load(json_data)
+            json_data.close()
+
+            if spell_casters["version"] == version:
+                generate = False
+
+        if generate:
+            f = open(spell_casters_path, "w", encoding="utf-8")
+            f.write(new_spell_caster_data % (version))
+            f.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "update spell casters: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def update_spell_lines(data_path):
+    """Update data/spell-lines.json"""
+
+    new_spell_lines_data = """
+{
+  "spell_lines": {
+    "spell_line_potion_you_on": {
+      "accuracy": {},
+      "adroitness": {},
+      "aura_of_antibody": {},
+      "aura_of_cold": {},
+      "aura_of_heat": {},
+      "aura_of_purity": {},
+      "cohesion": {},
+      "null_aura": {},
+      "power": {},
+      "stability": {},
+      "vigor": {}
+    },
+    "spell_line_dot_disease_you_on": {
+      "affliction": {},
+      "plague": {},
+      "scourge": {},
+      "sebilite_pox": {},
+      "sicken": {}
+    },
+    "spell_line_haste_you_on": {
+      "alacrity": {},
+      "celerity": {},
+      "quickness": {},
+      "swift_like_the_wind": {}
+    },
+    "spell_line_nec_regen_you_on": {
+      "arch_lich": {},
+      "call_of_bones": {},
+      "demi_lich": {},
+      "lich": {}
+    },
+    "spell_line_int_caster_shield_you_on": {
+      "arch_shielding": {},
+      "greater_shielding": {},
+      "lesser_shielding": {},
+      "major_shielding": {},
+      "minor_shielding": {},
+      "shield_of_the_magi": {},
+      "shielding": {}
+    },
+    "spell_line_holy_armor_you_on": {
+      "armor_of_faith": {},
+      "guard": {},
+      "holy_armor": {},
+      "shield_of_words": {}
+    },
+    "spell_line_protection_you_on": {
+      "armor_of_protection": {}
+    },
+    "spell_line_dot_enc_you_on": {
+      "asphyxiate": {},
+      "choke": {},
+      "gasping_embrace": {},
+      "shallow_breath": {},
+      "suffocate": {}
+    },
+    "spell_line_haste_stats_you_on": {
+      "augment": {},
+      "augmentation": {},
+      "inner_fire": {}
+    },
+    "spell_line_regen_you_on": {
+      "aura_of_battle": {},
+      "chloroplast": {},
+      "extended_regeneration": {},
+      "pack_chloroplast": {},
+      "pack_regeneration": {},
+      "regeneration": {},
+      "regrowth": {},
+      "regrowth_of_the_grove": {}
+    },
+    "spell_line_spin_you_on": {
+      "bellowing_winds": {},
+      "dyns_dizzying_draught": {},
+      "rodricks_gift": {},
+      "spin_the_bottle": {},
+      "whirl_till_you_hurl": {}
+    },
+    "spell_line_berserker_madness_you_on": {
+      "berserker_madness_i": {},
+      "berserker_madness_ii": {},
+      "berserker_madness_iii": {},
+      "berserker_madness_iv": {}
+    },
+    "spell_line_npc_item_haste_you_on": {
+      "blessing_of_the_grove": {},
+      "haste": {},
+      "swift_spirit": {}
+    },
+    "spell_line_blind_you_on": {
+      "blinding_luminance": {},
+      "flash_of_light": {}
+    },
+    "spell_line_high_mag_ds_you_on": {
+      "boon_of_immolation": {},
+      "shield_of_lava": {}
+    },
+    "spell_line_dru_fire_you_on": {
+      "breath_of_ro": {},
+      "ros_fiery_sundering": {}
+    },
+    "spell_line_pacify_you_on": {
+      "calm": {},
+      "calm_animal": {},
+      "pacify": {},
+      "soothe": {},
+      "wake_of_tranquility": {}
+    },
+    "spell_line_nec_snare_you_on": {
+      "cascading_darkness": {},
+      "dooming_darkness": {},
+      "engulfing_darkness": {}
+    },
+    "spell_line_raid_silence_you_on": {
+      "cloud_of_silence": {},
+      "mesmerizing_breath": {}
+    },
+    "spell_line_swarms_you_on": {
+      "creeping_crud": {},
+      "drifting_death": {},
+      "drones_of_doom": {},
+      "stinging_swarm": {}
+    },
+    "spell_line_mez_you_on": {
+      "dazzle": {},
+      "mesmerization": {},
+      "mesmerize": {}
+    },
+    "spell_line_poison_you_on": {
+      "deadly_poison": {},
+      "envenomed_bolt": {},
+      "envenomed_breath": {},
+      "feeble_poison": {},
+      "froglok_poison": {},
+      "ikatiars_revenge": {},
+      "manticore_poison": {},
+      "poison": {},
+      "poison_bolt": {},
+      "strong_poison": {},
+      "tainted_breath": {},
+      "venom_of_the_snake": {},
+      "weak_poison": {}
+    },
+    "spell_line_dexterity_you_on": {
+      "deftness": {},
+      "dexterity": {},
+      "dexterous_aura": {},
+      "rising_dexterity": {}
+    },
+    "spell_line_npc_disease_you_on": {
+      "disease": {},
+      "plagueratdisease": {},
+      "rabies": {},
+      "strong_disease": {}
+    },
+    "spell_line_debuff_you_on": {
+      "disempower": {},
+      "incapacitate": {},
+      "listless_power": {}
+    },
+    "spell_line_dizzy_you_on": {
+      "dizzy_ii": {},
+      "dizzy_iii": {}
+    },
+    "spell_line_slow_you_on": {
+      "drowsy": {},
+      "tagars_insects": {},
+      "tigirs_insects": {},
+      "turgurs_insects": {},
+      "walking_sleep": {}
+    },
+    "spell_line_strength_debuff_you_on": {
+      "ebbing_strength": {},
+      "weaken": {}
+    },
+    "spell_line_int_resists_you_on": {
+      "elemental_armor": {},
+      "elemental_shield": {}
+    },
+    "spell_line_cold_resist_you_on": {
+      "endure_cold": {}
+    },
+    "spell_line_disease_resist_you_on": {
+      "endure_disease": {}
+    },
+    "spell_line_fire_resist_you_on": {
+      "endure_fire": {}
+    },
+    "spell_line_magic_resist_you_on": {
+      "endure_magic": {},
+      "group_resist_magic": {}
+    },
+    "spell_line_poison_resist_you_on": {
+      "endure_poison": {}
+    },
+    "spell_line_enduring_breath_you_on": {
+      "enduring_breath": {},
+      "everlasting_breath": {}
+    },
+    "spell_line_snare_you_on": {
+      "ensnare": {},
+      "snare": {}
+    },
+    "spell_line_leach_you_on": {
+      "feast_of_blood": {},
+      "soul_bond": {},
+      "soul_consumption": {},
+      "soul_well": {}
+    },
+    "spell_line_enc_debuff_you_on": {
+      "feckless_might": {},
+      "insipid_weakness": {},
+      "weakness": {}
+    },
+    "spell_line_enc_slow_you_on": {
+      "forlorn_deeds": {},
+      "languid_pace": {},
+      "rejuvenation_pace": {},
+      "shiftless_deeds": {},
+      "tepid_deeds": {}
+    },
+    "spell_line_wolf_form_you_on": {
+      "form_of_the_great_wolf": {},
+      "form_of_the_howler": {},
+      "form_of_the_hunter": {},
+      "greater_wolf_form": {},
+      "share_wolf_form": {},
+      "wolf_form": {}
+    },
+    "spell_line_berserk_you_on": {
+      "frenzy": {},
+      "fury": {}
+    },
+    "spell_line_strength_you_on": {
+      "furious_strength": {},
+      "impart_strength": {},
+      "spirit_strength": {},
+      "storm_strength": {},
+      "strength_of_earth": {},
+      "strength_of_stone": {},
+      "strength_of_the_kunzar": {},
+      "strengthen": {},
+      "tumultuous_strength": {}
+    },
+    "spell_line_heroic_valor_you_on": {
+      "heroic_bond": {},
+      "heroism": {}
+    },
+    "spell_line_charisma_you_on": {
+      "charisma": {},
+      "glamour": {}
+    },
+    "spell_line_low_mag_ds_you_on": {
+      "inferno_shield": {},
+      "shield_of_flame": {}
+    },
+    "spell_line_shm_insidious_you_on": {
+      "insidious_decay": {},
+      "insidious_fever": {},
+      "insidious_malady": {}
+    },
+    "spell_line_dru_ds_you_on": {
+      "legacy_of_spike": {},
+      "legacy_of_thorn": {},
+      "shield_of_barbs": {},
+      "shield_of_brambles": {},
+      "shield_of_spikes": {},
+      "shield_of_thistles": {},
+      "thorny_shield": {}
+    },
+    "spell_line_wiz_ds_you_on": {
+      "okeils_flickering_flame": {},
+      "okeils_radiation": {}
+    },
+    "spell_line_paralyzing_poison_you_on": {
+      "paralyzing_poison_i": {},
+      "paralyzing_poison_ii": {},
+      "paralyzing_poison_iii": {}
+    },
+    "spell_line_npc_sick_you_on": {
+      "putrid_breath": {},
+      "rodricks_gift": {}
+    },
+    "spell_line_fragile_sow_you_on": {
+      "scale_of_wolf": {},
+      "spirit_of_scale": {}
+    },
+    "pell_line_siphon_strength_you_on": {
+      "siphon_strength": {},
+      "surge_of_enfeeblement": {},
+      "wave_of_enfeeblement": {}
+    },
+    "spell_line_siphon_strength_you_on": {
+      "siphon_strength_recourse": {},
+      "steal_strength": {}
+    },
+    "spell_line_dru_tree_you_on": {
+      "spirit_of_oak": {},
+      "treeform": {}
+    },
+    "spell_line_shm_hp_you_on": {
+      "talisman_of_altuna": {},
+      "talisman_of_kragg": {},
+      "talisman_of_tnarg": {}
+    },
+    "spell_line_low_tash_you_on": {
+      "tashani": {},
+      "wind_of_tishani": {}
+    },
+    "spell_line_tash_you_on": {
+      "tashanian": {},
+      "wind_of_tishanian": {}
+    },
+    "spell_line_malo_you_on": {
+      "mala": {},
+      "malo": {},
+      "malosi": {},
+      "malosini": {}
+    },
+    "spell_line_see_invis_you_on": {
+      "acumen": {},
+      "chill_sight": {},
+      "heat_sight": {},
+      "plainsight": {},
+      "see_invisible": {},
+      "serpent_sight": {},
+      "spirit_sight": {},
+      "ultravision": {}
+    },
+    "spell_line_blinding_poison_you_on": {
+      "blinding_poison_i": {},
+      "blinding_poison_iii": {}
+    },
+    "spell_line_mind_clears_you_on": {
+      "brilliance": {}
+    },
+    "spell_line_brittle_haste_you_on": {
+      "brittle_haste_ii": {},
+      "brittle_haste_iii": {},
+      "brittle_haste_iv": {}
+    },
+    "spell_line_infravision_you_on": {
+      "deadeye": {},
+      "eyes_of_the_cat": {}
+    },
+    "spell_line_dru_root_you_on": {
+      "engulfing_roots": {},
+      "ensnaring_roots": {},
+      "entrapping_roots": {},
+      "enveloping_roots": {},
+      "grasping_roots": {}
+    },
+    "spell_line_root_you_on": {
+      "enstill": {},
+      "fetter": {},
+      "immobilize": {},
+      "paralyzing_earth": {},
+      "root": {},
+      "vengeance_of_the_glades": {}
+    },
+    "spell_line_flesh_rot_you_on": {
+      "flesh_rot_i": {},
+      "flesh_rot_ii": {},
+      "flesh_rot_iii": {},
+      "rotting_flesh": {}
+    },
+    "spell_line_enc_mana_buff_you_on": {
+      "gift_of_brilliance": {},
+      "gift_of_insight": {},
+      "gift_of_magic": {}
+    },
+    "spell_line_magnify_you_on": {
+      "glimpse": {},
+      "magnify": {},
+      "sight": {}
+    },
+    "spell_line_enc_ac_you_on": {
+      "haze": {},
+      "mist": {}
+    },
+    "spell_line_nec_fire_you_on": {
+      "ignite_blood": {},
+      "pyrocruor": {}
+    },
+    "spell_line_potion_ds_you_on": {
+      "kilvas_skin_of_flame": {},
+      "scorching_skin": {}
+    },
+    "spell_line_lower_resists_you_on": {
+      "lower_resists_ii": {},
+      "lower_resists_iii": {},
+      "lower_resists_iv": {}
+    },
+    "spell_line_dru_best_hp_you_on": {
+      "natureskin": {},
+      "protection_of_the_glades": {}
+    },
+    "spell_line_clarity_you_on": {
+      "boon_of_the_clear_mind": {},
+      "clarity": {}
+    },
+    "spell_line_clarity_ii_you_on": {
+      "clarity_ii": {},
+      "gift_of_pure_thought": {}
+    },
+    "spell_line_rune_you_on": {
+      "rune_iv": {},
+      "rune_v": {}
+    },
+    "spell_line_potion_other_on": {
+      "accuracy": {},
+      "adroitness": {},
+      "aura_of_antibody": {},
+      "aura_of_cold": {},
+      "aura_of_heat": {},
+      "aura_of_purity": {},
+      "cohesion": {},
+      "null_aura": {},
+      "power": {},
+      "stability": {},
+      "vigor": {}
+    },
+    "spell_line_see_invis_other_on": {
+      "acumen": {},
+      "spirit_sight": {}
+    },
+    "spell_line_dot_disease_other_on": {
+      "affliction": {},
+      "insidious_decay": {},
+      "insidious_fever": {},
+      "insidious_malady": {},
+      "plague": {},
+      "scourge": {},
+      "sebilite_pox": {},
+      "sicken": {}
+    },
+    "spell_line_haste_other_on": {
+      "blessing_of_the_grove": {},
+      "brittle_haste_ii": {},
+      "brittle_haste_iii": {},
+      "brittle_haste_iv": {},
+      "haste": {},
+      "swift_spirit": {}
+    },
+    "spell_line_low_nec_mana_regen_other_on": {
+      "allure_of_death": {},
+      "dark_pact": {}
+    },
+    "spell_line_nec_regen_other_on": {
+      "arch_lich": {},
+      "call_of_bones": {},
+      "demi_lich": {},
+      "lich": {}
+    },
+    "spell_line_holy_armor_other_on": {
+      "armor_of_faith": {},
+      "guard": {},
+      "holy_armor": {},
+      "shield_of_words": {}
+    },
+    "spell_line_dot_enc_other_on": {
+      "asphyxiate": {},
+      "choke": {},
+      "gasping_embrace": {},
+      "shallow_breath": {},
+      "suffocate": {}
+    },
+    "spell_line_target_vision_other_on": {
+      "assiduous": {},
+      "sight_graft": {},
+      "vision": {}
+    },
+    "spell_dot_nec_heart_other_on": {
+      "asystole": {},
+      "heart_flutter": {}
+    },
+    "spell_line_nec_haste_other_on": {
+      "augment_death": {},
+      "augmentation_of_death": {},
+      "intensify_death": {},
+      "strengthen_death": {}
+    },
+    "spell_line_regen_other_on": {
+      "aura_of_battle": {},
+      "chloroplast": {},
+      "extended_regeneration": {},
+      "pack_chloroplast": {},
+      "pack_regeneration": {},
+      "regeneration": {},
+      "regrowth": {},
+      "regrowth_of_the_grove": {}
+    },
+    "spell_line_mag_ds_other_on": {
+      "inferno_shield": {},
+      "shield_of_flame": {},
+      "shield_of_lava": {},
+      "wave_of_flame": {}
+    },
+    "spell_line_spin_other_on": {
+      "bellowing_winds": {},
+      "dyns_dizzying_draught": {},
+      "rodricks_gift": {},
+      "spin_the_bottle": {},
+      "whirl_till_you_hurl": {}
+    },
+    "spell_line_berserker_madness_other_on": {
+      "berserker_madness_i": {},
+      "berserker_madness_ii": {},
+      "berserker_madness_iii": {},
+      "berserker_madness_iv": {},
+      "berserker_spirit": {}
+    },
+    "spell_line_blind_other_on": {
+      "blinding_luminance": {},
+      "flash_of_light": {}
+    },
+    "spell_line_blinding_poison_other_on": {
+      "blinding_poison_i": {},
+      "blinding_poison_iii": {}
+    },
+    "spell_line_clarity_other_on": {
+      "boon_of_the_clear_mind": {},
+      "clarity": {}
+    },
+    "spell_line_dru_fire_other_on": {
+      "breath_of_ro": {},
+      "ros_fiery_sundering": {}
+    },
+    "spell_line_berserk_other_on": {
+      "burnout": {},
+      "burnout_ii": {},
+      "burnout_iii": {},
+      "burnout_iv": {},
+      "frenzy": {},
+      "fury": {},
+      "voice_of_the_berserker": {}
+    },
+    "spell_line_scarab_other_on": {
+      "burrowing_scarab": {},
+      "scarab_storm": {}
+    },
+    "spell_line_strength_other_on": {
+      "burst_of_strength": {},
+      "furious_strength": {},
+      "girdle_of_karana": {},
+      "impart_strength": {},
+      "spirit_strength": {},
+      "storm_strength": {},
+      "strength_of_earth": {},
+      "strength_of_stone": {},
+      "strength_of_the_kunzar": {},
+      "strengthen": {},
+      "tumultuous_strength": {}
+    },
+    "spell_line_pacify_other_on": {
+      "calm": {},
+      "calm_animal": {},
+      "lull": {},
+      "pacify": {},
+      "soothe": {},
+      "wake_of_tranquility": {}
+    },
+    "spell_line_nec_snare_other_on": {
+      "cascading_darkness": {},
+      "dooming_darkness": {},
+      "engulfing_darkness": {}
+    },
+    "spell_line_charisma_other_on": {
+      "charisma": {},
+      "glamour": {},
+      "talisman_of_the_serpent": {}
+    },
+    "spell_line_ultravision_other_on": {
+      "chill_sight": {},
+      "plainsight": {},
+      "shadow_sight": {},
+      "ultravision": {}
+    },
+    "spell_line_clarity_ii_other_on": {
+      "clarity_ii": {},
+      "gift_of_pure_thought": {}
+    },
+    "spell_line_raid_silence_other_on": {
+      "cloud_of_silence": {},
+      "mesmerizing_breath": {}
+    },
+    "spell_line_swarm_other_on": {
+      "creeping_crud": {},
+      "drifting_death": {},
+      "drones_of_doom": {},
+      "stinging_swarm": {}
+    },
+    "spell_line_infravision_other_on": {
+      "deadeye": {},
+      "heat_sight": {},
+      "serpent_sight": {}
+    },
+    "spell_line_poison_other_on": {
+      "deadly_poison": {},
+      "dizzy_i": {},
+      "dizzy_ii": {},
+      "dizzy_iii": {},
+      "dizzy_iv": {},
+      "envenomed_bolt": {},
+      "feeble_mind_i": {},
+      "feeble_mind_ii": {},
+      "feeble_mind_iii": {},
+      "feeble_mind_iv": {},
+      "feeble_poison": {},
+      "froglok_poison": {},
+      "ikatiars_revenge": {},
+      "lower_resists_i": {},
+      "lower_resists_ii": {},
+      "lower_resists_iii": {},
+      "lower_resists_iv": {},
+      "manticore_poison": {},
+      "poison": {},
+      "poison_bolt": {},
+      "strong_poison": {},
+      "system_shock_i": {},
+      "system_shock_ii": {},
+      "system_shock_iii": {},
+      "system_shock_iv": {},
+      "system_shock_v": {},
+      "tainted_breath": {},
+      "venom_of_the_snake": {},
+      "weak_poison": {}
+    },
+    "spell_line_dexterity_other_on": {
+      "deftness": {},
+      "dexterity": {},
+      "rising_dexterity": {},
+      "talisman_of_the_raptor": {}
+    },
+    "spell_line_npc_disease_other_on": {
+      "disease": {},
+      "plagueratdisease": {},
+      "rabies": {},
+      "strong_disease": {}
+    },
+    "spell_line_debuff_other_on": {
+      "disempower": {},
+      "incapacitate": {},
+      "listless_power": {}
+    },
+    "spell_line_slow_other_on": {
+      "drowsy": {},
+      "tagars_insects": {},
+      "tigirs_insects": {},
+      "turgurs_insects": {},
+      "walking_sleep": {}
+    },
+    "spell_line_hungry_earth_other_on": {
+      "hungry_earth": {},
+      "earthelementalattack": {}
+    },
+    "spell_line_strength_debuff_other_on": {
+      "ebbing_strength": {},
+      "siphon_strength": {},
+      "surge_of_enfeeblement": {},
+      "wave_of_enfeeblement": {},
+      "weaken": {}
+    },
+    "spell_line_int_resists_other_on": {
+      "elemental_armor": {},
+      "elemental_shield": {}
+    },
+    "spell_line_enduring_breath_other_on": {
+      "enduring_breath": {},
+      "everlasting_breath": {}
+    },
+    "spell_line_dru_root_other_on": {
+      "engulfing_roots": {},
+      "ensnaring_roots": {},
+      "entrapping_roots": {},
+      "enveloping_roots": {},
+      "grasping_roots": {}
+    },
+    "spell_line_snare_other_on": {
+      "ensnare": {},
+      "snare": {}
+    },
+    "spell_line_root_other_on": {
+      "enstill": {},
+      "fetter": {},
+      "immobilize": {},
+      "paralyzing_earth": {},
+      "root": {}
+    },
+    "spell_line_mag_sow_other_on": {
+      "expedience": {},
+      "velocity": {}
+    },
+    "spell_line_enc_debuff_other_on": {
+      "feckless_might": {},
+      "insipid_weakness": {},
+      "weakness": {}
+    },
+    "spell_line_pet_haste_or_rabies_other_on": {
+      "feral_spirit": {},
+      "rabies": {},
+      "spirit_quickening": {}
+    },
+    "spell_line_flesh_rot_other_on": {
+      "flesh_rot_i": {},
+      "flesh_rot_ii": {},
+      "flesh_rot_iii": {}
+    },
+    "spell_line_enc_slow_other_on": {
+      "forlorn_deeds": {},
+      "languid_pace": {},
+      "rejuvenation": {},
+      "shiftless_deeds": {},
+      "tepid_deeds": {}
+    },
+    "spell_line_wolf_form_other_on": {
+      "form_of_the_great_wolf": {},
+      "form_of_the_howler": {},
+      "form_of_the_hunter": {},
+      "greater_wolf_form": {},
+      "share_wolf_form": {},
+      "wolf_form": {}
+    },
+    "spell_line_shm_poison_other_on": {
+      "gale_of_poison": {},
+      "poison_storm": {},
+      "sear": {}
+    },
+    "spell_line_enc_mana_buff_other_on": {
+      "gift_of_brilliance": {},
+      "gift_of_insight": {},
+      "gift_of_magic": {}
+    },
+    "spell_line_npc_root_other_on": {
+      "gelatroot": {},
+      "ghoul_root": {}
+    },
+    "spell_line_magnify_other_on": {
+      "glimpse": {},
+      "magnify": {},
+      "sight": {}
+    },
+    "spell_line_magic_resist_other_on": {
+      "group_resist_magic": {},
+      "resist_magic": {},
+      "resistance_to_magic": {}
+    },
+    "spell_line_enc_ac_other_on": {
+      "haze": {},
+      "mist": {}
+    },
+    "spell_line_heroic_valor_other_on": {
+      "heroic_bond": {},
+      "heroism": {}
+    },
+    "spell_line_nec_fire_other_on": {
+      "ignite_blood": {},
+      "pyrocruor": {}
+    },
+    "spell_line_potion_ds_other_on": {
+      "kilvas_skin_of_flame": {},
+      "scorching_skin": {}
+    },
+    "spell_line_dru_ds_other_on": {
+      "legacy_of_spike": {},
+      "legacy_of_thorn": {},
+      "shield_of_barbs": {},
+      "shield_of_brambles": {},
+      "shield_of_spikes": {},
+      "shield_of_thistles": {},
+      "thorny_shield": {}
+    },
+    "spell_line_malo_other_on": {
+      "mala": {},
+      "malo": {},
+      "malosi": {},
+      "malosini": {}
+    },
+    "spell_line_dru_best_hp_other_on": {
+      "natureskin": {},
+      "protection_of_the_glades": {}
+    },
+    "spell_line_pacify_undead_other_on": {
+      "numb_the_dead": {},
+      "rest_the_dead": {}
+    },
+    "spell_line_wiz_ds_other_on": {
+      "okeils_flickering_flame": {},
+      "okeils_radiation": {}
+    },
+    "spell_line_nec_heal_other_on": {
+      "pact_of_shadow": {},
+      "shadow_compact": {},
+      "shadowbond": {}
+    },
+    "spell_line_paralyzing_poison_other_on": {
+      "paralyzing_poison_i": {},
+      "paralyzing_poison_ii": {},
+      "paralyzing_poison_iii": {}
+    },
+    "spell_line_rune_other_on": {
+      "rune_i": {},
+      "rune_ii": {},
+      "rune_iii": {},
+      "rune_iv": {},
+      "rune_v": {}
+    },
+    "spell_line_fragile_sow_other_on": {
+      "scale_of_wolf": {},
+      "spirit_of_scale": {}
+    },
+    "spell_line_nec_scent_other_on": {
+      "scent_of_darkness": {},
+      "scent_of_terris": {}
+    },
+    "spell_line_yaulp_other_on": {
+      "screaming_mace": {},
+      "yaulp": {},
+      "yaulp_ii": {},
+      "yaulp_iii": {},
+      "yaulp_iv": {}
+    },
+    "spell_line_siphon_strength_other_on": {
+      "siphon_strength_recourse": {},
+      "steal_strength": {}
+    },
+    "spell_line_cat_other_on": {
+      "spirit_of_cat": {},
+      "spirit_of_cheetah": {}
+    },
+    "spell_line_dru_tree_other_on": {
+      "spirit_of_oak": {},
+      "treeform": {}
+    },
+    "spell_line_shm_sta_other_on": {
+      "stamina": {},
+      "talisman_of_the_brute": {}
+    },
+    "spell_line_shm_str_other_on": {
+      "strength": {},
+      "talisman_of_the_rhino": {}
+    },
+    "spell_line_shm_hp_other_on": {
+      "talisman_of_altuna": {},
+      "talisman_of_kragg": {},
+      "talisman_of_tnarg": {}
+    },
+    "spell_line_tash_other_on": {
+      "tashan": {},
+      "tashani": {},
+      "tashania": {},
+      "tashanian": {},
+      "wind_of_tishani": {},
+      "wind_of_tishanian": {}
+    },
+    "spell_line_holy_guard_you_off": {
+      "aegis": {},
+      "bulwark_of_faith": {}
+    },
+    "spell_line_holy_armor_you_off": {
+      "armor_of_faith": {},
+      "guard": {},
+      "holy_armor": {},
+      "shield_of_words": {}
+    },
+    "spell_line_dot_enc_you_off": {
+      "asphyxiate": {},
+      "choke": {},
+      "gasping_embrace": {},
+      "shallow_breath": {},
+      "suffocate": {}
+    },
+    "spell_line_target_vision_you_off": {
+      "assiduous_vision": {},
+      "vision": {}
+    },
+    "spell_line_regen_you_off": {
+      "aura_of_battle": {},
+      "chloroplast": {},
+      "extended_regeneration": {},
+      "fungal_regrowth": {},
+      "pack_chloroplast": {},
+      "pack_regeneration": {},
+      "regeneration": {},
+      "regrowth": {},
+      "regrowth_of_the_grove": {},
+      "stalwart_regeneration": {}
+    },
+    "spell_line_spin_you_off": {
+      "bellowing_winds": {},
+      "dyns_dizzying_draught": {},
+      "spin_the_bottle": {},
+      "whirl_till_you_hurl": {}
+    },
+    "spell_line_berserker_madness_you_off": {
+      "berserker_madness_i": {},
+      "berserker_madness_ii": {},
+      "berserker_madness_iii": {},
+      "berserker_madness_iv": {}
+    },
+    "spell_line_enduring_breath_you_off": {
+      "breath_of_the_dead": {},
+      "enduring_breath": {},
+      "everlasting_breath": {}
+    },
+    "spell_line_brittle_haste_you_off": {
+      "brittle_haste_ii": {},
+      "brittle_haste_iii": {},
+      "brittle_haste_iv": {}
+    },
+    "spell_line_enc_ac_you_off": {
+      "cloud": {},
+      "haze": {},
+      "mist": {},
+      "obscure": {},
+      "shade": {},
+      "shadow": {},
+      "umbra": {}
+    },
+    "spell_line_debuff_you_off": {
+      "cripple": {},
+      "disempower": {},
+      "frenzied_strength": {},
+      "incapacitate": {},
+      "listless_power": {},
+      "reckless_strength": {},
+      "resurrection_effects": {},
+      "surge_of_enfeeblement": {},
+      "wave_of_enfeeblement": {}
+    },
+    "spell_line_npc_disease_you_off": {
+      "disease": {},
+      "plagueratdisease": {},
+      "rabies": {},
+      "strong_disease": {}
+    },
+    "spell_line_slow_you_off": {
+      "drowsy": {},
+      "tagars_insects": {},
+      "tigirs_insects": {},
+      "turgurs_insects": {},
+      "walking_sleep": {}
+    },
+    "spell_line_flesh_rot_you_off": {
+      "flesh_rot_i": {},
+      "flesh_rot_ii": {},
+      "flesh_rot_iii": {}
+    },
+    "spell_line_wolf_form_you_off": {
+      "form_of_the_great_wolf": {},
+      "form_of_the_howler": {},
+      "form_of_the_hunter": {},
+      "greater_wolf_form": {},
+      "share_wolf_form": {},
+      "wolf_form": {}
+    },
+    "spell_line_enc_slow_you_off": {
+      "forlorn_deeds": {},
+      "shiftless_deeds": {},
+      "tepid_deeds": {}
+    },
+    "spell_line_dru_tree_you_off": {
+      "spirit_of_oak": {},
+      "treeform": {}
+    },
+    "spell_line_haste_you_off": {
+      "aanyas_quickening": {},
+      "blessing_of_the_grove": {},
+      "alacrity": {},
+      "celerity": {},
+      "haste": {},
+      "quickness": {},
+      "swift_like_the_wind": {},
+      "swift_spirit": {},
+      "wonderous_rapidity": {}
+    },
+    "spell_line_see_invis_you_off": {
+      "acumen": {},
+      "see_invisible": {},
+      "spirit_sight": {}
+    },
+    "spell_line_enc_charisma_you_off": {
+      "adorning_grace": {},
+      "overwhelming_splendor": {}
+    },
+    "spell_line_dot_disease_you_off": {
+      "affliction": {},
+      "insidious_decay": {},
+      "insidious_fever": {},
+      "insidious_malady": {},
+      "plague": {},
+      "scourge": {},
+      "sebilite_pox": {},
+      "sicken": {}
+    },
+    "spell_line_agility_you_off": {
+      "agility": {},
+      "deliriously": {},
+      "nimble": {},
+      "feet_like_cat": {}
+    },
+    "spell_line_nec_regen_you_off": {
+      "arch_lich": {},
+      "call_of_bones": {},
+      "demi_lich": {},
+      "lich": {}
+    },
+    "spell_line_int_caster_shield_you_off": {
+      "arch_shielding": {},
+      "greater_shielding": {},
+      "lesser_shielding": {},
+      "major_shielding": {}
+    },
+    "spell_line_protection_you_off": {
+      "armor_of_protection": {},
+      "nivs_melody_of_preservation": {},
+      "protect": {},
+      "group_resist_magic": {}
+    },
+    "spell_line_root_you_off": {
+      "atols_spectral_shackles": {},
+      "enstill": {},
+      "bonds_of_force": {},
+      "bonds_of_tunare": {},
+      "earthelementalattack": {},
+      "fetter": {},
+      "immobilize": {},
+      "paralyzing_earth": {},
+      "paralyzing_poison_i": {},
+      "paralyzing_poison_ii": {},
+      "paralyzing_poison_iii": {},
+      "root": {},
+      "vengeance_of_the_glades": {}
+    },
+    "spell_line_skin_you_off": {
+      "barbcoat": {},
+      "bladecoat": {},
+      "bobbing_corpse": {},
+      "bramblecoat": {},
+      "diamondskin": {},
+      "leatherskin": {},
+      "manasink": {},
+      "manaskin": {},
+      "natureskin": {},
+      "protection_of_the_glades": {},
+      "shieldskin": {},
+      "skin_like_diamond": {},
+      "skin_like_nature": {},
+      "skin_like_rock": {},
+      "skin_like_steel": {},
+      "skin_like_wood": {},
+      "skin_of_the_shadow": {},
+      "spikecoat": {},
+      "steelskin": {},
+      "thistlecoat": {},
+      "thorncoat": {}
+    },
+    "spell_line_blind_you_off": {
+      "blinding_luminance": {},
+      "flash_of_light": {},
+      "blinding_poison_i": {},
+      "blinding_poison_iii": {},
+      "sunbeam": {}
+    },
+    "spell_line_boil_blood_you_off": {
+      "boil_blood": {},
+      "boiling_blood": {},
+      "heat_blood": {},
+      "ignite_blood": {},
+      "pyrocruor": {}
+    },
+    "spell_line_strength_you_off": {
+      "burst_of_strength": {},
+      "furious_strength": {},
+      "maniacal_strength": {},
+      "spirit_strength": {},
+      "storm_strength": {},
+      "strength": {},
+      "strength_of_earth": {},
+      "strength_of_stone": {},
+      "strength_of_the_kunzar": {},
+      "strengthen": {},
+      "tumultuous_strength": {}
+    },
+    "spell_line_charisma_you_off": {
+      "charisma": {},
+      "glamour": {},
+      "unfailing_reverence": {}
+    },
+    "spell_line_ultravision_you_off": {
+      "chill_sight": {},
+      "ultravision": {}
+    },
+    "spell_line_infravision_you_off": {
+      "heat_sight": {},
+      "serpent_sight": {}
+    },
+    "spell_line_dexterity_you_off": {
+      "deftness": {},
+      "dexterity": {},
+      "rising_dexterity": {}
+    },
+    "spell_line_invulnerable_you_off": {
+      "divine_aura": {},
+      "harmshield": {},
+      "quivering_veil_of_xarn": {}
+    },
+    "spell_line_npc_buff_you_off": {
+      "dulsehound": {},
+      "graveyard_dust": {}
+    },
+    "spell_line_strength_debuff_you_off": {
+      "enfeeblement": {},
+      "feckless_might": {},
+      "insipid_weakness": {},
+      "siphon_strength": {},
+      "weakness": {}
+    },
+    "spell_line_fury_you_off": {
+      "fleeting_fury": {},
+      "whirlwind": {}
+    },
+    "spell_line_berserk_you_off": {
+      "frenzy": {},
+      "fury": {},
+      "voice_of_the_berserker": {}
+    },
+    "spell_line_magnify_you_off": {
+      "glimpse": {},
+      "magnify": {},
+      "sight": {}
+    },
+    "spell_line_shm_sta_you_off": {
+      "health": {},
+      "riotous_health": {}
+    },
+    "spell_line_heroic_valor_you_off": {
+      "heroic_bond": {},
+      "heroism": {}
+    },
+    "spell_line_nec_heal_you_off": {
+      "pact_of_shadow": {},
+      "shadow_compact": {}
+    },
+    "spell_line_mag_armor_you_off": {
+      "phantom_armor": {},
+      "phantom_chain": {},
+      "phantom_leather": {},
+      "phantom_plate": {}
+    },
+    "spell_line_malo_you_off": {
+      "mala": {},
+      "malo": {},
+      "malosi": {},
+      "malosini": {}
+    },
+    "spell_line_siphon_strength_you_off": {
+      "siphon_strength_recourse": {},
+      "steal_strength": {}
+    },
+    "spell_line_shm_hp_you_off": {
+      "talisman_of_altuna": {},
+      "talisman_of_kragg": {},
+      "talisman_of_tnarg": {}
+    },
+    "spell_line_potion_you_off": {
+      "accuracy": {},
+      "adroitness": {},
+      "aura_of_antibody": {},
+      "aura_of_cold": {},
+      "aura_of_heat": {},
+      "aura_of_purity": {},
+      "cohesion": {},
+      "null": {},
+      "power": {},
+      "stability": {},
+      "vigor": {}
+    },
+    "spell_haste_you_off": {
+      "augment": {},
+      "augmentation": {}
+    },
+    "spell_line_poison_you_off": {
+      "bane_of_nife": {},
+      "dizzy_i": {},
+      "dizzy_ii": {},
+      "dizzy_iii": {},
+      "dizzy_iv": {},
+      "feeble_mind_i": {},
+      "feeble_mind_ii": {},
+      "feeble_mind_iii": {},
+      "feeble_mind_iv": {},
+      "feeble_poison": {},
+      "kylies_venom": {},
+      "deadly_poison": {},
+      "envenomed_bolt": {},
+      "envenomed_breath": {},
+      "froglok_poison": {},
+      "ikatiars_revenge": {},
+      "lower_resists_i": {},
+      "lower_resists_ii": {},
+      "lower_resists_iii": {},
+      "lower_resists_iv": {},
+      "manticore_poison": {},
+      "poison": {},
+      "poison_bolt": {},
+      "strong_poison": {},
+      "system_shock_i": {},
+      "system_shock_ii": {},
+      "system_shock_iii": {},
+      "system_shock_iv": {},
+      "system_shock_v": {},
+      "venom_of_the_snake": {},
+      "weak_poison": {}
+    },
+    "spell_line_fire_ds_you_off": {
+      "barrier_of_combustion": {},
+      "boon_of_immolation": {},
+      "breath_of_ro": {},
+      "cadeau_of_flame": {},
+      "inferno_shield": {},
+      "obsidian_shatter": {},
+      "ros_fiery_sundering": {},
+      "shield_of_flame": {},
+      "shield_of_lava": {}
+    },
+    "spell_line_holy_ds_you_off": {
+      "blessing_of_nature": {},
+      "death_pact": {},
+      "mark_of_karn": {}
+    },
+    "spell_line_nec_hp_you_off": {
+      "bond_of_death": {},
+      "soul_bond": {},
+      "soul_consumption": {},
+      "soul_well": {}
+    },
+    "spell_line_clarity_you_off": {
+      "boon_of_the_clear_mind": {},
+      "clarity": {}
+    },
+    "spell_line_clarity_ii_you_off": {
+      "clarity_ii": {},
+      "gift_of_pure_thought": {}
+    },
+    "spell_line_nec_snare_you_off": {
+      "cascading_darkness": {},
+      "clinging_darkness": {},
+      "devouring_darkness": {},
+      "dooming_darkness": {},
+      "engulfing_darkness": {}
+    },
+    "spell_line_swarm_you_off": {
+      "creeping_crud": {},
+      "drifting_death": {},
+      "drones_of_doom": {},
+      "stinging_swarm": {},
+      "swarm_of_retribution": {},
+      "swarming_pain": {},
+      "winged_death": {}
+    },
+    "spell_line_dru_root_you_off": {
+      "engorging_roots": {},
+      "engulfing_roots": {},
+      "ensnaring_roots": {},
+      "entrapping_roots": {},
+      "enveloping_roots": {},
+      "grasping_roots": {}
+    },
+    "spell_line_dru_ds_you_off": {
+      "legacy_of_spike": {},
+      "legacy_of_thorn": {},
+      "shield_of_barbs": {},
+      "shield_of_brambles": {},
+      "shield_of_spikes": {},
+      "shield_of_thistles": {},
+      "thorny_shield": {}
+    },
+    "spell_line_wiz_ds_you_off": {
+      "okeils_flickering_flame": {},
+      "okeils_radiation": {}
+    },
+    "spell_line_rune_you_off": {
+      "rune_i": {},
+      "rune_ii": {},
+      "rune_iii": {},
+      "rune_iv": {},
+      "rune_v": {}
+    },
+    "spell_line_shm_dr_you_off": {
+      "talisman_of_jasinth": {},
+      "talisman_of_shadoo": {}
+    },
+    "spell_line_tash_you_off": {
+      "tashan": {},
+      "tashani": {},
+      "tashania": {},
+      "tashanian": {},
+      "wind_of_tishani": {},
+      "wind_of_tishanian": {}
+    }
+  },
+  "version": "%s"
+}
+"""
+
+    try:
+        version = str(pkg_resources.get_distribution("eqalert").version)
+        spell_lines_path = data_path + "spell-lines.json"
+        generate = True
+
+        if os.path.isfile(spell_lines_path):
+            json_data = open(spell_lines_path, "r", encoding="utf-8")
+            spell_lines = json.load(json_data)
+            json_data.close()
+
+            if spell_lines["version"] == version:
+                generate = False
+
+        if generate:
+            f = open(spell_lines_path, "w", encoding="utf-8")
+            f.write(new_spell_lines_data % (version))
+            f.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "update spell lines: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def get_spell_lines(data_path):
+    """Return spell-lines.json"""
+
+    try:
+        spell_lines_path = data_path + "spell-lines.json"
+        json_data = open(spell_lines_path, "r", encoding="utf-8")
+        spell_lines = json.load(json_data)
+        json_data.close()
+
+        return spell_lines
+
+    except Exception as e:
+        eqa_settings.log(
+            "get spell lines: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def update_spell_timers(data_path, eq_spells_file_path):
     """Parse spells_us.txt to data/spell-timers.json"""
+
     try:
         # Valid Spells
         valid_spells = [
@@ -1863,11 +7967,22 @@ def update_spell_timers(data_path, eq_spells_file_path):
             # Generate Spell Timers
             json_data = open(spell_timer_file, "r", encoding="utf-8")
             spell_timers_hash_check = json.load(json_data)
+            json_data.close()
 
             if "hash" not in spell_timers_hash_check.keys():
                 generate_spell_timer_file = True
+            elif not spell_timers_hash_check["hash"] == spells_hash:
+                generate_spell_timer_file = True
             else:
-                if not spell_timers_hash_check["hash"] == spells_hash:
+                # Legacy check
+                file_hash = hashlib.md5()
+                with open(spell_timer_file, "r") as check_file:
+                    buf = check_file.read(BLOCKSIZE)
+                    while len(buf) > 0:
+                        file_hash.update(buf.encode("utf-8"))
+                        buf = check_file.read(BLOCKSIZE)
+                spells_timer_hash = file_hash.hexdigest()
+                if spells_timer_hash == "5f6460b226f5f765de13f3f758fff4d9":
                     generate_spell_timer_file = True
                 else:
                     generate_spell_timer_file = False
@@ -1883,8 +7998,8 @@ def update_spell_timers(data_path, eq_spells_file_path):
 
                     ## Relevant values
                     spell_name = modified_line[1]
+                    spell_cast_time = str(int(modified_line[13]) / 1000)
                     spell_buff_duration = modified_line[17]
-                    spell_aeduration = modified_line[18]
                     spell_buffdurationformula = modified_line[16]
 
                     ## Clean spell name
@@ -1892,21 +8007,15 @@ def update_spell_timers(data_path, eq_spells_file_path):
                         r"[^a-z\s]", "", spell_name.lower()
                     ).replace(" ", "_")
 
-                    if int(spell_buff_duration) > 0 and int(spell_aeduration) > 0:
-                        spell_timer = str(spell_buff_duration)
-                    elif int(spell_buff_duration) > 0 and int(spell_aeduration) == 0:
-                        spell_timer = str(spell_buff_duration)
-                    elif int(spell_buff_duration) == 0 and int(spell_aeduration) > 0:
-                        spell_timer = str(spell_aeduration)
-                    elif int(spell_buff_duration) == 0 and int(spell_aeduration) == 0:
-                        spell_timer = "0"
-
-                    if line_type_spell_name in valid_spells:
-                        prefixed_line_type_spell_name = "spell_" + line_type_spell_name
+                    if (
+                        line_type_spell_name in valid_spells
+                        and spell_buffdurationformula != "0"
+                    ):
                         spell_timer_json["spells"].update(
                             {
-                                prefixed_line_type_spell_name: {
-                                    "time": spell_timer,
+                                line_type_spell_name: {
+                                    "cast_time": spell_cast_time,
+                                    "duration": spell_buff_duration,
                                     "formula": spell_buffdurationformula,
                                 }
                             }
@@ -1928,8 +8037,8 @@ def update_spell_timers(data_path, eq_spells_file_path):
 
                 ## Relevant values
                 spell_name = modified_line[1]
-                spell_buff_duration = str(int(modified_line[17]) * 6)
-                spell_aeduration = str(int(modified_line[18]) * 6)
+                spell_cast_time = str(int(modified_line[13]) / 1000)
+                spell_buff_duration = modified_line[17]
                 spell_buffdurationformula = modified_line[16]
 
                 ## Clean spell name
@@ -1937,21 +8046,12 @@ def update_spell_timers(data_path, eq_spells_file_path):
                     r"[^a-z\s]", "", spell_name.lower()
                 ).replace(" ", "_")
 
-                if int(spell_buff_duration) > 0 and int(spell_aeduration) > 0:
-                    spell_timer = str(spell_buff_duration)
-                elif int(spell_buff_duration) > 0 and int(spell_aeduration) == 0:
-                    spell_timer = str(spell_buff_duration)
-                elif int(spell_buff_duration) == 0 and int(spell_aeduration) > 0:
-                    spell_timer = str(spell_aeduration)
-                elif int(spell_buff_duration) == 0 and int(spell_aeduration) == 0:
-                    spell_timer = "0"
-
                 if line_type_spell_name in valid_spells:
-                    prefixed_line_type_spell_name = "spell_" + line_type_spell_name
                     spell_timer_json["spells"].update(
                         {
-                            prefixed_line_type_spell_name: {
-                                "time": spell_timer,
+                            line_type_spell_name: {
+                                "cast_time": spell_cast_time,
+                                "duration": spell_buff_duration,
                                 "formula": spell_buffdurationformula,
                             }
                         }
@@ -2000,6 +8100,36 @@ def set_last_state(state, configs):
         configs.settings.config["settings"]["timers"].update(
             {
                 "auto_mob_timer_delay": str(state.auto_mob_timer_delay),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_delay": str(state.spell_timer_delay),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_guess": str(state.spell_timer_guess),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_guild_only": str(state.spell_timer_guild_only),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_yours_only": str(state.spell_timer_yours_only),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_other": str(state.spell_timer_other),
+            }
+        )
+        configs.settings.config["settings"]["timers"].update(
+            {
+                "spell_timer_self": str(state.spell_timer_self),
             }
         )
         configs.settings.config["settings"]["consider_eval"].update(
@@ -2131,6 +8261,24 @@ def get_last_state(configs, char_name, char_server):
         auto_mob_timer_delay = configs.settings.config["settings"]["timers"][
             "auto_mob_timer_delay"
         ]
+        spell_timer_delay = configs.settings.config["settings"]["timers"][
+            "spell_timer_delay"
+        ]
+        spell_timer_guess = configs.settings.config["settings"]["timers"][
+            "spell_timer_guess"
+        ]
+        spell_timer_other = configs.settings.config["settings"]["timers"][
+            "spell_timer_other"
+        ]
+        spell_timer_guild_only = configs.settings.config["settings"]["timers"][
+            "spell_timer_guild_only"
+        ]
+        spell_timer_yours_only = configs.settings.config["settings"]["timers"][
+            "spell_timer_yours_only"
+        ]
+        spell_timer_self = configs.settings.config["settings"]["timers"][
+            "spell_timer_self"
+        ]
         mute = configs.settings.config["settings"]["mute"]["enabled"]
 
         # Get chars
@@ -2162,6 +8310,12 @@ def get_last_state(configs, char_name, char_server):
             auto_mob_timer_delay,
             consider_eval,
             detect_char,
+            spell_timer_delay,
+            spell_timer_guess,
+            spell_timer_other,
+            spell_timer_guild_only,
+            spell_timer_self,
+            spell_timer_yours_only,
         )
 
         return state
@@ -2223,6 +8377,85 @@ def add_zone(zone, base_path):
         )
 
 
+def get_players_file(player_data_path, server):
+    """Update Player Data File"""
+
+    try:
+        player_data_file = player_data_path + "players.json"
+        json_data = open(player_data_file, "r", encoding="utf-8")
+        player_json_data = json.load(json_data)
+        json_data.close()
+
+        player_list = player_json_data["server"][server]["players"]
+
+        return player_list
+
+    except Exception as e:
+        eqa_settings.log(
+            "get players file: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def update_players_file(player_data_path, server, player_list):
+    """Update Player Data File"""
+
+    try:
+        player_data_file = player_data_path + "players.json"
+        json_data = open(player_data_file, "r", encoding="utf-8")
+        player_json_data = json.load(json_data)
+        json_data.close
+
+        if server not in player_json_data["server"].keys():
+            player_json_data["servers"][server] = {"players": {}}
+
+        player_json_data["server"][server]["players"].update(player_list)
+
+        json_data = open(player_data_file, "w", encoding="utf-8")
+        json.dump(player_json_data, json_data, sort_keys=True, indent=2)
+        json_data.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "update players file: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def generate_players_file(player_data_file):
+    """Bootstrap Player Data File"""
+
+    new_players_data = """
+{
+  "server": {
+    "P1999Green": {
+      "players": {}
+    },
+    "project1999": {
+      "players": {}
+    }
+  }
+}
+"""
+
+    try:
+        f = open(player_data_file, "w", encoding="utf-8")
+        f.write(new_players_data)
+        f.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "generate players file: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def build_config(base_path):
     """Build a default config"""
 
@@ -2261,12 +8494,27 @@ def build_config(base_path):
       "sound": "%ssound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
+    "player_data": {
+      "persist": "true"
+    },
     "raid_mode": {
       "auto_set": "true"
     },
+    "speech": {
+      "expand_lingo": "true",
+      "tld": "com",
+      "lang": "en"
+    },
     "timers": {
       "auto_mob_timer": "false",
-      "auto_mob_timer_delay": "10"
+      "auto_mob_timer_delay": "10",
+      "spell_timer_delay": "24",
+      "spell_timer_guess": "true",
+      "spell_timer_other": "true",
+      "spell_timer_guild_only": "false",
+      "spell_timer_yours_only": "true",
+      "spell_timer_self": "true",
+      "spell_timer_zone_drift": "true"
     }
   },
   "version": "%s"
@@ -7527,6 +13775,16 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
+    "spell_line_haste_stats_you_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_line_npc_item_haste_you_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
     "spell_line_healing_other_on": {
       "alert": {},
       "reaction": "false",
@@ -7742,7 +14000,12 @@ def build_config(base_path):
       "reaction": "false",
       "sound": "false"
     },
-    "spell_line_mag_ds_you_on": {
+    "spell_line_high_mag_ds_you_on": {
+      "alert": {},
+      "reaction": "false",
+      "sound": "false"
+    },
+    "spell_line_low_mag_ds_you_on": {
       "alert": {},
       "reaction": "false",
       "sound": "false"
@@ -7804,8 +14067,8 @@ def build_config(base_path):
     },
     "spell_line_memblur_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": "raid",
+      "sound": "memblur"
     },
     "spell_line_memblur_you_on": {
       "alert": {},

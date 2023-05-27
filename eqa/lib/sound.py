@@ -19,6 +19,7 @@
 """
 
 import os
+import re
 import time
 import sys
 import hashlib
@@ -63,7 +64,7 @@ def process(configs, sound_q, exit_flag, cfg_reload, state):
                     and not mute_speak == "true"
                     and not state.mute == "true"
                 ):
-                    speak(sound_event.payload, "true", tmp_sound_file_path)
+                    speak(configs, sound_event.payload, "true", tmp_sound_file_path)
                 elif (
                     sound_event.sound == "alert"
                     and not mute_alert == "true"
@@ -88,12 +89,155 @@ def process(configs, sound_q, exit_flag, cfg_reload, state):
     sys.exit()
 
 
-def speak(phrase, play, sound_file_path):
+def eq_lingo(line):
+    """Substitute Common EQ Abbreviations"""
+
+    line = re.sub(r"(?<=[^A-z])ac(?=[^A-z])", "armor class", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])afaik(?=[^A-z])", "as far as I know", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])agi(?=[^A-z])", "agility", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])aow(?=[^A-z])", "avatar of war", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])atm(?=[^A-z])", "at the moment", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])bb(?=[^A-z])", "butcherblock", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])bbl(?=[^A-z])", "be back later", line, flags=re.I)
+    line = re.sub(
+        r"(?<=[^A-z])bbm(?=[^A-z])", "butcherblock mountains", line, flags=re.I
+    )
+    line = re.sub(r"(?<=[^A-z])brb(?=[^A-z])", "be right back", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])bc(?=[^A-z])", "because", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])bp(?=[^A-z])", "bat phone", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])cb(?=[^A-z])", "crushbone", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ce(?=[^A-z])", "castle entrance", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])cha(?=[^A-z])", "charisma", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])c(?=[^A-z])", "clarity", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ch(?=[^A-z])", "complete heal", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])clr(?=[^A-z])", "cleric", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])com(?=[^A-z])", "city of mist", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])con(?=[^A-z])", "consider", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])cov(?=[^A-z])", "claws of veeshan", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])cs(?=[^A-z])", "cobalt scar", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ct(?=[^A-z])", "cazic thule", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])da(?=[^A-z])", "divine aura", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])dd(?=[^A-z])", "direct damage", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])dex(?=[^A-z])", "dexterity", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])dkp(?=[^A-z])", "dragon kill points", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])dl(?=[^A-z])", "dreadlands", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])dmf(?=[^A-z])", "dead man floating", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])dot(?=[^A-z])", "damage over time", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])dps(?=[^A-z])", "damage per second", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])dru(?=[^A-z])", "druid", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ds(?=[^A-z])", "damage shield", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])eb(?=[^A-z])", "enduring breath", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ec(?=[^A-z])", "east commonlands", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ej(?=[^A-z])", "emerald jungle", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ek(?=[^A-z])", "east karana", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])enc(?=[^A-z])", "enchanter", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ent(?=[^A-z])", "entrance", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])fd(?=[^A-z])", "feign death", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])fm(?=[^A-z])", "full mana", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])fte(?=[^A-z])", "first to engage", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])gd(?=[^A-z])", "great divide", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])gfay(?=[^A-z])", "greater faydark", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])gl(?=[^A-z])", "good luck", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])gmr(?=[^A-z])", "group resist magic", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])grm(?=[^A-z])", "group resist magic", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])gtg(?=[^A-z])", "good to go", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])guk(?=[^A-z])", "guck", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])hh(?=[^A-z])", "hammer hill", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])hmu(?=[^A-z])", "hit me up", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])hp(?=[^A-z])", "hit points", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])hs(?=[^A-z])", "howling stones", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ic(?=[^A-z])", "iceclad ocean", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])idc(?=[^A-z])", "I don't care", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])imo(?=[^A-z])", "in my opinion", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])inc(?=[^A-z])", "incoming", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])inv(?=[^A-z])", "invite", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])irl(?=[^A-z])", "in real life", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])kc(?=[^A-z])", "karnors castle", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ld(?=[^A-z])", "link dead", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])lev(?=[^A-z])", "levitate", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])levi(?=[^A-z])", "levitate", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])lf(?=[^A-z])", "looking for", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])lfg(?=[^A-z])", "looking for group", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])lguk(?=[^A-z])", "lower guck", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ls(?=[^A-z])", "lavastorm", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])lvl(?=[^A-z])", "level", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ma(?=[^A-z])", "main assist", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])med(?=[^A-z])", "meditate", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])mt(?=[^A-z])", "mistell", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])nec(?=[^A-z])", "necromancer", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])nfp(?=[^A-z])", "north freeport", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])nk(?=[^A-z])", "north karana", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])np(?=[^A-z])", "no problem", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])nvm(?=[^A-z])", "nevermind", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])obo(?=[^A-z])", "or best offer", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ooc(?=[^A-z])", "out of character", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])oom(?=[^A-z])", "out of mana", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])oot(?=[^A-z])", "ocean of tears", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])omg(?=[^A-z])", "oh my god", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])omw(?=[^A-z])", "on my way", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])otw(?=[^A-z])", "on the way", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])pbaoe(?=[^A-z])", "big badda boom", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ph(?=[^A-z])", "place holder", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])pl(?=[^A-z])", "power level", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])pls(?=[^A-z])", "please", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])plz(?=[^A-z])", "please", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])pof(?=[^A-z])", "plane of fear", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])poh(?=[^A-z])", "plane of hate", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])pom(?=[^A-z])", "plane of mischief", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])pov(?=[^A-z])", "point of view", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])pst(?=[^A-z])", "please send tell", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])rh(?=[^A-z])", "right here", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])rl(?=[^A-z])", "real life", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])rn(?=[^A-z])", "right now", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])rog(?=[^A-z])", "rog", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])rw(?=[^A-z])", "ring war", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])shm(?=[^A-z])", "shaman", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])sow(?=[^A-z])", "spirit of wolf", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])sro(?=[^A-z])", "south ro", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])tba(?=[^A-z])", "to be announced", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])thx(?=[^A-z])", "thanks", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])tl(?=[^A-z])", "translocate", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])tmi(?=[^A-z])", "too much information", line, flags=re.I)
+    line = re.sub(
+        r"(?<=[^A-z])tofs(?=[^A-z])", "tower of frozen shadow", line, flags=re.I
+    )
+    line = re.sub(r"(?<=[^A-z])tov(?=[^A-z])", "temple of veeshan", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])tox(?=[^A-z])", "toxxulia forrest", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ttyl(?=[^A-z])", "talk to you later", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ty(?=[^A-z])", "thank you", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])tysm(?=[^A-z])", "thank you so much", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])tyvm(?=[^A-z])", "thank you very much", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])uguk(?=[^A-z])", "upper guck", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])vp(?=[^A-z])", "veeshans peak", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])wc(?=[^A-z])", "west commonlands", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])wl(?=[^A-z])", "wakening lands", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])wmp(?=[^A-z])", "when mana permits", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])wru(?=[^A-z])", "where are you", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])wtb(?=[^A-z])", "want to buy", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])wtf(?=[^A-z])", "what the f", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])wts(?=[^A-z])", "want to sell", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])wtt(?=[^A-z])", "want to trade", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])xfer(?=[^A-z])", "transfer", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])yw(?=[^A-z])", "you're welcome", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])<3(?=[^A-z])", "heart", line, flags=re.I)
+    line = re.sub(r"(\d+)p(?![A-z])", r"\1 platinum", line, flags=re.I)
+    line = re.sub(r"(\d+)m(?![A-z])", r"\1 mana", line, flags=re.I)
+
+    return line
+
+
+def speak(configs, line, play, sound_file_path):
     """Play a spoken phrase"""
     try:
+        if configs.settings.config["settings"]["speech"]["expand_lingo"] == "true":
+            phrase = eq_lingo(line)
+        else:
+            phrase = line
         phrase_hash = hashlib.md5(phrase.encode())
         if not os.path.exists(sound_file_path + phrase_hash.hexdigest() + ".wav"):
-            tts = gtts.gTTS(text=phrase, lang="en")
+            gtts_tld = configs.settings.config["settings"]["speech"]["tld"]
+            gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
+            tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
             tts.save(sound_file_path + phrase_hash.hexdigest() + ".wav")
         if play == "true":
             play_sound(sound_file_path + phrase_hash.hexdigest() + ".wav")
@@ -114,7 +258,9 @@ def alert(configs, line_type):
             phrase = configs.alerts.config["line"][line_type]["sound"]
             sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
             if not os.path.exists(sound_file_path + phrase + ".wav"):
-                tts = gtts.gTTS(text=phrase, lang="en")
+                gtts_tld = configs.settings.config["settings"]["speech"]["tld"]
+                gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
+                tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
                 tts.save(sound_file_path + phrase + ".wav")
             play_sound(sound_file_path + phrase + ".wav")
 

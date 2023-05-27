@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 """
    Program:   EQ Alert
@@ -1543,7 +1543,7 @@ for line in raw_spell_file_lines:
     spell_aoerange = modified_line[10]
     spell_pushback = modified_line[11]
     spell_pushup = modified_line[12]
-    spell_cast_time = modified_line[13]
+    spell_cast_time = str(int(modified_line[13]) / 1000)
     spell_recovery_time = modified_line[14]
     spell_recast_time = modified_line[15]
     spell_buffdurationformula = modified_line[16]
@@ -1586,74 +1586,66 @@ for line in raw_spell_file_lines:
 
     line_type_spell_name = re.sub(r"[^a-z\s]", "", spell_name.lower()).replace(" ", "_")
 
-    if int(spell_buff_duration) > 0 and int(spell_aeduration) > 0:
-        spell_timer = str(spell_buff_duration)
-    elif int(spell_buff_duration) > 0 and int(spell_aeduration) == 0:
-        spell_timer = str(spell_buff_duration)
-    elif int(spell_buff_duration) == 0 and int(spell_aeduration) > 0:
-        spell_timer = str(spell_aeduration)
-    elif int(spell_buff_duration) == 0 and int(spell_aeduration) == 0:
-        spell_timer = "0"
-
-    if line_type_spell_name in valid_spells:
+    if line_type_spell_name in valid_spells and spell_buffdurationformula != "0":
         spell_data["spells"].update(
             {
                 line_type_spell_name: {
                     "time": {
-                        #                        "cast": spell_cast_time,
-                        #                        "recovery": spell_recovery_time,
-                        #                        "recast": spell_recast_time,
-                        # "duration_formula": spell_buffdurationformula,
-                        "duration": spell_timer,
-                        # "ae": spell_aeduration,
+                        "cast": spell_cast_time,
+                        #    "recovery": spell_recovery_time,
+                        #    "recast": spell_recast_time,
+                        "duration_buff_formula": spell_buffdurationformula,
+                        "duration_buff": spell_buff_duration,
+                        #    "duration_ae": spell_aeduration,
+                        #    "formula": spell_formula
                     },
-                    "text": {
-                        "you_cast": spell_you_cast,
-                        "other_casts": spell_other_casts,
-                        "cast_on_you": spell_cast_on_you,
-                        "cast_on_other": spell_cast_on_other,
-                        "fades": spell_fades,
-                    },
-                    #                    "other": {
-                    #                        "teleport_zone": spell_teleport_zone,
-                    #                        "range": spell_range,
-                    #                        "aoe_range": spell_aoerange,
-                    #                        "push_back": spell_pushback,
-                    #                        "push_up": spell_pushup,
-                    #                        "mana": spell_mana,
-                    #                        "base": spell_base,
-                    #                        "base_2": spell_base2,
-                    #                        "max": spell_max,
-                    #                        "icon": spell_icon,
-                    #                        "mem_icon": spell_memicon,
-                    #                        "components": spell_components,
-                    #                        "no_expend_reagent": spell_noexpendreagent,
-                    #                        "formula": spell_formula,
-                    #                        "light_type": spell_lighttype,
-                    #                        "good_effect": spell_goodeffect,
-                    #                        "activated": spell_activated,
-                    #                        "resist_type": spell_resisttype,
-                    #                        "effect_id": spell_effectid,
-                    #                        "base_diff": spell_basediff,
-                    #                        "skill": spell_skill,
-                    #                        "zone_type": spell_zonetype,
-                    #                        "environment_type": spell_environmenttype,
-                    #                        "time_of_day": spell_timeofday,
-                    #                        "classes": spell_classes,
-                    #                        "casting_animation": spell_castinganim,
-                    #                        "target_animation": spell_targetanim,
-                    #                        "travel_type": spell_traveltype,
-                    #                        "spell_affect_index": spell_spellaffectindex,
-                    #                        "spacing_2": spell_spacing2,
-                    #                        "resist_diff": spell_resistdiff,
-                    #                        "spacing_3": spell_spacing3,
-                    #                        "recourse_link": spell_recourselink,
-                    #                        "spacing_4": spell_spacing4,
-                    #                        "desc_num": spell_descnum,
-                    #                        "type_desc_num": spell_typedescnum,
-                    #                        "effect_desc_num": spell_effectdescnum,
-                    #                        "spacing_5": spell_spacing5
-                    #                    }
+                    # "text": {
+                    #    "you_cast": spell_you_cast,
+                    #    "other_casts": spell_other_casts,
+                    #    "cast_on_you": spell_cast_on_you,
+                    #    "cast_on_other": spell_cast_on_other,
+                    #    "fades": spell_fades,
+                    # },
+                    # "other": {
+                    #    "teleport_zone": spell_teleport_zone,
+                    #    "range": spell_range,
+                    #    "aoe_range": spell_aoerange,
+                    #    "push_back": spell_pushback,
+                    #    "push_up": spell_pushup,
+                    #    "mana": spell_mana,
+                    #    "base": spell_base,
+                    #    "base_2": spell_base2,
+                    #    "max": spell_max,
+                    #    "icon": spell_icon,
+                    #    "mem_icon": spell_memicon,
+                    #    "components": spell_components,
+                    #    "no_expend_reagent": spell_noexpendreagent,
+                    #    "formula": spell_formula,
+                    #    "light_type": spell_lighttype,
+                    #    "good_effect": spell_goodeffect,
+                    #    "activated": spell_activated,
+                    #    "resist_type": spell_resisttype,
+                    #    "effect_id": spell_effectid,
+                    #    "base_diff": spell_basediff,
+                    #    "skill": spell_skill,
+                    #    "zone_type": spell_zonetype,
+                    #    "environment_type": spell_environmenttype,
+                    #    "time_of_day": spell_timeofday,
+                    #    "classes": spell_classes,
+                    #    "casting_animation": spell_castinganim,
+                    #    "target_animation": spell_targetanim,
+                    #    "travel_type": spell_traveltype,
+                    #    "spell_affect_index": spell_spellaffectindex,
+                    #    "spacing_2": spell_spacing2,
+                    #    "resist_diff": spell_resistdiff,
+                    #    "spacing_3": spell_spacing3,
+                    #    "recourse_link": spell_recourselink,
+                    #    "spacing_4": spell_spacing4,
+                    #    "desc_num": spell_descnum,
+                    #    "type_desc_num": spell_typedescnum,
+                    #    "effect_desc_num": spell_effectdescnum,
+                    #    "spacing_5": spell_spacing5
+                    # }
                 }
             }
         )

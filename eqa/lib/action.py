@@ -18,6 +18,7 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
+from collections import deque
 import datetime
 import sys
 import time
@@ -44,6 +45,7 @@ def process(
     exit_flag,
     cfg_reload,
     mute_list,
+    change_char,
 ):
     """
     Process: action_q
@@ -51,7 +53,35 @@ def process(
     """
 
     try:
-        while not exit_flag.is_set() and not cfg_reload.is_set():
+        # Spell Cast Buffers
+        spell_casting_buffer_other = deque(maxlen=10)
+        spell_casting_buffer_you = {}
+
+        # Spell Timer Data
+        spell_timers = eqa_config.get_spell_timers(
+            configs.settings.config["settings"]["paths"]["data"]
+        )
+
+        # Spell Line Data
+        spell_lines = eqa_config.get_spell_lines(
+            configs.settings.config["settings"]["paths"]["data"]
+        )
+
+        # Spell Caster Data
+        spell_casters = eqa_config.get_spell_casters(
+            configs.settings.config["settings"]["paths"]["data"]
+        )
+
+        # Player Data
+        player_list = eqa_config.get_players_file(
+            configs.settings.config["settings"]["paths"]["data"], state.server
+        )
+
+        while (
+            not exit_flag.is_set()
+            and not cfg_reload.is_set()
+            and not change_char.is_set()
+        ):
             # Sleep between empty checks
             queue_size = action_q.qsize()
             if queue_size < 1:
@@ -84,7 +114,7 @@ def process(
 
                 ## Encounter Parsing
                 if state.encounter_parse == "true":
-                    if line_type.startswith("combat_"):
+                    if re.fullmatch(r"^combat\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -94,7 +124,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type.startswith("you_auto_attack_"):
+                    elif re.fullmatch(r"^you\_auto\_attack\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -104,7 +134,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type.startswith("mob_slain_"):
+                    elif re.fullmatch(r"^mob\_slain\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -144,7 +174,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type.startswith("experience_"):
+                    elif re.fullmatch(r"^experience\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -164,7 +194,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif line_type.startswith("spells_"):
+                    elif re.fullmatch(r"^spells\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -174,44 +204,102 @@ def process(
                                 check_line,
                             )
                         )
-                ## Default Timers
+                ## Mob Timers
                 if state.auto_mob_timer == "true":
                     if (
                         line_type == "experience_solo"
                         or line_type == "experience_group"
                     ):
-                        timer_seconds = configs.zones.config["zones"][str(state.zone)][
-                            "timer"
-                        ]
-                        timer_seconds = str(
-                            int(timer_seconds) - int(state.auto_mob_timer_delay)
+                        action_mob_timer(
+                            timer_q,
+                            configs.zones.config["zones"][str(state.zone)]["timer"],
+                            state.auto_mob_timer_delay,
+                            state.zone,
                         )
-                        if int(timer_seconds) < 0:
-                            timer_seconds = "0"
-                        if int(state.auto_mob_timer_delay) <= 0:
-                            pop_message = "Pop " + str(state.zone)
-                        else:
-                            pop_message = (
-                                "Pop "
-                                + str(state.zone)
-                                + " in "
-                                + str(state.auto_mob_timer_delay)
-                                + " seconds."
-                            )
-                        timer_q.put(
-                            eqa_struct.timer(
-                                (
-                                    datetime.datetime.now()
-                                    + datetime.timedelta(seconds=int(timer_seconds))
-                                ),
-                                "timer",
-                                str(timer_seconds),
-                                pop_message,
-                            )
+
+                ## TODO: Spell Casting Item Buffer
+                # Interesting note, these only show up for the active player for any non-instant cast item.  Other plays get the normal casting message.
+                # if line_type == "spells_cast_item_you":
+                #    action_spell_casting(
+                #        check_line, line_type, line_time, spell_casting_buffer_other, spell_casting_buffer_you
+                #    )
+
+                ## Spell Casting Buffer Other
+                if re.fullmatch(r"^spells\_cast\_other", line_type) is not None:
+                    action_spell_casting_other(
+                        check_line,
+                        line_type,
+                        line_time,
+                        spell_casting_buffer_other,
+                    )
+                ## Spell Casting Buffer You
+                if re.fullmatch(r"^spells\_cast\_you", line_type) is not None:
+                    spell_casting_buffer_you = action_spell_casting_you(
+                        check_line,
+                        line_type,
+                        line_time,
+                        spell_casting_buffer_you,
+                    )
+
+                ## Self Spell Timers
+                if (
+                    state.spell_timer_self == "true"
+                    or state.spell_timer_guild_only == "true"
+                    or state.spell_timer_yours_only == "true"
+                ):
+                    if re.fullmatch(r"^spell\_.+\_you_on$", line_type) is not None:
+                        action_spell_timer(
+                            state,
+                            timer_q,
+                            line_type,
+                            line_time,
+                            check_line,
+                            spell_casting_buffer_other,
+                            spell_casting_buffer_you,
+                            spell_timers,
+                            spell_lines,
+                            spell_casters,
+                            player_list,
                         )
+                    elif re.fullmatch(r"^spell\_.+\_you_off$", line_type) is not None:
+                        action_spell_remove_timer(
+                            state, timer_q, spell_lines, line_type
+                        )
+
+                ## Other Spell Timers
+                if (
+                    state.spell_timer_other == "true"
+                    or state.spell_timer_guild_only == "true"
+                    or state.spell_timer_guild_only == "true"
+                ):
+                    if re.fullmatch(r"^spell\_.+\_other_on$", line_type) is not None:
+                        action_spell_timer(
+                            state,
+                            timer_q,
+                            line_type,
+                            line_time,
+                            check_line,
+                            spell_casting_buffer_other,
+                            spell_casting_buffer_you,
+                            spell_timers,
+                            spell_lines,
+                            spell_casters,
+                            player_list,
+                        )
+
                 ## Consider Evaluation
                 if state.consider_eval == "true" and line_type == "consider":
                     action_consider_evaluation(sound_q, check_line)
+
+                if line_type == "zoning":
+                    timer_q.put(
+                        eqa_struct.timer(
+                            datetime.datetime.now(),
+                            "zoning",
+                            None,
+                            None,
+                        )
+                    )
 
                 ## State Building Line Types
                 if line_type == "location":
@@ -245,7 +333,7 @@ def process(
                 elif line_type == "you_afk_on":
                     action_you_afk_on(system_q)
                 elif line_type == "who_player":
-                    action_who_player(system_q, state, check_line)
+                    action_who_player(configs, system_q, state, check_line, player_list)
                 elif line_type == "say_you":
                     if (
                         re.fullmatch(r"^You say, \'parser .+\'$", check_line)
@@ -260,6 +348,7 @@ def process(
                             configs,
                             mute_list,
                             state,
+                            player_list,
                         )
                 elif line_type == "you_new_zone":
                     action_you_new_zone(
@@ -267,6 +356,7 @@ def process(
                         system_q,
                         display_q,
                         sound_q,
+                        timer_q,
                         state,
                         configs,
                         check_line,
@@ -350,6 +440,14 @@ def process(
 
                 action_q.task_done()
 
+        # Save any new player data collected to file
+        if configs.settings.config["settings"]["player_data"]["persist"] == "true":
+            eqa_config.update_players_file(
+                configs.settings.config["settings"]["paths"]["data"],
+                state.server,
+                player_list,
+            )
+
     except Exception as e:
         eqa_settings.log(
             "process action: Error on line "
@@ -359,6 +457,670 @@ def process(
         )
 
     sys.exit(0)
+
+
+def action_spell_casting_other(
+    check_line,
+    line_type,
+    line_time,
+    spell_casting_buffer_other,
+):
+    """Populate Spell Casting Buffer"""
+
+    try:
+        caster = re.findall(r"[a-zA-Z\s\'`]+(?= begins)", check_line)[0].lower()
+        spell_casting_buffer_other.append({"caster": caster.lower(), "time": line_time})
+
+    except Exception as e:
+        eqa_settings.log(
+            "acton spell casting other: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_spell_casting_you(
+    check_line,
+    line_type,
+    line_time,
+    spell_casting_buffer_you,
+):
+    """Populate Spell Casting Buffer"""
+
+    try:
+        spell = (
+            re.findall(r"(?<=casting\ )[a-zA-Z\s]+", check_line)[0]
+            .lower()
+            .replace(" ", "_")
+        )
+        spell_casting_buffer_you = {"spell": spell, "time": line_time}
+
+        return spell_casting_buffer_you
+
+    except Exception as e:
+        eqa_settings.log(
+            "acton spell casting you: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def spell_formulas(formula, level, duration):
+    """Calculate spell duration"""
+
+    try:
+        if formula == "1":
+            if (int(level) / 2) < int(duration):
+                spell_duration = int(level) / 2
+            else:
+                spell_duration = int(duration)
+        elif formula == "2":
+            spell_duration = (int(duration) / 5) * 3
+        elif formula == "3":
+            if (int(level) * 30) < int(duration):
+                spell_duration = int(level) * 30
+            else:
+                spell_duration = int(duration)
+        elif formula == "4":
+            if int(duration) > 0:
+                spell_duration = int(duration)
+            else:
+                spell_duration = 50
+        elif formula == "5":
+            if int(duration) < 3:
+                spell_duration = int(duration)
+            else:
+                spell_duration = 3
+        elif formula == "6":
+            if (int(level) / 2) < int(duration):
+                spell_duration = int(level) / 2
+            else:
+                spell_duration = int(duration)
+        elif formula == "7":
+            if int(duration) != 0:
+                spell_duration = int(duration)
+            else:
+                spell_duration = int(level)
+        elif formula == "8":
+            if (int(level) + 10) < int(duration):
+                spell_duration = int(level) + 10
+            else:
+                spell_duration = int(duration)
+        elif formula == "9":
+            if ((int(level) * 2) + 10) < int(duration):
+                spell_duration = (int(level) * 2) + 10
+            else:
+                spell_duration = int(duration)
+        elif formula == "10":
+            if ((int(level) * 3) + 10) < int(duration):
+                spell_duration = (int(level) * 3) + 10
+            else:
+                spell_duration = int(duration)
+        elif formula == "11":
+            spell_duration = int(duration)
+        elif formula == "12":
+            spell_duration = int(duration)
+        elif formula == "50":
+            spell_duration = 72000
+        elif formula == "3600":
+            if int(duration) != 0:
+                spell_duration = int(duration)
+            else:
+                spell_duration = 3600
+        else:
+            spell_duration = 0
+
+        return spell_duration * 6
+
+    except Exception as e:
+        eqa_settings.log(
+            "spell formulas: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_spell_remove_timer(state, timer_q, spell_lines, line_type):
+    """Remove timer for spell that dropped"""
+
+    try:
+        if re.fullmatch(r"^spell\_line\_.+$", line_type) is not None:
+            if line_type in spell_lines["spell_lines"].keys():
+                for spell in spell_lines["spell_lines"][line_type].keys():
+                    # Submit timer removal
+                    timer_q.put(
+                        eqa_struct.spell_timer(
+                            (datetime.datetime.now()),
+                            "remove_spell_timer",
+                            "null",
+                            state.char.lower(),
+                            spell,
+                            "null",
+                            "null",
+                            "null",
+                        )
+                    )
+        else:
+            spell = re.findall(r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_you\_off)", line_type)[0]
+            # Submit timer removal
+            timer_q.put(
+                eqa_struct.spell_timer(
+                    (datetime.datetime.now()),
+                    "remove_spell_timer",
+                    "null",
+                    state.char.lower(),
+                    spell,
+                    "null",
+                    "null",
+                    "null",
+                )
+            )
+
+    except Exception as e:
+        eqa_settings.log(
+            "acton spell remove timer: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_spell_timer(
+    state,
+    timer_q,
+    line_type,
+    line_time,
+    line,
+    spell_casting_buffer_other,
+    spell_casting_buffer_you,
+    spell_timers,
+    spell_lines,
+    spell_casters,
+    player_list,
+):
+    """Set timer for spell duration"""
+
+    try:
+        is_spell_line = False
+        find_time = False
+
+        if re.fullmatch(r"^spell\_line\_[a-zA-Z\s\_]+\_you\_on", line_type) is not None:
+            target = state.char.lower()
+            spell_line = re.findall(
+                r"(?<=spell\_line\_)[a-zA-Z\s\_]+(?=\_you\_on)", line_type
+            )[0]
+            is_spell_line = True
+        elif (
+            re.fullmatch(r"^spell\_line\_[a-zA-Z\s\_]+\_other\_on", line_type)
+            is not None
+        ):
+            target = re.findall(r"(?:^|(?:[.!?]\s))(\w+)", line)[0].lower()
+            spell_line = re.findall(
+                r"(?<=spell\_line\_)[a-zA-Z\s\_]+(?=\_other\_on)", line_type
+            )[0]
+            is_spell_line = True
+        elif re.fullmatch(r".+\_you\_on$", line_type) is not None:
+            spell = re.findall(r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_you\_on)", line_type)[0]
+            target = state.char.lower()
+        elif re.fullmatch(r".+\_other\_on", line_type) is not None:
+            spell = re.findall(r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_other\_on)", line_type)[
+                0
+            ]
+            target = re.findall(r"(?:^|(?:[.!?]\s))(\w+)", line)[0].lower()
+
+        # If this is a spell cast line output shared by more than one spell
+        if is_spell_line:
+            if state.debug == "true":
+                eqa_settings.log("spell line found: " + line_type)
+            # Determine possible spells
+            if line_type in spell_lines["spell_lines"].keys():
+                possible_spells = spell_lines["spell_lines"][line_type].keys()
+                if state.debug == "true":
+                    eqa_settings.log("possible spells: " + str(possible_spells))
+                check_for_spells = []
+                # Retrieve casting requirements for each possible spell
+                for possible_spell in possible_spells:
+                    if possible_spell in spell_casters["spells"].keys():
+                        # Validate a player cast this spell
+                        ## TODO: later try and guess npc/item only spells with vague messages, for now thats too much guessing
+                        if spell_casters["spells"][possible_spell]["classes"]:
+                            check_for_spells.append(
+                                {
+                                    "spell": possible_spell,
+                                    "classes": spell_casters["spells"][possible_spell][
+                                        "classes"
+                                    ].keys(),
+                                }
+                            )
+
+                # First check if the player could have cast this
+                if spell_casting_buffer_you:
+                    # If the most recent player cast spell is in the possible spell list
+                    if (
+                        spell_casting_buffer_you["spell"]
+                        in spell_lines["spell_lines"][line_type].keys()
+                        and spell_casting_buffer_you["spell"]
+                        in spell_casters["spells"].keys()
+                    ):
+                        if state.debug == "true":
+                            eqa_settings.log(
+                                "Checking if cast for: "
+                                + spell_casting_buffer_you["spell"]
+                                + " occurred "
+                                + spell_timers["spells"][
+                                    spell_casting_buffer_you["spell"]
+                                ]["cast_time"]
+                                + " seconds ago"
+                            )
+                        # If most recent player cast spell occurred spell time ago to this spell landing
+                        if (
+                            int(
+                                (
+                                    datetime.datetime.strptime(line_time, "%H:%M:%S.%f")
+                                    - datetime.datetime.strptime(
+                                        spell_casting_buffer_you["time"], "%H:%M:%S.%f"
+                                    )
+                                    - datetime.timedelta(
+                                        seconds=float(
+                                            spell_timers["spells"][
+                                                spell_casting_buffer_you["spell"]
+                                            ]["cast_time"]
+                                        )
+                                    )
+                                ).total_seconds()
+                            )
+                            == 0
+                        ):
+                            identified_spell_caster = state.char.lower()
+                            identified_spell_level = state.char_level
+                            identified_spell = spell_casting_buffer_you["spell"]
+                            identified_spell_target = target
+                            find_time = True
+
+                # Then check spell cast buffer other cast time ago for each possible spell
+                if not find_time:
+                    # For each possible spell
+                    for spell_caster in check_for_spells:
+                        # Retrieve cast time for the possible spell
+                        cast_time = spell_timers["spells"][
+                            spell_caster["spell"]
+                        ]  # this is way too hard to read
+                        # Check each event in spell cast buffer other if it occurred possible spell cast time ago
+                        for recent_cast_event in spell_casting_buffer_other:
+                            # If this spell event coincides with a spell cast event cast time ago
+                            if (
+                                int(
+                                    (
+                                        datetime.datetime.strptime(
+                                            line_time, "%H:%M:%S.%f"
+                                        )
+                                        - datetime.datetime.strptime(
+                                            recent_cast_event["time"], "%H:%M:%S.%f"
+                                        )
+                                        - datetime.timedelta(
+                                            seconds=float(
+                                                spell_timers["spells"][
+                                                    spell_caster["spell"]
+                                                ]["cast_time"]
+                                            )
+                                        )
+                                    ).total_seconds()
+                                )
+                                == 0
+                            ):
+                                # Check if caster is able to cast potential spell
+                                if recent_cast_event["caster"] in player_list.keys():
+                                    player_class = player_list[
+                                        recent_cast_event["caster"]
+                                    ]["class"]
+                                    # If the player class can cast it
+                                    if (
+                                        player_class
+                                        in spell_casters["spells"][
+                                            spell_caster["spell"]
+                                        ]["classes"].keys()
+                                    ):
+                                        player_level = int(
+                                            player_list[recent_cast_event["caster"]][
+                                                "level"
+                                            ]
+                                        )
+                                        # If that players level can cast it
+                                        if (
+                                            int(
+                                                spell_casters["spells"][
+                                                    spell_caster["spell"]
+                                                ]["classes"][player_class]
+                                            )
+                                            <= player_level
+                                        ):
+                                            if not find_time:
+                                                identified_spell_caster = (
+                                                    recent_cast_event["caster"]
+                                                )
+                                                identified_spell_level = player_list[
+                                                    identified_spell_caster
+                                                ]["level"]
+                                                identified_spell = spell_caster["spell"]
+                                                identified_spell_target = target
+                                                find_time = True
+                                            # Favor matched spell with highest level casting requirements
+                                            elif int(
+                                                spell_casters["spells"][
+                                                    identified_spell
+                                                ]["classes"][
+                                                    player_list[
+                                                        identified_spell_caster
+                                                    ]["class"]
+                                                ]
+                                            ) < int(
+                                                spell_casters["spells"][
+                                                    identified_spell
+                                                ]["classes"][
+                                                    player_list[
+                                                        recent_cast_event["caster"]
+                                                    ]["class"]
+                                                ]
+                                            ):
+                                                identified_spell_caster = (
+                                                    recent_cast_event["caster"]
+                                                )
+                                                identified_spell_level = player_list[
+                                                    identified_spell_caster
+                                                ]["level"]
+                                                identified_spell = spell_caster["spell"]
+                                                identified_spell_target = target
+                                # TODO: Maybe add an option to assume your player level if player data is not found and your level is sufficient to cast the identified spell?
+
+        # We know the spell which landed
+        else:
+            if state.debug == "true":
+                eqa_settings.log("Checking for spell: " + spell)
+            # If we have spell_caster info on this spell
+            if spell in spell_casters["spells"].keys():
+                # Check if player has cast anything
+                if spell_casting_buffer_you:
+                    # If the spell cast by the player is in the spell casters file
+                    if (
+                        spell_casting_buffer_you["spell"]
+                        in spell_casters["spells"].keys()
+                    ):
+                        # If most recent player cast spell occurred spell time ago to this spell landing
+                        if (
+                            int(
+                                (
+                                    datetime.datetime.strptime(line_time, "%H:%M:%S.%f")
+                                    - datetime.datetime.strptime(
+                                        spell_casting_buffer_you["time"], "%H:%M:%S.%f"
+                                    )
+                                    - datetime.timedelta(
+                                        seconds=float(
+                                            spell_timers["spells"][
+                                                spell_casting_buffer_you["spell"]
+                                            ]["cast_time"]
+                                        )
+                                    )
+                                ).total_seconds()
+                            )
+                            == 0
+                        ):
+                            identified_spell_caster = state.char.lower()
+                            identified_spell_level = state.char_level
+                            identified_spell = spell_casting_buffer_you["spell"]
+                            identified_spell_target = target
+                            find_time = True
+                        # This spell has no listed classes listed and can be an item cast and you cast it
+                        elif (
+                            not spell_casters["spells"][spell]["classes"]
+                            and spell_casters["spells"][spell]["item"] == "true"
+                        ):
+                            identified_spell_caster = state.char.lower()
+                            identified_spell_level = state.char_level
+                            identified_spell = spell_casting_buffer_you["spell"]
+                            identified_spell_target = target
+                            find_time = True
+                        # The spell cannot be cast by your class and can be an item cast and you cast it but not spell cast time ago
+                        # elif (
+                        #    state.char_class.lower()
+                        #    not in spell_casters["spells"][spell]["classes"].keys()
+                        #    and spell_casters["spells"][spell]["item"] == "true"
+                        # ):
+                        #    # TODO: This is where item cast durations would be checked
+                        #    if state.spell_timer_guess == "true":
+                        #        identified_spell_caster = state.char.lower()
+                        #        identified_spell_level = state.char_level
+                        #        identified_spell = spell_casting_buffer_you["spell"]
+                        #        identified_spell_target = target
+                        #        find_time = True
+
+                # Check for matching spell cast event
+                if not find_time:
+                    for recent_cast_event in spell_casting_buffer_other:
+                        if state.debug == "true":
+                            eqa_settings.log("Checking " + recent_cast_event["caster"])
+                        if (
+                            int(
+                                (
+                                    datetime.datetime.strptime(line_time, "%H:%M:%S.%f")
+                                    - datetime.datetime.strptime(
+                                        recent_cast_event["time"], "%H:%M:%S.%f"
+                                    )
+                                    - datetime.timedelta(
+                                        seconds=float(
+                                            spell_timers["spells"][spell]["cast_time"]
+                                        )
+                                    )
+                                ).total_seconds()
+                            )
+                            == 0
+                        ):
+                            if state.debug == "true":
+                                eqa_settings.log(
+                                    "Checking player info for "
+                                    + recent_cast_event["caster"]
+                                )
+                            # Do we have player info on the likely caster?
+                            if recent_cast_event["caster"] in player_list.keys():
+                                player_class = player_list[recent_cast_event["caster"]][
+                                    "class"
+                                ]
+                                if (
+                                    player_class
+                                    in spell_casters["spells"][spell]["classes"].keys()
+                                ):
+                                    player_level = int(
+                                        player_list[recent_cast_event["caster"]][
+                                            "level"
+                                        ]
+                                    )
+                                    if (
+                                        int(
+                                            spell_casters["spells"][spell]["classes"][
+                                                player_class
+                                            ]
+                                        )
+                                        <= player_level
+                                    ):
+                                        identified_spell_caster = recent_cast_event[
+                                            "caster"
+                                        ]
+                                        identified_spell_level = player_list[
+                                            identified_spell_caster
+                                        ]["level"]
+                                        identified_spell = spell
+                                        identified_spell_target = target
+                                        find_time = True
+                                        if state.debug == "true":
+                                            eqa_settings.log(
+                                                "Found spell cast by "
+                                                + identified_spell_caster
+                                            )
+                            # Time to guess the spell level
+                            elif state.spell_timer_guess == "true":
+                                if state.debug == "true":
+                                    eqa_settings.log("Into spell guessing territory")
+                                player_level_could_cast = False
+                                # If a player could cast this
+                                if spell_casters["spells"][spell]["classes"]:
+                                    # Check if the current player level could cast this (assuming it is a grouped peer or target mob)
+                                    for caster_class in spell_casters["spells"][spell][
+                                        "classes"
+                                    ]:
+                                        if int(state.char_level) >= int(
+                                            spell_casters["spells"][spell]["classes"][
+                                                caster_class
+                                            ]
+                                        ):
+                                            player_level_could_cast = True
+
+                                    if player_level_could_cast:
+                                        identified_spell_level = state.char_level
+                                    else:
+                                        identified_spell_level = 60
+
+                                    identified_spell_caster = recent_cast_event[
+                                        "caster"
+                                    ]
+                                    identified_spell = spell
+                                    identified_spell_target = target
+                                    find_time = True
+
+                                # If this is a known npc only spell, just set to current player level
+                                elif spell_casters["spells"][spell]["npc"] == "true":
+                                    identified_spell_caster = recent_cast_event[
+                                        "caster"
+                                    ]
+                                    identified_spell_level = state.char_level
+                                    identified_spell = spell
+                                    identified_spell_target = target
+                                    find_time = True
+
+        if find_time:
+            make_timer = True
+            # If we only want self or guild spell timers
+            if state.spell_timer_guild_only == "true":
+                # If this was cast by myself or another player
+                if identified_spell_caster in player_list.keys():
+                    # If a guildie didn't cast it
+                    if (
+                        not player_list[str(identified_spell_caster)]["guild"]
+                        == state.char_guild.lower()
+                    ):
+                        # and it didn't land on a guildie
+                        if identified_spell_target in player_list.keys():
+                            if (
+                                not player_list[str(identified_spell_target)]["guild"]
+                                == state.char_guild.lower()
+                            ):
+                                make_timer = False
+                # If we don't know anything about the identified caster
+                else:
+                    make_timer = False
+
+            if state.spell_timer_yours_only == "true":
+                if identified_spell_caster != state.char.lower():
+                    make_timer = False
+
+            # See if this is a timer which will at least last longer than spell timer delay
+            spell_duration = spell_formulas(
+                spell_timers["spells"][identified_spell]["formula"],
+                identified_spell_level,
+                spell_timers["spells"][identified_spell]["duration"],
+            )
+            if int(spell_duration) <= int(state.spell_timer_delay):
+                if state.debug == "true":
+                    eqa_settings.log("Spell duration too short for timer")
+                make_timer = False
+
+            # Set timer message
+            if make_timer:
+                if identified_spell_target == state.char.lower():
+                    if int(state.spell_timer_delay) <= 0:
+                        message = identified_spell.replace("_", " ") + " has worn off"
+                    else:
+                        message = identified_spell.replace("_", " ") + " is wearing off"
+                else:
+                    if int(state.spell_timer_delay) <= 0:
+                        message = (
+                            identified_spell.replace("_", " ")
+                            + " on "
+                            + identified_spell_target
+                            + " has worn off"
+                        )
+                    else:
+                        message = (
+                            identified_spell.replace("_", " ")
+                            + " on "
+                            + identified_spell_target
+                            + " is wearing off"
+                        )
+
+                spell_timer_expire = (
+                    datetime.datetime.now()
+                    + datetime.timedelta(seconds=int(spell_duration))
+                    - datetime.timedelta(seconds=int(state.spell_timer_delay))
+                )
+
+                # Submit timer
+                timer_q.put(
+                    eqa_struct.spell_timer(
+                        spell_timer_expire,
+                        "spell",
+                        identified_spell_caster,
+                        identified_spell_target,
+                        identified_spell,
+                        spell_duration,
+                        datetime.datetime.now(),
+                        message,
+                    )
+                )
+
+                # Debug logging
+                if state.debug == "true":
+                    eqa_settings.log(
+                        "Spell timer created for "
+                        + identified_spell
+                        + " "
+                        + identified_spell_caster
+                        + "->"
+                        + identified_spell_target
+                        + " for "
+                        + str(spell_duration)
+                        + " seconds"
+                    )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action spell timer: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_mob_timer(timer_q, timer_seconds, auto_mob_timer_delay, zone):
+    """Set timer for mob spawn using default zone timer value"""
+
+    timer_seconds = str(int(timer_seconds) - int(auto_mob_timer_delay))
+    if int(timer_seconds) < 0:
+        timer_seconds = "0"
+    if int(auto_mob_timer_delay) <= 0:
+        pop_message = "Pop " + str(zone)
+    else:
+        pop_message = (
+            "Pop " + str(zone) + " in " + str(auto_mob_timer_delay) + " seconds."
+        )
+    timer_q.put(
+        eqa_struct.timer(
+            (datetime.datetime.now() + datetime.timedelta(seconds=int(timer_seconds))),
+            "timer",
+            str(timer_seconds),
+            pop_message,
+        )
+    )
 
 
 def send_alerts(line_type, check_line, configs, sound_q, display_q, mute_list):
@@ -835,6 +1597,7 @@ def action_motd_welcome(system_q):
     """Perform actions for motd welcome line types"""
 
     try:
+        # Remove group
         system_q.put(
             eqa_struct.message(
                 eqa_settings.eqa_time(),
@@ -844,6 +1607,7 @@ def action_motd_welcome(system_q):
                 "false",
             )
         )
+        # Remove group leader
         system_q.put(
             eqa_struct.message(
                 eqa_settings.eqa_time(),
@@ -853,6 +1617,7 @@ def action_motd_welcome(system_q):
                 "false",
             )
         )
+        # Remove AFK
         system_q.put(
             eqa_struct.message(
                 eqa_settings.eqa_time(),
@@ -1141,7 +1906,15 @@ def action_location(system_q, check_line):
 
 
 def action_you_say_commands(
-    timer_q, system_q, sound_q, display_q, check_line, configs, mute_list, state
+    timer_q,
+    system_q,
+    sound_q,
+    display_q,
+    check_line,
+    configs,
+    mute_list,
+    state,
+    player_list,
 ):
     """Perform actions for parser say commands"""
 
@@ -1456,6 +2229,28 @@ def action_you_say_commands(
                             "You are " + state.char + ", right?",
                         )
                     )
+                elif args[1] in player_list.keys():
+                    if (
+                        player_list[args[1]]["class"] == "unknown"
+                        and player_list[args[1]]["guild"] == "none"
+                        and player_list[args[1]]["level"] == "0"
+                    ):
+                        message = "I only know their name"
+                    else:
+                        message = args[1] + " is "
+                        if int(player_list[args[1]]["level"]) > 0:
+                            message = (
+                                message + " a level " + player_list[args[1]]["level"]
+                            )
+                        if not player_list[args[1]]["class"] == "unknown":
+                            message = message + " " + player_list[args[1]]["class"]
+                        else:
+                            message = message + " character"
+                        if not player_list[args[1]]["guild"] == "none":
+                            message = message + " in " + player_list[args[1]]["guild"]
+                    sound_q.put(eqa_struct.sound("speak", message))
+                elif not args[1] in player_list.keys():
+                    sound_q.put(eqa_struct.sound("speak", "I'm not sure who that is"))
             elif args[0] == "why":
                 if len(args) == 1:
                     sound_q.put(
@@ -1677,7 +2472,7 @@ def action_you_char_bound(system_q, check_line):
         )
 
 
-def action_who_player(system_q, state, line):
+def action_who_player(configs, system_q, state, line, player_list):
     """Perform actions for who_player line types"""
 
     try:
@@ -1704,6 +2499,7 @@ def action_who_player(system_q, state, line):
                         char_class,
                     )
                 )
+
             if re.fullmatch(r".+\<[a-zA-Z\s]+\>(.+|)", line) is not None:
                 char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0]
                 system_q.put(
@@ -1716,6 +2512,123 @@ def action_who_player(system_q, state, line):
                     )
                 )
 
+        char_level = "0"
+        char_class = "unknown"
+        char_guild = "none"
+
+        # Parse who_player to determine name, level, guild
+        if re.findall(r"\[\d+ [a-zA-Z\s]+\]", line):
+            char_level, char_class = re.findall(r"\d+ [a-zA-Z\s]+", line)[0].split(
+                " ", 1
+            )
+
+        if re.fullmatch(r".+\<[a-zA-Z\s]+\>(.+|)", line) is not None:
+            char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0].lower()
+
+        char_name = re.findall(r"(?<=\]\ )[a-zA-Z]+", line)[0].lower()
+
+        char_class = char_class.lower()
+
+        if (
+            char_class == "minstrel"
+            or char_class == "troubadour"
+            or char_class == "virtuoso"
+        ):
+            char_class = "bard"
+        elif (
+            char_class == "vicar"
+            or char_class == "templar"
+            or char_class == "high priest"
+        ):
+            char_class = "cleric"
+        elif (
+            char_class == "wanderer"
+            or char_class == "preserver"
+            or char_class == "hierophant"
+        ):
+            char_class = "druid"
+        elif (
+            char_class == "illusionist"
+            or char_class == "beguiler"
+            or char_class == "phantasmist"
+        ):
+            char_class = "enchanter"
+        elif (
+            char_class == "elementalist"
+            or char_class == "conjurer"
+            or char_class == "arch mage"
+        ):
+            char_class = "magician"
+        elif (
+            char_class == "disciple"
+            or char_class == "master"
+            or char_class == "grandmaster"
+        ):
+            char_class = "monk"
+        elif (
+            char_class == "heretic"
+            or char_class == "defiler"
+            or char_class == "warlock"
+        ):
+            char_class = "necromancer"
+        elif (
+            char_class == "cavalier"
+            or char_class == "knight"
+            or char_class == "crusader"
+        ):
+            char_class = "paladin"
+        elif (
+            char_class == "pathfinder"
+            or char_class == "outrider"
+            or char_class == "warder"
+        ):
+            char_class = "ranger"
+        elif (
+            char_class == "rake"
+            or char_class == "blackguard"
+            or char_class == "assassin"
+        ):
+            char_class = "rogue"
+        elif (
+            char_class == "reaver"
+            or char_class == "revenant"
+            or char_class == "grave lord"
+        ):
+            char_class = "shadow knight"
+        elif (
+            char_class == "mystic" or char_class == "luminary" or char_class == "oracle"
+        ):
+            char_class = "shaman"
+        elif (
+            char_class == "champion"
+            or char_class == "myrmidon"
+            or char_class == "warlord"
+        ):
+            char_class = "warrior"
+        elif (
+            char_class == "channeler"
+            or char_class == "evoker"
+            or char_class == "sorcerer"
+        ):
+            char_class = "wizard"
+
+        if char_name in player_list.keys():
+            if char_guild != "none" and char_guild != player_list[char_name]["guild"]:
+                player_list[char_name]["guild"] = char_guild
+            if char_level != "0" and char_level != player_list[char_name]["level"]:
+                player_list[char_name]["level"] = char_level
+            if (
+                char_class != "unknown"
+                and char_class != player_list[char_name]["class"]
+            ):
+                player_list[char_name]["class"] = char_class
+        else:
+            player_list[char_name] = {
+                "class": char_class,
+                "level": char_level,
+                "guild": char_guild,
+            }
+
     except Exception as e:
         eqa_settings.log(
             "action who player: Error on line "
@@ -1726,7 +2639,7 @@ def action_who_player(system_q, state, line):
 
 
 def action_you_new_zone(
-    base_path, system_q, display_q, sound_q, state, configs, check_line
+    base_path, system_q, display_q, sound_q, timer_q, state, configs, check_line
 ):
     """Perform actions for you new zone line types"""
 
@@ -1796,6 +2709,15 @@ def action_you_new_zone(
                         "Raid mode auto-disabled",
                     )
                 )
+
+        timer_q.put(
+            eqa_struct.timer(
+                datetime.datetime.now(),
+                "new_zone",
+                None,
+                None,
+            )
+        )
 
     except Exception as e:
         eqa_settings.log(
