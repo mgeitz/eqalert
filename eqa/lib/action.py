@@ -814,7 +814,7 @@ def action_spell_timer(
                                                 ]["classes"][
                                                     player_list[
                                                         identified_spell_caster
-                                                    ]["class"]
+                                                    ]["level"]
                                                 ]
                                             ) < int(
                                                 spell_casters["spells"][
@@ -822,7 +822,7 @@ def action_spell_timer(
                                                 ]["classes"][
                                                     player_list[
                                                         recent_cast_event["caster"]
-                                                    ]["class"]
+                                                    ]["level"]
                                                 ]
                                             ):
                                                 identified_spell_caster = (

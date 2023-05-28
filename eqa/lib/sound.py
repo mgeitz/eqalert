@@ -185,7 +185,9 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])pof(?=[^A-z])", "plane of fear", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])poh(?=[^A-z])", "plane of hate", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])pom(?=[^A-z])", "plane of mischief", line, flags=re.I)
-    line = re.sub(r"(?<=[^A-z])potg(?=[^A-z])", "protection of the glades", line, flags=re.I)
+    line = re.sub(
+        r"(?<=[^A-z])potg(?=[^A-z])", "protection of the glades", line, flags=re.I
+    )
     line = re.sub(r"(?<=[^A-z])pov(?=[^A-z])", "point of view", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])pst(?=[^A-z])", "please send tell", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])rh(?=[^A-z])", "right here", line, flags=re.I)
@@ -223,7 +225,9 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])yw(?=[^A-z])", "you're welcome", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])<3(?=[^A-z])", "heart", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])>\.<(?=[^A-z])", "squinting face", line, flags=re.I)
-    line = re.sub(r"(?<=[^A-z])>\_<(?=[^A-z])", "serious squinting face", line, flags=re.I)
+    line = re.sub(
+        r"(?<=[^A-z])>\_<(?=[^A-z])", "serious squinting face", line, flags=re.I
+    )
     line = re.sub(r"(\d+)p(?![A-z])", r"\1 platinum", line, flags=re.I)
     line = re.sub(r"(\d+)m(?![A-z])", r"\1 mana", line, flags=re.I)
 
