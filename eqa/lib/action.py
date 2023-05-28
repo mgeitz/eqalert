@@ -822,7 +822,7 @@ def action_spell_timer(
                                                 ]["classes"][
                                                     player_list[
                                                         recent_cast_event["caster"]
-                                                    ]["class"]
+                                                    ]
                                                 ]
                                             ):
                                                 identified_spell_caster = (

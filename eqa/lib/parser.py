@@ -98,6 +98,11 @@ def determine(line):
         if line_type is not None:
             return line_type
 
+        # Who
+        line_type = check_who(line)
+        if line_type is not None:
+            return line_type
+
         # Pets
         line_type = check_pets(line)
         if line_type is not None:
@@ -135,11 +140,6 @@ def determine(line):
 
         # Emotes
         line_type = check_emotes(line)
-        if line_type is not None:
-            return line_type
-
-        # Who
-        line_type = check_who(line)
         if line_type is not None:
             return line_type
 
