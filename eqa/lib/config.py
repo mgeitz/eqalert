@@ -5082,6 +5082,7 @@ def update_spell_casters(data_path, version):
                 generate = False
 
         if generate:
+            print("    - generating spell-casters.json")
             f = open(spell_casters_path, "w", encoding="utf-8")
             f.write(new_spell_caster_data % (version))
             f.close()
@@ -6421,6 +6422,7 @@ def update_spell_lines(data_path, version):
                 generate = False
 
         if generate:
+            print("    - generating spell-lines.json")
             f = open(spell_lines_path, "w", encoding="utf-8")
             f.write(new_spell_lines_data % (version))
             f.close()
@@ -7985,7 +7987,7 @@ def update_spell_timers(data_path, eq_spells_file_path):
                     generate_spell_timer_file = False
 
             if generate_spell_timer_file:
-                print("Generating new spell-timers.json. This may take a minute . . .")
+                print("    - generating spell-timers.json (this may take a minute)")
                 # Bootstrap new spell-timers.json
                 spell_timer_json = {"spells": {}, "hash": spells_hash}
 
@@ -8441,6 +8443,7 @@ def generate_players_file(player_data_file, version):
 """
 
     try:
+        print("    - generating players.json")
         f = open(player_data_file, "w", encoding="utf-8")
         f.write(new_players_data % (version))
         f.close()

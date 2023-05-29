@@ -51,17 +51,21 @@ def startup(base_path, version):
         # Make the main folder
         if not os.path.exists(base_path):
             print("Bootstrapping for first run . . .")
-            print("    - putting this stuff in " + base_path)
+            print("  Thanks for trying out EQ Alert")
+            print(
+                "  Please submit any bugs or issues to https://github.com/mgeitz/eqalert/issues"
+            )
+            print("    - putting everything in " + base_path)
             os.makedirs(base_path)
 
         # Make the config directory
         if not os.path.exists(base_path + "config/"):
-            print("    - making a place for way too many config files")
+            print("    - creating config directory")
             os.makedirs(base_path + "config/")
 
         # Make the config line alerts directory
         if not os.path.exists(base_path + "config/line-alerts/"):
-            print("    - what should we do with these lines?")
+            print("    - creating line alert config directory")
             os.makedirs(base_path + "config/line-alerts/")
 
         # Make Any Missing Config Files
@@ -87,7 +91,7 @@ def startup(base_path, version):
 
         # Make the log directory
         if not os.path.exists(log_path):
-            print("    - making a place for logs")
+            print("    - creating log directory")
             os.makedirs(log_path)
 
         # Set log file
@@ -95,12 +99,12 @@ def startup(base_path, version):
 
         # Make the debug directory
         if not os.path.exists(log_path + "debug/"):
-            print("    - making a place for optional debug logs")
+            print("    - creating debug log directory")
             os.makedirs(log_path + "debug/")
 
         # Make the sound directory
         if not os.path.exists(sound_path):
-            print("    - making a home for alert sounds")
+            print("    - creating sound directory")
             os.makedirs(sound_path)
         if not os.path.exists(sound_path + "tock.wav"):
             tock_path = pkg_resources.resource_filename("eqa", "sound/tock.wav")
@@ -115,12 +119,13 @@ def startup(base_path, version):
 
         # Make the data directory
         if not os.path.exists(data_path):
-            print("    - making a place for data")
+            print("    - creating data directory")
             os.makedirs(data_path)
 
         # Generate timers directory
         timers_save_directory = data_path + "timers/"
         if not os.path.exists(timers_save_directory):
+            print("    - creating timer data directory")
             os.makedirs(timers_save_directory)
 
         # Generate Spell Timers
@@ -148,7 +153,7 @@ def startup(base_path, version):
 
         # Make the encounter directory
         if not os.path.exists(encounter_path):
-            print("    - making a place for encounter logs")
+            print("    - creating encounter directory")
             os.makedirs(encounter_path)
 
         # Update config char_logs
