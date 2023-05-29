@@ -1242,7 +1242,7 @@ def draw_state(stdscr, state, version):
         # consider evaluation state
         stdscr.addstr(26, 5, "Consider", curses.color_pair(2))
         stdscr.addstr(26, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(26, 18, state.consider_eval.title(), curses.color_pair(3))
+        stdscr.addstr(26, 18, str(state.consider_eval), curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(
@@ -1573,9 +1573,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(12, first_q, "Consider Evaluation", curses.color_pair(1))
         optscr.addstr(12, second_third, "[", curses.color_pair(3))
-        if state.consider_eval == "true":
+        if state.consider_eval:
             optscr.addstr(12, second_third + 1, "on", curses.color_pair(5))
-        elif state.consider_eval == "false":
+        elif not state.consider_eval:
             optscr.addstr(12, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(12, second_third + 7, "]", curses.color_pair(3))
 

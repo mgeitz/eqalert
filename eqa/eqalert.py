@@ -1313,8 +1313,8 @@ def system_consider(configs, state, display_q, sound_q, new_message):
 
     try:
         # Toggle consider eval state to true
-        if state.consider_eval == "false" and new_message.payload == "true":
-            state.set_consider_eval("true")
+        if not state.consider_eval and new_message.payload:
+            state.set_consider_eval(True)
             eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
@@ -1326,8 +1326,8 @@ def system_consider(configs, state, display_q, sound_q, new_message):
             )
             sound_q.put(eqa_struct.sound("speak", "Consider evaluation enabled"))
         # Toggle consider eval state to false
-        elif state.consider_eval == "true" and new_message.payload == "false":
-            state.set_consider_eval("false")
+        elif state.consider_eval and not new_message.payload:
+            state.set_consider_eval(False)
             eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(

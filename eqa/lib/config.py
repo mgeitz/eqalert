@@ -8132,7 +8132,7 @@ def set_last_state(state, configs):
             }
         )
         configs.settings.config["settings"]["consider_eval"].update(
-            {"enabled": str(state.consider_eval)}
+            {"enabled": state.consider_eval}
         )
         configs.settings.config["settings"]["debug_mode"].update(
             {"enabled": state.debug}
@@ -8529,7 +8529,7 @@ def build_config(base_path, version):
   "last_state": {},
   "settings": {
     "consider_eval": {
-      "enabled": "false"
+      "enabled": false
     },
     "debug_mode": {
       "enabled": false

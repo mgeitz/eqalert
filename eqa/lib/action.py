@@ -348,7 +348,7 @@ def process(
                         )
 
                 ## Consider Evaluation
-                if state.consider_eval == "true" and line_type == "consider":
+                if state.consider_eval and line_type == "consider":
                     action_consider_evaluation(sound_q, check_line)
 
                 if line_type == "zoning":
@@ -2129,24 +2129,24 @@ def action_you_say_commands(
                     )
                 )
             elif args[0] == "consider":
-                if state.consider_eval == "true":
+                if state.consider_eval:
                     system_q.put(
                         eqa_struct.message(
                             eqa_settings.eqa_time(),
                             "system",
                             "consider",
                             "eval",
-                            "false",
+                            False,
                         )
                     )
-                elif state.consider_eval == "false":
+                else:
                     system_q.put(
                         eqa_struct.message(
                             eqa_settings.eqa_time(),
                             "system",
                             "consider",
                             "eval",
-                            "true",
+                            True,
                         )
                     )
             elif args[0] == "debug":

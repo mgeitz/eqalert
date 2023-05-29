@@ -413,7 +413,7 @@ def process(
                                         "false",
                                     )
                                 )
-                            elif option == "consider" and state.consider_eval == "true":
+                            elif option == "consider" and state.consider_eval:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
@@ -580,9 +580,7 @@ def process(
                                         "true",
                                     )
                                 )
-                            elif (
-                                option == "consider" and state.consider_eval == "false"
-                            ):
+                            elif option == "consider" and not state.consider_eval:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
