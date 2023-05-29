@@ -503,7 +503,7 @@ def process(
                 action_q.task_done()
 
         # Save any new player data collected to file
-        if configs.settings.config["settings"]["player_data"]["persist"] == "true":
+        if configs.settings.config["settings"]["player_data"]["persist"]:
             eqa_config.update_players_file(
                 configs.settings.config["settings"]["paths"]["data"],
                 state.server,

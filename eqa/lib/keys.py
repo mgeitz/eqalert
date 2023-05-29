@@ -365,14 +365,14 @@ def process(
                                         None,
                                     )
                                 )
-                            elif option == "autoraid" and state.auto_raid == "true":
+                            elif option == "autoraid" and state.auto_raid:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
                                         "system",
                                         "raid",
                                         "auto",
-                                        "false",
+                                        False,
                                     )
                                 )
                             elif option == "encounter" and state.encounter_parse:
@@ -524,14 +524,14 @@ def process(
                                         "all",
                                     )
                                 )
-                            elif option == "autoraid" and state.auto_raid == "false":
+                            elif option == "autoraid" and not state.auto_raid:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
                                         "system",
                                         "raid",
                                         "auto",
-                                        "true",
+                                        True,
                                     )
                                 )
                             elif option == "encounter" and not state.encounter_parse:

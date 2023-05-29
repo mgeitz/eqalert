@@ -1499,9 +1499,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(8, first_q, "Auto-set Raid Mode", curses.color_pair(1))
         optscr.addstr(8, second_third, "[", curses.color_pair(3))
-        if state.auto_raid == "true":
+        if state.auto_raid:
             optscr.addstr(8, second_third + 1, "on", curses.color_pair(5))
-        elif state.auto_raid == "false":
+        else:
             optscr.addstr(8, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(8, second_third + 7, "]", curses.color_pair(3))
 

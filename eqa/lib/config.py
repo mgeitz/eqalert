@@ -8088,7 +8088,7 @@ def set_last_state(state, configs):
         )
         configs.settings.config["settings"]["raid_mode"].update(
             {
-                "auto_set": str(state.auto_raid),
+                "auto_set": state.auto_raid,
             }
         )
         configs.settings.config["settings"]["timers"].update(
@@ -8554,10 +8554,10 @@ def build_config(base_path, version):
       "tmp_sound": "/tmp/eqa/sound/"
     },
     "player_data": {
-      "persist": "true"
+      "persist": true
     },
     "raid_mode": {
-      "auto_set": "true"
+      "auto_set": true
     },
     "speech": {
       "expand_lingo": "true",

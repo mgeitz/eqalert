@@ -978,47 +978,40 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                 )
             )
         # Auto-set raid state to true
-        elif (
-            new_message.rx == "auto"
-            and new_message.payload == "true"
-            and state.auto_raid == "false"
-        ):
-            state.set_auto_raid("true")
-            eqa_config.set_last_state(state, configs)
-            display_q.put(
-                eqa_struct.display(
-                    eqa_settings.eqa_time(),
-                    "event",
-                    "events",
-                    "Raid context will be automatically set by zone",
+        elif new_message.rx == "auto":
+            if new_message.payload and not state.auto_raid:
+                state.set_auto_raid(True)
+                eqa_config.set_last_state(state, configs)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Raid context will be automatically set by zone",
+                    )
                 )
-            )
-            sound_q.put(
-                eqa_struct.sound(
-                    "speak", "Raid context will be automatically set by zone"
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Raid context will be automatically set by zone"
+                    )
                 )
-            )
-        # Auto-set raid state to false
-        elif (
-            new_message.rx == "auto"
-            and new_message.payload == "false"
-            and state.auto_raid == "true"
-        ):
-            state.set_auto_raid("false")
-            eqa_config.set_last_state(state, configs)
-            display_q.put(
-                eqa_struct.display(
-                    eqa_settings.eqa_time(),
-                    "event",
-                    "events",
-                    "Raid context will not be automatically updated",
+            # Auto-set raid state to false
+            elif not new_message.payload and state.auto_raid:
+                state.set_auto_raid(False)
+                eqa_config.set_last_state(state, configs)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Raid context will not be automatically updated",
+                    )
                 )
-            )
-            sound_q.put(
-                eqa_struct.sound(
-                    "speak", "Raid context will not be automatically updated"
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Raid context will not be automatically updated"
+                    )
                 )
-            )
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
