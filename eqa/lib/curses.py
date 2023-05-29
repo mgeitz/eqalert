@@ -372,7 +372,7 @@ def draw_events_frame(stdscr, state, events, debug_events, encounter_report, ver
         # Draw lower panel
         if state.debug:
             draw_events_debug(stdscr, debug_events)
-        elif state.encounter_parse == "true" and encounter_report is not None:
+        elif state.encounter_parse and encounter_report is not None:
             draw_events_encounter(stdscr, encounter_report)
         else:
             draw_events_default_lower(stdscr)
@@ -943,7 +943,7 @@ def draw_parse(stdscr, state, encounter_report, version):
         playerscr.clear()
 
         # If we're parsing encounters
-        if state.encounter_parse == "true":
+        if state.encounter_parse:
             ## If we have a report to show
             if encounter_report is not None:
                 target_name = encounter_report["target"]["name"].title()
@@ -1237,7 +1237,7 @@ def draw_state(stdscr, state, version):
         # enounter parse state
         stdscr.addstr(25, 5, "Encounter", curses.color_pair(2))
         stdscr.addstr(25, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(25, 18, state.encounter_parse.title(), curses.color_pair(3))
+        stdscr.addstr(25, 18, str(state.encounter_parse), curses.color_pair(3))
 
         # consider evaluation state
         stdscr.addstr(26, 5, "Consider", curses.color_pair(2))
@@ -1517,9 +1517,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(9, first_q, "Encounter Parse", curses.color_pair(1))
         optscr.addstr(9, second_third, "[", curses.color_pair(3))
-        if state.encounter_parse == "true":
+        if state.encounter_parse:
             optscr.addstr(9, second_third + 1, "on", curses.color_pair(5))
-        elif state.encounter_parse == "false":
+        else:
             optscr.addstr(9, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(9, second_third + 7, "]", curses.color_pair(3))
 
@@ -1535,9 +1535,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(10, first_q, "Save Encounter Parse", curses.color_pair(1))
         optscr.addstr(10, second_third, "[", curses.color_pair(3))
-        if state.save_parse == "true":
+        if state.save_parse:
             optscr.addstr(10, second_third + 1, "on", curses.color_pair(5))
-        elif state.save_parse == "false":
+        else:
             optscr.addstr(10, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(10, second_third + 7, "]", curses.color_pair(3))
 

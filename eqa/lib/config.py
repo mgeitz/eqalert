@@ -8084,7 +8084,7 @@ def set_last_state(state, configs):
             }
         )
         configs.settings.config["settings"]["encounter_parsing"].update(
-            {"auto_save": str(state.save_parse), "enabled": str(state.encounter_parse)}
+            {"auto_save": state.save_parse, "enabled": state.encounter_parse}
         )
         configs.settings.config["settings"]["raid_mode"].update(
             {

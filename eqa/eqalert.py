@@ -1448,74 +1448,72 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
 
     try:
         # Toggle encounter parse to true
-        if state.encounter_parse == "false" and new_message.rx == "toggle":
-            state.set_encounter_parse("true")
-            eqa_config.set_last_state(state, configs)
-            display_q.put(
-                eqa_struct.display(
-                    eqa_settings.eqa_time(),
-                    "event",
-                    "events",
-                    "Encounter Parse Enabled",
+        if new_message.rx == "toggle":
+            if not state.encounter_parse:
+                state.set_encounter_parse(True)
+                eqa_config.set_last_state(state, configs)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Encounter Parse Enabled",
+                    )
                 )
-            )
-            encounter_q.put(
-                eqa_struct.message(eqa_settings.eqa_time(), None, "clear", None, None)
-            )
-            sound_q.put(eqa_struct.sound("speak", "Encounter Parse Enabled"))
-        # Toggle encounter parse to false
-        elif state.encounter_parse == "true" and new_message.rx == "toggle":
-            state.set_encounter_parse("false")
-            eqa_config.set_last_state(state, configs)
-            display_q.put(
-                eqa_struct.display(
-                    eqa_settings.eqa_time(),
-                    "event",
-                    "events",
-                    "Encounter Parse Disabled",
+                encounter_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(), None, "clear", None, None
+                    )
                 )
-            )
-            sound_q.put(eqa_struct.sound("speak", "Encounter Parse Disabled"))
+                sound_q.put(eqa_struct.sound("speak", "Encounter Parse Enabled"))
+            # Toggle encounter parse to false
+            else:
+                state.set_encounter_parse(False)
+                eqa_config.set_last_state(state, configs)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Encounter Parse Disabled",
+                    )
+                )
+                sound_q.put(eqa_struct.sound("speak", "Encounter Parse Disabled"))
         # Set encounter parse save to false
-        elif (
-            state.save_parse == "true"
-            and new_message.rx == "save"
-            and new_message.payload == "false"
-        ):
-            state.set_encounter_parse_save("false")
-            eqa_config.set_last_state(state, configs)
-            display_q.put(
-                eqa_struct.display(
-                    eqa_settings.eqa_time(),
-                    "event",
-                    "events",
-                    "Encounter parse will not save to a file",
+        elif new_message.rx == "save":
+            if state.save_parse and not new_message.payload:
+                state.set_encounter_parse_save(False)
+                eqa_config.set_last_state(state, configs)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Encounter parse will not save to a file",
+                    )
                 )
-            )
-            sound_q.put(
-                eqa_struct.sound("speak", "Encounter parser will not save to a file")
-            )
-        # Set encounter parse save to true
-        elif (
-            state.save_parse == "false"
-            and new_message.rx == "save"
-            and new_message.payload == "true"
-        ):
-            state.set_encounter_parse_save("true")
-            eqa_config.set_last_state(state, configs)
-            display_q.put(
-                eqa_struct.display(
-                    eqa_settings.eqa_time(),
-                    "event",
-                    "events",
-                    "Encounter parse will automatically save to a file",
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Encounter parser will not save to a file"
+                    )
                 )
-            )
-            sound_q.put(
-                eqa_struct.sound(
-                    "speak", "Encounter parser will automatically save to a file"
+            # Set encounter parse save to true
+            elif not state.save_parse and new_message.payload:
+                state.set_encounter_parse_save(True)
+                eqa_config.set_last_state(state, configs)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Encounter parse will automatically save to a file",
+                    )
                 )
-            )
+                sound_q.put(
+                    eqa_struct.sound(
+                        "speak", "Encounter parser will automatically save to a file"
+                    )
+                )
         # Clear encounter parse stack
         elif new_message.rx == "clear":
             encounter_q.put(

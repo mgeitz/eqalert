@@ -188,24 +188,24 @@ def process(
                                 )
                             )
                     elif key == ord("p"):
-                        if state.save_parse == "false":
+                        if not state.save_parse:
                             system_q.put(
                                 eqa_struct.message(
                                     eqa_settings.eqa_time(),
                                     "system",
                                     "encounter",
                                     "save",
-                                    "true",
+                                    True,
                                 )
                             )
-                        elif state.save_parse == "true":
+                        else:
                             system_q.put(
                                 eqa_struct.message(
                                     eqa_settings.eqa_time(),
                                     "system",
                                     "encounter",
                                     "save",
-                                    "false",
+                                    False,
                                 )
                             )
 
@@ -375,10 +375,7 @@ def process(
                                         "false",
                                     )
                                 )
-                            elif (
-                                option == "encounter"
-                                and state.encounter_parse == "true"
-                            ):
+                            elif option == "encounter" and state.encounter_parse:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
@@ -388,16 +385,14 @@ def process(
                                         None,
                                     )
                                 )
-                            elif (
-                                option == "saveencounter" and state.save_parse == "true"
-                            ):
+                            elif option == "saveencounter" and state.save_parse:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
                                         "system",
                                         "encounter",
                                         "save",
-                                        "false",
+                                        False,
                                     )
                                 )
                             elif (
@@ -539,10 +534,7 @@ def process(
                                         "true",
                                     )
                                 )
-                            elif (
-                                option == "encounter"
-                                and state.encounter_parse == "false"
-                            ):
+                            elif option == "encounter" and not state.encounter_parse:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
@@ -552,17 +544,14 @@ def process(
                                         None,
                                     )
                                 )
-                            elif (
-                                option == "saveencounter"
-                                and state.save_parse == "false"
-                            ):
+                            elif option == "saveencounter" and not state.save_parse:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
                                         "system",
                                         "encounter",
                                         "save",
-                                        "true",
+                                        True,
                                     )
                                 )
                             elif (

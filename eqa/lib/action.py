@@ -173,7 +173,7 @@ def process(
                     )
 
                 ## Encounter Parsing
-                if state.encounter_parse == "true":
+                if state.encounter_parse:
                     if re.fullmatch(r"^combat\_.+", line_type) is not None:
                         encounter_q.put(
                             eqa_struct.message(
@@ -2248,7 +2248,7 @@ def action_you_say_commands(
                             + ". Debug state is "
                             + str(state.debug)
                             + ". Encounter parser state is "
-                            + state.encounter_parse,
+                            + str(state.encounter_parse),
                         )
                     )
                 elif args[1] == "context":
