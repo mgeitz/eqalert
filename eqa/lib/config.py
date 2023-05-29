@@ -21,7 +21,6 @@
 import json
 import os
 import sys
-import pkg_resources
 import re
 import hashlib
 
@@ -30,10 +29,10 @@ import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
 
 
-def init(base_path):
+def init(base_path, version):
     """Create any missing config files"""
     try:
-        generated = build_config(base_path)
+        generated = build_config(base_path, version)
 
         if generated:
             print("One or more new versioned configuration files have been generated.")
@@ -394,7 +393,7 @@ def get_spell_casters(data_path):
         )
 
 
-def update_spell_casters(data_path):
+def update_spell_casters(data_path, version):
     """Update data/spell-casters.json"""
 
     new_spell_caster_data = """
@@ -5071,7 +5070,6 @@ def update_spell_casters(data_path):
 """
 
     try:
-        version = str(pkg_resources.get_distribution("eqalert").version)
         spell_casters_path = data_path + "spell-casters.json"
         generate = True
 
@@ -5097,7 +5095,7 @@ def update_spell_casters(data_path):
         )
 
 
-def update_spell_lines(data_path):
+def update_spell_lines(data_path, version):
     """Update data/spell-lines.json"""
 
     new_spell_lines_data = """
@@ -6411,7 +6409,6 @@ def update_spell_lines(data_path):
 """
 
     try:
-        version = str(pkg_resources.get_distribution("eqalert").version)
         spell_lines_path = data_path + "spell-lines.json"
         generate = True
 
@@ -8426,7 +8423,7 @@ def update_players_file(player_data_path, server, player_list):
         )
 
 
-def generate_players_file(player_data_file):
+def generate_players_file(player_data_file, version):
     """Bootstrap Player Data File"""
 
     new_players_data = """
@@ -8438,13 +8435,14 @@ def generate_players_file(player_data_file):
     "project1999": {
       "players": {}
     }
-  }
+  },
+  "version": "%s"
 }
 """
 
     try:
         f = open(player_data_file, "w", encoding="utf-8")
-        f.write(new_players_data)
+        f.write(new_players_data % (version))
         f.close()
 
     except Exception as e:
@@ -8456,7 +8454,65 @@ def generate_players_file(player_data_file):
         )
 
 
-def build_config(base_path):
+def validate_players_file(player_data_file, version):
+    """Validate Player Data File"""
+
+    try:
+        json_data = open(player_data_file, "r", encoding="utf-8")
+        player_json_data = json.load(json_data)
+        json_data.close()
+
+        if "version" in player_json_data.keys():
+            # For any future needed changes
+            pass
+        else:
+            # no version
+            updated_player_list = {"server": {}, "version": version}
+            for server in player_json_data["server"].keys():
+                updated_player_list["server"][server] = {"players": {}}
+                for player in player_json_data["server"][server]["players"].keys():
+                    if (
+                        player_json_data["server"][server]["players"][player]["guild"]
+                        != "none"
+                    ):
+                        char_guild = player_json_data["server"][server]["players"][
+                            player
+                        ]["guild"]
+                    else:
+                        char_guild = None
+                    if (
+                        player_json_data["server"][server]["players"][player]["class"]
+                        != "unknown"
+                    ):
+                        char_class = player_json_data["server"][server]["players"][
+                            player
+                        ]["class"]
+                    else:
+                        char_class = None
+                    char_level = int(
+                        player_json_data["server"][server]["players"][player]["level"]
+                    )
+
+                    updated_player_list["server"][server]["players"][player] = {
+                        "class": char_class,
+                        "guild": char_guild,
+                        "level": char_level,
+                    }
+
+            json_data = open(player_data_file, "w", encoding="utf-8")
+            json.dump(updated_player_list, json_data, sort_keys=True, indent=2)
+            json_data.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "validate players file: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def build_config(base_path, version):
     """Build a default config"""
 
     new_char_config = """
@@ -20192,7 +20248,6 @@ def build_config(base_path):
 
     try:
         home = os.path.expanduser("~")
-        version = str(pkg_resources.get_distribution("eqalert").version)
         generated = False
 
         # Check for old config.yml

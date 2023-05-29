@@ -48,6 +48,8 @@ def startup(base_path):
     """Start things up"""
 
     try:
+        version = str(pkg_resources.get_distribution("eqalert").version)
+
         # Make the main folder
         if not os.path.exists(base_path):
             print("Bootstrapping for first run . . .")
@@ -65,7 +67,7 @@ def startup(base_path):
             os.makedirs(base_path + "config/line-alerts/")
 
         # Make Any Missing Config Files
-        eqa_config.init(base_path)
+        eqa_config.init(base_path, version)
 
         # Read config paths
         configs = eqa_config.read_config(base_path)
@@ -134,15 +136,17 @@ def startup(base_path):
             )
 
         # Generate spell-lines.json
-        eqa_config.update_spell_lines(data_path)
+        eqa_config.update_spell_lines(data_path, version)
 
         # Generate spell-casters.json
-        eqa_config.update_spell_casters(data_path)
+        eqa_config.update_spell_casters(data_path, version)
 
-        # Generate Players File
+        # Generate Players List File
         player_data_file = data_path + "players.json"
         if not os.path.isfile(player_data_file):
-            eqa_config.generate_players_file(player_data_file)
+            eqa_config.generate_players_file(player_data_file, version)
+        else:
+            eqa_config.validate_players_file(player_data_file, version)
 
         # Make the encounter directory
         if not os.path.exists(encounter_path):
