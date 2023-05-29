@@ -8560,7 +8560,7 @@ def build_config(base_path, version):
       "auto_set": true
     },
     "speech": {
-      "expand_lingo": "true",
+      "expand_lingo": true,
       "tld": "com",
       "lang": "en"
     },

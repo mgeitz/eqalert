@@ -238,7 +238,7 @@ def eq_lingo(line):
 def speak(configs, line, play, sound_file_path):
     """Play a spoken phrase"""
     try:
-        if configs.settings.config["settings"]["speech"]["expand_lingo"] == "true":
+        if configs.settings.config["settings"]["speech"]["expand_lingo"]:
             phrase = eq_lingo(line)
         else:
             phrase = line
