@@ -24,7 +24,6 @@ import sys
 import time
 import re
 import os
-import pkg_resources
 
 import eqa.lib.config as eqa_config
 import eqa.lib.settings as eqa_settings
@@ -46,6 +45,7 @@ def process(
     cfg_reload,
     mute_list,
     change_char,
+    version,
 ):
     """
     Process: action_q
@@ -162,7 +162,7 @@ def process(
 
                 ## Debug: Log line match type
                 if state.debug == "true":
-                    action_matched(line_type, check_line, base_path)
+                    action_matched(line_type, check_line, base_path, version)
                     display_q.put(
                         eqa_struct.display(
                             eqa_settings.eqa_time(),
@@ -2724,7 +2724,7 @@ def action_you_new_zone(
         )
 
 
-def action_matched(line_type, line, base_path):
+def action_matched(line_type, line, base_path, version):
     """Debug function to log all log lines and matches log lines"""
 
     try:
@@ -2732,9 +2732,7 @@ def action_matched(line_type, line, base_path):
         if os.path.exists(matched_log):
             file_size = os.path.getsize(matched_log)
             if file_size >= 10000000:
-                version = str(
-                    pkg_resources.get_distribution("eqalert").version
-                ).replace(".", "-")
+                version = version.replace(".", "-")
                 archived_log = (
                     base_path
                     + "log/debug/matched-lines_"

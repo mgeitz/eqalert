@@ -44,12 +44,10 @@ import eqa.lib.timer as eqa_timer
 import eqa.lib.watch as eqa_watch
 
 
-def startup(base_path):
+def startup(base_path, version):
     """Start things up"""
 
     try:
-        version = str(pkg_resources.get_distribution("eqalert").version)
-
         # Make the main folder
         if not os.path.exists(base_path):
             print("Bootstrapping for first run . . .")
@@ -185,202 +183,210 @@ def startup(base_path):
 def main():
     """Main method, does the good stuff"""
 
-    # Paths
-    home = os.path.expanduser("~")
-    base_path = home + "/.eqa/"
-
-    # Validate start
-    startup(base_path)
-
-    # Read in config and state
-    configs = eqa_config.read_config(base_path)
-    server = configs.settings.config["last_state"]["server"]
-    char = configs.settings.config["last_state"]["character"]
-    state = eqa_config.get_last_state(configs, char, server)
-    char_log = (
-        configs.settings.config["settings"]["paths"]["everquest_logs"]
-        + configs.characters.config["char_logs"][char + "_" + server]["file_name"]
-    )
-
-    # Initialize curses
-    screen = eqa_curses.init(state)
-
-    # Thread Events
-    cfg_reload = threading.Event()
-    exit_flag = threading.Event()
-    change_char = threading.Event()
-
-    # Queues
-    action_q = queue.Queue()
-    display_q = queue.Queue()
-    encounter_q = queue.Queue()
-    keyboard_q = queue.Queue()
-    log_q = queue.Queue()
-    sound_q = queue.Queue()
-    system_q = queue.Queue()
-    timer_q = queue.Queue()
-
-    # Watch Log Directory
-    ## Consume log directory for newest log
-    ## Produce character update to system_q
-    process_watch = threading.Thread(
-        target=eqa_watch.process,
-        args=(state, configs, system_q, exit_flag, cfg_reload),
-    )
-    process_watch.daemon = True
-    process_watch.start()
-
-    # Read Log File
-    ## Consume char_log
-    ## Produce log_q
-    process_log = threading.Thread(
-        target=eqa_log.process,
-        args=(change_char, exit_flag, char_log, log_q),
-    )
-    process_log.daemon = True
-    process_log.start()
-
-    # Parse Log Lines to Determine Line Type
-    ## Process log_q
-    ## Produce action_q
-    process_parse = threading.Thread(
-        target=eqa_parser.process, args=(exit_flag, log_q, action_q)
-    )
-    process_parse.daemon = True
-    process_parse.start()
-
-    # Read Keyboard Events
-    ## Consume keyboard events
-    ## Produce keyboard_q
-    read_keys = threading.Thread(
-        target=eqa_keys.read, args=(exit_flag, keyboard_q, screen)
-    )
-    read_keys.daemon = True
-    read_keys.start()
-
-    # Act on Keyboard Events
-    ## Process keyboard_q
-    ## Produce display_q, system_q
-    process_keys = threading.Thread(
-        target=eqa_keys.process,
-        args=(
-            state,
-            configs,
-            display_q,
-            keyboard_q,
-            system_q,
-            cfg_reload,
-            exit_flag,
-        ),
-    )
-    process_keys.daemon = True
-    process_keys.start()
-
-    # Act on Parsed Log Lines
-    ## Consume action_q
-    ## Produce display_q, encounter_q, sound_q, system_q, timer_q
-
-    ### Mute List
-    mute_list = []
-
-    process_action = threading.Thread(
-        target=eqa_action.process,
-        args=(
-            configs,
-            base_path,
-            state,
-            action_q,
-            encounter_q,
-            timer_q,
-            system_q,
-            display_q,
-            sound_q,
-            exit_flag,
-            cfg_reload,
-            mute_list,
-            change_char,
-        ),
-    )
-    process_action.daemon = True
-    process_action.start()
-
-    # Create Encounter Reports
-    ## Consume encounter_q
-    ## Produce display_q, system_q
-    process_encounter = threading.Thread(
-        target=eqa_encounter.process,
-        args=(
-            configs,
-            base_path,
-            encounter_q,
-            system_q,
-            display_q,
-            exit_flag,
-            cfg_reload,
-            state,
-        ),
-    )
-    process_encounter.daemon = True
-    process_encounter.start()
-
-    # Create (many) Sounds
-    ## Consume sound_q
-    ## Produce sounds
-
-    ### Thread 1
-    process_sound_1 = threading.Thread(
-        target=eqa_sound.process, args=(configs, sound_q, exit_flag, cfg_reload, state)
-    )
-    process_sound_1.daemon = True
-    process_sound_1.start()
-
-    ### Thread 2
-    process_sound_2 = threading.Thread(
-        target=eqa_sound.process, args=(configs, sound_q, exit_flag, cfg_reload, state)
-    )
-    process_sound_2.daemon = True
-    process_sound_2.start()
-
-    ### Thread 3
-    process_sound_3 = threading.Thread(
-        target=eqa_sound.process, args=(configs, sound_q, exit_flag, cfg_reload, state)
-    )
-    process_sound_3.daemon = True
-    process_sound_3.start()
-
-    # Draw the TUI
-    ## Consume display_q
-    ## Produce pretty pictures
-    process_display = threading.Thread(
-        target=eqa_curses.display,
-        args=(screen, display_q, state, configs, exit_flag, cfg_reload),
-    )
-    process_display.daemon = True
-    process_display.start()
-
-    # Count Down the Time
-    ## Consume timer_q
-    ## Produce sound_q, display_q
-    process_timer = threading.Thread(
-        target=eqa_timer.process,
-        args=(
-            configs,
-            state,
-            timer_q,
-            sound_q,
-            display_q,
-            exit_flag,
-            cfg_reload,
-            change_char,
-        ),
-    )
-    process_timer.daemon = True
-    process_timer.start()
-
-    # Manage State and Config
-    ## Consume system_q
-    ## Produce a pleasant experience
     try:
+        # Version string
+        version = str(pkg_resources.get_distribution("eqalert").version)
+
+        # Paths
+        home = os.path.expanduser("~")
+        base_path = home + "/.eqa/"
+
+        # Validate start
+        startup(base_path, version)
+
+        # Read in config and state
+        configs = eqa_config.read_config(base_path)
+        server = configs.settings.config["last_state"]["server"]
+        char = configs.settings.config["last_state"]["character"]
+        state = eqa_config.get_last_state(configs, char, server)
+        char_log = (
+            configs.settings.config["settings"]["paths"]["everquest_logs"]
+            + configs.characters.config["char_logs"][char + "_" + server]["file_name"]
+        )
+
+        # Initialize curses
+        screen = eqa_curses.init(state, version)
+
+        # Thread Events
+        cfg_reload = threading.Event()
+        exit_flag = threading.Event()
+        change_char = threading.Event()
+
+        # Queues
+        action_q = queue.Queue()
+        display_q = queue.Queue()
+        encounter_q = queue.Queue()
+        keyboard_q = queue.Queue()
+        log_q = queue.Queue()
+        sound_q = queue.Queue()
+        system_q = queue.Queue()
+        timer_q = queue.Queue()
+
+        # Watch Log Directory
+        ## Consume log directory for newest log
+        ## Produce character update to system_q
+        process_watch = threading.Thread(
+            target=eqa_watch.process,
+            args=(state, configs, system_q, exit_flag, cfg_reload),
+        )
+        process_watch.daemon = True
+        process_watch.start()
+
+        # Read Log File
+        ## Consume char_log
+        ## Produce log_q
+        process_log = threading.Thread(
+            target=eqa_log.process,
+            args=(change_char, exit_flag, char_log, log_q),
+        )
+        process_log.daemon = True
+        process_log.start()
+
+        # Parse Log Lines to Determine Line Type
+        ## Process log_q
+        ## Produce action_q
+        process_parse = threading.Thread(
+            target=eqa_parser.process, args=(exit_flag, log_q, action_q)
+        )
+        process_parse.daemon = True
+        process_parse.start()
+
+        # Read Keyboard Events
+        ## Consume keyboard events
+        ## Produce keyboard_q
+        read_keys = threading.Thread(
+            target=eqa_keys.read, args=(exit_flag, keyboard_q, screen)
+        )
+        read_keys.daemon = True
+        read_keys.start()
+
+        # Act on Keyboard Events
+        ## Process keyboard_q
+        ## Produce display_q, system_q
+        process_keys = threading.Thread(
+            target=eqa_keys.process,
+            args=(
+                state,
+                configs,
+                display_q,
+                keyboard_q,
+                system_q,
+                cfg_reload,
+                exit_flag,
+            ),
+        )
+        process_keys.daemon = True
+        process_keys.start()
+
+        # Act on Parsed Log Lines
+        ## Consume action_q
+        ## Produce display_q, encounter_q, sound_q, system_q, timer_q
+
+        ### Mute List
+        mute_list = []
+
+        process_action = threading.Thread(
+            target=eqa_action.process,
+            args=(
+                configs,
+                base_path,
+                state,
+                action_q,
+                encounter_q,
+                timer_q,
+                system_q,
+                display_q,
+                sound_q,
+                exit_flag,
+                cfg_reload,
+                mute_list,
+                change_char,
+                version,
+            ),
+        )
+        process_action.daemon = True
+        process_action.start()
+
+        # Create Encounter Reports
+        ## Consume encounter_q
+        ## Produce display_q, system_q
+        process_encounter = threading.Thread(
+            target=eqa_encounter.process,
+            args=(
+                configs,
+                base_path,
+                encounter_q,
+                system_q,
+                display_q,
+                exit_flag,
+                cfg_reload,
+                state,
+                version,
+            ),
+        )
+        process_encounter.daemon = True
+        process_encounter.start()
+
+        # Create (many) Sounds
+        ## Consume sound_q
+        ## Produce sounds
+
+        ### Thread 1
+        process_sound_1 = threading.Thread(
+            target=eqa_sound.process,
+            args=(configs, sound_q, exit_flag, cfg_reload, state),
+        )
+        process_sound_1.daemon = True
+        process_sound_1.start()
+
+        ### Thread 2
+        process_sound_2 = threading.Thread(
+            target=eqa_sound.process,
+            args=(configs, sound_q, exit_flag, cfg_reload, state),
+        )
+        process_sound_2.daemon = True
+        process_sound_2.start()
+
+        ### Thread 3
+        process_sound_3 = threading.Thread(
+            target=eqa_sound.process,
+            args=(configs, sound_q, exit_flag, cfg_reload, state),
+        )
+        process_sound_3.daemon = True
+        process_sound_3.start()
+
+        # Draw the TUI
+        ## Consume display_q
+        ## Produce pretty pictures
+        process_display = threading.Thread(
+            target=eqa_curses.display,
+            args=(screen, display_q, state, configs, exit_flag, cfg_reload, version),
+        )
+        process_display.daemon = True
+        process_display.start()
+
+        # Count Down the Time
+        ## Consume timer_q
+        ## Produce sound_q, display_q
+        process_timer = threading.Thread(
+            target=eqa_timer.process,
+            args=(
+                configs,
+                state,
+                timer_q,
+                sound_q,
+                display_q,
+                exit_flag,
+                cfg_reload,
+                change_char,
+            ),
+        )
+        process_timer.daemon = True
+        process_timer.start()
+
+        # Manage State and Config
+        ## Consume system_q
+        ## Produce a pleasant experience
         while not exit_flag.is_set():
             # Sleep between empty checks
             queue_size = system_q.qsize()
@@ -649,6 +655,7 @@ def main():
                                     cfg_reload,
                                     mute_list,
                                     change_char,
+                                    version,
                                 ),
                             )
                             process_action.daemon = True
@@ -745,6 +752,7 @@ def main():
                                 configs,
                                 exit_flag,
                                 cfg_reload,
+                                version,
                             ),
                         )
                         process_display.daemon = True
@@ -800,6 +808,7 @@ def main():
                                 exit_flag,
                                 cfg_reload,
                                 state,
+                                version,
                             ),
                         )
                         process_encounter.daemon = True

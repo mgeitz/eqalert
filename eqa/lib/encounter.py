@@ -27,14 +27,21 @@ import os
 import json
 from datetime import datetime
 from collections import deque
-import pkg_resources
 
 import eqa.lib.settings as eqa_settings
 import eqa.lib.struct as eqa_struct
 
 
 def process(
-    configs, base_path, encounter_q, system_q, display_q, exit_flag, cfg_reload, state
+    configs,
+    base_path,
+    encounter_q,
+    system_q,
+    display_q,
+    exit_flag,
+    cfg_reload,
+    state,
+    version,
 ):
     """
     Process: encounter_q
@@ -96,6 +103,7 @@ def process(
                                     configs,
                                     display_q,
                                     encounter_zone,
+                                    version,
                                 )
                             else:
                                 encounter_stack.append(
@@ -117,6 +125,7 @@ def process(
                                 configs,
                                 display_q,
                                 encounter_zone,
+                                version,
                             )
 
                     if line_type == "you_new_zone":
@@ -132,6 +141,7 @@ def process(
                             configs,
                             display_q,
                             encounter_zone,
+                            version,
                         )
 
                     elif interaction == "start":
@@ -1255,6 +1265,7 @@ def encounter_analysis(
     configs,
     display_q,
     encounter_zone,
+    version,
 ):
     """Analyze encounter stack before reporting"""
 
@@ -1402,6 +1413,7 @@ def encounter_analysis(
                 configs,
                 display_q,
                 encounter_zone,
+                version,
             )
         elif state.debug == "true":
             eqa_settings.log("Encounter Report: Unable to determine encounter target")
@@ -1427,6 +1439,7 @@ def encounter_report(
     configs,
     display_q,
     encounter_zone,
+    version,
 ):
     """Report encounter stats"""
 
@@ -1664,9 +1677,7 @@ def encounter_report(
             "target": {},
             "participants": {},
         }
-        encounter_report["header"]["version"] = str(
-            pkg_resources.get_distribution("eqalert").version
-        )
+        encounter_report["header"]["version"] = version
         encounter_report["header"]["date"] = str(encounter_parse_date)
         encounter_report["header"]["time"] = str(encounter_parse_time)
         encounter_report["encounter_summary"]["character"] = str(state.char)

@@ -23,7 +23,6 @@ import os
 import sys
 import time
 import math
-import pkg_resources
 import random
 import re
 from datetime import datetime
@@ -33,7 +32,7 @@ import eqa.lib.state as eqa_state
 import eqa.lib.settings as eqa_settings
 
 
-def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
+def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
     """
     Process: display_q
     Produce: display event
@@ -90,6 +89,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                         s_opt,
                         s_line,
                         encounter_report,
+                        version,
                     )
 
                 ## Display Draw
@@ -114,6 +114,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                                 s_opt,
                                 s_line,
                                 encounter_report,
+                                version,
                             )
                     else:
                         page = display_event.screen
@@ -130,6 +131,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                         s_opt,
                         s_line,
                         encounter_report,
+                        version,
                     )
 
                 ## Draw Update
@@ -149,6 +151,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                                 s_opt,
                                 s_line,
                                 encounter_report,
+                                version,
                             )
                     elif display_event.screen == "debug":
                         debug_events.append(display_event)
@@ -164,6 +167,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                             s_opt,
                             s_line,
                             encounter_report,
+                            version,
                         )
                     elif display_event.screen == "clear":
                         events = []
@@ -180,6 +184,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                             s_opt,
                             s_line,
                             encounter_report,
+                            version,
                         )
                 display_q.task_done()
 
@@ -206,18 +211,23 @@ def draw_page(
     s_opt,
     s_line,
     encounter_report,
+    version,
 ):
     y, x = stdscr.getmaxyx()
     try:
         if x >= 80 and y >= 40:
             if page == "events":
-                draw_events_frame(stdscr, state, events, debug_events, encounter_report)
+                draw_events_frame(
+                    stdscr, state, events, debug_events, encounter_report, version
+                )
             elif page == "state":
-                draw_state(stdscr, state)
+                draw_state(stdscr, state, version)
             elif page == "settings":
-                draw_settings(stdscr, state, configs, s_setting, s_char, s_opt, s_line)
+                draw_settings(
+                    stdscr, state, configs, s_setting, s_char, s_opt, s_line, version
+                )
             elif page == "parse":
-                draw_parse(stdscr, state, encounter_report)
+                draw_parse(stdscr, state, encounter_report, version)
             elif page == "help":
                 draw_help(stdscr)
         else:
@@ -231,7 +241,7 @@ def draw_page(
         )
 
 
-def init(state):
+def init(state, version):
     try:
         """Create new stdscr in terminal"""
         stdscr = curses.initscr()
@@ -248,7 +258,7 @@ def init(state):
         curses.init_pair(4, curses.COLOR_MAGENTA, -1)  # Highlight
         curses.init_pair(5, curses.COLOR_GREEN, -1)  # Dunno
         curses.init_pair(6, curses.COLOR_RED, -1)  # Dunno
-        draw_events_frame(stdscr, state, [], [], None)
+        draw_events_frame(stdscr, state, [], [], None, version)
         return stdscr
 
     except Exception as e:
@@ -269,7 +279,7 @@ def close_screens(stdscr):
     curses.endwin()
 
 
-def draw_tabs(stdscr, tab):
+def draw_tabs(stdscr, tab, version):
     """Draw top row tab selection"""
 
     try:
@@ -328,7 +338,6 @@ def draw_tabs(stdscr, tab):
         stdscr.addch(2, x - 15, curses.ACS_BTEE)
 
         # Center title
-        version = str(pkg_resources.get_distribution("eqalert").version)
         offset = math.ceil(len(version) / 2)
         stdscr.addstr(
             1, center_x - 4 - offset, "EQ ALERT " + version, curses.color_pair(2)
@@ -343,7 +352,7 @@ def draw_tabs(stdscr, tab):
         )
 
 
-def draw_events_frame(stdscr, state, events, debug_events, encounter_report):
+def draw_events_frame(stdscr, state, events, debug_events, encounter_report, version):
     """Draw events"""
 
     try:
@@ -352,7 +361,7 @@ def draw_events_frame(stdscr, state, events, debug_events, encounter_report):
         stdscr.box()
 
         # Draw tabs
-        draw_tabs(stdscr, "events")
+        draw_tabs(stdscr, "events", version)
 
         # Draw status
         draw_events_status_bar(stdscr, state)
@@ -908,7 +917,7 @@ def draw_ftime(stdscr, timestamp, y):
         )
 
 
-def draw_parse(stdscr, state, encounter_report):
+def draw_parse(stdscr, state, encounter_report, version):
     """Draw parse"""
     y, x = stdscr.getmaxyx()
 
@@ -917,7 +926,7 @@ def draw_parse(stdscr, state, encounter_report):
     stdscr.box()
 
     # Draw tabs
-    draw_tabs(stdscr, "parse")
+    draw_tabs(stdscr, "parse", version)
 
     try:
         encounterscr = stdscr.derwin(int(y / 2) - 3, x - 2, 3, 1)
@@ -1125,7 +1134,7 @@ def draw_parse(stdscr, state, encounter_report):
         )
 
 
-def draw_state(stdscr, state):
+def draw_state(stdscr, state, version):
     """Draw state"""
     y, x = stdscr.getmaxyx()
     center_y = int(y / 2)
@@ -1136,7 +1145,7 @@ def draw_state(stdscr, state):
     stdscr.box()
 
     # Draw tabs
-    draw_tabs(stdscr, "state")
+    draw_tabs(stdscr, "state", version)
 
     # Show some state
     try:
@@ -1244,7 +1253,7 @@ def draw_state(stdscr, state):
         )
 
 
-def draw_settings(stdscr, state, configs, s_setting, s_char, s_opt, s_line):
+def draw_settings(stdscr, state, configs, s_setting, s_char, s_opt, s_line, version):
     """Draw settings"""
 
     try:
@@ -1254,7 +1263,7 @@ def draw_settings(stdscr, state, configs, s_setting, s_char, s_opt, s_line):
         y, x = stdscr.getmaxyx()
 
         # Draw tabs
-        draw_tabs(stdscr, "settings")
+        draw_tabs(stdscr, "settings", version)
 
         # Char Select Window
         charscr = stdscr.derwin(int(y / 2) - 4, int(x / 2) - 4, 4, 4)
