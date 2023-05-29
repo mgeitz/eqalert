@@ -1404,7 +1404,7 @@ def system_debug(configs, state, display_q, sound_q, new_message):
     try:
         # Toggle debug state to true
         if not state.debug and new_message.rx == "toggle":
-            state.set_debug("true")
+            state.set_debug(True)
             eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
@@ -1419,7 +1419,7 @@ def system_debug(configs, state, display_q, sound_q, new_message):
             )
         # Toggle debug state to false
         elif state.debug and new_message.rx == "toggle":
-            state.set_debug("false")
+            state.set_debug(False)
             eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
