@@ -370,7 +370,7 @@ def draw_events_frame(stdscr, state, events, debug_events, encounter_report, ver
         draw_events(stdscr, events)
 
         # Draw lower panel
-        if state.debug == "true":
+        if state.debug:
             draw_events_debug(stdscr, debug_events)
         elif state.encounter_parse == "true" and encounter_report is not None:
             draw_events_encounter(stdscr, encounter_report)
@@ -1227,7 +1227,7 @@ def draw_state(stdscr, state, version):
         # debug state
         stdscr.addstr(23, 5, "Debug", curses.color_pair(2))
         stdscr.addstr(23, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(23, 18, state.debug.title(), curses.color_pair(3))
+        stdscr.addstr(23, 18, str(state.debug), curses.color_pair(3))
 
         # mute state
         stdscr.addstr(24, 5, "Mute", curses.color_pair(2))
@@ -1453,9 +1453,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(5, first_q, "Debug Mode", curses.color_pair(1))
         optscr.addstr(5, second_third, "[", curses.color_pair(3))
-        if state.debug == "true":
+        if state.debug:
             optscr.addstr(5, second_third + 1, "on", curses.color_pair(5))
-        elif state.debug == "false":
+        elif not state.debug:
             optscr.addstr(5, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(5, second_third + 7, "]", curses.color_pair(3))
 

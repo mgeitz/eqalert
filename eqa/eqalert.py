@@ -398,7 +398,7 @@ def main():
             if queue_size < 1:
                 time.sleep(0.01)
             else:
-                if state.debug == "true":
+                if state.debug:
                     eqa_settings.log("system_q depth: " + str(queue_size))
 
             # Check queue for message
@@ -1403,7 +1403,7 @@ def system_debug(configs, state, display_q, sound_q, new_message):
 
     try:
         # Toggle debug state to true
-        if state.debug == "false" and new_message.rx == "toggle":
+        if not state.debug and new_message.rx == "toggle":
             state.set_debug("true")
             eqa_config.set_last_state(state, configs)
             display_q.put(
@@ -1418,7 +1418,7 @@ def system_debug(configs, state, display_q, sound_q, new_message):
                 eqa_struct.sound("speak", "Displaying and logging all parser output")
             )
         # Toggle debug state to false
-        elif state.debug == "true" and new_message.rx == "toggle":
+        elif state.debug and new_message.rx == "toggle":
             state.set_debug("false")
             eqa_config.set_last_state(state, configs)
             display_q.put(

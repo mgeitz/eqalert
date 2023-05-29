@@ -335,7 +335,7 @@ def process(
                                 )
                             )
                         elif key == curses.KEY_RIGHT or key == ord("d"):
-                            if option == "debug" and state.debug == "true":
+                            if option == "debug" and state.debug:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
@@ -501,7 +501,7 @@ def process(
                                     )
                                 )
                         elif key == curses.KEY_LEFT or key == ord("a"):
-                            if option == "debug" and state.debug == "false":
+                            if option == "debug" and not state.debug:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),

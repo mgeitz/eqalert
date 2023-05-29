@@ -1108,7 +1108,7 @@ def encounter_combat(line_type, line_time, line, encounter_stack, state):
             encounter_stack.append(
                 (line_time, source.title(), target.title(), mode, result)
             )
-        elif state.debug == "true":
+        elif state.debug:
             eqa_settings.log(
                 "encounter combat ["
                 + line_type
@@ -1239,7 +1239,7 @@ def encounter_spell(line_type, line_time, line, encounter_stack, state):
             encounter_stack.append(
                 (line_time, source.title(), target.title(), mode, result)
             )
-        elif state.debug == "true":
+        elif state.debug:
             eqa_settings.log(
                 "encounter spell ["
                 + line_type
@@ -1415,7 +1415,7 @@ def encounter_analysis(
                 encounter_zone,
                 version,
             )
-        elif state.debug == "true":
+        elif state.debug:
             eqa_settings.log("Encounter Report: Unable to determine encounter target")
 
         # Prune old events

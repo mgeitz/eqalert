@@ -305,7 +305,7 @@ def remove_spell_timer(state, timers, remove_timer):
                     remove_timer.target == timer_event.target
                     and remove_timer.spell == timer_event.spell
                 ):
-                    if state.debug == "true":
+                    if state.debug:
                         eqa_settings.log(
                             "Removing timer: "
                             + timer_event.spell
@@ -339,7 +339,7 @@ def add_spell_timer(state, timers, new_timer_event):
                     new_timer_event.target == timer_event.target
                     and new_timer_event.spell == timer_event.spell
                 ):
-                    if state.debug == "true":
+                    if state.debug:
                         eqa_settings.log(
                             "Removing old timer: "
                             + timer_event.spell

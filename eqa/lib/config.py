@@ -8135,7 +8135,7 @@ def set_last_state(state, configs):
             {"enabled": str(state.consider_eval)}
         )
         configs.settings.config["settings"]["debug_mode"].update(
-            {"enabled": str(state.debug)}
+            {"enabled": state.debug}
         )
         configs.settings.config["settings"]["detect_character"].update(
             {"enabled": str(state.detect_char)}
@@ -8532,7 +8532,7 @@ def build_config(base_path, version):
       "enabled": "false"
     },
     "debug_mode": {
-      "enabled": "false"
+      "enabled": false
     },
     "detect_character": {
       "enabled": "true"

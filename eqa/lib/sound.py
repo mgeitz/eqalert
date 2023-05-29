@@ -223,6 +223,7 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])wtt(?=[^A-z])", "want to trade", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])xfer(?=[^A-z])", "transfer", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])yw(?=[^A-z])", "you're welcome", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])\=D(?=[^A-z])", "smiley face", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])<3(?=[^A-z])", "heart", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])>\.<(?=[^A-z])", "squinting face", line, flags=re.I)
     line = re.sub(

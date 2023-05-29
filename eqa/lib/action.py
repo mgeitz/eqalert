@@ -147,7 +147,7 @@ def process(
             if queue_size < 1:
                 time.sleep(0.01)
             else:
-                if state.debug == "true":
+                if state.debug:
                     eqa_settings.log("action_q depth: " + str(queue_size))
 
             # Check queue for message
@@ -161,7 +161,7 @@ def process(
                 check_line = new_message.payload
 
                 ## Debug: Log line match type
-                if state.debug == "true":
+                if state.debug:
                     action_matched(line_type, check_line, base_path, version)
                     display_q.put(
                         eqa_struct.display(
@@ -735,12 +735,12 @@ def action_spell_timer(
 
         # If this is a spell cast line output shared by more than one spell
         if is_spell_line:
-            if state.debug == "true":
+            if state.debug:
                 eqa_settings.log("spell line found: " + line_type)
             # Determine possible spells
             if line_type in spell_lines["spell_lines"].keys():
                 possible_spells = spell_lines["spell_lines"][line_type].keys()
-                if state.debug == "true":
+                if state.debug:
                     eqa_settings.log("possible spells: " + str(possible_spells))
                 check_for_spells = []
                 # Retrieve casting requirements for each possible spell
@@ -767,7 +767,7 @@ def action_spell_timer(
                         and spell_casting_buffer_you["spell"]
                         in spell_casters["spells"].keys()
                     ):
-                        if state.debug == "true":
+                        if state.debug:
                             eqa_settings.log(
                                 "Checking if cast for: "
                                 + spell_casting_buffer_you["spell"]
@@ -907,7 +907,7 @@ def action_spell_timer(
 
         # We know the spell which landed
         else:
-            if state.debug == "true":
+            if state.debug:
                 eqa_settings.log("Checking for spell: " + spell)
             # If we have spell_caster info on this spell
             if spell in spell_casters["spells"].keys():
@@ -969,7 +969,7 @@ def action_spell_timer(
                 # Check for matching spell cast event
                 if not find_time:
                     for recent_cast_event in spell_casting_buffer_other:
-                        if state.debug == "true":
+                        if state.debug:
                             eqa_settings.log("Checking " + recent_cast_event["caster"])
                         if (
                             int(
@@ -987,7 +987,7 @@ def action_spell_timer(
                             )
                             == 0
                         ):
-                            if state.debug == "true":
+                            if state.debug:
                                 eqa_settings.log(
                                     "Checking player info for "
                                     + recent_cast_event["caster"]
@@ -1029,14 +1029,14 @@ def action_spell_timer(
                                             identified_spell = spell
                                             identified_spell_target = target
                                             find_time = True
-                                            if state.debug == "true":
+                                            if state.debug:
                                                 eqa_settings.log(
                                                     "Found spell cast by "
                                                     + identified_spell_caster
                                                 )
                             # Time to guess the spell level
                             elif state.spell_timer_guess == "true":
-                                if state.debug == "true":
+                                if state.debug:
                                     eqa_settings.log("Into spell guessing territory")
                                 player_level_could_cast = False
                                 # If a player could cast this
@@ -1107,7 +1107,7 @@ def action_spell_timer(
                 spell_timers["spells"][identified_spell]["duration"],
             )
             if int(spell_duration) <= int(state.spell_timer_delay):
-                if state.debug == "true":
+                if state.debug:
                     eqa_settings.log("Spell duration too short for timer")
                 make_timer = False
 
@@ -1155,7 +1155,7 @@ def action_spell_timer(
                 )
 
                 # Debug logging
-                if state.debug == "true":
+                if state.debug:
                     eqa_settings.log(
                         "Spell timer created for "
                         + identified_spell
@@ -2246,7 +2246,7 @@ def action_you_say_commands(
                             + ". Encumbered state is "
                             + state.encumbered
                             + ". Debug state is "
-                            + state.debug
+                            + str(state.debug)
                             + ". Encounter parser state is "
                             + state.encounter_parse,
                         )
