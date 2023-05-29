@@ -416,7 +416,7 @@ def main():
                         eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                eqa_settings.eqa_time(), "draw", "redraw", None
                             )
                         )
                     ### Update location
@@ -425,7 +425,7 @@ def main():
                         eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                eqa_settings.eqa_time(), "draw", "redraw", None
                             )
                         )
                     ### Update direction
@@ -434,7 +434,7 @@ def main():
                         eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                eqa_settings.eqa_time(), "draw", "redraw", None
                             )
                         )
                     ### Update afk status
@@ -475,7 +475,7 @@ def main():
                         eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                eqa_settings.eqa_time(), "draw", "redraw", None
                             )
                         )
 
@@ -485,7 +485,7 @@ def main():
                         eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                eqa_settings.eqa_time(), "draw", "redraw", None
                             )
                         )
 
@@ -495,7 +495,7 @@ def main():
                         eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                eqa_settings.eqa_time(), "draw", "redraw", None
                             )
                         )
 
@@ -515,7 +515,7 @@ def main():
                         eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                eqa_settings.eqa_time(), "draw", "redraw", None
                             )
                         )
                     ### Update level status
@@ -524,7 +524,7 @@ def main():
                         eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                eqa_settings.eqa_time(), "draw", "redraw", None
                             )
                         )
                     ### Update class status
@@ -533,7 +533,7 @@ def main():
                         eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                eqa_settings.eqa_time(), "draw", "redraw", None
                             )
                         )
                     ### Update guild status
@@ -542,7 +542,7 @@ def main():
                         eqa_config.set_last_state(state, configs)
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                eqa_settings.eqa_time(), "draw", "redraw", None
                             )
                         )
                     ### Update mute status
@@ -680,7 +680,7 @@ def main():
                             )
                             display_q.put(
                                 eqa_struct.display(
-                                    eqa_settings.eqa_time(), "draw", "redraw", "null"
+                                    eqa_settings.eqa_time(), "draw", "redraw", None
                                 )
                             )
                         else:
@@ -1020,7 +1020,7 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                 )
             )
         display_q.put(
-            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
 
     except Exception as e:
@@ -1061,7 +1061,7 @@ def system_afk(configs, state, display_q, new_message):
                 )
             )
         display_q.put(
-            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
 
     except Exception as e:
@@ -1113,7 +1113,7 @@ def system_timer(configs, state, display_q, sound_q, new_message):
         elif new_message.rx == "spell":
             pass
         display_q.put(
-            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
 
     except Exception as e:
@@ -1296,7 +1296,7 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                     )
                 )
         display_q.put(
-            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
 
     except Exception as e:
@@ -1339,7 +1339,7 @@ def system_consider(configs, state, display_q, sound_q, new_message):
             )
             sound_q.put(eqa_struct.sound("speak", "Consider evaluation disabled"))
         display_q.put(
-            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
 
     except Exception as e:
@@ -1386,7 +1386,7 @@ def system_detect_char(configs, state, display_q, sound_q, new_message):
                 eqa_struct.sound("speak", "Automatic character detection disabled")
             )
         display_q.put(
-            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
 
     except Exception as e:
@@ -1431,7 +1431,7 @@ def system_debug(configs, state, display_q, sound_q, new_message):
             )
             sound_q.put(eqa_struct.sound("speak", "Debug mode disabled"))
         display_q.put(
-            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
 
     except Exception as e:
@@ -1460,9 +1460,7 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
                 )
             )
             encounter_q.put(
-                eqa_struct.message(
-                    eqa_settings.eqa_time(), "null", "clear", "null", "null"
-                )
+                eqa_struct.message(eqa_settings.eqa_time(), None, "clear", None, None)
             )
             sound_q.put(eqa_struct.sound("speak", "Encounter Parse Enabled"))
         # Toggle encounter parse to false
@@ -1521,19 +1519,15 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
         # Clear encounter parse stack
         elif new_message.rx == "clear":
             encounter_q.put(
-                eqa_struct.message(
-                    eqa_settings.eqa_time(), "null", "clear", "null", "null"
-                )
+                eqa_struct.message(eqa_settings.eqa_time(), None, "clear", None, None)
             )
         # End encounter parse and resolve stack
         elif new_message.rx == "end":
             encounter_q.put(
-                eqa_struct.message(
-                    eqa_settings.eqa_time(), "null", "end", "null", "null"
-                )
+                eqa_struct.message(eqa_settings.eqa_time(), None, "end", None, None)
             )
         display_q.put(
-            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
 
     except Exception as e:
@@ -1693,7 +1687,7 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                 )
                 sound_q.put(eqa_struct.sound("speak", "Mute disabled"))
         display_q.put(
-            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", "null")
+            eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
 
     except Exception as e:

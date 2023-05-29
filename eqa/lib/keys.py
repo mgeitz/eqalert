@@ -68,7 +68,7 @@ def process(
                 if key == curses.KEY_RESIZE:
                     display_q.put(
                         eqa_struct.display(
-                            eqa_settings.eqa_time(), "draw", "redraw", "null"
+                            eqa_settings.eqa_time(), "draw", "redraw", None
                         )
                     )
 
@@ -76,35 +76,35 @@ def process(
                 if key == ord("1"):
                     display_q.put(
                         eqa_struct.display(
-                            eqa_settings.eqa_time(), "draw", "events", "null"
+                            eqa_settings.eqa_time(), "draw", "events", None
                         )
                     )
                     page = "events"
                 elif key == ord("2"):
                     display_q.put(
                         eqa_struct.display(
-                            eqa_settings.eqa_time(), "draw", "state", "null"
+                            eqa_settings.eqa_time(), "draw", "state", None
                         )
                     )
                     page = "state"
                 elif key == ord("3"):
                     display_q.put(
                         eqa_struct.display(
-                            eqa_settings.eqa_time(), "draw", "parse", "null"
+                            eqa_settings.eqa_time(), "draw", "parse", None
                         )
                     )
                     page = "parse"
                 elif key == ord("4"):
                     display_q.put(
                         eqa_struct.display(
-                            eqa_settings.eqa_time(), "draw", "settings", "null"
+                            eqa_settings.eqa_time(), "draw", "settings", None
                         )
                     )
                     page = "settings"
                 elif key == ord("h"):
                     display_q.put(
                         eqa_struct.display(
-                            eqa_settings.eqa_time(), "draw", "help", "null"
+                            eqa_settings.eqa_time(), "draw", "help", None
                         )
                     )
                 elif key == ord("0"):
@@ -113,8 +113,8 @@ def process(
                             eqa_settings.eqa_time(),
                             "system",
                             "reload_config",
-                            "null",
-                            "null",
+                            None,
+                            None,
                         )
                     )
 
@@ -123,7 +123,7 @@ def process(
                     if key == ord("c"):
                         display_q.put(
                             eqa_struct.display(
-                                eqa_settings.eqa_time(), "event", "clear", "null"
+                                eqa_settings.eqa_time(), "event", "clear", None
                             )
                         )
                     elif key == ord("r"):
@@ -133,7 +133,7 @@ def process(
                                 "system",
                                 "raid",
                                 "toggle",
-                                "null",
+                                None,
                             )
                         )
                     elif key == ord("d"):
@@ -143,7 +143,7 @@ def process(
                                 "system",
                                 "debug",
                                 "toggle",
-                                "null",
+                                None,
                             )
                         )
                     elif key == ord("e"):
@@ -153,7 +153,7 @@ def process(
                                 "system",
                                 "encounter",
                                 "toggle",
-                                "null",
+                                None,
                             )
                         )
                     elif key == ord("m"):
@@ -244,7 +244,7 @@ def process(
                                     eqa_settings.eqa_time(),
                                     "system",
                                     "new_character",
-                                    "null",
+                                    None,
                                     chars[selected_char],
                                 )
                             )
@@ -342,7 +342,7 @@ def process(
                                         "system",
                                         "debug",
                                         "toggle",
-                                        "null",
+                                        None,
                                     )
                                 )
                             elif option == "mute" and state.mute == "true":
@@ -362,7 +362,7 @@ def process(
                                         "system",
                                         "raid",
                                         "toggle",
-                                        "null",
+                                        None,
                                     )
                                 )
                             elif option == "autoraid" and state.auto_raid == "true":
@@ -385,7 +385,7 @@ def process(
                                         "system",
                                         "encounter",
                                         "toggle",
-                                        "null",
+                                        None,
                                     )
                                 )
                             elif (
@@ -431,7 +431,7 @@ def process(
                                         eqa_settings.eqa_time(),
                                         "system",
                                         "detect_char",
-                                        "null",
+                                        None,
                                         "false",
                                     )
                                 )
@@ -508,7 +508,7 @@ def process(
                                         "system",
                                         "debug",
                                         "toggle",
-                                        "null",
+                                        None,
                                     )
                                 )
                             elif option == "mute" and state.mute == "false":
@@ -551,7 +551,7 @@ def process(
                                         "system",
                                         "encounter",
                                         "toggle",
-                                        "null",
+                                        None,
                                     )
                                 )
                             elif (
@@ -600,7 +600,7 @@ def process(
                                         eqa_settings.eqa_time(),
                                         "system",
                                         "detect_char",
-                                        "null",
+                                        None,
                                         "true",
                                     )
                                 )

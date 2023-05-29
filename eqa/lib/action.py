@@ -180,7 +180,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "combat",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -190,7 +190,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "combat",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -200,7 +200,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "stop",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -210,7 +210,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "spell",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -220,7 +220,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "spell",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -230,7 +230,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "stop",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -240,7 +240,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "stop",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -250,7 +250,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "stop",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -260,7 +260,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "spell",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -495,8 +495,8 @@ def process(
                             eqa_settings.eqa_time(),
                             "system",
                             "reload_config",
-                            "null",
-                            "null",
+                            None,
+                            None,
                         )
                     )
 
@@ -1679,7 +1679,7 @@ def action_motd_welcome(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "group",
-                "null",
+                None,
                 "false",
             )
         )
@@ -1689,7 +1689,7 @@ def action_motd_welcome(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 "false",
             )
         )
@@ -1699,7 +1699,7 @@ def action_motd_welcome(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "afk",
-                "null",
+                None,
                 "false",
             )
         )
@@ -1722,7 +1722,7 @@ def action_group_created(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "group",
-                "null",
+                None,
                 "true",
             )
         )
@@ -1731,7 +1731,7 @@ def action_group_created(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 "you",
             )
         )
@@ -1754,7 +1754,7 @@ def action_group_removed(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "group",
-                "null",
+                None,
                 "false",
             )
         )
@@ -1763,7 +1763,7 @@ def action_group_removed(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 "false",
             )
         )
@@ -1786,7 +1786,7 @@ def action_group_disbanded(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "group",
-                "null",
+                None,
                 "false",
             )
         )
@@ -1795,7 +1795,7 @@ def action_group_disbanded(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 "false",
             )
         )
@@ -1819,7 +1819,7 @@ def action_group_join_notify(system_q, check_line):
                 eqa_settings.eqa_time(),
                 "system",
                 "group",
-                "null",
+                None,
                 "true",
             )
         )
@@ -1828,7 +1828,7 @@ def action_group_join_notify(system_q, check_line):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 leader[0],
             )
         )
@@ -1851,7 +1851,7 @@ def action_group_leader_you(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 "you",
             )
         )
@@ -1875,7 +1875,7 @@ def action_group_leader_other(system_q, check_line):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 leader[0].lower(),
             )
         )
@@ -1898,7 +1898,7 @@ def action_encumbered_off(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "encumbered",
-                "null",
+                None,
                 "false",
             )
         )
@@ -1921,7 +1921,7 @@ def action_encumbered_on(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "encumbered",
-                "null",
+                None,
                 "true",
             )
         )
@@ -1948,7 +1948,7 @@ def action_direction(system_q, check_line):
                 eqa_settings.eqa_time(),
                 "system",
                 "direction",
-                "null",
+                None,
                 direction[0],
             )
         )
@@ -1969,7 +1969,7 @@ def action_location(system_q, check_line):
         y, x, z = re.findall("[-]?(?:\d*\.)?\d+", check_line)
         loc = [y, x, z]
         system_q.put(
-            eqa_struct.message(eqa_settings.eqa_time(), "system", "loc", "null", loc)
+            eqa_struct.message(eqa_settings.eqa_time(), "system", "loc", None, loc)
         )
 
     except Exception as e:
@@ -2125,7 +2125,7 @@ def action_you_say_commands(
                         "system",
                         "raid",
                         "toggle",
-                        "null",
+                        None,
                     )
                 )
             elif args[0] == "consider":
@@ -2156,7 +2156,7 @@ def action_you_say_commands(
                         "system",
                         "debug",
                         "toggle",
-                        "null",
+                        None,
                     )
                 )
             elif args[0] == "reload":
@@ -2165,8 +2165,8 @@ def action_you_say_commands(
                         eqa_settings.eqa_time(),
                         "system",
                         "reload_config",
-                        "null",
-                        "null",
+                        None,
+                        None,
                     )
                 )
             elif args[0] == "encounter":
@@ -2177,7 +2177,7 @@ def action_you_say_commands(
                             "system",
                             "encounter",
                             "toggle",
-                            "null",
+                            None,
                         )
                     )
                 elif args[1] == "clear":
@@ -2187,7 +2187,7 @@ def action_you_say_commands(
                             "system",
                             "encounter",
                             "clear",
-                            "null",
+                            None,
                         )
                     )
                 elif args[1] == "end":
@@ -2197,7 +2197,7 @@ def action_you_say_commands(
                             "system",
                             "encounter",
                             "end",
-                            "null",
+                            None,
                         )
                     )
                 elif args[1] == "start":
@@ -2207,7 +2207,7 @@ def action_you_say_commands(
                             "system",
                             "encounter",
                             "start",
-                            "null",
+                            None,
                         )
                     )
             elif args[0] == "what":
@@ -2462,7 +2462,7 @@ def action_you_afk_off(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "afk",
-                "null",
+                None,
                 "false",
             )
         )
@@ -2485,7 +2485,7 @@ def action_you_afk_on(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "afk",
-                "null",
+                None,
                 "true",
             )
         )
@@ -2508,7 +2508,7 @@ def action_spell_bind_you(system_q, state):
                 eqa_settings.eqa_time(),
                 "system",
                 "bind",
-                "null",
+                None,
                 str(state.zone),
             )
         )
@@ -2646,7 +2646,7 @@ def action_you_new_zone(
                 eqa_settings.eqa_time(),
                 "system",
                 "afk",
-                "null",
+                None,
                 "false",
             )
         )
@@ -2662,7 +2662,7 @@ def action_you_new_zone(
                     eqa_settings.eqa_time(),
                     "system",
                     "zone",
-                    "null",
+                    None,
                     current_zone[0],
                 )
             )

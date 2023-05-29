@@ -59,7 +59,7 @@ def process(state, configs, system_q, exit_flag, cfg_reload):
                             eqa_settings.eqa_time(),
                             "system",
                             "new_character",
-                            "null",
+                            None,
                             char_server,
                         )
                     )
