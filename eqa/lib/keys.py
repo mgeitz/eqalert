@@ -420,7 +420,7 @@ def process(
                                         "system",
                                         "consider",
                                         "eval",
-                                        "false",
+                                        False,
                                     )
                                 )
                             elif (
@@ -587,7 +587,7 @@ def process(
                                         "system",
                                         "consider",
                                         "eval",
-                                        "true",
+                                        True,
                                     )
                                 )
                             elif (
