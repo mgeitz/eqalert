@@ -41,7 +41,7 @@ def process(state, configs, system_q, exit_flag, cfg_reload):
             time.sleep(1)
 
             ## Only check when enabled
-            if state.detect_char == "true":
+            if state.detect_char:
                 ### Find newest eqlog_ prefixed file
                 for log_file in os.listdir(logs_directory):
                     if log_file.startswith("eqlog_"):

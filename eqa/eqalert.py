@@ -1356,8 +1356,8 @@ def system_detect_char(configs, state, display_q, sound_q, new_message):
 
     try:
         # Toggle detect char state to true
-        if state.detect_char == "false" and new_message.payload == "true":
-            state.set_detect_char("true")
+        if not state.detect_char and new_message.payload:
+            state.set_detect_char(True)
             eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
@@ -1371,8 +1371,8 @@ def system_detect_char(configs, state, display_q, sound_q, new_message):
                 eqa_struct.sound("speak", "Automatic character detection enabled")
             )
         # Toggle detect char state to false
-        elif state.detect_char == "true" and new_message.payload == "false":
-            state.set_detect_char("false")
+        elif state.detect_char and not new_message.payload:
+            state.set_detect_char(False)
             eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(

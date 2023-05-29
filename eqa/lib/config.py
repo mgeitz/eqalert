@@ -8138,7 +8138,7 @@ def set_last_state(state, configs):
             {"enabled": state.debug}
         )
         configs.settings.config["settings"]["detect_character"].update(
-            {"enabled": str(state.detect_char)}
+            {"enabled": state.detect_char}
         )
         configs.settings.config["settings"]["mute"].update({"enabled": str(state.mute)})
         configs.characters.config["char_logs"][state.char + "_" + state.server].update(
@@ -8535,7 +8535,7 @@ def build_config(base_path, version):
       "enabled": false
     },
     "detect_character": {
-      "enabled": "true"
+      "enabled": true
     },
     "encounter_parsing": {
       "auto_save": "false",

@@ -423,16 +423,14 @@ def process(
                                         False,
                                     )
                                 )
-                            elif (
-                                option == "detect_char" and state.detect_char == "true"
-                            ):
+                            elif option == "detect_char" and state.detect_char:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
                                         "system",
                                         "detect_char",
                                         None,
-                                        "false",
+                                        False,
                                     )
                                 )
                             elif (
@@ -590,16 +588,14 @@ def process(
                                         True,
                                     )
                                 )
-                            elif (
-                                option == "detect_char" and state.detect_char == "false"
-                            ):
+                            elif option == "detect_char" and not state.detect_char:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
                                         "system",
                                         "detect_char",
                                         None,
-                                        "true",
+                                        True,
                                     )
                                 )
                             elif (

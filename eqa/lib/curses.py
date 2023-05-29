@@ -1455,7 +1455,7 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         optscr.addstr(5, second_third, "[", curses.color_pair(3))
         if state.debug:
             optscr.addstr(5, second_third + 1, "on", curses.color_pair(5))
-        elif not state.debug:
+        else:
             optscr.addstr(5, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(5, second_third + 7, "]", curses.color_pair(3))
 
@@ -1575,7 +1575,7 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         optscr.addstr(12, second_third, "[", curses.color_pair(3))
         if state.consider_eval:
             optscr.addstr(12, second_third + 1, "on", curses.color_pair(5))
-        elif not state.consider_eval:
+        else:
             optscr.addstr(12, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(12, second_third + 7, "]", curses.color_pair(3))
 
@@ -1593,9 +1593,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(13, first_q, "Auto-Detect Character", curses.color_pair(1))
         optscr.addstr(13, second_third, "[", curses.color_pair(3))
-        if state.detect_char == "true":
+        if state.detect_char:
             optscr.addstr(13, second_third + 1, "on", curses.color_pair(5))
-        elif state.detect_char == "false":
+        else:
             optscr.addstr(13, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(13, second_third + 7, "]", curses.color_pair(3))
 
