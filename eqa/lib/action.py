@@ -265,7 +265,7 @@ def process(
                             )
                         )
                 ## Mob Timers
-                if state.auto_mob_timer == "true":
+                if state.auto_mob_timer:
                     if (
                         line_type == "experience_solo"
                         or line_type == "experience_group"
@@ -303,9 +303,9 @@ def process(
 
                 ## Self Spell Timers
                 if (
-                    state.spell_timer_self == "true"
-                    or state.spell_timer_guild_only == "true"
-                    or state.spell_timer_yours_only == "true"
+                    state.spell_timer_self
+                    or state.spell_timer_guild_only
+                    or state.spell_timer_yours_only
                 ):
                     if re.fullmatch(r"^spell\_.+\_you_on$", line_type) is not None:
                         action_spell_timer(
@@ -328,9 +328,9 @@ def process(
 
                 ## Other Spell Timers
                 if (
-                    state.spell_timer_other == "true"
-                    or state.spell_timer_guild_only == "true"
-                    or state.spell_timer_yours_only == "true"
+                    state.spell_timer_other
+                    or state.spell_timer_guild_only
+                    or state.spell_timer_yours_only
                 ):
                     if re.fullmatch(r"^spell\_.+\_other_on$", line_type) is not None:
                         action_spell_timer(
@@ -1035,7 +1035,7 @@ def action_spell_timer(
                                                     + identified_spell_caster
                                                 )
                             # Time to guess the spell level
-                            elif state.spell_timer_guess == "true":
+                            elif state.spell_timer_guess:
                                 if state.debug:
                                     eqa_settings.log("Into spell guessing territory")
                                 player_level_could_cast = False
@@ -1077,7 +1077,7 @@ def action_spell_timer(
         if find_time:
             make_timer = True
             # If we only want self or guild spell timers
-            if state.spell_timer_guild_only == "true":
+            if state.spell_timer_guild_only:
                 # If this was cast by myself or another player
                 if identified_spell_caster in player_list.keys():
                     # If a guildie didn't cast it
@@ -1096,7 +1096,7 @@ def action_spell_timer(
                 else:
                     make_timer = False
 
-            if state.spell_timer_yours_only == "true":
+            if state.spell_timer_yours_only:
                 if identified_spell_caster != state.char.lower():
                     make_timer = False
 
@@ -1106,7 +1106,7 @@ def action_spell_timer(
                 identified_spell_level,
                 spell_timers["spells"][identified_spell]["duration"],
             )
-            if int(spell_duration) <= int(state.spell_timer_delay):
+            if spell_duration <= state.spell_timer_delay:
                 if state.debug:
                     eqa_settings.log("Spell duration too short for timer")
                 make_timer = False
@@ -1114,12 +1114,12 @@ def action_spell_timer(
             # Set timer message
             if make_timer:
                 if identified_spell_target == state.char.lower():
-                    if int(state.spell_timer_delay) <= 0:
+                    if state.spell_timer_delay <= 0:
                         message = identified_spell.replace("_", " ") + " has worn off"
                     else:
                         message = identified_spell.replace("_", " ") + " is wearing off"
                 else:
-                    if int(state.spell_timer_delay) <= 0:
+                    if state.spell_timer_delay <= 0:
                         message = (
                             identified_spell.replace("_", " ")
                             + " on "
@@ -1136,8 +1136,8 @@ def action_spell_timer(
 
                 spell_timer_expire = (
                     datetime.datetime.now()
-                    + datetime.timedelta(seconds=int(spell_duration))
-                    - datetime.timedelta(seconds=int(state.spell_timer_delay))
+                    + datetime.timedelta(seconds=spell_duration)
+                    - datetime.timedelta(seconds=state.spell_timer_delay)
                 )
 
                 # Submit timer
@@ -1180,10 +1180,10 @@ def action_spell_timer(
 def action_mob_timer(timer_q, timer_seconds, auto_mob_timer_delay, zone):
     """Set timer for mob spawn using default zone timer value"""
 
-    timer_seconds = str(int(timer_seconds) - int(auto_mob_timer_delay))
-    if int(timer_seconds) < 0:
-        timer_seconds = "0"
-    if int(auto_mob_timer_delay) <= 0:
+    timer_seconds = int(timer_seconds) - auto_mob_timer_delay
+    if timer_seconds < 0:
+        timer_seconds = 0
+    if auto_mob_timer_delay <= 0:
         pop_message = "Pop " + str(zone)
     else:
         pop_message = (
@@ -1191,7 +1191,7 @@ def action_mob_timer(timer_q, timer_seconds, auto_mob_timer_delay, zone):
         )
     timer_q.put(
         eqa_struct.timer(
-            (datetime.datetime.now() + datetime.timedelta(seconds=int(timer_seconds))),
+            (datetime.datetime.now() + datetime.timedelta(seconds=timer_seconds)),
             "timer",
             str(timer_seconds),
             pop_message,

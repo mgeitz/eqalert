@@ -1073,8 +1073,8 @@ def system_timer(configs, state, display_q, sound_q, new_message):
         # If timer setting is mob related
         if new_message.rx == "mob":
             # Set auto-mob timer to true
-            if state.auto_mob_timer == "false" and new_message.payload == "true":
-                state.set_auto_mob_timer("true")
+            if not state.auto_mob_timer and new_message.payload:
+                state.set_auto_mob_timer(True)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1088,8 +1088,8 @@ def system_timer(configs, state, display_q, sound_q, new_message):
                     eqa_struct.sound("speak", "Automatic mob respawn timers enabled")
                 )
             # Set auto-mob timer to false
-            elif state.auto_mob_timer == "true" and new_message.payload == "false":
-                state.set_auto_mob_timer("false")
+            elif state.auto_mob_timer and not new_message.payload:
+                state.set_auto_mob_timer(False)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1123,8 +1123,8 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
 
     try:
         if new_message.rx == "self":
-            if state.spell_timer_self == "true":
-                state.set_spell_timer_self("false")
+            if state.spell_timer_self:
+                state.set_spell_timer_self(False)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1140,7 +1140,7 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                     )
                 )
             else:
-                state.set_spell_timer_self("true")
+                state.set_spell_timer_self(True)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1156,8 +1156,8 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                     )
                 )
         elif new_message.rx == "other":
-            if state.spell_timer_other == "true":
-                state.set_spell_timer_other("false")
+            if state.spell_timer_other:
+                state.set_spell_timer_other(False)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1173,7 +1173,7 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                     )
                 )
             else:
-                state.set_spell_timer_other("true")
+                state.set_spell_timer_other(True)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1189,8 +1189,8 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                     )
                 )
         elif new_message.rx == "guild":
-            if state.spell_timer_guild_only == "true":
-                state.set_spell_timer_guild_only("false")
+            if state.spell_timer_guild_only:
+                state.set_spell_timer_guild_only(False)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1206,7 +1206,7 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                     )
                 )
             else:
-                state.set_spell_timer_guild_only("true")
+                state.set_spell_timer_guild_only(True)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1222,8 +1222,8 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                     )
                 )
         elif new_message.rx == "yours":
-            if state.spell_timer_yours_only == "true":
-                state.set_spell_timer_yours_only("false")
+            if state.spell_timer_yours_only:
+                state.set_spell_timer_yours_only(False)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1239,7 +1239,7 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                     )
                 )
             else:
-                state.set_spell_timer_yours_only("true")
+                state.set_spell_timer_yours_only(True)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1255,8 +1255,8 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                     )
                 )
         elif new_message.rx == "guess":
-            if state.spell_timer_guess == "true":
-                state.set_spell_timer_guess("false")
+            if state.spell_timer_guess:
+                state.set_spell_timer_guess(False)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1273,7 +1273,7 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                     )
                 )
             else:
-                state.set_spell_timer_guess("true")
+                state.set_spell_timer_guess(True)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(

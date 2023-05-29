@@ -169,12 +169,9 @@ def process(
                     elif metronome_stop == False:
                         metronome_stop = True
                 elif timer_event.type == "new_zone":
-                    if (
-                        configs.settings.config["settings"]["timers"][
-                            "spell_timer_zone_drift"
-                        ]
-                        == "true"
-                    ):
+                    if configs.settings.config["settings"]["timers"]["spell"][
+                        "zone_drift"
+                    ]:
                         if zoning_start_time is not None:
                             adjustment = (
                                 timer_event.time - zoning_start_time

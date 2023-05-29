@@ -8091,44 +8091,44 @@ def set_last_state(state, configs):
                 "auto_set": state.auto_raid,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["mob"].update(
             {
-                "auto_mob_timer": str(state.auto_mob_timer),
+                "auto": state.auto_mob_timer,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["mob"].update(
             {
-                "auto_mob_timer_delay": str(state.auto_mob_timer_delay),
+                "auto_delay": state.auto_mob_timer_delay,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_delay": str(state.spell_timer_delay),
+                "delay": state.spell_timer_delay,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_guess": str(state.spell_timer_guess),
+                "guess": state.spell_timer_guess,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_guild_only": str(state.spell_timer_guild_only),
+                "guild_only": state.spell_timer_guild_only,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_yours_only": str(state.spell_timer_yours_only),
+                "yours_only": state.spell_timer_yours_only,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_other": str(state.spell_timer_other),
+                "other": str(state.spell_timer_other),
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_self": str(state.spell_timer_self),
+                "self": state.spell_timer_self,
             }
         )
         configs.settings.config["settings"]["consider_eval"].update(
@@ -8256,27 +8256,27 @@ def get_last_state(configs, char_name, char_server):
             "auto_save"
         ]
         auto_raid = configs.settings.config["settings"]["raid_mode"]["auto_set"]
-        auto_mob_timer = configs.settings.config["settings"]["timers"]["auto_mob_timer"]
-        auto_mob_timer_delay = configs.settings.config["settings"]["timers"][
-            "auto_mob_timer_delay"
+        auto_mob_timer = configs.settings.config["settings"]["timers"]["mob"]["auto"]
+        auto_mob_timer_delay = configs.settings.config["settings"]["timers"]["mob"][
+            "auto_delay"
         ]
-        spell_timer_delay = configs.settings.config["settings"]["timers"][
-            "spell_timer_delay"
+        spell_timer_delay = configs.settings.config["settings"]["timers"]["spell"][
+            "delay"
         ]
-        spell_timer_guess = configs.settings.config["settings"]["timers"][
-            "spell_timer_guess"
+        spell_timer_guess = configs.settings.config["settings"]["timers"]["spell"][
+            "guess"
         ]
-        spell_timer_other = configs.settings.config["settings"]["timers"][
-            "spell_timer_other"
+        spell_timer_other = configs.settings.config["settings"]["timers"]["spell"][
+            "other"
         ]
-        spell_timer_guild_only = configs.settings.config["settings"]["timers"][
-            "spell_timer_guild_only"
+        spell_timer_guild_only = configs.settings.config["settings"]["timers"]["spell"][
+            "guild_only"
         ]
-        spell_timer_yours_only = configs.settings.config["settings"]["timers"][
-            "spell_timer_yours_only"
+        spell_timer_yours_only = configs.settings.config["settings"]["timers"]["spell"][
+            "yours_only"
         ]
-        spell_timer_self = configs.settings.config["settings"]["timers"][
-            "spell_timer_self"
+        spell_timer_self = configs.settings.config["settings"]["timers"]["spell"][
+            "self"
         ]
         mute = configs.settings.config["settings"]["mute"]["enabled"]
 
@@ -8565,15 +8565,19 @@ def build_config(base_path, version):
       "lang": "en"
     },
     "timers": {
-      "auto_mob_timer": "false",
-      "auto_mob_timer_delay": "10",
-      "spell_timer_delay": "24",
-      "spell_timer_guess": "true",
-      "spell_timer_other": "true",
-      "spell_timer_guild_only": "false",
-      "spell_timer_yours_only": "true",
-      "spell_timer_self": "true",
-      "spell_timer_zone_drift": "true"
+      "mob": {
+        "auto": false,
+        "auto_delay": 10
+      },
+      "spell": {
+        "delay": 24,
+        "guess": true,
+        "other": true,
+        "guild_only": false,
+        "yours_only": true,
+        "self": true,
+        "zone_drift": true
+      }
     }
   },
   "version": "%s"
