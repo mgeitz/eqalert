@@ -345,7 +345,7 @@ def process(
                                         None,
                                     )
                                 )
-                            elif option == "mute" and state.mute == "true":
+                            elif option == "mute" and state.mute:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
@@ -490,7 +490,7 @@ def process(
                                         None,
                                     )
                                 )
-                            elif option == "mute" and state.mute == "false":
+                            elif option == "mute" and not state.mute:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),

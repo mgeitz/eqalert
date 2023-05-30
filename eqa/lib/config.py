@@ -8244,7 +8244,7 @@ def set_last_state(state, configs):
         configs.settings.config["settings"]["detect_character"].update(
             {"enabled": state.detect_char}
         )
-        configs.settings.config["settings"]["mute"].update({"enabled": str(state.mute)})
+        configs.settings.config["settings"]["mute"].update({"enabled": state.mute})
         configs.characters.config["char_logs"][state.char + "_" + state.server].update(
             {
                 "char": str(state.char),
@@ -8649,7 +8649,7 @@ def build_config(base_path, version):
       "enabled": true
     },
     "mute": {
-      "enabled": "false"
+      "enabled": false
     },
     "paths": {
       "eqalert_log": "%slog/",

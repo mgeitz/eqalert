@@ -1538,10 +1538,10 @@ def system_mute(configs, state, display_q, sound_q, new_message):
         # Toggle mute
         if new_message.rx == "toggle" and new_message.payload == "all":
             # to true
-            if state.mute == "false":
-                sound_q.put(eqa_struct.sound("mute_speak", "true"))
-                sound_q.put(eqa_struct.sound("mute_alert", "true"))
-                state.set_mute("true")
+            if not state.mute:
+                sound_q.put(eqa_struct.sound("mute_speak", True))
+                sound_q.put(eqa_struct.sound("mute_alert", True))
+                state.set_mute(True)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1553,9 +1553,9 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                 )
             # to false
             else:
-                sound_q.put(eqa_struct.sound("mute_speak", "false"))
-                sound_q.put(eqa_struct.sound("mute_alert", "false"))
-                state.set_mute("false")
+                sound_q.put(eqa_struct.sound("mute_speak", False))
+                sound_q.put(eqa_struct.sound("mute_alert", False))
+                state.set_mute(False)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
                     eqa_struct.display(
@@ -1568,116 +1568,10 @@ def system_mute(configs, state, display_q, sound_q, new_message):
                 sound_q.put(eqa_struct.sound("speak", "Mute disabled"))
         # Toggle mute speak
         elif new_message.rx == "toggle" and new_message.payload == "speak":
-            # to speak
-            if state.mute == "false":
-                sound_q.put(eqa_struct.sound("mute_speak", "true"))
-                state.set_mute("speak")
-                eqa_config.set_last_state(state, configs)
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        "Mute Speak Enabled",
-                    )
-                )
-            # to true
-            elif state.mute == "alert":
-                sound_q.put(eqa_struct.sound("mute_speak", "true"))
-                state.set_mute("true")
-                eqa_config.set_last_state(state, configs)
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        "Mute Enabled",
-                    )
-                )
-            # to alert
-            elif state.mute == "true":
-                sound_q.put(eqa_struct.sound("mute_speak", "false"))
-                state.set_mute("alert")
-                eqa_config.set_last_state(state, configs)
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        "Mute Speak Disabled",
-                    )
-                )
-                sound_q.put(eqa_struct.sound("speak", "Mute speak disabled"))
-            # to false
-            else:
-                sound_q.put(eqa_struct.sound("mute_speak", "false"))
-                state.set_mute("false")
-                eqa_config.set_last_state(state, configs)
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        "Mute Disabled",
-                    )
-                )
-                sound_q.put(eqa_struct.sound("speak", "Mute disabled"))
+            sound_q.put(eqa_struct.sound("mute_speak", "toggle"))
         # Toggle mute alert
         elif new_message.rx == "toggle" and new_message.payload == "alert":
-            # to alert
-            if state.mute == "false":
-                sound_q.put(eqa_struct.sound("mute_alert", "true"))
-                state.set_mute("alert")
-                eqa_config.set_last_state(state, configs)
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        "Mute Alert Enabled",
-                    )
-                )
-            # to true
-            elif state.mute == "speak":
-                sound_q.put(eqa_struct.sound("mute_alert", "true"))
-                state.set_mute("true")
-                eqa_config.set_last_state(state, configs)
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        "Mute Enabled",
-                    )
-                )
-            # to speak
-            elif state.mute == "true":
-                sound_q.put(eqa_struct.sound("mute_alert", "false"))
-                state.set_mute("speak")
-                eqa_config.set_last_state(state, configs)
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        "Mute Alert Disabled",
-                    )
-                )
-                sound_q.put(eqa_struct.sound("speak", "Mute alert disabled"))
-            # to false
-            else:
-                sound_q.put(eqa_struct.sound("mute_alert", "false"))
-                state.set_mute("false")
-                eqa_config.set_last_state(state, configs)
-                display_q.put(
-                    eqa_struct.display(
-                        eqa_settings.eqa_time(),
-                        "event",
-                        "events",
-                        "Mute Disabled",
-                    )
-                )
-                sound_q.put(eqa_struct.sound("speak", "Mute disabled"))
+            sound_q.put(eqa_struct.sound("mute_alert", "toggle"))
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )

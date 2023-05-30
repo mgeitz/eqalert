@@ -1250,7 +1250,7 @@ def draw_state(stdscr, state, version):
         # mute state
         stdscr.addstr(24, 5, "Mute", curses.color_pair(2))
         stdscr.addstr(24, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(24, 18, state.mute.title(), curses.color_pair(3))
+        stdscr.addstr(24, 18, str(state.mute), curses.color_pair(3))
 
         # enounter parse state
         stdscr.addstr(25, 5, "Encounter", curses.color_pair(2))
@@ -1509,9 +1509,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(6, first_q, "Mute", curses.color_pair(1))
         optscr.addstr(6, second_third, "[", curses.color_pair(3))
-        if state.mute == "true":
+        if state.mute:
             optscr.addstr(6, second_third + 1, "on", curses.color_pair(5))
-        elif state.mute == "false":
+        else:
             optscr.addstr(6, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(6, second_third + 7, "]", curses.color_pair(3))
 
