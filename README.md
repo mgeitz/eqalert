@@ -236,21 +236,21 @@ Example configuration for a line type:
 
 ##### General
 - `false`: Disable alerting for this line type
-- `alert`: Alert for matching strings in `alert` for the line type using the set sound
-- `all`: Alert for all lines of a given line type using the set sound
+- `"alert"`: Alert for matching strings in `alert` for the line type using the set sound
+- `"all"`: Alert for all lines of a given line type using the set sound
 
 ##### Context Driven
-- `solo`: Alert when solo, grouped, and raiding
-- `solo_only`: Alert only when solo
-- `group`: Alert when in a group and raiding
-- `group_only`: Alert only when grouped
-- `solo_group_only`: Alert only when not raiding
-- `raid`: Alert when in a raid
-- `afk`: Alert only when afk
+- `"solo"`: Alert when solo, grouped, and raiding
+- `"solo_only"`: Alert only when solo
+- `"group"`: Alert when in a group and raiding
+- `"group_only"`: Alert only when grouped
+- `"solo_group_only"`: Alert only when not raiding
+- `"raid"`: Alert when in a raid
+- `"afk"`: Alert only when afk
 
 #### Alert Keys
 
-`alert` can be populated with key value pairs.  The key here is any string you would like an alert for within that line type.
+`"alert"` can be populated with key value pairs.  The key here is any string you would like an alert for within that line type.
 
 ##### Examples
 
