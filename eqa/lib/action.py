@@ -277,13 +277,6 @@ def process(
                                 state.auto_mob_timer_delay,
                                 state.zone,
                             )
-                        else:
-                            action_mob_timer(
-                                timer_q,
-                                configs.zones.config["zones"]["Unavailable"]["timer"],
-                                state.auto_mob_timer_delay,
-                                state.zone,
-                            )
 
                 ## TODO: Spell Casting Item Buffer
                 # Interesting note, these only show up for the active player for any non-instant cast item.  Other plays get the normal casting message.
@@ -1191,7 +1184,7 @@ def action_spell_timer(
 def action_mob_timer(timer_q, timer_seconds, auto_mob_timer_delay, zone):
     """Set timer for mob spawn using default zone timer value"""
 
-    timer_seconds = int(timer_seconds) - auto_mob_timer_delay
+    timer_seconds = timer_seconds - auto_mob_timer_delay
     if timer_seconds < 0:
         timer_seconds = 0
     if auto_mob_timer_delay <= 0:
@@ -2664,7 +2657,7 @@ def action_you_new_zone(
             eqa_config.add_zone(current_zone[0], base_path)
         elif current_zone[0] in configs.zones.config["zones"].keys() and not state.raid:
             if (
-                configs.zones.config["zones"][current_zone[0]]["raid_mode"] == "true"
+                configs.zones.config["zones"][current_zone[0]]["raid_mode"]
                 and state.auto_raid
             ):
                 system_q.put(
@@ -2678,7 +2671,7 @@ def action_you_new_zone(
                 )
         elif current_zone[0] in configs.zones.config["zones"].keys() and state.raid:
             if (
-                configs.zones.config["zones"][current_zone[0]]["raid_mode"] == "false"
+                not configs.zones.config["zones"][current_zone[0]]["raid_mode"]
                 and state.auto_raid
             ):
                 system_q.put(

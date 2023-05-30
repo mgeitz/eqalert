@@ -448,14 +448,14 @@ def draw_events_status_bar(stdscr, state):
         if state.loc != ["0.00", "0.00", "0.00"]:
             if state.direction is not None:
                 offset = (
-                    len(str(state.loc[0]))
+                    len(str(state.direction))
+                    + len(str(state.loc[0]))
                     + len(str(state.loc[1]))
                     + len(str(state.loc[2]))
                 )
             else:
                 offset = (
-                    len(state.direction)
-                    + len(str(state.loc[0]))
+                    len(str(state.loc[0]))
                     + len(str(state.loc[1]))
                     + len(str(state.loc[2]))
                 )
@@ -1220,7 +1220,10 @@ def draw_state(stdscr, state, version):
         # zone
         stdscr.addstr(19, 5, "Zone", curses.color_pair(2))
         stdscr.addstr(19, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(19, 18, state.zone.title(), curses.color_pair(3))
+        if state.zone is not None:
+            stdscr.addstr(19, 18, state.zone.title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(19, 18, "Unavailable", curses.color_pair(3))
 
         # loc
         stdscr.addstr(20, 5, "Location", curses.color_pair(2))
