@@ -8442,7 +8442,7 @@ def add_type(line_type, base_path):
         data = json.load(json_data)
         json_data.close()
         data["line"].update(
-            {line_type: {"sound": "false", "reaction": "false", "alert": {}}}
+            {line_type: {"sound": False, "reaction": False, "alert": {}}}
         )
         json_data = open(
             base_path + "config/line-alerts/other.json", "w", encoding="utf-8"
@@ -8645,8 +8645,8 @@ def build_config(base_path, version):
       "enabled": true
     },
     "encounter_parsing": {
-      "auto_save": "false",
-      "enabled": "true"
+      "auto_save": false,
+      "enabled": true
     },
     "mute": {
       "enabled": "false"
