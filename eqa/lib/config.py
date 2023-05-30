@@ -8636,7 +8636,7 @@ def build_config(base_path, version):
   "last_state": {},
   "settings": {
     "consider_eval": {
-      "enabled": false
+      "enabled": true
     },
     "debug_mode": {
       "enabled": false
