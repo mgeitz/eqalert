@@ -143,12 +143,10 @@ def process(
             and not change_char.is_set()
         ):
             # Sleep between empty checks
-            queue_size = action_q.qsize()
-            if queue_size < 1:
+            if action_q.qsize() < 1:
                 time.sleep(0.01)
-            else:
-                if state.debug:
-                    eqa_settings.log("action_q depth: " + str(queue_size))
+            elif state.debug:
+                eqa_settings.log("action_q depth: " + str(action_q.qsize()))
 
             # Check queue for message
             if not action_q.empty():
