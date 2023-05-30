@@ -945,7 +945,7 @@ def action_spell_timer(
                         # This spell has no listed classes listed and can be an item cast and you cast it
                         elif (
                             not spell_casters["spells"][spell]["classes"]
-                            and spell_casters["spells"][spell]["item"] == "true"
+                            and spell_casters["spells"][spell]["item"]
                         ):
                             identified_spell_caster = state.char.lower()
                             identified_spell_level = state.char_level
@@ -1067,7 +1067,7 @@ def action_spell_timer(
 
                                 # If this is a known npc only spell, just set to current player level
                                 elif (
-                                    spell_casters["spells"][spell]["npc"] == "true"
+                                    spell_casters["spells"][spell]["npc"]
                                     and state.char_level is not None
                                 ):
                                     identified_spell_caster = recent_cast_event[
