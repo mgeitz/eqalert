@@ -27,14 +27,21 @@ import os
 import json
 from datetime import datetime
 from collections import deque
-import pkg_resources
 
 import eqa.lib.settings as eqa_settings
 import eqa.lib.struct as eqa_struct
 
 
 def process(
-    configs, base_path, encounter_q, system_q, display_q, exit_flag, cfg_reload, state
+    configs,
+    base_path,
+    encounter_q,
+    system_q,
+    display_q,
+    exit_flag,
+    cfg_reload,
+    state,
+    version,
 ):
     """
     Process: encounter_q
@@ -74,7 +81,10 @@ def process(
                     ):
                         #### Set active encounter
                         active_encounter = True
-                        encounter_zone = re.sub(r"[^\w\s]", "", state.zone)
+                        if state.zone is not None:
+                            encounter_zone = re.sub(r"[^\w\s]", "", state.zone)
+                        else:
+                            encounter_zone = re.sub(r"[^\w\s]", "", "Unavailable")
                 ## Or if active encounter
                 else:
                     ### And we see a line that indicates an encounter ends
@@ -96,6 +106,7 @@ def process(
                                     configs,
                                     display_q,
                                     encounter_zone,
+                                    version,
                                 )
                             else:
                                 encounter_stack.append(
@@ -117,6 +128,7 @@ def process(
                                 configs,
                                 display_q,
                                 encounter_zone,
+                                version,
                             )
 
                     if line_type == "you_new_zone":
@@ -132,12 +144,16 @@ def process(
                             configs,
                             display_q,
                             encounter_zone,
+                            version,
                         )
 
                     elif interaction == "start":
                         #### Set active encounter
                         active_encounter = True
-                        encounter_zone = re.sub(r"[^\w\s]", "", state.zone)
+                        if state.zone is not None:
+                            encounter_zone = re.sub(r"[^\w\s]", "", state.zone)
+                        else:
+                            encounter_zone = re.sub(r"[^\w\s]", "", "Unavailable")
 
                 ## If we're in an encounter
                 if active_encounter == True:
@@ -1098,7 +1114,7 @@ def encounter_combat(line_type, line_time, line, encounter_stack, state):
             encounter_stack.append(
                 (line_time, source.title(), target.title(), mode, result)
             )
-        elif state.debug == "true":
+        elif state.debug:
             eqa_settings.log(
                 "encounter combat ["
                 + line_type
@@ -1229,7 +1245,7 @@ def encounter_spell(line_type, line_time, line, encounter_stack, state):
             encounter_stack.append(
                 (line_time, source.title(), target.title(), mode, result)
             )
-        elif state.debug == "true":
+        elif state.debug:
             eqa_settings.log(
                 "encounter spell ["
                 + line_type
@@ -1255,6 +1271,7 @@ def encounter_analysis(
     configs,
     display_q,
     encounter_zone,
+    version,
 ):
     """Analyze encounter stack before reporting"""
 
@@ -1402,8 +1419,9 @@ def encounter_analysis(
                 configs,
                 display_q,
                 encounter_zone,
+                version,
             )
-        elif state.debug == "true":
+        elif state.debug:
             eqa_settings.log("Encounter Report: Unable to determine encounter target")
 
         # Prune old events
@@ -1427,6 +1445,7 @@ def encounter_report(
     configs,
     display_q,
     encounter_zone,
+    version,
 ):
     """Report encounter stats"""
 
@@ -1664,9 +1683,7 @@ def encounter_report(
             "target": {},
             "participants": {},
         }
-        encounter_report["header"]["version"] = str(
-            pkg_resources.get_distribution("eqalert").version
-        )
+        encounter_report["header"]["version"] = version
         encounter_report["header"]["date"] = str(encounter_parse_date)
         encounter_report["header"]["time"] = str(encounter_parse_time)
         encounter_report["encounter_summary"]["character"] = str(state.char)
@@ -1674,14 +1691,14 @@ def encounter_report(
         encounter_report["encounter_summary"]["zone"] = str(encounter_zone)
         if state.loc != ["0.00", "0.00", "0.00"]:
             encounter_report["encounter_summary"]["location"] = str(state.loc)
-        if state.afk == "true":
-            encounter_report["encounter_summary"]["context"] = "afk"
-        elif state.group == "false" and state.raid == "false":
+        if not state.group and not state.raid:
             encounter_report["encounter_summary"]["context"] = "solo"
-        elif state.group == "true" and state.raid == "false":
+        elif state.group and not state.raid:
             encounter_report["encounter_summary"]["context"] = "group"
-        elif state.group == "true" and state.raid == "true":
+        elif state.group and state.raid:
             encounter_report["encounter_summary"]["context"] = "raid"
+        elif state.afk:
+            encounter_report["encounter_summary"]["context"] = "afk"
         encounter_report["encounter_summary"]["target"] = str(encounter_target)
         encounter_report["encounter_summary"]["total_events"] = str(
             this_encounter_events
@@ -1896,10 +1913,7 @@ def encounter_report(
         )
 
         ## Write Encounter to File
-        if (
-            configs.settings.config["settings"]["encounter_parsing"]["auto_save"]
-            == "true"
-        ):
+        if configs.settings.config["settings"]["encounter_parsing"]["auto_save"]:
             encounter_report_json_string = json.dumps(encounter_report, indent=2)
             encounter_report_file = open(
                 encounter_zone_date_path + encounter_filename, "w"

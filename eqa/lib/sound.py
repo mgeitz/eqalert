@@ -38,8 +38,8 @@ def process(configs, sound_q, exit_flag, cfg_reload, state):
 
     sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
     tmp_sound_file_path = configs.settings.config["settings"]["paths"]["tmp_sound"]
-    mute_speak = "false"
-    mute_alert = "false"
+    mute_speak = False
+    mute_alert = False
 
     if not os.path.exists(tmp_sound_file_path):
         os.makedirs(tmp_sound_file_path)
@@ -55,22 +55,26 @@ def process(configs, sound_q, exit_flag, cfg_reload, state):
                 ## Read new message
                 sound_event = sound_q.get()
 
-                if sound_event.sound == "mute_speak":
-                    mute_speak = sound_event.payload
-                elif sound_event.sound == "mute_alert":
-                    mute_alert = sound_event.payload
-                elif (
-                    sound_event.sound == "speak"
-                    and not mute_speak == "true"
-                    and not state.mute == "true"
-                ):
-                    speak(configs, sound_event.payload, "true", tmp_sound_file_path)
-                elif (
-                    sound_event.sound == "alert"
-                    and not mute_alert == "true"
-                    and not state.mute == "true"
-                ):
+                if sound_event.sound == "speak" and not mute_speak and not state.mute:
+                    speak(configs, sound_event.payload, True, tmp_sound_file_path)
+                elif sound_event.sound == "alert" and not mute_alert and not state.mute:
                     alert(configs, sound_event.payload)
+                elif sound_event.sound == "mute_speak":
+                    if sound_event.payload == "toggle":
+                        if mute_speak:
+                            mute_speak = False
+                        else:
+                            mute_speak = True
+                    else:
+                        mute_speak = sound_event.payload
+                elif sound_event.sound == "mute_alert":
+                    if sound_event.payload == "toggle":
+                        if mute_alert:
+                            mute_alert = False
+                        else:
+                            mute_alert = True
+                    else:
+                        mute_alert = sound_event.payload
                 elif sound_event.sound == "tick":
                     sound_tick(sound_file_path, sound_event)
                 elif sound_event.sound == "tock":
@@ -148,6 +152,7 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])hs(?=[^A-z])", "howling stones", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])ic(?=[^A-z])", "iceclad ocean", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])idc(?=[^A-z])", "I don't care", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])ii(?=[^A-z])", "two", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])imo(?=[^A-z])", "in my opinion", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])inc(?=[^A-z])", "incoming", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])inv(?=[^A-z])", "invite", line, flags=re.I)
@@ -184,6 +189,9 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])pof(?=[^A-z])", "plane of fear", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])poh(?=[^A-z])", "plane of hate", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])pom(?=[^A-z])", "plane of mischief", line, flags=re.I)
+    line = re.sub(
+        r"(?<=[^A-z])potg(?=[^A-z])", "protection of the glades", line, flags=re.I
+    )
     line = re.sub(r"(?<=[^A-z])pov(?=[^A-z])", "point of view", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])pst(?=[^A-z])", "please send tell", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])rh(?=[^A-z])", "right here", line, flags=re.I)
@@ -219,7 +227,12 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])wtt(?=[^A-z])", "want to trade", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])xfer(?=[^A-z])", "transfer", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])yw(?=[^A-z])", "you're welcome", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])\=D(?=[^A-z])", "smiley face", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])<3(?=[^A-z])", "heart", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])>\.<(?=[^A-z])", "squinting face", line, flags=re.I)
+    line = re.sub(
+        r"(?<=[^A-z])>\_<(?=[^A-z])", "serious squinting face", line, flags=re.I
+    )
     line = re.sub(r"(\d+)p(?![A-z])", r"\1 platinum", line, flags=re.I)
     line = re.sub(r"(\d+)m(?![A-z])", r"\1 mana", line, flags=re.I)
 
@@ -229,7 +242,7 @@ def eq_lingo(line):
 def speak(configs, line, play, sound_file_path):
     """Play a spoken phrase"""
     try:
-        if configs.settings.config["settings"]["speech"]["expand_lingo"] == "true":
+        if configs.settings.config["settings"]["speech"]["expand_lingo"]:
             phrase = eq_lingo(line)
         else:
             phrase = line
@@ -239,7 +252,7 @@ def speak(configs, line, play, sound_file_path):
             gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
             tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
             tts.save(sound_file_path + phrase_hash.hexdigest() + ".wav")
-        if play == "true":
+        if play:
             play_sound(sound_file_path + phrase_hash.hexdigest() + ".wav")
 
     except Exception as e:
@@ -254,7 +267,7 @@ def speak(configs, line, play, sound_file_path):
 def alert(configs, line_type):
     """Play configured sounds"""
     try:
-        if not configs.alerts.config["line"][line_type]["sound"] == "false":
+        if not configs.alerts.config["line"][line_type]["sound"] == False:
             phrase = configs.alerts.config["line"][line_type]["sound"]
             sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
             if not os.path.exists(sound_file_path + phrase + ".wav"):

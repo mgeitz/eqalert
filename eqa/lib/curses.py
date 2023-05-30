@@ -23,7 +23,6 @@ import os
 import sys
 import time
 import math
-import pkg_resources
 import random
 import re
 from datetime import datetime
@@ -33,7 +32,7 @@ import eqa.lib.state as eqa_state
 import eqa.lib.settings as eqa_settings
 
 
-def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
+def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
     """
     Process: display_q
     Produce: display event
@@ -90,6 +89,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                         s_opt,
                         s_line,
                         encounter_report,
+                        version,
                     )
 
                 ## Display Draw
@@ -114,6 +114,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                                 s_opt,
                                 s_line,
                                 encounter_report,
+                                version,
                             )
                     else:
                         page = display_event.screen
@@ -130,6 +131,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                         s_opt,
                         s_line,
                         encounter_report,
+                        version,
                     )
 
                 ## Draw Update
@@ -149,6 +151,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                                 s_opt,
                                 s_line,
                                 encounter_report,
+                                version,
                             )
                     elif display_event.screen == "debug":
                         debug_events.append(display_event)
@@ -164,6 +167,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                             s_opt,
                             s_line,
                             encounter_report,
+                            version,
                         )
                     elif display_event.screen == "clear":
                         events = []
@@ -180,6 +184,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload):
                             s_opt,
                             s_line,
                             encounter_report,
+                            version,
                         )
                 display_q.task_done()
 
@@ -206,18 +211,23 @@ def draw_page(
     s_opt,
     s_line,
     encounter_report,
+    version,
 ):
     y, x = stdscr.getmaxyx()
     try:
         if x >= 80 and y >= 40:
             if page == "events":
-                draw_events_frame(stdscr, state, events, debug_events, encounter_report)
+                draw_events_frame(
+                    stdscr, state, events, debug_events, encounter_report, version
+                )
             elif page == "state":
-                draw_state(stdscr, state)
+                draw_state(stdscr, state, version)
             elif page == "settings":
-                draw_settings(stdscr, state, configs, s_setting, s_char, s_opt, s_line)
+                draw_settings(
+                    stdscr, state, configs, s_setting, s_char, s_opt, s_line, version
+                )
             elif page == "parse":
-                draw_parse(stdscr, state, encounter_report)
+                draw_parse(stdscr, state, encounter_report, version)
             elif page == "help":
                 draw_help(stdscr)
         else:
@@ -231,7 +241,7 @@ def draw_page(
         )
 
 
-def init(state):
+def init(state, version):
     try:
         """Create new stdscr in terminal"""
         stdscr = curses.initscr()
@@ -248,7 +258,7 @@ def init(state):
         curses.init_pair(4, curses.COLOR_MAGENTA, -1)  # Highlight
         curses.init_pair(5, curses.COLOR_GREEN, -1)  # Dunno
         curses.init_pair(6, curses.COLOR_RED, -1)  # Dunno
-        draw_events_frame(stdscr, state, [], [], None)
+        draw_events_frame(stdscr, state, [], [], None, version)
         return stdscr
 
     except Exception as e:
@@ -269,7 +279,7 @@ def close_screens(stdscr):
     curses.endwin()
 
 
-def draw_tabs(stdscr, tab):
+def draw_tabs(stdscr, tab, version):
     """Draw top row tab selection"""
 
     try:
@@ -328,7 +338,6 @@ def draw_tabs(stdscr, tab):
         stdscr.addch(2, x - 15, curses.ACS_BTEE)
 
         # Center title
-        version = str(pkg_resources.get_distribution("eqalert").version)
         offset = math.ceil(len(version) / 2)
         stdscr.addstr(
             1, center_x - 4 - offset, "EQ ALERT " + version, curses.color_pair(2)
@@ -343,7 +352,7 @@ def draw_tabs(stdscr, tab):
         )
 
 
-def draw_events_frame(stdscr, state, events, debug_events, encounter_report):
+def draw_events_frame(stdscr, state, events, debug_events, encounter_report, version):
     """Draw events"""
 
     try:
@@ -352,7 +361,7 @@ def draw_events_frame(stdscr, state, events, debug_events, encounter_report):
         stdscr.box()
 
         # Draw tabs
-        draw_tabs(stdscr, "events")
+        draw_tabs(stdscr, "events", version)
 
         # Draw status
         draw_events_status_bar(stdscr, state)
@@ -361,9 +370,9 @@ def draw_events_frame(stdscr, state, events, debug_events, encounter_report):
         draw_events(stdscr, events)
 
         # Draw lower panel
-        if state.debug == "true":
+        if state.debug:
             draw_events_debug(stdscr, debug_events)
-        elif state.encounter_parse == "true" and encounter_report is not None:
+        elif state.encounter_parse and encounter_report is not None:
             draw_events_encounter(stdscr, encounter_report)
         else:
             draw_events_default_lower(stdscr)
@@ -396,7 +405,7 @@ def draw_events_status_bar(stdscr, state):
         stdscr.addstr(center_y, 2, state.char.title(), curses.color_pair(2))
 
         ## Guild
-        if state.char_guild != "unavailable":
+        if state.char_guild is not None:
             stdscr.addstr(
                 center_y,
                 3 + len(state.char),
@@ -405,20 +414,20 @@ def draw_events_status_bar(stdscr, state):
             )
 
         ## Level
-        if state.char_level != "unavailable":
-            stdscr.addstr(center_y + 1, 2, state.char_level, curses.color_pair(2))
+        if state.char_level is not None:
+            stdscr.addstr(center_y + 1, 2, str(state.char_level), curses.color_pair(2))
 
         ## Class
-        if state.char_class != "unavailable":
+        if state.char_class is not None:
             stdscr.addstr(
                 center_y + 1,
-                3 + len(state.char_level),
+                3 + len(str(state.char_level)),
                 state.char_class.title(),
                 curses.color_pair(2),
             )
 
         ## Zone
-        if state.zone != "unavailable":
+        if state.zone is not None:
             stdscr.addstr(
                 center_y,
                 x - len(state.zone) - 2,
@@ -427,7 +436,7 @@ def draw_events_status_bar(stdscr, state):
             )
 
         ## Direction
-        if state.direction != "unavailable":
+        if state.direction is not None:
             stdscr.addstr(
                 center_y + 1,
                 x - len(state.direction) - 2,
@@ -437,16 +446,16 @@ def draw_events_status_bar(stdscr, state):
 
         ## Location
         if state.loc != ["0.00", "0.00", "0.00"]:
-            if state.direction == "unavailable":
+            if state.direction is not None:
                 offset = (
-                    len(str(state.loc[0]))
+                    len(str(state.direction))
+                    + len(str(state.loc[0]))
                     + len(str(state.loc[1]))
                     + len(str(state.loc[2]))
                 )
             else:
                 offset = (
-                    len(state.direction)
-                    + len(str(state.loc[0]))
+                    len(str(state.loc[0]))
                     + len(str(state.loc[1]))
                     + len(str(state.loc[2]))
                 )
@@ -462,14 +471,14 @@ def draw_events_status_bar(stdscr, state):
         stdscr.addstr(center_y, center_x - offset, state.server, curses.color_pair(2))
 
         ## Context
-        if state.afk == "true":
-            stdscr.addstr(center_y + 1, center_x - 1, "AFK", curses.color_pair(2))
-        elif state.group == "false" and state.raid == "false":
+        if not state.group and not state.raid:
             stdscr.addstr(center_y + 1, center_x - 2, "Solo", curses.color_pair(2))
-        elif state.group == "true" and state.raid == "false":
+        elif state.group and not state.raid:
             stdscr.addstr(center_y + 1, center_x - 3, "Group", curses.color_pair(2))
-        elif state.raid == "true":
+        elif state.raid:
             stdscr.addstr(center_y + 1, center_x - 2, "Raid", curses.color_pair(2))
+        elif state.afk:
+            stdscr.addstr(center_y + 1, center_x - 1, "AFK", curses.color_pair(2))
 
         ## Bottom of stats bar
         stdscr.addch(center_y + 2, 0, curses.ACS_LTEE)
@@ -908,7 +917,7 @@ def draw_ftime(stdscr, timestamp, y):
         )
 
 
-def draw_parse(stdscr, state, encounter_report):
+def draw_parse(stdscr, state, encounter_report, version):
     """Draw parse"""
     y, x = stdscr.getmaxyx()
 
@@ -917,7 +926,7 @@ def draw_parse(stdscr, state, encounter_report):
     stdscr.box()
 
     # Draw tabs
-    draw_tabs(stdscr, "parse")
+    draw_tabs(stdscr, "parse", version)
 
     try:
         encounterscr = stdscr.derwin(int(y / 2) - 3, x - 2, 3, 1)
@@ -934,7 +943,7 @@ def draw_parse(stdscr, state, encounter_report):
         playerscr.clear()
 
         # If we're parsing encounters
-        if state.encounter_parse == "true":
+        if state.encounter_parse:
             ## If we have a report to show
             if encounter_report is not None:
                 target_name = encounter_report["target"]["name"].title()
@@ -1125,7 +1134,7 @@ def draw_parse(stdscr, state, encounter_report):
         )
 
 
-def draw_state(stdscr, state):
+def draw_state(stdscr, state, version):
     """Draw state"""
     y, x = stdscr.getmaxyx()
     center_y = int(y / 2)
@@ -1136,7 +1145,7 @@ def draw_state(stdscr, state):
     stdscr.box()
 
     # Draw tabs
-    draw_tabs(stdscr, "state")
+    draw_tabs(stdscr, "state", version)
 
     # Show some state
     try:
@@ -1153,53 +1162,68 @@ def draw_state(stdscr, state):
         # class
         stdscr.addstr(8, 5, "Class", curses.color_pair(2))
         stdscr.addstr(8, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(8, 18, state.char_class.title(), curses.color_pair(3))
+        if state.char_class is not None:
+            stdscr.addstr(8, 18, state.char_class.title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(8, 18, "Unavailable", curses.color_pair(3))
 
         # level
         stdscr.addstr(9, 5, "Level", curses.color_pair(2))
         stdscr.addstr(9, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(9, 18, state.char_level.title(), curses.color_pair(3))
+        if state.char_level is not None:
+            stdscr.addstr(9, 18, str(state.char_level).title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(9, 18, "Unavailable", curses.color_pair(3))
 
         # guild
         stdscr.addstr(10, 5, "Guild", curses.color_pair(2))
         stdscr.addstr(10, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(10, 18, state.char_guild.title(), curses.color_pair(3))
+        if state.char_guild is not None:
+            stdscr.addstr(10, 18, state.char_guild.title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(10, 18, "Unavailable", curses.color_pair(3))
 
         # bind state
         stdscr.addstr(12, 5, "Bind", curses.color_pair(2))
         stdscr.addstr(12, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(12, 18, state.bind.title(), curses.color_pair(3))
+        if state.bind is not None:
+            stdscr.addstr(12, 18, state.bind.title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(12, 18, "Unavailable", curses.color_pair(3))
 
         # encumbered state
         stdscr.addstr(13, 5, "Encumbered", curses.color_pair(2))
         stdscr.addstr(13, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(13, 18, state.encumbered.title(), curses.color_pair(3))
+        stdscr.addstr(13, 18, str(state.encumbered), curses.color_pair(3))
 
         # afk state
         stdscr.addstr(14, 5, "AFK", curses.color_pair(2))
         stdscr.addstr(14, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(14, 18, state.afk.title(), curses.color_pair(3))
+        stdscr.addstr(14, 18, str(state.afk), curses.color_pair(3))
 
         # group state
         stdscr.addstr(16, 5, "Group", curses.color_pair(2))
         stdscr.addstr(16, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(16, 18, state.group.title(), curses.color_pair(3))
+        stdscr.addstr(16, 18, str(state.group), curses.color_pair(3))
 
         # leader state
-        if state.group == "true":
+        if state.group:
             stdscr.addstr(16, 25, "Leader", curses.color_pair(2))
             stdscr.addstr(16, 32, ": ", curses.color_pair(1))
-            stdscr.addstr(16, 34, state.leader.title(), curses.color_pair(3))
+            stdscr.addstr(16, 34, str(state.leader), curses.color_pair(3))
 
         # raid state
         stdscr.addstr(17, 5, "Raid", curses.color_pair(2))
         stdscr.addstr(17, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(17, 18, state.raid.title(), curses.color_pair(3))
+        stdscr.addstr(17, 18, str(state.raid), curses.color_pair(3))
 
         # zone
         stdscr.addstr(19, 5, "Zone", curses.color_pair(2))
         stdscr.addstr(19, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(19, 18, state.zone.title(), curses.color_pair(3))
+        if state.zone is not None:
+            stdscr.addstr(19, 18, state.zone.title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(19, 18, "Unavailable", curses.color_pair(3))
 
         # loc
         stdscr.addstr(20, 5, "Location", curses.color_pair(2))
@@ -1213,27 +1237,30 @@ def draw_state(stdscr, state):
         # direction
         stdscr.addstr(21, 5, "Direction", curses.color_pair(2))
         stdscr.addstr(21, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(21, 18, state.direction.title(), curses.color_pair(3))
+        if state.direction is not None:
+            stdscr.addstr(21, 18, state.direction.title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(21, 18, "Unavailable", curses.color_pair(3))
 
         # debug state
         stdscr.addstr(23, 5, "Debug", curses.color_pair(2))
         stdscr.addstr(23, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(23, 18, state.debug.title(), curses.color_pair(3))
+        stdscr.addstr(23, 18, str(state.debug), curses.color_pair(3))
 
         # mute state
         stdscr.addstr(24, 5, "Mute", curses.color_pair(2))
         stdscr.addstr(24, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(24, 18, state.mute.title(), curses.color_pair(3))
+        stdscr.addstr(24, 18, str(state.mute), curses.color_pair(3))
 
         # enounter parse state
         stdscr.addstr(25, 5, "Encounter", curses.color_pair(2))
         stdscr.addstr(25, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(25, 18, state.encounter_parse.title(), curses.color_pair(3))
+        stdscr.addstr(25, 18, str(state.encounter_parse), curses.color_pair(3))
 
         # consider evaluation state
         stdscr.addstr(26, 5, "Consider", curses.color_pair(2))
         stdscr.addstr(26, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(26, 18, state.consider_eval.title(), curses.color_pair(3))
+        stdscr.addstr(26, 18, str(state.consider_eval), curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(
@@ -1244,7 +1271,7 @@ def draw_state(stdscr, state):
         )
 
 
-def draw_settings(stdscr, state, configs, s_setting, s_char, s_opt, s_line):
+def draw_settings(stdscr, state, configs, s_setting, s_char, s_opt, s_line, version):
     """Draw settings"""
 
     try:
@@ -1254,7 +1281,7 @@ def draw_settings(stdscr, state, configs, s_setting, s_char, s_opt, s_line):
         y, x = stdscr.getmaxyx()
 
         # Draw tabs
-        draw_tabs(stdscr, "settings")
+        draw_tabs(stdscr, "settings", version)
 
         # Char Select Window
         charscr = stdscr.derwin(int(y / 2) - 4, int(x / 2) - 4, 4, 4)
@@ -1370,48 +1397,73 @@ def draw_settings_char_select(charscr, configs, state, s_char, s_setting):
 
         # Character Select Stats
         charscr.addstr(10, first_q, "Class:", curses.color_pair(1))
+        selected_char_class = configs.characters.config["char_logs"][
+            state.chars[s_char]
+        ]["char_state"]["class"]
+        if selected_char_class is not None:
+            message = selected_char_class.title()
+        else:
+            message = "Unavailable"
         charscr.addstr(
             10,
             first_q + 7,
-            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
-                "class"
-            ].title(),
+            message,
             curses.color_pair(3),
         )
         charscr.addstr(11, first_q, "Level:", curses.color_pair(1))
+        selected_char_level = configs.characters.config["char_logs"][
+            state.chars[s_char]
+        ]["char_state"]["level"]
+        if selected_char_level is not None:
+            message = str(selected_char_level)
+        else:
+            message = "Unavailable"
         charscr.addstr(
             11,
             first_q + 7,
-            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
-                "level"
-            ],
+            message,
             curses.color_pair(3),
         )
         charscr.addstr(12, first_q, "Guild:", curses.color_pair(1))
+        selected_char_guild = configs.characters.config["char_logs"][
+            state.chars[s_char]
+        ]["char_state"]["guild"]
+        if selected_char_guild is not None:
+            message = selected_char_guild.title()
+        else:
+            message = "Unavailable"
         charscr.addstr(
             12,
             first_q + 7,
-            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
-                "guild"
-            ].title(),
+            message,
             curses.color_pair(3),
         )
         charscr.addstr(13, first_q, "Zone:", curses.color_pair(1))
+        selected_char_zone = configs.characters.config["char_logs"][
+            state.chars[s_char]
+        ]["char_state"]["zone"]
+        if selected_char_zone is not None:
+            message = selected_char_zone.title()
+        else:
+            message = "Unavailable"
         charscr.addstr(
             13,
             first_q + 7,
-            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
-                "zone"
-            ].title(),
+            message,
             curses.color_pair(3),
         )
         charscr.addstr(14, first_q, "Bind:", curses.color_pair(1))
+        selected_char_bind = configs.characters.config["char_logs"][
+            state.chars[s_char]
+        ]["char_state"]["bind"]
+        if selected_char_bind is not None:
+            message = selected_char_bind.title()
+        else:
+            message = "Unavailable"
         charscr.addstr(
             14,
             first_q + 7,
-            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
-                "bind"
-            ].title(),
+            message,
             curses.color_pair(3),
         )
 
@@ -1444,9 +1496,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(5, first_q, "Debug Mode", curses.color_pair(1))
         optscr.addstr(5, second_third, "[", curses.color_pair(3))
-        if state.debug == "true":
+        if state.debug:
             optscr.addstr(5, second_third + 1, "on", curses.color_pair(5))
-        elif state.debug == "false":
+        else:
             optscr.addstr(5, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(5, second_third + 7, "]", curses.color_pair(3))
 
@@ -1457,9 +1509,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(6, first_q, "Mute", curses.color_pair(1))
         optscr.addstr(6, second_third, "[", curses.color_pair(3))
-        if state.mute == "true":
+        if state.mute:
             optscr.addstr(6, second_third + 1, "on", curses.color_pair(5))
-        elif state.mute == "false":
+        else:
             optscr.addstr(6, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(6, second_third + 7, "]", curses.color_pair(3))
 
@@ -1472,9 +1524,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(7, first_q, "Raid Mode", curses.color_pair(1))
         optscr.addstr(7, second_third, "[", curses.color_pair(3))
-        if state.raid == "true":
+        if state.raid:
             optscr.addstr(7, second_third + 1, "on", curses.color_pair(5))
-        elif state.raid == "false":
+        else:
             optscr.addstr(7, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(7, second_third + 7, "]", curses.color_pair(3))
 
@@ -1490,9 +1542,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(8, first_q, "Auto-set Raid Mode", curses.color_pair(1))
         optscr.addstr(8, second_third, "[", curses.color_pair(3))
-        if state.auto_raid == "true":
+        if state.auto_raid:
             optscr.addstr(8, second_third + 1, "on", curses.color_pair(5))
-        elif state.auto_raid == "false":
+        else:
             optscr.addstr(8, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(8, second_third + 7, "]", curses.color_pair(3))
 
@@ -1508,9 +1560,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(9, first_q, "Encounter Parse", curses.color_pair(1))
         optscr.addstr(9, second_third, "[", curses.color_pair(3))
-        if state.encounter_parse == "true":
+        if state.encounter_parse:
             optscr.addstr(9, second_third + 1, "on", curses.color_pair(5))
-        elif state.encounter_parse == "false":
+        else:
             optscr.addstr(9, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(9, second_third + 7, "]", curses.color_pair(3))
 
@@ -1526,9 +1578,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(10, first_q, "Save Encounter Parse", curses.color_pair(1))
         optscr.addstr(10, second_third, "[", curses.color_pair(3))
-        if state.save_parse == "true":
+        if state.save_parse:
             optscr.addstr(10, second_third + 1, "on", curses.color_pair(5))
-        elif state.save_parse == "false":
+        else:
             optscr.addstr(10, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(10, second_third + 7, "]", curses.color_pair(3))
 
@@ -1546,9 +1598,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(11, first_q, "Auto-set Respawn Timer", curses.color_pair(1))
         optscr.addstr(11, second_third, "[", curses.color_pair(3))
-        if state.auto_mob_timer == "true":
+        if state.auto_mob_timer:
             optscr.addstr(11, second_third + 1, "on", curses.color_pair(5))
-        elif state.auto_mob_timer == "false":
+        else:
             optscr.addstr(11, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(11, second_third + 7, "]", curses.color_pair(3))
 
@@ -1564,9 +1616,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(12, first_q, "Consider Evaluation", curses.color_pair(1))
         optscr.addstr(12, second_third, "[", curses.color_pair(3))
-        if state.consider_eval == "true":
+        if state.consider_eval:
             optscr.addstr(12, second_third + 1, "on", curses.color_pair(5))
-        elif state.consider_eval == "false":
+        else:
             optscr.addstr(12, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(12, second_third + 7, "]", curses.color_pair(3))
 
@@ -1584,9 +1636,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(13, first_q, "Auto-Detect Character", curses.color_pair(1))
         optscr.addstr(13, second_third, "[", curses.color_pair(3))
-        if state.detect_char == "true":
+        if state.detect_char:
             optscr.addstr(13, second_third + 1, "on", curses.color_pair(5))
-        elif state.detect_char == "false":
+        else:
             optscr.addstr(13, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(13, second_third + 7, "]", curses.color_pair(3))
 
@@ -1602,9 +1654,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(14, first_q, "Self Spell Timers", curses.color_pair(1))
         optscr.addstr(14, second_third, "[", curses.color_pair(3))
-        if state.spell_timer_self == "true":
+        if state.spell_timer_self:
             optscr.addstr(14, second_third + 1, "on", curses.color_pair(5))
-        elif state.spell_timer_self == "false":
+        else:
             optscr.addstr(14, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(14, second_third + 7, "]", curses.color_pair(3))
 
@@ -1620,9 +1672,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(15, first_q, "Other Spell Timers", curses.color_pair(1))
         optscr.addstr(15, second_third, "[", curses.color_pair(3))
-        if state.spell_timer_other == "true":
+        if state.spell_timer_other:
             optscr.addstr(15, second_third + 1, "on", curses.color_pair(5))
-        elif state.spell_timer_other == "false":
+        else:
             optscr.addstr(15, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(15, second_third + 7, "]", curses.color_pair(3))
 
@@ -1638,9 +1690,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(16, first_q, "Guild Timer Filter", curses.color_pair(1))
         optscr.addstr(16, second_third, "[", curses.color_pair(3))
-        if state.spell_timer_guild_only == "true":
+        if state.spell_timer_guild_only:
             optscr.addstr(16, second_third + 1, "on", curses.color_pair(5))
-        elif state.spell_timer_guild_only == "false":
+        else:
             optscr.addstr(16, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(16, second_third + 7, "]", curses.color_pair(3))
 
@@ -1656,9 +1708,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(17, first_q, "Guess Spells", curses.color_pair(1))
         optscr.addstr(17, second_third, "[", curses.color_pair(3))
-        if state.spell_timer_guess == "true":
+        if state.spell_timer_guess:
             optscr.addstr(17, second_third + 1, "on", curses.color_pair(5))
-        elif state.spell_timer_guess == "false":
+        else:
             optscr.addstr(17, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(17, second_third + 7, "]", curses.color_pair(3))
 
@@ -1674,9 +1726,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(18, first_q, "Your Timer Filter", curses.color_pair(1))
         optscr.addstr(18, second_third, "[", curses.color_pair(3))
-        if state.spell_timer_yours_only == "true":
+        if state.spell_timer_yours_only:
             optscr.addstr(18, second_third + 1, "on", curses.color_pair(5))
-        elif state.spell_timer_yours_only == "false":
+        else:
             optscr.addstr(18, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(18, second_third + 7, "]", curses.color_pair(3))
 

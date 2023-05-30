@@ -24,7 +24,6 @@ import sys
 import time
 import re
 import os
-import pkg_resources
 
 import eqa.lib.config as eqa_config
 import eqa.lib.settings as eqa_settings
@@ -46,6 +45,7 @@ def process(
     cfg_reload,
     mute_list,
     change_char,
+    version,
 ):
     """
     Process: action_q
@@ -77,18 +77,76 @@ def process(
             configs.settings.config["settings"]["paths"]["data"], state.server
         )
 
+        # Class Mapping
+        class_mapping = {
+            "bard": "bard",
+            "minstrel": "bard",
+            "troubadour": "bard",
+            "virtuoso": "bard",
+            "cleric": "cleric",
+            "vicar": "cleric",
+            "templar": "cleric",
+            "high priest": "cleric",
+            "druid": "druid",
+            "wanderer": "druid",
+            "preserver": "druid",
+            "hierophant": "druid",
+            "enchanter": "enchanter",
+            "illusionist": "enchanter",
+            "beguiler": "enchanter",
+            "phantasmist": "enchanter",
+            "magician": "magician",
+            "elementalist": "magician",
+            "conjurer": "magician",
+            "arch mage": "magician",
+            "monk": "monk",
+            "disciple": "monk",
+            "master": "monk",
+            "grandmaster": "monk",
+            "necromancer": "necromancer",
+            "heretic": "necromancer",
+            "defiler": "necromancer",
+            "warlock": "necromancer",
+            "paladin": "paladin",
+            "cavalier": "paladin",
+            "knight": "paladin",
+            "crusader": "paladin",
+            "ranger": "ranger",
+            "pathfinder": "ranger",
+            "outrider": "ranger",
+            "warder": "ranger",
+            "rogue": "rogue",
+            "rake": "rogue",
+            "blackguard": "rogue",
+            "assassin": "rogue",
+            "shadow knight": "shadow knight",
+            "reaver": "shadow knight",
+            "revenant": "shadow knight",
+            "grave lord": "shadow knight",
+            "shaman": "shaman",
+            "mystic": "shaman",
+            "luminary": "shaman",
+            "oracle": "shaman",
+            "warrior": "warrior",
+            "champion": "warrior",
+            "myrmidon": "warrior",
+            "warlord": "warrior",
+            "wizard": "wizard",
+            "channeler": "wizard",
+            "evoker": "wizard",
+            "sorcerer": "wizard",
+        }
+
         while (
             not exit_flag.is_set()
             and not cfg_reload.is_set()
             and not change_char.is_set()
         ):
             # Sleep between empty checks
-            queue_size = action_q.qsize()
-            if queue_size < 1:
+            if action_q.qsize() < 1:
                 time.sleep(0.01)
-            else:
-                if state.debug == "true":
-                    eqa_settings.log("action_q depth: " + str(queue_size))
+            elif state.debug:
+                eqa_settings.log("action_q depth: " + str(action_q.qsize()))
 
             # Check queue for message
             if not action_q.empty():
@@ -101,8 +159,8 @@ def process(
                 check_line = new_message.payload
 
                 ## Debug: Log line match type
-                if state.debug == "true":
-                    action_matched(line_type, check_line, base_path)
+                if state.debug:
+                    action_matched(line_type, check_line, base_path, version)
                     display_q.put(
                         eqa_struct.display(
                             eqa_settings.eqa_time(),
@@ -113,34 +171,34 @@ def process(
                     )
 
                 ## Encounter Parsing
-                if state.encounter_parse == "true":
-                    if re.fullmatch(r"^combat\_.+", line_type) is not None:
+                if state.encounter_parse:
+                    if "combat_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
                                 line_type,
                                 "combat",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
-                    elif re.fullmatch(r"^you\_auto\_attack\_.+", line_type) is not None:
+                    elif "you_auto_attack_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
                                 line_type,
                                 "combat",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
-                    elif re.fullmatch(r"^mob\_slain\_.+", line_type) is not None:
+                    elif "mob_slain_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
                                 line_type,
                                 "stop",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -150,7 +208,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "spell",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -160,7 +218,7 @@ def process(
                                 line_time,
                                 line_type,
                                 "spell",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -170,17 +228,17 @@ def process(
                                 line_time,
                                 line_type,
                                 "stop",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
-                    elif re.fullmatch(r"^experience\_.+", line_type) is not None:
+                    elif "experience_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
                                 line_type,
                                 "stop",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
@@ -190,62 +248,39 @@ def process(
                                 line_time,
                                 line_type,
                                 "stop",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
-                    elif re.fullmatch(r"^spells\_.+", line_type) is not None:
+                    elif "spells_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
                                 line_type,
                                 "spell",
-                                "null",
+                                None,
                                 check_line,
                             )
                         )
                 ## Mob Timers
-                if state.auto_mob_timer == "true":
+                if state.auto_mob_timer:
                     if (
                         line_type == "experience_solo"
                         or line_type == "experience_group"
                     ):
-                        action_mob_timer(
-                            timer_q,
-                            configs.zones.config["zones"][str(state.zone)]["timer"],
-                            state.auto_mob_timer_delay,
-                            state.zone,
-                        )
-
-                ## TODO: Spell Casting Item Buffer
-                # Interesting note, these only show up for the active player for any non-instant cast item.  Other plays get the normal casting message.
-                # if line_type == "spells_cast_item_you":
-                #    action_spell_casting(
-                #        check_line, line_type, line_time, spell_casting_buffer_other, spell_casting_buffer_you
-                #    )
-
-                ## Spell Casting Buffer Other
-                if re.fullmatch(r"^spells\_cast\_other", line_type) is not None:
-                    action_spell_casting_other(
-                        check_line,
-                        line_type,
-                        line_time,
-                        spell_casting_buffer_other,
-                    )
-                ## Spell Casting Buffer You
-                if re.fullmatch(r"^spells\_cast\_you", line_type) is not None:
-                    spell_casting_buffer_you = action_spell_casting_you(
-                        check_line,
-                        line_type,
-                        line_time,
-                        spell_casting_buffer_you,
-                    )
+                        if state.zone is not None:
+                            action_mob_timer(
+                                timer_q,
+                                configs.zones.config["zones"][state.zone]["timer"],
+                                state.auto_mob_timer_delay,
+                                state.zone,
+                            )
 
                 ## Self Spell Timers
                 if (
-                    state.spell_timer_self == "true"
-                    or state.spell_timer_guild_only == "true"
-                    or state.spell_timer_yours_only == "true"
+                    state.spell_timer_self
+                    or state.spell_timer_guild_only
+                    or state.spell_timer_yours_only
                 ):
                     if re.fullmatch(r"^spell\_.+\_you_on$", line_type) is not None:
                         action_spell_timer(
@@ -268,9 +303,9 @@ def process(
 
                 ## Other Spell Timers
                 if (
-                    state.spell_timer_other == "true"
-                    or state.spell_timer_guild_only == "true"
-                    or state.spell_timer_guild_only == "true"
+                    state.spell_timer_other
+                    or state.spell_timer_guild_only
+                    or state.spell_timer_yours_only
                 ):
                     if re.fullmatch(r"^spell\_.+\_other_on$", line_type) is not None:
                         action_spell_timer(
@@ -288,10 +323,39 @@ def process(
                         )
 
                 ## Consider Evaluation
-                if state.consider_eval == "true" and line_type == "consider":
-                    action_consider_evaluation(sound_q, check_line)
+                if state.consider_eval:
+                    if line_type == "consider":
+                        action_consider_evaluation(sound_q, check_line)
 
-                if line_type == "zoning":
+                ## Always on line_type specific actions
+                if line_type == "who_player":
+                    action_who_player(
+                        configs, system_q, state, check_line, player_list, class_mapping
+                    )
+                ### Spell Casting Buffer Other
+                elif line_type == "spells_cast_other":
+                    action_spell_casting_other(
+                        check_line,
+                        line_type,
+                        line_time,
+                        spell_casting_buffer_other,
+                    )
+                ### Spell Casting Buffer You
+                elif line_type == "spells_cast_you":
+                    spell_casting_buffer_you = action_spell_casting_you(
+                        check_line,
+                        line_type,
+                        line_time,
+                        spell_casting_buffer_you,
+                    )
+                ### TODO: Spell Casting Item Buffer
+                # Interesting note, these only show up for the active player for any non-instant cast item.  Other plays get the normal casting message.
+                # elif line_type == "spells_cast_item_you":
+                #    action_spell_casting(
+                #        check_line, line_type, line_time, spell_casting_buffer_other, spell_casting_buffer_you
+                #    )
+                ### Spell timer zone drift
+                elif line_type == "zoning":
                     timer_q.put(
                         eqa_struct.timer(
                             datetime.datetime.now(),
@@ -300,9 +364,8 @@ def process(
                             None,
                         )
                     )
-
-                ## State Building Line Types
-                if line_type == "location":
+                ### State building line types
+                elif line_type == "location":
                     action_location(system_q, check_line)
                 elif line_type == "direction":
                     action_direction(system_q, check_line)
@@ -332,8 +395,7 @@ def process(
                     action_you_afk_off(system_q)
                 elif line_type == "you_afk_on":
                     action_you_afk_on(system_q)
-                elif line_type == "who_player":
-                    action_who_player(configs, system_q, state, check_line, player_list)
+                ### Parser say commands
                 elif line_type == "say_you":
                     if (
                         re.fullmatch(r"^You say, \'parser .+\'$", check_line)
@@ -350,6 +412,7 @@ def process(
                             state,
                             player_list,
                         )
+                ### You new zone
                 elif line_type == "you_new_zone":
                     action_you_new_zone(
                         base_path,
@@ -379,7 +442,7 @@ def process(
                         )
 
                     ### Handle Context Reactions
-                    elif reaction != "false":
+                    elif reaction != False:
                         reaction_context(
                             line_type,
                             check_line,
@@ -404,7 +467,7 @@ def process(
                         )
 
                     ### Handle context reaction for all lines
-                    elif configs.alerts.config["line"]["all"]["reaction"] != "false":
+                    elif configs.alerts.config["line"]["all"]["reaction"] != False:
                         reaction_context(
                             "all",
                             check_line,
@@ -433,15 +496,15 @@ def process(
                             eqa_settings.eqa_time(),
                             "system",
                             "reload_config",
-                            "null",
-                            "null",
+                            None,
+                            None,
                         )
                     )
 
                 action_q.task_done()
 
         # Save any new player data collected to file
-        if configs.settings.config["settings"]["player_data"]["persist"] == "true":
+        if configs.settings.config["settings"]["player_data"]["persist"]:
             eqa_config.update_players_file(
                 configs.settings.config["settings"]["paths"]["data"],
                 state.server,
@@ -595,12 +658,12 @@ def action_spell_remove_timer(state, timer_q, spell_lines, line_type):
                         eqa_struct.spell_timer(
                             (datetime.datetime.now()),
                             "remove_spell_timer",
-                            "null",
+                            None,
                             state.char.lower(),
                             spell,
-                            "null",
-                            "null",
-                            "null",
+                            None,
+                            None,
+                            None,
                         )
                     )
         else:
@@ -610,12 +673,12 @@ def action_spell_remove_timer(state, timer_q, spell_lines, line_type):
                 eqa_struct.spell_timer(
                     (datetime.datetime.now()),
                     "remove_spell_timer",
-                    "null",
+                    None,
                     state.char.lower(),
                     spell,
-                    "null",
-                    "null",
-                    "null",
+                    None,
+                    None,
+                    None,
                 )
             )
 
@@ -673,12 +736,12 @@ def action_spell_timer(
 
         # If this is a spell cast line output shared by more than one spell
         if is_spell_line:
-            if state.debug == "true":
+            if state.debug:
                 eqa_settings.log("spell line found: " + line_type)
             # Determine possible spells
             if line_type in spell_lines["spell_lines"].keys():
                 possible_spells = spell_lines["spell_lines"][line_type].keys()
-                if state.debug == "true":
+                if state.debug:
                     eqa_settings.log("possible spells: " + str(possible_spells))
                 check_for_spells = []
                 # Retrieve casting requirements for each possible spell
@@ -697,7 +760,7 @@ def action_spell_timer(
                             )
 
                 # First check if the player could have cast this
-                if spell_casting_buffer_you:
+                if spell_casting_buffer_you and state.char_level is not None:
                     # If the most recent player cast spell is in the possible spell list
                     if (
                         spell_casting_buffer_you["spell"]
@@ -705,7 +768,7 @@ def action_spell_timer(
                         and spell_casting_buffer_you["spell"]
                         in spell_casters["spells"].keys()
                     ):
-                        if state.debug == "true":
+                        if state.debug:
                             eqa_settings.log(
                                 "Checking if cast for: "
                                 + spell_casting_buffer_you["spell"]
@@ -776,73 +839,81 @@ def action_spell_timer(
                                     player_class = player_list[
                                         recent_cast_event["caster"]
                                     ]["class"]
-                                    # If the player class can cast it
-                                    if (
-                                        player_class
-                                        in spell_casters["spells"][
-                                            spell_caster["spell"]
-                                        ]["classes"].keys()
-                                    ):
-                                        player_level = int(
-                                            player_list[recent_cast_event["caster"]][
-                                                "level"
-                                            ]
-                                        )
-                                        # If that players level can cast it
+                                    player_level = player_list[
+                                        recent_cast_event["caster"]
+                                    ]["level"]
+                                    # If we know this players class and level
+                                    if player_class is not None and player_level > 0:
+                                        # If the player class can cast this spell
                                         if (
-                                            int(
-                                                spell_casters["spells"][
-                                                    spell_caster["spell"]
-                                                ]["classes"][player_class]
-                                            )
-                                            <= player_level
+                                            player_class
+                                            in spell_casters["spells"][
+                                                spell_caster["spell"]
+                                            ]["classes"].keys()
                                         ):
-                                            if not find_time:
-                                                identified_spell_caster = (
-                                                    recent_cast_event["caster"]
+                                            # If that players level can cast this spell
+                                            if (
+                                                int(
+                                                    spell_casters["spells"][
+                                                        spell_caster["spell"]
+                                                    ]["classes"][player_class]
                                                 )
-                                                identified_spell_level = player_list[
-                                                    identified_spell_caster
-                                                ]["level"]
-                                                identified_spell = spell_caster["spell"]
-                                                identified_spell_target = target
-                                                find_time = True
-                                            # Favor matched spell with highest level casting requirements
-                                            elif int(
-                                                spell_casters["spells"][
-                                                    identified_spell
-                                                ]["classes"][
-                                                    player_list[
-                                                        identified_spell_caster
-                                                    ]["class"]
-                                                ]
-                                            ) < int(
-                                                spell_casters["spells"][
-                                                    identified_spell
-                                                ]["classes"][
-                                                    player_list[
-                                                        recent_cast_event["caster"]
-                                                    ]["class"]
-                                                ]
+                                                <= player_level
                                             ):
-                                                identified_spell_caster = (
-                                                    recent_cast_event["caster"]
-                                                )
-                                                identified_spell_level = player_list[
-                                                    identified_spell_caster
-                                                ]["level"]
-                                                identified_spell = spell_caster["spell"]
-                                                identified_spell_target = target
+                                                if not find_time:
+                                                    identified_spell_caster = (
+                                                        recent_cast_event["caster"]
+                                                    )
+                                                    identified_spell_level = (
+                                                        player_list[
+                                                            identified_spell_caster
+                                                        ]["level"]
+                                                    )
+                                                    identified_spell = spell_caster[
+                                                        "spell"
+                                                    ]
+                                                    identified_spell_target = target
+                                                    find_time = True
+                                                # Favor matched spell with highest level casting requirements
+                                                elif int(
+                                                    spell_casters["spells"][
+                                                        identified_spell
+                                                    ]["classes"][
+                                                        player_list[
+                                                            identified_spell_caster
+                                                        ]["class"]
+                                                    ]
+                                                ) < int(
+                                                    spell_casters["spells"][
+                                                        identified_spell
+                                                    ]["classes"][
+                                                        player_list[
+                                                            recent_cast_event["caster"]
+                                                        ]["class"]
+                                                    ]
+                                                ):
+                                                    identified_spell_caster = (
+                                                        recent_cast_event["caster"]
+                                                    )
+                                                    identified_spell_level = (
+                                                        player_list[
+                                                            identified_spell_caster
+                                                        ]["level"]
+                                                    )
+                                                    identified_spell = spell_caster[
+                                                        "spell"
+                                                    ]
+                                                    identified_spell_target = target
                                 # TODO: Maybe add an option to assume your player level if player data is not found and your level is sufficient to cast the identified spell?
 
         # We know the spell which landed
         else:
-            if state.debug == "true":
+            if state.debug:
                 eqa_settings.log("Checking for spell: " + spell)
             # If we have spell_caster info on this spell
             if spell in spell_casters["spells"].keys():
                 # Check if player has cast anything
-                if spell_casting_buffer_you:
+                if spell_casting_buffer_you and state.char_level is not None:
                     # If the spell cast by the player is in the spell casters file
                     if (
                         spell_casting_buffer_you["spell"]
@@ -875,7 +946,7 @@ def action_spell_timer(
                         # This spell has no listed classes listed and can be an item cast and you cast it
                         elif (
                             not spell_casters["spells"][spell]["classes"]
-                            and spell_casters["spells"][spell]["item"] == "true"
+                            and spell_casters["spells"][spell]["item"]
                         ):
                             identified_spell_caster = state.char.lower()
                             identified_spell_level = state.char_level
@@ -886,10 +957,10 @@ def action_spell_timer(
                         # elif (
                         #    state.char_class.lower()
                         #    not in spell_casters["spells"][spell]["classes"].keys()
-                        #    and spell_casters["spells"][spell]["item"] == "true"
+                        #    and spell_casters["spells"][spell]["item"]
                         # ):
                         #    # TODO: This is where item cast durations would be checked
-                        #    if state.spell_timer_guess == "true":
+                        #    if state.spell_timer_guess:
                         #        identified_spell_caster = state.char.lower()
                         #        identified_spell_level = state.char_level
                         #        identified_spell = spell_casting_buffer_you["spell"]
@@ -899,7 +970,7 @@ def action_spell_timer(
                 # Check for matching spell cast event
                 if not find_time:
                     for recent_cast_event in spell_casting_buffer_other:
-                        if state.debug == "true":
+                        if state.debug:
                             eqa_settings.log("Checking " + recent_cast_event["caster"])
                         if (
                             int(
@@ -917,7 +988,7 @@ def action_spell_timer(
                             )
                             == 0
                         ):
-                            if state.debug == "true":
+                            if state.debug:
                                 eqa_settings.log(
                                     "Checking player info for "
                                     + recent_cast_event["caster"]
@@ -927,40 +998,46 @@ def action_spell_timer(
                                 player_class = player_list[recent_cast_event["caster"]][
                                     "class"
                                 ]
-                                if (
-                                    player_class
-                                    in spell_casters["spells"][spell]["classes"].keys()
-                                ):
-                                    player_level = int(
-                                        player_list[recent_cast_event["caster"]][
-                                            "level"
-                                        ]
-                                    )
+                                player_level = player_list[recent_cast_event["caster"]][
+                                    "level"
+                                ]
+                                if player_class is not None and player_level > 0:
                                     if (
-                                        int(
-                                            spell_casters["spells"][spell]["classes"][
-                                                player_class
+                                        player_class
+                                        in spell_casters["spells"][spell][
+                                            "classes"
+                                        ].keys()
+                                    ):
+                                        player_level = int(
+                                            player_list[recent_cast_event["caster"]][
+                                                "level"
                                             ]
                                         )
-                                        <= player_level
-                                    ):
-                                        identified_spell_caster = recent_cast_event[
-                                            "caster"
-                                        ]
-                                        identified_spell_level = player_list[
-                                            identified_spell_caster
-                                        ]["level"]
-                                        identified_spell = spell
-                                        identified_spell_target = target
-                                        find_time = True
-                                        if state.debug == "true":
-                                            eqa_settings.log(
-                                                "Found spell cast by "
-                                                + identified_spell_caster
+                                        if (
+                                            int(
+                                                spell_casters["spells"][spell][
+                                                    "classes"
+                                                ][player_class]
                                             )
+                                            <= player_level
+                                        ):
+                                            identified_spell_caster = recent_cast_event[
+                                                "caster"
+                                            ]
+                                            identified_spell_level = player_list[
+                                                identified_spell_caster
+                                            ]["level"]
+                                            identified_spell = spell
+                                            identified_spell_target = target
+                                            find_time = True
+                                            if state.debug:
+                                                eqa_settings.log(
+                                                    "Found spell cast by "
+                                                    + identified_spell_caster
+                                                )
                             # Time to guess the spell level
-                            elif state.spell_timer_guess == "true":
-                                if state.debug == "true":
+                            elif state.spell_timer_guess:
+                                if state.debug:
                                     eqa_settings.log("Into spell guessing territory")
                                 player_level_could_cast = False
                                 # If a player could cast this
@@ -969,12 +1046,13 @@ def action_spell_timer(
                                     for caster_class in spell_casters["spells"][spell][
                                         "classes"
                                     ]:
-                                        if int(state.char_level) >= int(
-                                            spell_casters["spells"][spell]["classes"][
-                                                caster_class
-                                            ]
-                                        ):
-                                            player_level_could_cast = True
+                                        if state.char_level is not None:
+                                            if state.char_level >= int(
+                                                spell_casters["spells"][spell][
+                                                    "classes"
+                                                ][caster_class]
+                                            ):
+                                                player_level_could_cast = True
 
                                     if player_level_could_cast:
                                         identified_spell_level = state.char_level
@@ -989,7 +1067,10 @@ def action_spell_timer(
                                     find_time = True
 
                                 # If this is a known npc only spell, just set to current player level
-                                elif spell_casters["spells"][spell]["npc"] == "true":
+                                elif (
+                                    spell_casters["spells"][spell]["npc"]
+                                    and state.char_level is not None
+                                ):
                                     identified_spell_caster = recent_cast_event[
                                         "caster"
                                     ]
@@ -1001,7 +1082,7 @@ def action_spell_timer(
         if find_time:
             make_timer = True
             # If we only want self or guild spell timers
-            if state.spell_timer_guild_only == "true":
+            if state.spell_timer_guild_only and state.char_guild is not None:
                 # If this was cast by myself or another player
                 if identified_spell_caster in player_list.keys():
                     # If a guildie didn't cast it
@@ -1020,7 +1101,7 @@ def action_spell_timer(
                 else:
                     make_timer = False
 
-            if state.spell_timer_yours_only == "true":
+            if state.spell_timer_yours_only:
                 if identified_spell_caster != state.char.lower():
                     make_timer = False
 
@@ -1030,20 +1111,20 @@ def action_spell_timer(
                 identified_spell_level,
                 spell_timers["spells"][identified_spell]["duration"],
             )
-            if int(spell_duration) <= int(state.spell_timer_delay):
-                if state.debug == "true":
+            if spell_duration <= state.spell_timer_delay:
+                if state.debug:
                     eqa_settings.log("Spell duration too short for timer")
                 make_timer = False
 
             # Set timer message
             if make_timer:
                 if identified_spell_target == state.char.lower():
-                    if int(state.spell_timer_delay) <= 0:
+                    if state.spell_timer_delay <= 0:
                         message = identified_spell.replace("_", " ") + " has worn off"
                     else:
                         message = identified_spell.replace("_", " ") + " is wearing off"
                 else:
-                    if int(state.spell_timer_delay) <= 0:
+                    if state.spell_timer_delay <= 0:
                         message = (
                             identified_spell.replace("_", " ")
                             + " on "
@@ -1060,8 +1141,8 @@ def action_spell_timer(
 
                 spell_timer_expire = (
                     datetime.datetime.now()
-                    + datetime.timedelta(seconds=int(spell_duration))
-                    - datetime.timedelta(seconds=int(state.spell_timer_delay))
+                    + datetime.timedelta(seconds=spell_duration)
+                    - datetime.timedelta(seconds=state.spell_timer_delay)
                 )
 
                 # Submit timer
@@ -1079,7 +1160,7 @@ def action_spell_timer(
                 )
 
                 # Debug logging
-                if state.debug == "true":
+                if state.debug:
                     eqa_settings.log(
                         "Spell timer created for "
                         + identified_spell
@@ -1104,10 +1185,10 @@ def action_spell_timer(
 def action_mob_timer(timer_q, timer_seconds, auto_mob_timer_delay, zone):
     """Set timer for mob spawn using default zone timer value"""
 
-    timer_seconds = str(int(timer_seconds) - int(auto_mob_timer_delay))
-    if int(timer_seconds) < 0:
-        timer_seconds = "0"
-    if int(auto_mob_timer_delay) <= 0:
+    timer_seconds = timer_seconds - auto_mob_timer_delay
+    if timer_seconds < 0:
+        timer_seconds = 0
+    if auto_mob_timer_delay <= 0:
         pop_message = "Pop " + str(zone)
     else:
         pop_message = (
@@ -1115,7 +1196,7 @@ def action_mob_timer(timer_q, timer_seconds, auto_mob_timer_delay, zone):
         )
     timer_q.put(
         eqa_struct.timer(
-            (datetime.datetime.now() + datetime.timedelta(seconds=int(timer_seconds))),
+            (datetime.datetime.now() + datetime.timedelta(seconds=timer_seconds)),
             "timer",
             str(timer_seconds),
             pop_message,
@@ -1130,7 +1211,7 @@ def send_alerts(line_type, check_line, configs, sound_q, display_q, mute_list):
         # Check Sender
         sender = re.findall(r"^([\w\-]+)", check_line)
 
-        if configs.alerts.config["line"][line_type]["sound"] == "true":
+        if configs.alerts.config["line"][line_type]["sound"] == True:
             if (
                 not (line_type, sender[0].lower()) in mute_list
                 and not (line_type, "all") in mute_list
@@ -1154,7 +1235,7 @@ def send_alerts(line_type, check_line, configs, sound_q, display_q, mute_list):
                     )
                 )
 
-        elif configs.alerts.config["line"][line_type]["sound"] != "false":
+        elif configs.alerts.config["line"][line_type]["sound"] != False:
             if (
                 not (line_type, sender[0].lower()) in mute_list
                 and not (line_type, "all") in mute_list
@@ -1196,7 +1277,7 @@ def send_keyphrase_alerts(
         # Check Sender
         sender = re.findall(r"^([\w\-]+)", check_line)
 
-        if configs.alerts.config["line"][line_type]["sound"] == "true":
+        if configs.alerts.config["line"][line_type]["sound"] == True:
             if keyphrase == "assist" or keyphrase == "rampage" or keyphrase == "spot":
                 payload = keyphrase + " on " + sender[0]
             else:
@@ -1205,9 +1286,9 @@ def send_keyphrase_alerts(
                 not (line_type, sender[0].lower()) in mute_list
                 and not (line_type, "all") in mute_list
             ):
-                if context == "true":
+                if context == True:
                     sound_q.put(eqa_struct.sound("speak", check_line))
-                elif context != "false":
+                elif context != False:
                     sound_q.put(eqa_struct.sound("speak", payload))
                 display_q.put(
                     eqa_struct.display(
@@ -1227,7 +1308,7 @@ def send_keyphrase_alerts(
                     )
                 )
 
-        elif configs.alerts.config["line"][line_type]["sound"] != "false":
+        elif configs.alerts.config["line"][line_type]["sound"] != False:
             if keyphrase == "assist" or keyphrase == "rampage" or keyphrase == "spot":
                 payload = keyphrase + " on " + sender[0]
             else:
@@ -1236,9 +1317,9 @@ def send_keyphrase_alerts(
                 not (line_type, sender[0].lower()) in mute_list
                 and not (line_type, "all") in mute_list
             ):
-                if context == "true":
+                if context == True:
                     sound_q.put(eqa_struct.sound("alert", line_type))
-                elif context != "false":
+                elif context != False:
                     sound_q.put(eqa_struct.sound("speak", payload))
                 display_q.put(
                     eqa_struct.display(
@@ -1285,9 +1366,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is solo_only and you are solo and not in a raid
-        elif (
-            reaction == "solo_only" and state.group == "false" and state.raid == "false"
-        ):
+        elif reaction == "solo_only" and not state.group and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1298,7 +1377,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is solo and you are solo and not in a raid
-        elif reaction == "solo" and state.group == "false" and state.raid == "false":
+        elif reaction == "solo" and not state.group and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1309,7 +1388,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is solo and you are grouped but not in a raid
-        elif reaction == "solo" and state.group == "true" and state.raid == "false":
+        elif reaction == "solo" and state.group and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1320,7 +1399,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is solo_group_only and you are not in a raid
-        elif reaction == "solo_group_only" and state.raid == "false":
+        elif reaction == "solo_group_only" and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1331,9 +1410,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction group_only and you are grouped but not in a raid
-        elif (
-            reaction == "group_only" and state.group == "true" and state.raid == "false"
-        ):
+        elif reaction == "group_only" and state.group and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1344,7 +1421,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is group and you are grouped but not in a raid
-        elif reaction == "group" and state.group == "true" and state.raid == "false":
+        elif reaction == "group" and state.group and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1355,7 +1432,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is solo regardless of group state and in a raid
-        elif reaction == "solo" and state.raid == "true":
+        elif reaction == "solo" and state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1366,7 +1443,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is group regardless of group state and in a raid
-        elif reaction == "group" and state.raid == "true":
+        elif reaction == "group" and state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1377,7 +1454,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is raid regardless of group state and in a raid
-        elif reaction == "raid" and state.raid == "true":
+        elif reaction == "raid" and state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1388,7 +1465,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is afk and you are afk
-        elif reaction == "afk" and state.afk == "true":
+        elif reaction == "afk" and state.afk:
             send_alerts(
                 line_type,
                 check_line,
@@ -1418,7 +1495,7 @@ def reaction_alert(
         ].items():
             # If the alert value is true
             if str(keyphrase).lower() in check_line.lower():
-                if value == "true":
+                if value == True:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1430,11 +1507,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is solo_only
-                elif (
-                    value == "solo_only"
-                    and state.group == "false"
-                    and state.raid == "false"
-                ):
+                elif value == "solo_only" and not state.group and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1446,9 +1519,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is solo
-                elif (
-                    value == "solo" and state.group == "false" and state.raid == "false"
-                ):
+                elif value == "solo" and not state.group and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1460,9 +1531,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is group
-                elif (
-                    value == "group" and state.group == "true" and state.raid == "false"
-                ):
+                elif value == "group" and state.group and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1474,11 +1543,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is group_only
-                elif (
-                    value == "group_only"
-                    and state.group == "true"
-                    and state.raid == "false"
-                ):
+                elif value == "group_only" and state.group and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1490,9 +1555,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is solo, but you are grouped
-                elif (
-                    value == "solo" and state.group == "true" and state.raid == "false"
-                ):
+                elif value == "solo" and state.group and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1504,7 +1567,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is solo_group_only
-                elif value == "solo_group_only" and state.raid == "false":
+                elif value == "solo_group_only" and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1516,7 +1579,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is raid
-                elif value == "raid" and state.raid == "true":
+                elif value == "raid" and state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1528,7 +1591,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is group, but you are in a raid
-                elif value == "group" and state.raid == "true":
+                elif value == "group" and state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1540,7 +1603,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is solo, but you are in a raid
-                elif value == "solo" and state.raid == "true":
+                elif value == "solo" and state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1603,8 +1666,8 @@ def action_motd_welcome(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "group",
-                "null",
-                "false",
+                None,
+                False,
             )
         )
         # Remove group leader
@@ -1613,8 +1676,8 @@ def action_motd_welcome(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
-                "false",
+                None,
+                False,
             )
         )
         # Remove AFK
@@ -1623,8 +1686,8 @@ def action_motd_welcome(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "afk",
-                "null",
-                "false",
+                None,
+                False,
             )
         )
 
@@ -1646,8 +1709,8 @@ def action_group_created(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "group",
-                "null",
-                "true",
+                None,
+                True,
             )
         )
         system_q.put(
@@ -1655,7 +1718,7 @@ def action_group_created(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 "you",
             )
         )
@@ -1678,8 +1741,8 @@ def action_group_removed(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "group",
-                "null",
-                "false",
+                None,
+                False,
             )
         )
         system_q.put(
@@ -1687,8 +1750,8 @@ def action_group_removed(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
-                "false",
+                None,
+                False,
             )
         )
 
@@ -1710,8 +1773,8 @@ def action_group_disbanded(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "group",
-                "null",
-                "false",
+                None,
+                False,
             )
         )
         system_q.put(
@@ -1719,8 +1782,8 @@ def action_group_disbanded(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
-                "false",
+                None,
+                False,
             )
         )
 
@@ -1743,8 +1806,8 @@ def action_group_join_notify(system_q, check_line):
                 eqa_settings.eqa_time(),
                 "system",
                 "group",
-                "null",
-                "true",
+                None,
+                True,
             )
         )
         system_q.put(
@@ -1752,7 +1815,7 @@ def action_group_join_notify(system_q, check_line):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 leader[0],
             )
         )
@@ -1775,7 +1838,7 @@ def action_group_leader_you(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 "you",
             )
         )
@@ -1799,7 +1862,7 @@ def action_group_leader_other(system_q, check_line):
                 eqa_settings.eqa_time(),
                 "system",
                 "leader",
-                "null",
+                None,
                 leader[0].lower(),
             )
         )
@@ -1822,8 +1885,8 @@ def action_encumbered_off(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "encumbered",
-                "null",
-                "false",
+                None,
+                False,
             )
         )
 
@@ -1845,8 +1908,8 @@ def action_encumbered_on(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "encumbered",
-                "null",
-                "true",
+                None,
+                True,
             )
         )
 
@@ -1872,7 +1935,7 @@ def action_direction(system_q, check_line):
                 eqa_settings.eqa_time(),
                 "system",
                 "direction",
-                "null",
+                None,
                 direction[0],
             )
         )
@@ -1893,7 +1956,7 @@ def action_location(system_q, check_line):
         y, x, z = re.findall("[-]?(?:\d*\.)?\d+", check_line)
         loc = [y, x, z]
         system_q.put(
-            eqa_struct.message(eqa_settings.eqa_time(), "system", "loc", "null", loc)
+            eqa_struct.message(eqa_settings.eqa_time(), "system", "loc", None, loc)
         )
 
     except Exception as e:
@@ -2049,28 +2112,28 @@ def action_you_say_commands(
                         "system",
                         "raid",
                         "toggle",
-                        "null",
+                        None,
                     )
                 )
             elif args[0] == "consider":
-                if state.consider_eval == "true":
+                if state.consider_eval:
                     system_q.put(
                         eqa_struct.message(
                             eqa_settings.eqa_time(),
                             "system",
                             "consider",
                             "eval",
-                            "false",
+                            False,
                         )
                     )
-                elif state.consider_eval == "false":
+                else:
                     system_q.put(
                         eqa_struct.message(
                             eqa_settings.eqa_time(),
                             "system",
                             "consider",
                             "eval",
-                            "true",
+                            True,
                         )
                     )
             elif args[0] == "debug":
@@ -2080,7 +2143,7 @@ def action_you_say_commands(
                         "system",
                         "debug",
                         "toggle",
-                        "null",
+                        None,
                     )
                 )
             elif args[0] == "reload":
@@ -2089,8 +2152,8 @@ def action_you_say_commands(
                         eqa_settings.eqa_time(),
                         "system",
                         "reload_config",
-                        "null",
-                        "null",
+                        None,
+                        None,
                     )
                 )
             elif args[0] == "encounter":
@@ -2101,7 +2164,7 @@ def action_you_say_commands(
                             "system",
                             "encounter",
                             "toggle",
-                            "null",
+                            None,
                         )
                     )
                 elif args[1] == "clear":
@@ -2111,7 +2174,7 @@ def action_you_say_commands(
                             "system",
                             "encounter",
                             "clear",
-                            "null",
+                            None,
                         )
                     )
                 elif args[1] == "end":
@@ -2121,7 +2184,7 @@ def action_you_say_commands(
                             "system",
                             "encounter",
                             "end",
-                            "null",
+                            None,
                         )
                     )
                 elif args[1] == "start":
@@ -2131,7 +2194,7 @@ def action_you_say_commands(
                             "system",
                             "encounter",
                             "start",
-                            "null",
+                            None,
                         )
                     )
             elif args[0] == "what":
@@ -2146,44 +2209,44 @@ def action_you_say_commands(
                             + " as "
                             + state.char
                             + " level "
-                            + state.char_level
+                            + str(state.char_level)
                             + " "
-                            + state.char_class
+                            + str(state.char_class)
                             + " of "
-                            + state.char_guild
+                            + str(state.char_guild)
                             + ". Bound in "
-                            + state.bind
+                            + str(state.bind)
                             + " and currently in "
-                            + state.zone
+                            + str(state.zone)
                             + " facing "
-                            + state.direction
+                            + str(state.direction)
                             + " around "
                             + str(state.loc)
                             + ". Group state is "
-                            + state.group
+                            + str(state.group)
                             + ". Leader state is "
-                            + state.leader
+                            + str(state.leader)
                             + ". Raid state is "
-                            + state.raid
+                            + str(state.raid)
                             + ". AFK state is "
-                            + state.afk
+                            + str(state.afk)
                             + ". Encumbered state is "
-                            + state.encumbered
+                            + str(state.encumbered)
                             + ". Debug state is "
-                            + state.debug
+                            + str(state.debug)
                             + ". Encounter parser state is "
-                            + state.encounter_parse,
+                            + str(state.encounter_parse),
                         )
                     )
                 elif args[1] == "context":
-                    if state.afk == "true":
-                        context = "afk"
-                    elif state.group == "false" and state.raid == "false":
+                    if not state.group and not state.raid:
                         context = "solo"
-                    elif state.group == "true" and state.raid == "false":
+                    elif state.group and not state.raid:
                         context = "group"
-                    elif state.raid == "raid":
+                    elif state.raid:
                         context = "raid"
+                    elif state.afk:
+                        context = "afk"
                     sound_q.put(
                         eqa_struct.sound("You are in a " + context + " context.")
                     )
@@ -2217,7 +2280,7 @@ def action_you_say_commands(
                         eqa_struct.sound(
                             "speak",
                             "I think you're still in "
-                            + state.zone
+                            + str(state.zone)
                             + ", but considering the circumstances you could be anywhere.",
                         )
                     )
@@ -2231,25 +2294,25 @@ def action_you_say_commands(
                     )
                 elif args[1] in player_list.keys():
                     if (
-                        player_list[args[1]]["class"] == "unknown"
-                        and player_list[args[1]]["guild"] == "none"
-                        and player_list[args[1]]["level"] == "0"
+                        player_list[args[1]]["class"] == None
+                        and player_list[args[1]]["guild"] == None
+                        and player_list[args[1]]["level"] == 0
                     ):
                         message = "I only know their name"
                     else:
                         message = args[1] + " is "
-                        if int(player_list[args[1]]["level"]) > 0:
+                        if player_list[args[1]]["level"] > 0:
                             message = (
                                 message + " a level " + player_list[args[1]]["level"]
                             )
-                        if not player_list[args[1]]["class"] == "unknown":
+                        if player_list[args[1]]["class"] is not None:
                             message = message + " " + player_list[args[1]]["class"]
                         else:
                             message = message + " character"
-                        if not player_list[args[1]]["guild"] == "none":
+                        if player_list[args[1]]["guild"] is not None:
                             message = message + " in " + player_list[args[1]]["guild"]
                     sound_q.put(eqa_struct.sound("speak", message))
-                elif not args[1] in player_list.keys():
+                else:
                     sound_q.put(eqa_struct.sound("speak", "I'm not sure who that is"))
             elif args[0] == "why":
                 if len(args) == 1:
@@ -2257,9 +2320,9 @@ def action_you_say_commands(
                         eqa_struct.sound(
                             "speak",
                             "Did you choose the "
-                            + state.char_class
+                            + str(state.char_class)
                             + " life, or did the "
-                            + state.char_class
+                            + str(state.char_class)
                             + " life choose you?",
                         )
                     )
@@ -2336,7 +2399,7 @@ def action_you_say_commands(
                                 "system",
                                 "timer",
                                 "mob",
-                                "true",
+                                True,
                             )
                         )
                     else:
@@ -2354,7 +2417,7 @@ def action_you_say_commands(
                                 "system",
                                 "timer",
                                 "mob",
-                                "false",
+                                False,
                             )
                         )
             else:
@@ -2386,8 +2449,8 @@ def action_you_afk_off(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "afk",
-                "null",
-                "false",
+                None,
+                False,
             )
         )
 
@@ -2409,8 +2472,8 @@ def action_you_afk_on(system_q):
                 eqa_settings.eqa_time(),
                 "system",
                 "afk",
-                "null",
-                "true",
+                None,
+                True,
             )
         )
 
@@ -2432,7 +2495,7 @@ def action_spell_bind_you(system_q, state):
                 eqa_settings.eqa_time(),
                 "system",
                 "bind",
-                "null",
+                None,
                 str(state.zone),
             )
         )
@@ -2458,7 +2521,7 @@ def action_you_char_bound(system_q, check_line):
                 eqa_settings.eqa_time(),
                 "system",
                 "bind",
-                "null",
+                None,
                 bound_zone[0],
             )
         )
@@ -2472,162 +2535,82 @@ def action_you_char_bound(system_q, check_line):
         )
 
 
-def action_who_player(configs, system_q, state, line, player_list):
-    """Perform actions for who_player line types"""
+def action_who_player(configs, system_q, state, line, player_list, class_mapping):
+    """Parse who_player to determine name, level, class, and guild to update players_list"""
 
     try:
-        if state.char.lower() in line.lower():
-            if re.findall(r"\d+ [a-zA-Z\s]+", line) is not None:
-                char_level, char_class = re.findall(r"\d+ [a-zA-Z\s]+", line)[0].split(
-                    " ", 1
-                )
-                system_q.put(
-                    eqa_struct.message(
-                        eqa_settings.eqa_time(),
-                        "system",
-                        "level",
-                        "null",
-                        char_level,
-                    )
-                )
-                system_q.put(
-                    eqa_struct.message(
-                        eqa_settings.eqa_time(),
-                        "system",
-                        "class",
-                        "null",
-                        char_class,
-                    )
-                )
+        char_level = 0
+        char_class = None
+        char_guild = None
 
-            if re.fullmatch(r".+\<[a-zA-Z\s]+\>(.+|)", line) is not None:
-                char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0]
-                system_q.put(
-                    eqa_struct.message(
-                        eqa_settings.eqa_time(),
-                        "system",
-                        "guild",
-                        "null",
-                        char_guild,
-                    )
-                )
-
-        char_level = "0"
-        char_class = "unknown"
-        char_guild = "none"
-
-        # Parse who_player to determine name, level, guild
+        # Find level and class
         if re.findall(r"\[\d+ [a-zA-Z\s]+\]", line):
             char_level, char_class = re.findall(r"\d+ [a-zA-Z\s]+", line)[0].split(
                 " ", 1
             )
+            char_level = int(char_level)
+            char_class = class_mapping[char_class.lower()]
 
+        # Find guild
         if re.fullmatch(r".+\<[a-zA-Z\s]+\>(.+|)", line) is not None:
             char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0].lower()
 
+        # Find name
         char_name = re.findall(r"(?<=\]\ )[a-zA-Z]+", line)[0].lower()
 
-        char_class = char_class.lower()
-
-        if (
-            char_class == "minstrel"
-            or char_class == "troubadour"
-            or char_class == "virtuoso"
-        ):
-            char_class = "bard"
-        elif (
-            char_class == "vicar"
-            or char_class == "templar"
-            or char_class == "high priest"
-        ):
-            char_class = "cleric"
-        elif (
-            char_class == "wanderer"
-            or char_class == "preserver"
-            or char_class == "hierophant"
-        ):
-            char_class = "druid"
-        elif (
-            char_class == "illusionist"
-            or char_class == "beguiler"
-            or char_class == "phantasmist"
-        ):
-            char_class = "enchanter"
-        elif (
-            char_class == "elementalist"
-            or char_class == "conjurer"
-            or char_class == "arch mage"
-        ):
-            char_class = "magician"
-        elif (
-            char_class == "disciple"
-            or char_class == "master"
-            or char_class == "grandmaster"
-        ):
-            char_class = "monk"
-        elif (
-            char_class == "heretic"
-            or char_class == "defiler"
-            or char_class == "warlock"
-        ):
-            char_class = "necromancer"
-        elif (
-            char_class == "cavalier"
-            or char_class == "knight"
-            or char_class == "crusader"
-        ):
-            char_class = "paladin"
-        elif (
-            char_class == "pathfinder"
-            or char_class == "outrider"
-            or char_class == "warder"
-        ):
-            char_class = "ranger"
-        elif (
-            char_class == "rake"
-            or char_class == "blackguard"
-            or char_class == "assassin"
-        ):
-            char_class = "rogue"
-        elif (
-            char_class == "reaver"
-            or char_class == "revenant"
-            or char_class == "grave lord"
-        ):
-            char_class = "shadow knight"
-        elif (
-            char_class == "mystic" or char_class == "luminary" or char_class == "oracle"
-        ):
-            char_class = "shaman"
-        elif (
-            char_class == "champion"
-            or char_class == "myrmidon"
-            or char_class == "warlord"
-        ):
-            char_class = "warrior"
-        elif (
-            char_class == "channeler"
-            or char_class == "evoker"
-            or char_class == "sorcerer"
-        ):
-            char_class = "wizard"
-
+        # Update players_list
         if char_name in player_list.keys():
-            if char_guild != "none" and char_guild != player_list[char_name]["guild"]:
-                player_list[char_name]["guild"] = char_guild
-            if char_level != "0" and char_level != player_list[char_name]["level"]:
-                player_list[char_name]["level"] = char_level
-            if (
-                char_class != "unknown"
-                and char_class != player_list[char_name]["class"]
-            ):
-                player_list[char_name]["class"] = char_class
+            if char_guild is not None:
+                if char_guild != player_list[char_name]["guild"]:
+                    player_list[char_name]["guild"] = char_guild
+            if char_level > 0:
+                if char_level != player_list[char_name]["level"]:
+                    player_list[char_name]["level"] = char_level
+            if char_class is not None:
+                if char_class != player_list[char_name]["class"]:
+                    player_list[char_name]["class"] = char_class
         else:
             player_list[char_name] = {
                 "class": char_class,
                 "level": char_level,
                 "guild": char_guild,
             }
+
+        # Update internal character state
+        if state.char.lower() == char_name:
+            if char_level > 0:
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "level",
+                        None,
+                        char_level,
+                    )
+                )
+
+            if char_class is not None:
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "class",
+                        None,
+                        char_class.title(),
+                    )
+                )
+
+            if char_guild is not None:
+                char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0]
+                system_q.put(
+                    eqa_struct.message(
+                        eqa_settings.eqa_time(),
+                        "system",
+                        "guild",
+                        None,
+                        char_guild,
+                    )
+                )
 
     except Exception as e:
         eqa_settings.log(
@@ -2650,8 +2633,8 @@ def action_you_new_zone(
                 eqa_settings.eqa_time(),
                 "system",
                 "afk",
-                "null",
-                "false",
+                None,
+                False,
             )
         )
 
@@ -2666,46 +2649,38 @@ def action_you_new_zone(
                     eqa_settings.eqa_time(),
                     "system",
                     "zone",
-                    "null",
+                    None,
                     current_zone[0],
                 )
             )
 
         if current_zone[0] not in configs.zones.config["zones"].keys():
             eqa_config.add_zone(current_zone[0], base_path)
-        elif (
-            current_zone[0] in configs.zones.config["zones"].keys()
-            and not state.raid == "true"
-        ):
+        elif current_zone[0] in configs.zones.config["zones"].keys() and not state.raid:
             if (
-                configs.zones.config["zones"][current_zone[0]]["raid_mode"] == "true"
-                and configs.settings.config["settings"]["raid_mode"]["auto_set"]
-                == "true"
+                configs.zones.config["zones"][current_zone[0]]["raid_mode"]
+                and state.auto_raid
             ):
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),
                         "system",
                         "raid",
-                        "true",
+                        True,
                         "Raid mode auto-enabled",
                     )
                 )
-        elif (
-            current_zone[0] in configs.zones.config["zones"].keys()
-            and state.raid == "true"
-        ):
+        elif current_zone[0] in configs.zones.config["zones"].keys() and state.raid:
             if (
-                configs.zones.config["zones"][current_zone[0]]["raid_mode"] == "false"
-                and configs.settings.config["settings"]["raid_mode"]["auto_set"]
-                == "true"
+                not configs.zones.config["zones"][current_zone[0]]["raid_mode"]
+                and state.auto_raid
             ):
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),
                         "system",
                         "raid",
-                        "false",
+                        False,
                         "Raid mode auto-disabled",
                     )
                 )
@@ -2728,7 +2703,7 @@ def action_you_new_zone(
         )
 
 
-def action_matched(line_type, line, base_path):
+def action_matched(line_type, line, base_path, version):
     """Debug function to log all log lines and matches log lines"""
 
     try:
@@ -2736,9 +2711,7 @@ def action_matched(line_type, line, base_path):
         if os.path.exists(matched_log):
             file_size = os.path.getsize(matched_log)
             if file_size >= 10000000:
-                version = str(
-                    pkg_resources.get_distribution("eqalert").version
-                ).replace(".", "-")
+                version = version.replace(".", "-")
                 archived_log = (
                     base_path
                     + "log/debug/matched-lines_"

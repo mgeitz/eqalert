@@ -21,7 +21,6 @@
 import json
 import os
 import sys
-import pkg_resources
 import re
 import hashlib
 
@@ -30,10 +29,10 @@ import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
 
 
-def init(base_path):
+def init(base_path, version):
     """Create any missing config files"""
     try:
-        generated = build_config(base_path)
+        generated = build_config(base_path, version)
 
         if generated:
             print("One or more new versioned configuration files have been generated.")
@@ -217,7 +216,7 @@ def read_config(base_path):
         )
 
 
-def update_logs(configs):
+def update_logs(configs, version):
     """Add characters and servers of eqemu_ prefixed files in the log path"""
 
     try:
@@ -243,6 +242,8 @@ def update_logs(configs):
                     add_char_log(char_name, server_name, configs)
                 if len(configs.settings.config["last_state"].keys()) == 0:
                     bootstrap_state(configs, char_name, server_name)
+
+        validate_char_log(configs, version)
 
     except Exception as e:
         print(
@@ -271,16 +272,16 @@ def add_char_log(char, server, configs):
                     "character": char,
                     "server": server,
                     "file_name": char_log,
-                    "disabled": "false",
+                    "disabled": False,
                     "char_state": {
                         "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
-                        "direction": "unavailable",
-                        "zone": "unavailable",
-                        "encumbered": "false",
-                        "bind": "unavailable",
-                        "level": "unavailable",
-                        "class": "unavailable",
-                        "guild": "unavailable",
+                        "direction": None,
+                        "zone": None,
+                        "encumbered": False,
+                        "bind": None,
+                        "level": None,
+                        "class": None,
+                        "guild": None,
                     },
                 }
             }
@@ -304,6 +305,110 @@ def add_char_log(char, server, configs):
         )
 
 
+def validate_char_log(configs, version):
+    """Validate characters.json"""
+
+    try:
+        json_data = open(configs.characters.path, "r", encoding="utf-8")
+        characters_json_data = json.load(json_data)
+        json_data.close()
+
+        if "version" in characters_json_data.keys():
+            # For any future needed changes
+            pass
+        else:
+            # no version
+            for char_log in characters_json_data["char_logs"].keys():
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"]["bind"]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "bind"
+                    ] = None
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"]["class"]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "class"
+                    ] = None
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "direction"
+                    ]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "direction"
+                    ] = None
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "encumbered"
+                    ]
+                    == "false"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "encumbered"
+                    ] = False
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "encumbered"
+                    ]
+                    == "true"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "encumbered"
+                    ] = True
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"]["guild"]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "guild"
+                    ] = None
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"]["level"]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "level"
+                    ] = None
+                else:
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "level"
+                    ] = int(
+                        characters_json_data["char_logs"][char_log]["char_state"][
+                            "level"
+                        ]
+                    )
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"]["zone"]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "zone"
+                    ] = None
+                if characters_json_data["char_logs"][char_log]["disabled"] == "false":
+                    characters_json_data["char_logs"][char_log]["disabled"] = False
+                if characters_json_data["char_logs"][char_log]["disabled"] == "true":
+                    characters_json_data["char_logs"][char_log]["disabled"] = True
+
+            characters_json_data["version"] = version
+
+            json_data = open(configs.characters.path, "w", encoding="utf-8")
+            json.dump(characters_json_data, json_data, sort_keys=True, indent=2)
+            json_data.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "validate char log: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def bootstrap_state(configs, char, server):
     """Generate and save state to config"""
 
@@ -313,10 +418,10 @@ def bootstrap_state(configs, char, server):
             {
                 "server": server,
                 "character": char,
-                "afk": "false",
-                "group": "false",
-                "leader": "false",
-                "raid": "false",
+                "afk": False,
+                "group": False,
+                "leader": False,
+                "raid": False,
             }
         )
         json_data = open(configs.settings.path, "w", encoding="utf-8")
@@ -337,10 +442,7 @@ def get_config_chars(configs):
     try:
         chars = []
         for char_server in configs.characters.config["char_logs"].keys():
-            if (
-                configs.characters.config["char_logs"][char_server]["disabled"]
-                == "false"
-            ):
+            if not configs.characters.config["char_logs"][char_server]["disabled"]:
                 chars.append(char_server)
 
         return chars
@@ -394,159 +496,160 @@ def get_spell_casters(data_path):
         )
 
 
-def update_spell_casters(data_path):
+def update_spell_casters(data_path, version):
     """Update data/spell-casters.json"""
 
     new_spell_caster_data = """
+
 {
   "spells": {
     "aanyas_quickening": {
       "classes": {
         "enchanter": "53"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "accuracy": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "acid_jet": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "acumen": {
       "classes": {
         "shaman": 56
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "adorning_grace": {
       "classes": {
         "enchanter": "49"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "adroitness": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aegis": {
       "classes": {
         "cleric": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "aegis_of_bathezid": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aegis_of_ro": {
       "classes": {
         "magician": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "aegolism": {
       "classes": {
         "cleric": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "affliction": {
       "classes": {
         "shaman": 19
       },
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "agility": {
       "classes": {
         "shaman": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "agilmentes_aria_of_eagles": {
       "classes": {
         "bard": 31
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "alacrity": {
       "classes": {
         "enchanter": "24",
         "shaman": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "allure": {
       "classes": {
         "enchanter": "49"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "allure_of_death": {
       "classes": {
         "necromancer": 20
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "allure_of_the_wild": {
       "classes": {
         "druid": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "alluring_aura": {
       "classes": {
         "shaman": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "alluring_whispers": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aloe_sweat": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "ancient_breath": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "anthem_de_arms": {
       "classes": {
         "bard": 10
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "arch_lich": {
       "classes": {
         "necromancer": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "arch_shielding": {
       "classes": {
@@ -555,269 +658,269 @@ def update_spell_casters(data_path):
         "necromancer": 44,
         "wizard": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "armor_of_faith": {
       "classes": {
         "cleric": 39,
         "paladin": 49
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "armor_of_protection": {
       "classes": {
         "cleric": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "asphyxiate": {
       "classes": {
         "enchanter": "59"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "assiduous_vision": {
       "classes": {
         "shaman": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "asystole": {
       "classes": {
         "necromancer": 44,
         "shadow knight": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "atols_spectral_shackles": {
       "classes": {
         "wizard": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "augment": {
       "classes": {
         "enchanter": "56"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "augment_death": {
       "classes": {
         "necromancer": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "augmentation": {
       "classes": {
         "enchanter": "29"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "augmentation_of_death": {
       "classes": {
         "necromancer": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "aura_of_antibody": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aura_of_battle": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aura_of_black_petals": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aura_of_blue_petals": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aura_of_cold": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aura_of_green_petals": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aura_of_heat": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aura_of_marr": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aura_of_purity": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aura_of_red_petals": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "aura_of_white_petals": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "avatar": {
       "classes": {
         "shaman": "60"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "avatar_snare": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "bane_of_nife": {
       "classes": {
         "shaman": 56
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "banshee_aura": {
       "classes": {
         "necromancer": 16,
         "shadow knight": 54
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "barbcoat": {
       "classes": {
         "druid": 19,
         "ranger": 30
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "barrier_of_combustion": {
       "classes": {
         "magician": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "barrier_of_force": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "battery_vision": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "bedlam": {
       "classes": {
         "enchanter": "58"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "befriend_animal": {
       "classes": {
         "druid": 14,
         "shaman": 29
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "beguile": {
       "classes": {
         "enchanter": "24"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "beguile_animals": {
       "classes": {
         "druid": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "beguile_plants": {
       "classes": {
         "druid": 29
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "beguile_undead": {
       "classes": {
         "necromancer": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "bellowing_winds": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "berserker_madness_i": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "berserker_madness_ii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "berserker_madness_iii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "berserker_madness_iv": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "berserker_spirit": {
       "classes": {
         "enchanter": "49"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "berserker_strength": {
       "classes": {
         "enchanter": "20"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "bind_sight": {
       "classes": {
@@ -825,302 +928,302 @@ def update_spell_casters(data_path):
         "ranger": 22,
         "wizard": 16
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "bladecoat": {
       "classes": {
         "druid": 56
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "blessing_of_nature": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "blessing_of_the_grove": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "blinding_fear": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "blinding_luminance": {
       "classes": {
         "cleric": 34,
         "shaman": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "blinding_poison_i": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "blinding_poison_iii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "blinding_step": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "blood_claw": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "bobbing_corpse": {
       "classes": {
         "shadow knight": 55
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "boil_blood": {
       "classes": {
         "necromancer": 29,
         "shadow knight": 53
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "boiling_blood": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "boltrans_agacerie": {
       "classes": {
         "enchanter": "53"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "bond_of_death": {
       "classes": {
         "necromancer": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "bonds_of_force": {
       "classes": {
         "wizard": 29
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "bonds_of_tunare": {
       "classes": {
         "druid": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "bone_melt": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "boon_of_immolation": {
       "classes": {
         "magician": 53
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "boon_of_the_clear_mind": {
       "classes": {
         "enchanter": "52"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "boon_of_the_garou": {
       "classes": {
         "enchanter": "44"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "bramblecoat": {
       "classes": {
         "druid": 29,
         "ranger": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "bravery": {
       "classes": {
         "cleric": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "breath_of_ro": {
       "classes": {
         "druid": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "breath_of_the_dead": {
       "classes": {
         "necromancer": 24,
         "shadow knight": 49
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "breath_of_the_sea": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "breeze": {
       "classes": {
         "enchanter": "16"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "brilliance": {
       "classes": {
         "enchanter": "44"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "brittle_haste_i": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "brittle_haste_ii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "brittle_haste_iii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "brittle_haste_iv": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "bulwark_of_faith": {
       "classes": {
         "cleric": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "burnout": {
       "classes": {
         "magician": 255
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "burnout_ii": {
       "classes": {
         "magician": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "burnout_iii": {
       "classes": {
         "magician": 49
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "burnout_iv": {
       "classes": {
         "magician": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "burrowing_scarab": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "burst_of_strength": {
       "classes": {
         "shaman": 14
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "cadeau_of_flame": {
       "classes": {
         "magician": 56
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "cajole_undead": {
       "classes": {
         "necromancer": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "calimony": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "call_of_bones": {
       "classes": {
         "necromancer": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "call_of_earth": {
       "classes": {
         "ranger": 50
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "call_of_karana": {
       "classes": {
         "druid": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "call_of_sky": {
       "classes": {
         "ranger": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "call_of_the_predator": {
       "classes": {
         "ranger": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "calm": {
       "classes": {
@@ -1128,155 +1231,155 @@ def update_spell_casters(data_path):
         "enchanter": "20",
         "paladin": 49
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "calm_animal": {
       "classes": {
         "druid": 19,
         "ranger": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "camouflage": {
       "classes": {
         "druid": 5,
         "ranger": 15
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "captain_nalots_quickening": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "cascading_darkness": {
       "classes": {
         "necromancer": 49,
         "shadow knight": 59
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "cassindras_chant_of_clarity": {
       "classes": {
         "bard": 20
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "cassindras_elegy": {
       "classes": {
         "bard": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "cassindras_insipid_ditty": {
       "classes": {
         "bard": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "cast_sight": {
       "classes": {
         "enchanter": "34"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "celerity": {
       "classes": {
         "enchanter": "39",
         "shaman": 56
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "celestial_cleansing": {
       "classes": {
         "paladin": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "celestial_healing": {
       "classes": {
         "cleric": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "celestial_tranquility": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "center": {
       "classes": {
         "cleric": 9,
         "paladin": 22
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "cessation_of_cor": {
       "classes": {
         "necromancer": 56
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "chant_of_battle": {
       "classes": {
         "bard": 1
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "charisma": {
       "classes": {
         "shaman": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "chase_the_moon": {
       "classes": {
         "enchanter": "16"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "chill_bones": {
       "classes": {
         "necromancer": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "chill_of_unlife": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "chill_sight": {
       "classes": {
         "ranger": 56,
         "wizard": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "chilling_embrace": {
       "classes": {
         "necromancer": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "chloroplast": {
       "classes": {
@@ -1284,290 +1387,290 @@ def update_spell_casters(data_path):
         "ranger": 55,
         "shaman": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "choke": {
       "classes": {
         "enchanter": "12"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "chords_of_dissonance": {
       "classes": {
         "bard": 2
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "cindas_charismatic_carillon": {
       "classes": {
         "bard": 11
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "circle_of_summer": {
       "classes": {
         "druid": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "circle_of_winter": {
       "classes": {
         "druid": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "clarity": {
       "classes": {
         "enchanter": "29"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "clarity_ii": {
       "classes": {
         "enchanter": "54"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "clinging_darkness": {
       "classes": {
         "necromancer": 4,
         "shadow knight": 15
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "clockwork_poison": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "cloud": {
       "classes": {
         "enchanter": "20"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "cloud_of_disempowerment": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "cloud_of_fear": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "cloud_of_silence": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "cog_boost": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "cohesion": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "composition_of_ervaj": {
       "classes": {
         "bard": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "courage": {
       "classes": {
         "cleric": 1,
         "paladin": 9
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "creeping_crud": {
       "classes": {
         "druid": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "creeping_vision": {
       "classes": {
         "shaman": 24
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "cripple": {
       "classes": {
         "enchanter": "53",
         "shaman": 53
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "crissions_pixie_strike": {
       "classes": {
         "bard": 28
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "curse_of_the_simple_mind": {
       "classes": {
         "enchanter": "29"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "curse_of_the_spirits": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "dance_of_the_blade": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "daring": {
       "classes": {
         "cleric": 19,
         "paladin": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "dark_pact": {
       "classes": {
         "necromancer": 8
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "dawncall": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "dazzle": {
       "classes": {
         "enchanter": "49"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "dead_man_floating": {
       "classes": {
         "necromancer": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "dead_men_floating": {
       "classes": {
         "necromancer": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "deadeye": {
       "classes": {
         "necromancer": 8,
         "shadow knight": 22
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "deadly_poison": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "deadly_velium_poison": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "death_pact": {
       "classes": {
         "cleric": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "deftness": {
       "classes": {
         "shaman": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "deliriously_nimble": {
       "classes": {
         "shaman": 53
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "demi_lich": {
       "classes": {
         "necromancer": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "denons_bereavement": {
       "classes": {
         "bard": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "denons_disruptive_discord": {
       "classes": {
         "bard": 18
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "desperate_hope": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "devouring_darkness": {
       "classes": {
         "necromancer": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "dexterity": {
       "classes": {
         "shaman": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "dexterous_aura": {
       "classes": {
         "shaman": 1
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "diamondskin": {
       "classes": {
@@ -1575,239 +1678,239 @@ def update_spell_casters(data_path):
         "shadow knight": 59,
         "wizard": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "dictate": {
       "classes": {
         "enchanter": "60"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "disease": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "disease_cloud": {
       "classes": {
         "necromancer": 1,
         "shadow knight": 9
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "diseased_cloud": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "disempower": {
       "classes": {
         "enchanter": "16",
         "shaman": 14
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "divine_aura": {
       "classes": {
         "cleric": 1,
         "paladin": 55
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "divine_barrier": {
       "classes": {
         "cleric": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "divine_favor": {
       "classes": {
         "paladin": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "divine_glory": {
       "classes": {
         "paladin": 53
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "divine_intervention": {
       "classes": {
         "cleric": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "divine_might": {
       "classes": {
         "paladin": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "divine_purpose": {
       "classes": {
         "paladin": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "divine_strength": {
       "classes": {
         "paladin": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "dizzy_i": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "dizzy_ii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "dizzy_iii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "dizzy_iv": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "dominate_undead": {
       "classes": {
         "necromancer": 20
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "dooming_darkness": {
       "classes": {
         "necromancer": 29,
         "shadow knight": 49
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "draconic_rage": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "dragon_charm": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "dragon_roar": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "drifting_death": {
       "classes": {
         "druid": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "drones_of_doom": {
       "classes": {
         "druid": 34,
         "ranger": 54
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "drowsy": {
       "classes": {
         "shaman": 5
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "dulsehound": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "dyns_dizzying_draught": {
       "classes": {
         "enchanter": "29"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "earthcall": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "earthelementalattack": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "ebbing_strength": {
       "classes": {
         "enchanter": "12"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "echinacea_infusion": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "elemental_armor": {
       "classes": {
         "magician": 44,
         "wizard": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "elemental_maelstrom": {
       "classes": {
         "magician": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "elemental_rhythms": {
       "classes": {
         "bard": 9
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "elemental_shield": {
       "classes": {
         "magician": 20,
         "wizard": 20
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "embrace_of_the_kelpmaiden": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "endure_cold": {
       "classes": {
@@ -1818,8 +1921,8 @@ def update_spell_casters(data_path):
         "shadow knight": 15,
         "shaman": 1
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "endure_disease": {
       "classes": {
@@ -1830,8 +1933,8 @@ def update_spell_casters(data_path):
         "shaman": 9,
         "necromancer": 12
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "endure_fire": {
       "classes": {
@@ -1840,8 +1943,8 @@ def update_spell_casters(data_path):
         "ranger": 9,
         "shaman": 5
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "endure_magic": {
       "classes": {
@@ -1851,8 +1954,8 @@ def update_spell_casters(data_path):
         "paladin": 30,
         "shaman": 19
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "endure_poison": {
       "classes": {
@@ -1861,8 +1964,8 @@ def update_spell_casters(data_path):
         "paladin": 22,
         "shaman": 14
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "enduring_breath": {
       "classes": {
@@ -1871,225 +1974,225 @@ def update_spell_casters(data_path):
         "ranger": 22,
         "shaman": 14
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "energy_sap": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "enfeeblement": {
       "classes": {
         "enchanter": "4"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "engulfing_darkness": {
       "classes": {
         "necromancer": 12,
         "shadow knight": 22
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "enlightenment": {
       "classes": {
         "enchanter": "57"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "enslave_death": {
       "classes": {
         "necromancer": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "ensnare": {
       "classes": {
         "druid": 29,
         "ranger": 51
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "enthrall": {
       "classes": {
         "enchanter": "16"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "entrance": {
       "classes": {
         "enchanter": "34"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "envenomed_bolt": {
       "classes": {
         "necromancer": 51,
         "shaman": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "envenomed_breath": {
       "classes": {
         "shaman": 24
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "everlasting_breath": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "expedience": {
       "classes": {
         "magician": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "extended_regeneration": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "eye_of_confusion": {
       "classes": {
         "enchanter": "8"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "eye_of_tallon": {
       "classes": {
         "magician": 57,
         "wizard": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "eye_of_zomm": {
       "classes": {
         "magician": 8,
         "wizard": 8
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "eyes_of_the_cat": {
       "classes": {
         "ranger": 30
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "fascination": {
       "classes": {
         "enchanter": "52"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "feast_of_blood": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "feckless_might": {
       "classes": {
         "enchanter": "20"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "feeble_poison": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "feedback": {
       "classes": {
         "enchanter": "29"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "feet_like_cat": {
       "classes": {
         "ranger": 15,
         "shaman": 5
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "fellspine": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "feral_spirit": {
       "classes": {
         "druid": 19
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "fetter": {
       "classes": {
         "enchanter": "58",
         "wizard": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "fiery_might": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "fire": {
       "classes": {
         "druid": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "firefist": {
       "classes": {
         "druid": 9,
         "ranger": 22
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "fist_of_water": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "fixation_of_ro": {
       "classes": {
         "druid": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "flame_lick": {
       "classes": {
         "druid": 1,
         "ranger": 9
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "flash_of_light": {
       "classes": {
@@ -2097,250 +2200,250 @@ def update_spell_casters(data_path):
         "paladin": 9,
         "shaman": 1
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "fleeting_fury": {
       "classes": {
         "shaman": 5
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "flesh_rot_i": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "flesh_rot_ii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "flesh_rot_iii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "flurry": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "focus_of_spirit": {
       "classes": {
         "shaman": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "forlorn_deeds": {
       "classes": {
         "enchanter": "57"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "form_of_the_great_bear": {
       "classes": {
         "shaman": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "form_of_the_great_wolf": {
       "classes": {
         "druid": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "form_of_the_howler": {
       "classes": {
         "druid": 54
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "form_of_the_hunter": {
       "classes": {
         "druid": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "fortitude": {
       "classes": {
         "cleric": 55
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "freezing_breath": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "frenzied_strength": {
       "classes": {
         "cleric": 34,
         "paladin": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "frenzy": {
       "classes": {
         "shaman": 19
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "froglok_poison": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "frost_storm": {
       "classes": {
         "wizard": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "frostbite": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "frostreavers_blessing": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "fufils_curtailing_chant": {
       "classes": {
         "bard": "30"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "fungal_regrowth": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "fungus_spores": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "furious_strength": {
       "classes": {
         "shaman": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "fury": {
       "classes": {
         "shaman": 34
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "garzicors_vengeance": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "gasping_embrace": {
       "classes": {
         "enchanter": "49"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "gaze": {
       "classes": {
         "wizard": 12
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "gift_of_brilliance": {
       "classes": {
         "enchanter": "60"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "gift_of_insight": {
       "classes": {
         "enchanter": "55"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "gift_of_magic": {
       "classes": {
         "enchanter": "34"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "gift_of_pure_thought": {
       "classes": {
         "enchanter": "59"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "girdle_of_karana": {
       "classes": {
         "druid": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "glamour": {
       "classes": {
         "shaman": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "glamour_of_kintaz": {
       "classes": {
         "enchanter": "54"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "glamour_of_tunare": {
       "classes": {
         "druid": 53
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "glimpse": {
       "classes": {
         "druid": 4,
         "ranger": 9
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "graveyard_dust": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "grease_injection": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "greater_shielding": {
       "classes": {
@@ -2349,291 +2452,291 @@ def update_spell_casters(data_path):
         "necromancer": 34,
         "wizard": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "greater_wolf_form": {
       "classes": {
         "druid": 34,
         "ranger": 56
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "greenmist": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "grim_aura": {
       "classes": {
         "necromancer": 4,
         "shadow knight": 22
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "group_resist_magic": {
       "classes": {
         "enchanter": "49"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "guard": {
       "classes": {
         "cleric": 29,
         "paladin": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "guardian": {
       "classes": {
         "shaman": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "guardian_rhythms": {
       "classes": {
         "bard": 17
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "harmony": {
       "classes": {
         "druid": 5,
         "ranger": 22
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "harmshield": {
       "classes": {
         "necromancer": 20
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "harpy_voice": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "haste": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "haze": {
       "classes": {
         "enchanter": "4"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "health": {
       "classes": {
         "shaman": 34
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "heart_flutter": {
       "classes": {
         "necromancer": 16,
         "shadow knight": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "heat_blood": {
       "classes": {
         "necromancer": 12,
         "shadow knight": 30
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "heat_sight": {
       "classes": {
         "wizard": 16
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "heroic_bond": {
       "classes": {
         "cleric": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "heroism": {
       "classes": {
         "cleric": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "holy_armor": {
       "classes": {
         "cleric": 5,
         "paladin": 15
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "hug": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "hymn_of_restoration": {
       "classes": {
         "bard": 6
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "ice": {
       "classes": {
         "druid": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "ice_breath": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "ice_strike": {
       "classes": {
         "shaman": 54
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "ignite_blood": {
       "classes": {
         "necromancer": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "ignite_bones": {
       "classes": {
         "necromancer": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "ikatiars_revenge": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "immolate": {
       "classes": {
         "druid": 29,
         "ranger": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "immolating_breath": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "impart_strength": {
       "classes": {
         "necromancer": 8
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "incapacitate": {
       "classes": {
         "enchanter": "44",
         "shaman": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "infectious_cloud": {
       "classes": {
         "necromancer": 16,
         "shaman": 19
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "inferno_shield": {
       "classes": {
         "magician": 29
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "inner_fire": {
       "classes": {
         "shaman": 1
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "insidious_decay": {
       "classes": {
         "shaman": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "insidious_fever": {
       "classes": {
         "shaman": 19
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "insidious_malady": {
       "classes": {
         "shaman": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "insight": {
       "classes": {
         "enchanter": "255"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "insipid_weakness": {
       "classes": {
         "enchanter": "34"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "inspire_fear": {
       "classes": {
         "cleric": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "intensify_death": {
       "classes": {
         "necromancer": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "invigor": {
       "classes": {
@@ -2644,117 +2747,117 @@ def update_spell_casters(data_path):
         "ranger": 30,
         "shaman": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "jonthans_inspiration": {
       "classes": {
         "bard": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "jonthans_provocation": {
       "classes": {
         "bard": 45
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "jonthans_whistling_warsong": {
       "classes": {
         "bard": 7
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "kazumis_note_of_preservation": {
       "classes": {
         "bard": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "kelins_lucid_lullaby": {
       "classes": {
         "bard": 15
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "kelins_lugubrious_lament": {
       "classes": {
         "bard": 8
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "kilvas_skin_of_flame": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "kylies_venom": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "languid_pace": {
       "classes": {
         "enchanter": "12"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "largarns_lamentation": {
       "classes": {
         "enchanter": "55"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "largos_absonant_binding": {
       "classes": {
         "bard": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "largos_melodic_binding": {
       "classes": {
         "bard": 20
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "leach": {
       "classes": {
         "necromancer": 12
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "leatherskin": {
       "classes": {
         "necromancer": 24,
         "wizard": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "legacy_of_spike": {
       "classes": {
         "druid": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "legacy_of_thorn": {
       "classes": {
         "druid": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "lesser_shielding": {
       "classes": {
@@ -2763,8 +2866,8 @@ def update_spell_casters(data_path):
         "necromancer": 8,
         "wizard": 8
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "levitate": {
       "classes": {
@@ -2774,48 +2877,48 @@ def update_spell_casters(data_path):
         "shaman": 14,
         "wizard": 24
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "levitation": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "lich": {
       "classes": {
         "necromancer": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "listless_power": {
       "classes": {
         "enchanter": "29",
         "shaman": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "lower_resists_i": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "lower_resists_ii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "lower_resists_iii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "lower_resists_iv": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "lull": {
       "classes": {
@@ -2823,42 +2926,42 @@ def update_spell_casters(data_path):
         "enchanter": "1",
         "paladin": 15
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "lull_animal": {
       "classes": {
         "druid": 1,
         "ranger": 9
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "lyssas_solidarity_of_vision": {
       "classes": {
         "bard": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "lyssas_veracious_concord": {
       "classes": {
         "bard": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "magi_curse": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "magnify": {
       "classes": {
         "wizard": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "major_shielding": {
       "classes": {
@@ -2867,144 +2970,144 @@ def update_spell_casters(data_path):
         "necromancer": 24,
         "wizard": 24
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "mala": {
       "classes": {
         "magician": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "malevolent_grasp": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "malo": {
       "classes": {
         "shaman": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "malosi": {
       "classes": {
         "magician": 51,
         "shaman": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "malosini": {
       "classes": {
         "magician": 58,
         "shaman": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "mana_flare": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "mana_shroud": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "manasink": {
       "classes": {
         "wizard": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "manaskin": {
       "classes": {
         "necromancer": 52,
         "wizard": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "maniacal_strength": {
       "classes": {
         "shaman": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "manticore_poison": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "mark_of_karn": {
       "classes": {
         "cleric": 56
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "mask_of_the_hunter": {
       "classes": {
         "druid": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "mcvaxius_berserker_crescendo": {
       "classes": {
         "bard": 42
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "mcvaxius_rousing_rondo": {
       "classes": {
         "bard": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "melody_of_ervaj": {
       "classes": {
         "bard": 50
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "mesmerization": {
       "classes": {
         "enchanter": "16"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "mesmerize": {
       "classes": {
         "enchanter": "4"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "mesmerizing_breath": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "mind_cloud": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "minion_of_hate": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "minor_shielding": {
       "classes": {
@@ -3013,152 +3116,152 @@ def update_spell_casters(data_path):
         "necromancer": 1,
         "wizard": 1
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "mist": {
       "classes": {
         "enchanter": "12"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "mortal_deftness": {
       "classes": {
         "shaman": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "muscle_lock_i": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "muscle_lock_ii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "muscle_lock_iii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "muscle_lock_iv": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "mystic_precision": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "naltrons_mark": {
       "classes": {
         "cleric": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "natures_melody": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "natureskin": {
       "classes": {
         "druid": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "nillipus_march_of_the_wee": {
       "classes": {
         "bard": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "nimble": {
       "classes": {
         "shaman": 34
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "nivs_harmonic": {
       "classes": {
         "bard": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "nivs_melody_of_preservation": {
       "classes": {
         "bard": 47
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "null_aura": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "numb_the_dead": {
       "classes": {
         "necromancer": 4,
         "shadow knight": 15
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "obscure": {
       "classes": {
         "enchanter": "29"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "obsidian_shatter": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "occlusion_of_sound": {
       "classes": {
         "bard": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "okeils_flickering_flame": {
       "classes": {
         "wizard": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "okeils_radiation": {
       "classes": {
         "wizard": 4
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "one_hundred_blows": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "overwhelming_splendor": {
       "classes": {
         "enchanter": "56"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "pacify": {
       "classes": {
@@ -3166,49 +3269,49 @@ def update_spell_casters(data_path):
         "enchanter": "39",
         "paladin": 51
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "pack_chloroplast": {
       "classes": {
         "druid": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "pack_regeneration": {
       "classes": {
         "druid": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "pack_spirit": {
       "classes": {
         "druid": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "pact_of_shadow": {
       "classes": {
         "necromancer": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "panic": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "panic_animal": {
       "classes": {
         "druid": 1,
         "ranger": 22
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "panic_the_dead": {
       "classes": {
@@ -3216,301 +3319,301 @@ def update_spell_casters(data_path):
         "necromancer": 29,
         "shadow knight": 54
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "paralyzing_poison_i": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "paralyzing_poison_ii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "paralyzing_poison_iii": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "phantom_armor": {
       "classes": {
         "magician": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "phantom_chain": {
       "classes": {
         "magician": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "phantom_leather": {
       "classes": {
         "magician": 16
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "phantom_plate": {
       "classes": {
         "magician": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "plague": {
       "classes": {
         "necromancer": 52,
         "shaman": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "plagueratdisease": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "plainsight": {
       "classes": {
         "wizard": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "poison": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "poison_bolt": {
       "classes": {
         "necromancer": 4
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "poison_breath": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "power": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "pox_of_bertoxxulous": {
       "classes": {
         "shaman": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "primal_avatar": {
       "classes": {
         "shaman": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "primal_essence": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "prime_healers_blessing": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "protect": {
       "classes": {
         "shaman": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "protection_of_the_glades": {
       "classes": {
         "druid": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "psalm_of_cooling": {
       "classes": {
         "bard": 33
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "psalm_of_mystic_shielding": {
       "classes": {
         "bard": 41
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "psalm_of_purity": {
       "classes": {
         "bard": 37
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "psalm_of_vitality": {
       "classes": {
         "bard": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "psalm_of_warmth": {
       "classes": {
         "bard": 25
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "purifying_rhythms": {
       "classes": {
         "bard": 13
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "putrefy_flesh": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "putrid_breath": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "pyrocruor": {
       "classes": {
         "necromancer": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "quickness": {
       "classes": {
         "enchanter": "16",
         "shaman": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "quivering_veil_of_xarn": {
       "classes": {
         "necromancer": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "rabies": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "radiant_visage": {
       "classes": {
         "enchanter": "34"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "rage": {
       "classes": {
         "shaman": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "rage_of_tallon": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "rage_of_vallon": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "rage_of_zek": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "rampage": {
       "classes": {
         "enchanter": "39"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "rapture": {
       "classes": {
         "enchanter": "59"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "reckless_health": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "reckless_strength": {
       "classes": {
         "cleric": 5,
         "paladin": 22
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "regeneration": {
       "classes": {
         "druid": 34,
         "shaman": 24
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "regrowth": {
       "classes": {
         "druid": 54,
         "shaman": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "regrowth_of_the_grove": {
       "classes": {
         "druid": 58
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "rejuvenation": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "repulse_animal": {
       "classes": {
         "druid": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "resist_cold": {
       "classes": {
@@ -3521,8 +3624,8 @@ def update_spell_casters(data_path):
         "shadow knight": 39,
         "shaman": 24
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "resist_disease": {
       "classes": {
@@ -3532,8 +3635,8 @@ def update_spell_casters(data_path):
         "paladin": 51,
         "shaman": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "resist_fire": {
       "classes": {
@@ -3542,8 +3645,8 @@ def update_spell_casters(data_path):
         "ranger": 49,
         "shaman": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "resist_magic": {
       "classes": {
@@ -3553,8 +3656,8 @@ def update_spell_casters(data_path):
         "paladin": 55,
         "shaman": 44
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "resist_poison": {
       "classes": {
@@ -3562,202 +3665,202 @@ def update_spell_casters(data_path):
         "druid": 44,
         "shaman": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "resistance_to_magic": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "resistant_skin": {
       "classes": {
         "wizard": 12
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "resolution": {
       "classes": {
         "cleric": 44,
         "paladin": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "rest_the_dead": {
       "classes": {
         "necromancer": 24,
         "shadow knight": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "resurrection_effects": {
       "classes": {},
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "riotous_health": {
       "classes": {
         "shaman": 54
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "rising_dexterity": {
       "classes": {
         "shaman": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "rodricks_gift": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "ros_fiery_sundering": {
       "classes": {
         "druid": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "rotting_flesh": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "rubicite_aura": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "rune_i": {
       "classes": {
         "enchanter": "16"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "rune_ii": {
       "classes": {
         "enchanter": "24"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "rune_iii": {
       "classes": {
         "enchanter": "34"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "rune_iv": {
       "classes": {
         "enchanter": "44"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "rune_v": {
       "classes": {
         "enchanter": "52"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "savage_spirit": {
       "classes": {
         "druid": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "scale_of_wolf": {
       "classes": {
         "druid": 24,
         "shaman": 24
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "scale_skin": {
       "classes": {
         "shaman": 5
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "scarab_storm": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "scent_of_darkness": {
       "classes": {
         "necromancer": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "scent_of_dusk": {
       "classes": {
         "necromancer": 12
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "scent_of_shadow": {
       "classes": {
         "necromancer": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "scent_of_terris": {
       "classes": {
         "necromancer": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "scorching_skin": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "scourge": {
       "classes": {
         "necromancer": 39,
         "shaman": 34
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "screaming_mace": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "screaming_terror": {
       "classes": {
         "necromancer": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "sear": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "sebilite_pox": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "see_invisible": {
       "classes": {
@@ -3767,179 +3870,179 @@ def update_spell_casters(data_path):
         "ranger": 39,
         "wizard": 4
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "seething_fury": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "selos_accelerando": {
       "classes": {
         "bard": 4
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "selos_assonant_strane": {
       "classes": {
         "bard": 54
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "selos_chords_of_cessation": {
       "classes": {
         "bard": 48
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "selos_consonant_chain": {
       "classes": {
         "bard": 23
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "selos_song_of_travel": {
       "classes": {
         "bard": 51
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "serpent_sight": {
       "classes": {
         "enchanter": "12",
         "shaman": 9
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shade": {
       "classes": {
         "enchanter": "39"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shadow": {
       "classes": {
         "enchanter": "49"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shadow_compact": {
       "classes": {
         "necromancer": 20
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shadow_sight": {
       "classes": {
         "necromancer": 24,
         "shadow knight": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shadow_vortex": {
       "classes": {
         "necromancer": 20,
         "shadow knight": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shadowbond": {
       "classes": {
         "necromancer": 54
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shallow_breath": {
       "classes": {
         "enchanter": "1"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "share_wolf_form": {
       "classes": {
         "druid": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shauris_sonorous_clouding": {
       "classes": {
         "bard": 19
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shield_of_barbs": {
       "classes": {
         "druid": 19
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shield_of_blades": {
       "classes": {
         "druid": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shield_of_brambles": {
       "classes": {
         "druid": 29,
         "ranger": 49
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shield_of_fire": {
       "classes": {
         "magician": 8
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shield_of_flame": {
       "classes": {
         "magician": 20
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shield_of_lava": {
       "classes": {
         "magician": 49
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shield_of_song": {
       "classes": {
         "bard": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shield_of_spikes": {
       "classes": {
         "druid": 39,
         "ranger": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shield_of_the_magi": {
       "classes": {
@@ -3948,24 +4051,24 @@ def update_spell_casters(data_path):
         "necromancer": 54,
         "wizard": 54
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shield_of_thistles": {
       "classes": {
         "druid": 9,
         "ranger": 30
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shield_of_words": {
       "classes": {
         "cleric": 49,
         "paladin": 60
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shielding": {
       "classes": {
@@ -3974,8 +4077,8 @@ def update_spell_casters(data_path):
         "necromancer": 16,
         "wizard": 16
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shieldskin": {
       "classes": {
@@ -3983,209 +4086,209 @@ def update_spell_casters(data_path):
         "shadow knight": 34,
         "wizard": 16
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shifting_shield": {
       "classes": {
         "shaman": 34
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shifting_sight": {
       "classes": {
         "enchanter": "20",
         "wizard": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shiftless_deeds": {
       "classes": {
         "enchanter": "44"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "shroud_of_death": {
       "classes": {
         "shadow knight": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shroud_of_hate": {
       "classes": {
         "shadow knight": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shroud_of_pain": {
       "classes": {
         "shadow knight": 50
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shroud_of_the_spirits": {
       "classes": {
         "shaman": 54
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "shroud_of_undeath": {
       "classes": {
         "shadow knight": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "sicken": {
       "classes": {
         "shaman": 5
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "sight": {
       "classes": {
         "wizard": 20
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "sight_graft": {
       "classes": {
         "necromancer": 12
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "silver_skin": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "siphon_strength": {
       "classes": {
         "necromancer": 1,
         "shadow knight": 9
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "siphon_strength_recourse": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "skin_like_diamond": {
       "classes": {
         "druid": 39,
         "ranger": 54
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "skin_like_nature": {
       "classes": {
         "druid": 49,
         "ranger": 59
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "skin_like_rock": {
       "classes": {
         "druid": 14,
         "ranger": 22
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "skin_like_steel": {
       "classes": {
         "druid": 24,
         "ranger": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "skin_like_wood": {
       "classes": {
         "druid": 1,
         "ranger": 9
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "skin_of_the_shadow": {
       "classes": {
         "necromancer": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "skunkspray": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "slime_mist": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "snare": {
       "classes": {
         "druid": 1,
         "ranger": 9
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "solons_bewitching_bravura": {
       "classes": {
         "bard": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "solons_charismatic_concord": {
       "classes": {
         "bard": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "solons_song_of_the_sirens": {
       "classes": {
         "bard": 27
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "song_of_midnight": {
       "classes": {
         "bard": 56
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "song_of_the_deep_seas": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "song_of_twilight": {
       "classes": {
         "bard": 53
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "soothe": {
       "classes": {
@@ -4193,41 +4296,41 @@ def update_spell_casters(data_path):
         "enchanter": "8",
         "paladin": 30
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "soul_bond": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "soul_consumption": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "soul_well": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "speed_of_the_shissar": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "spikecoat": {
       "classes": {
         "druid": 39,
         "ranger": 49
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "spin_the_bottle": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "spirit_armor": {
       "classes": {
@@ -4235,66 +4338,66 @@ def update_spell_casters(data_path):
         "necromancer": 16,
         "paladin": 30
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "spirit_of_bear": {
       "classes": {
         "shaman": 9
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "spirit_of_cat": {
       "classes": {
         "shaman": 19
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "spirit_of_cheetah": {
       "classes": {
         "druid": 24,
         "shaman": 24
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "spirit_of_monkey": {
       "classes": {
         "shaman": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "spirit_of_oak": {
       "classes": {
         "druid": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "spirit_of_ox": {
       "classes": {
         "shaman": 24
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "spirit_of_scale": {
       "classes": {
         "druid": 53,
         "shaman": 52
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "spirit_of_snake": {
       "classes": {
         "shaman": 14
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "spirit_of_wolf": {
       "classes": {
@@ -4302,36 +4405,36 @@ def update_spell_casters(data_path):
         "ranger": 30,
         "shaman": 9
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "spirit_quickening": {
       "classes": {
         "shaman": 50
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "spirit_sight": {
       "classes": {
         "shaman": 9
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "spirit_strength": {
       "classes": {
         "shaman": 19
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "splurt": {
       "classes": {
         "necromancer": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "spook_the_dead": {
       "classes": {
@@ -4340,40 +4443,40 @@ def update_spell_casters(data_path):
         "paladin": 9,
         "shadow knight": 22
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "stability": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "stalking_probe": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "stalwart_regeneration": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "stamina": {
       "classes": {
         "shaman": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "steal_strength": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "steam_overload": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "steelskin": {
       "classes": {
@@ -4381,385 +4484,385 @@ def update_spell_casters(data_path):
         "shadow knight": 56,
         "wizard": 34
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "stinging_swarm": {
       "classes": {
         "druid": 14,
         "ranger": 30
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "storm_strength": {
       "classes": {
         "druid": 44,
         "ranger": 53
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "stream_of_acid": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "strength": {
       "classes": {
         "shaman": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "strength_of_earth": {
       "classes": {
         "druid": 9,
         "ranger": 30
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "strength_of_nature": {
       "classes": {
         "ranger": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "strength_of_stone": {
       "classes": {
         "druid": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "strength_of_the_kunzar": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "strengthen": {
       "classes": {
         "enchanter": "1",
         "shaman": 1
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "strengthen_death": {
       "classes": {
         "shadow knight": 29
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "strike_of_thunder": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "strong_disease": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "strong_poison": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "suffocate": {
       "classes": {
         "enchanter": "29"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "suffocating_sphere": {
       "classes": {
         "enchanter": "4"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "sunbeam": {
       "classes": {
         "druid": 24
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "sunskin": {
       "classes": {
         "cleric": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "surge_of_enfeeblement": {
       "classes": {
         "necromancer": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "swarm_of_retribution": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "swarming_pain": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "swift_like_the_wind": {
       "classes": {
         "enchanter": "49"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "swift_spirit": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "sympathetic_aura": {
       "classes": {
         "enchanter": "20"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "tagars_insects": {
       "classes": {
         "shaman": 29
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "tainted_breath": {
       "classes": {
         "shaman": 9
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "talisman_of_altuna": {
       "classes": {
         "shaman": 44
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "talisman_of_jasinth": {
       "classes": {
         "shaman": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "talisman_of_kragg": {
       "classes": {
         "shaman": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "talisman_of_shadoo": {
       "classes": {
         "shaman": 53
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "talisman_of_the_brute": {
       "classes": {
         "shaman": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "talisman_of_the_cat": {
       "classes": {
         "shaman": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "talisman_of_the_raptor": {
       "classes": {
         "shaman": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "talisman_of_the_rhino": {
       "classes": {
         "shaman": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "talisman_of_the_serpent": {
       "classes": {
         "shaman": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "talisman_of_tnarg": {
       "classes": {
         "shaman": 34
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "tarews_aquatic_ayre": {
       "classes": {
         "bard": 16
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "tashan": {
       "classes": {
         "enchanter": "4"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "tashani": {
       "classes": {
         "enchanter": "20"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "tashania": {
       "classes": {
         "enchanter": "44"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "tashanian": {
       "classes": {
         "enchanter": "255"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "telescope": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "tepid_deeds": {
       "classes": {
         "enchanter": "24"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "terrorize_animal": {
       "classes": {
         "druid": 19
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "the_unspoken_word": {
       "classes": {
         "cleric": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "thistlecoat": {
       "classes": {
         "druid": 9,
         "ranger": 15
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "thorncoat": {
       "classes": {
         "druid": 49,
         "ranger": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "thorny_shield": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "thrall_of_bones": {
       "classes": {
         "necromancer": 54
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "thunder_blast": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "tigirs_insects": {
       "classes": {
         "shaman": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "torment": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "torment_of_argli": {
       "classes": {
         "enchanter": "56"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "torment_of_shadows": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "torpor": {
       "classes": {
         "shaman": 60
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "track_corpse": {
       "classes": {
         "necromancer": 20
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "travelerboots": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "treeform": {
       "classes": {
         "druid": 9
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "trepidation": {
       "classes": {
@@ -4767,303 +4870,303 @@ def update_spell_casters(data_path):
         "enchanter": "56",
         "necromancer": 56
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "tumultuous_strength": {
       "classes": {
         "shaman": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "tunares_request": {
       "classes": {
         "druid": 55
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "turgurs_insects": {
       "classes": {
         "shaman": 51
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "turning_of_the_unnatural": {
       "classes": {
         "cleric": 255
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "tuyens_chant_of_flame": {
       "classes": {
         "bard": 38
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "tuyens_chant_of_frost": {
       "classes": {
         "bard": 46
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "ultravision": {
       "classes": {
         "enchanter": "29",
         "shaman": 29
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "umbra": {
       "classes": {
         "enchanter": "57"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "unfailing_reverence": {
       "classes": {
         "shaman": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "valiant_companion": {
       "classes": {
         "magician": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "valor": {
       "classes": {
         "cleric": 34,
         "paladin": 49
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "vampire_charm": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "velocity": {
       "classes": {
         "magician": 58
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "vengeance_of_the_glades": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "venom_of_the_snake": {
       "classes": {
         "necromancer": 34,
         "shaman": 39
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "vexing_mordinia": {
       "classes": {
         "necromancer": 57
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "vigor": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "vision": {
       "classes": {
         "shaman": 19
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "visions_of_grandeur": {
       "classes": {
         "enchanter": "60"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "voice_graft": {
       "classes": {
         "necromancer": 16
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "voice_of_the_berserker": {
       "classes": {
         "shaman": 59
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "wake_of_tranquility": {
       "classes": {
         "cleric": 55,
         "enchanter": "51"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "walking_sleep": {
       "classes": {
         "shaman": 14
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "wandering_mind": {
       "classes": {
         "enchanter": "39"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "wave_of_enfeeblement": {
       "classes": {
         "necromancer": 12,
         "shadow knight": 30
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "wave_of_fear": {
       "classes": {
         "cleric": 24
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "wave_of_heat": {
       "classes": {},
-      "npc": "true",
-      "item": "false"
+      "npc": true,
+      "item": false
     },
     "waves_of_the_deep_sea": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "weak_poison": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "weaken": {
       "classes": {
         "enchanter": "1"
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "weakness": {
       "classes": {
         "enchanter": "44"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "whirl_till_you_hurl": {
       "classes": {
         "enchanter": "12"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "whirlwind": {
       "classes": {},
-      "npc": "true",
-      "item": "true"
+      "npc": true,
+      "item": true
     },
     "wind_of_tishani": {
       "classes": {
         "enchanter": "55"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "wind_of_tishanian": {
       "classes": {
         "enchanter": "60"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "winged_death": {
       "classes": {
         "druid": 53
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "wolf_form": {
       "classes": {
         "druid": 24,
         "ranger": 49
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "wonderous_rapidity": {
       "classes": {
         "enchanter": "58"
       },
-      "npc": "false",
-      "item": "false"
+      "npc": false,
+      "item": false
     },
     "wrath_of_nature": {
       "classes": {},
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "yaulp": {
       "classes": {
         "cleric": 1,
         "paladin": 9
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "yaulp_ii": {
       "classes": {
         "cleric": 19,
         "paladin": 39
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "yaulp_iii": {
       "classes": {
         "cleric": 44,
         "paladin": 56
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     },
     "yaulp_iv": {
       "classes": {
         "cleric": 53,
         "paladin": 60
       },
-      "npc": "false",
-      "item": "true"
+      "npc": false,
+      "item": true
     }
   },
   "version": "%s"
@@ -5071,7 +5174,6 @@ def update_spell_casters(data_path):
 """
 
     try:
-        version = str(pkg_resources.get_distribution("eqalert").version)
         spell_casters_path = data_path + "spell-casters.json"
         generate = True
 
@@ -5084,6 +5186,7 @@ def update_spell_casters(data_path):
                 generate = False
 
         if generate:
+            print("    - generating spell-casters.json")
             f = open(spell_casters_path, "w", encoding="utf-8")
             f.write(new_spell_caster_data % (version))
             f.close()
@@ -5097,7 +5200,7 @@ def update_spell_casters(data_path):
         )
 
 
-def update_spell_lines(data_path):
+def update_spell_lines(data_path, version):
     """Update data/spell-lines.json"""
 
     new_spell_lines_data = """
@@ -6411,7 +6514,6 @@ def update_spell_lines(data_path):
 """
 
     try:
-        version = str(pkg_resources.get_distribution("eqalert").version)
         spell_lines_path = data_path + "spell-lines.json"
         generate = True
 
@@ -6424,6 +6526,7 @@ def update_spell_lines(data_path):
                 generate = False
 
         if generate:
+            print("    - generating spell-lines.json")
             f = open(spell_lines_path, "w", encoding="utf-8")
             f.write(new_spell_lines_data % (version))
             f.close()
@@ -7988,7 +8091,7 @@ def update_spell_timers(data_path, eq_spells_file_path):
                     generate_spell_timer_file = False
 
             if generate_spell_timer_file:
-                print("Generating new spell-timers.json. This may take a minute . . .")
+                print("    - generating spell-timers.json (this may take a minute)")
                 # Bootstrap new spell-timers.json
                 spell_timer_json = {"spells": {}, "hash": spells_hash}
 
@@ -8078,74 +8181,74 @@ def set_last_state(state, configs):
             {
                 "server": str(state.server),
                 "character": str(state.char),
-                "afk": str(state.afk),
-                "group": str(state.group),
-                "leader": str(state.leader),
-                "raid": str(state.raid),
+                "afk": state.afk,
+                "group": state.group,
+                "leader": state.leader,
+                "raid": state.raid,
             }
         )
         configs.settings.config["settings"]["encounter_parsing"].update(
-            {"auto_save": str(state.save_parse), "enabled": str(state.encounter_parse)}
+            {"auto_save": state.save_parse, "enabled": state.encounter_parse}
         )
         configs.settings.config["settings"]["raid_mode"].update(
             {
-                "auto_set": str(state.auto_raid),
+                "auto_set": state.auto_raid,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["mob"].update(
             {
-                "auto_mob_timer": str(state.auto_mob_timer),
+                "auto": state.auto_mob_timer,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["mob"].update(
             {
-                "auto_mob_timer_delay": str(state.auto_mob_timer_delay),
+                "auto_delay": state.auto_mob_timer_delay,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_delay": str(state.spell_timer_delay),
+                "delay": state.spell_timer_delay,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_guess": str(state.spell_timer_guess),
+                "guess": state.spell_timer_guess,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_guild_only": str(state.spell_timer_guild_only),
+                "guild_only": state.spell_timer_guild_only,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_yours_only": str(state.spell_timer_yours_only),
+                "yours_only": state.spell_timer_yours_only,
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_other": str(state.spell_timer_other),
+                "other": str(state.spell_timer_other),
             }
         )
-        configs.settings.config["settings"]["timers"].update(
+        configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "spell_timer_self": str(state.spell_timer_self),
+                "self": state.spell_timer_self,
             }
         )
         configs.settings.config["settings"]["consider_eval"].update(
-            {"enabled": str(state.consider_eval)}
+            {"enabled": state.consider_eval}
         )
         configs.settings.config["settings"]["debug_mode"].update(
-            {"enabled": str(state.debug)}
+            {"enabled": state.debug}
         )
         configs.settings.config["settings"]["detect_character"].update(
-            {"enabled": str(state.detect_char)}
+            {"enabled": state.detect_char}
         )
-        configs.settings.config["settings"]["mute"].update({"enabled": str(state.mute)})
+        configs.settings.config["settings"]["mute"].update({"enabled": state.mute})
         configs.characters.config["char_logs"][state.char + "_" + state.server].update(
             {
                 "char": str(state.char),
-                "disabled": "false",
+                "disabled": False,
                 "file_name": "eqlog_"
                 + str(state.char)
                 + "_"
@@ -8153,18 +8256,18 @@ def set_last_state(state, configs):
                 + ".txt",
                 "server": str(state.server),
                 "char_state": {
-                    "direction": str(state.direction),
+                    "direction": state.direction,
                     "location": {
-                        "x": str(state.loc[1]),
-                        "y": str(state.loc[0]),
-                        "z": str(state.loc[2]),
+                        "x": state.loc[1],
+                        "y": state.loc[0],
+                        "z": state.loc[2],
                     },
-                    "zone": str(state.zone),
-                    "encumbered": str(state.encumbered),
-                    "bind": str(state.bind),
-                    "level": str(state.char_level),
-                    "class": str(state.char_class),
-                    "guild": str(state.char_guild),
+                    "zone": state.zone,
+                    "encumbered": state.encumbered,
+                    "bind": state.bind,
+                    "level": state.char_level,
+                    "class": state.char_class,
+                    "guild": state.char_guild,
                 },
             }
         )
@@ -8257,27 +8360,27 @@ def get_last_state(configs, char_name, char_server):
             "auto_save"
         ]
         auto_raid = configs.settings.config["settings"]["raid_mode"]["auto_set"]
-        auto_mob_timer = configs.settings.config["settings"]["timers"]["auto_mob_timer"]
-        auto_mob_timer_delay = configs.settings.config["settings"]["timers"][
-            "auto_mob_timer_delay"
+        auto_mob_timer = configs.settings.config["settings"]["timers"]["mob"]["auto"]
+        auto_mob_timer_delay = configs.settings.config["settings"]["timers"]["mob"][
+            "auto_delay"
         ]
-        spell_timer_delay = configs.settings.config["settings"]["timers"][
-            "spell_timer_delay"
+        spell_timer_delay = configs.settings.config["settings"]["timers"]["spell"][
+            "delay"
         ]
-        spell_timer_guess = configs.settings.config["settings"]["timers"][
-            "spell_timer_guess"
+        spell_timer_guess = configs.settings.config["settings"]["timers"]["spell"][
+            "guess"
         ]
-        spell_timer_other = configs.settings.config["settings"]["timers"][
-            "spell_timer_other"
+        spell_timer_other = configs.settings.config["settings"]["timers"]["spell"][
+            "other"
         ]
-        spell_timer_guild_only = configs.settings.config["settings"]["timers"][
-            "spell_timer_guild_only"
+        spell_timer_guild_only = configs.settings.config["settings"]["timers"]["spell"][
+            "guild_only"
         ]
-        spell_timer_yours_only = configs.settings.config["settings"]["timers"][
-            "spell_timer_yours_only"
+        spell_timer_yours_only = configs.settings.config["settings"]["timers"]["spell"][
+            "yours_only"
         ]
-        spell_timer_self = configs.settings.config["settings"]["timers"][
-            "spell_timer_self"
+        spell_timer_self = configs.settings.config["settings"]["timers"]["spell"][
+            "self"
         ]
         mute = configs.settings.config["settings"]["mute"]["enabled"]
 
@@ -8339,7 +8442,7 @@ def add_type(line_type, base_path):
         data = json.load(json_data)
         json_data.close()
         data["line"].update(
-            {line_type: {"sound": "false", "reaction": "false", "alert": {}}}
+            {line_type: {"sound": False, "reaction": False, "alert": {}}}
         )
         json_data = open(
             base_path + "config/line-alerts/other.json", "w", encoding="utf-8"
@@ -8363,7 +8466,9 @@ def add_zone(zone, base_path):
         json_data = open(base_path + "config/zones.json", "r", encoding="utf-8")
         data = json.load(json_data)
         json_data.close()
-        data["zones"].update({str(zone): {"raid_mode": "false", "timer": "0"}})
+        data["zones"].update(
+            {str(zone): {"indoors": False, "raid_mode": False, "timer": 0}}
+        )
         json_data = open(base_path + "config/zones.json", "w", encoding="utf-8")
         json.dump(data, json_data, sort_keys=True, indent=2)
         json_data.close()
@@ -8426,7 +8531,7 @@ def update_players_file(player_data_path, server, player_list):
         )
 
 
-def generate_players_file(player_data_file):
+def generate_players_file(player_data_file, version):
     """Bootstrap Player Data File"""
 
     new_players_data = """
@@ -8438,13 +8543,15 @@ def generate_players_file(player_data_file):
     "project1999": {
       "players": {}
     }
-  }
+  },
+  "version": "%s"
 }
 """
 
     try:
+        print("    - generating players.json")
         f = open(player_data_file, "w", encoding="utf-8")
-        f.write(new_players_data)
+        f.write(new_players_data % (version))
         f.close()
 
     except Exception as e:
@@ -8456,12 +8563,71 @@ def generate_players_file(player_data_file):
         )
 
 
-def build_config(base_path):
+def validate_players_file(player_data_file, version):
+    """Validate Player Data File"""
+
+    try:
+        json_data = open(player_data_file, "r", encoding="utf-8")
+        player_json_data = json.load(json_data)
+        json_data.close()
+
+        if "version" in player_json_data.keys():
+            # For any future needed changes
+            pass
+        else:
+            # no version
+            updated_player_list = {"server": {}, "version": version}
+            for server in player_json_data["server"].keys():
+                updated_player_list["server"][server] = {"players": {}}
+                for player in player_json_data["server"][server]["players"].keys():
+                    if (
+                        player_json_data["server"][server]["players"][player]["guild"]
+                        != "none"
+                    ):
+                        char_guild = player_json_data["server"][server]["players"][
+                            player
+                        ]["guild"]
+                    else:
+                        char_guild = None
+                    if (
+                        player_json_data["server"][server]["players"][player]["class"]
+                        != "unknown"
+                    ):
+                        char_class = player_json_data["server"][server]["players"][
+                            player
+                        ]["class"]
+                    else:
+                        char_class = None
+                    char_level = int(
+                        player_json_data["server"][server]["players"][player]["level"]
+                    )
+
+                    updated_player_list["server"][server]["players"][player] = {
+                        "class": char_class,
+                        "guild": char_guild,
+                        "level": char_level,
+                    }
+
+            json_data = open(player_data_file, "w", encoding="utf-8")
+            json.dump(updated_player_list, json_data, sort_keys=True, indent=2)
+            json_data.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "validate players file: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def build_config(base_path, version):
     """Build a default config"""
 
     new_char_config = """
 {
-  "char_logs": {}
+  "char_logs": {},
+  "version": "%s"
 }
 """
 
@@ -8470,20 +8636,20 @@ def build_config(base_path):
   "last_state": {},
   "settings": {
     "consider_eval": {
-      "enabled": "false"
+      "enabled": true
     },
     "debug_mode": {
-      "enabled": "false"
+      "enabled": false
     },
     "detect_character": {
-      "enabled": "true"
+      "enabled": true
     },
     "encounter_parsing": {
-      "auto_save": "false",
-      "enabled": "true"
+      "auto_save": false,
+      "enabled": true
     },
     "mute": {
-      "enabled": "false"
+      "enabled": false
     },
     "paths": {
       "eqalert_log": "%slog/",
@@ -8495,26 +8661,30 @@ def build_config(base_path):
       "tmp_sound": "/tmp/eqa/sound/"
     },
     "player_data": {
-      "persist": "true"
+      "persist": true
     },
     "raid_mode": {
-      "auto_set": "true"
+      "auto_set": true
     },
     "speech": {
-      "expand_lingo": "true",
+      "expand_lingo": true,
       "tld": "com",
       "lang": "en"
     },
     "timers": {
-      "auto_mob_timer": "false",
-      "auto_mob_timer_delay": "10",
-      "spell_timer_delay": "24",
-      "spell_timer_guess": "true",
-      "spell_timer_other": "true",
-      "spell_timer_guild_only": "false",
-      "spell_timer_yours_only": "true",
-      "spell_timer_self": "true",
-      "spell_timer_zone_drift": "true"
+      "mob": {
+        "auto": false,
+        "auto_delay": 10
+      },
+      "spell": {
+        "delay": 24,
+        "guess": true,
+        "other": true,
+        "guild_only": false,
+        "yours_only": true,
+        "self": true,
+        "zone_drift": true
+      }
     }
   },
   "version": "%s"
@@ -8525,416 +8695,519 @@ def build_config(base_path):
 {
   "zones": {
     "An Arena (PVP) Area": {
-      "raid_mode": "false",
-      "timer": "0"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 0
     },
     "Befallen": {
-      "raid_mode": "false",
-      "timer": "1140"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1120
     },
     "Blackburrow": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1320
     },
     "Butcherblock Mountains": {
-      "raid_mode": "false",
-      "timer": "600"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 900
     },
     "Castle Mistmoore": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1320
     },
     "Chardok": {
-      "raid_mode": "false",
-      "timer": "1200"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1080
     },
     "City of Thurgadin": {
-      "raid_mode": "false",
-      "timer": "420"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 420
     },
     "Cobalt Scar": {
-      "raid_mode": "false",
-      "timer": "1200"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1200
     },
     "Crushbone": {
-      "raid_mode": "false",
-      "timer": "540"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 540
     },
     "Crystal Caverns": {
-      "raid_mode": "false",
-      "timer": "885"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 885
     },
     "Dagnor's Cauldron": {
-      "raid_mode": "false",
-      "timer": "0"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 0
     },
     "Dalnir": {
-      "raid_mode": "false",
-      "timer": "720"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 720
     },
     "Dragon Necropolis": {
-      "raid_mode": "false",
-      "timer": "1620"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1620
     },
     "Dreadlands": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "East Commonlands": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "East Freeport": {
-      "raid_mode": "false",
-      "timer": "1440"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1440
     },
     "Eastern Plains of Karana": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Eastern Wastelands": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Erudin": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Erudin Palace": {
-      "raid_mode": "false",
-      "timer": "1500"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1500
     },
     "Estate of Unrest": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1320
     },
     "Everfrost": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Field of Bone": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Firiona Vie": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Frontier Mountains": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Gorge of King Xorbb": {
-      "raid_mode": "false",
-      "timer": "360"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 360
     },
     "Great Divide": {
-      "raid_mode": "false",
-      "timer": "640"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 640
     },
     "Greater Faydark": {
-      "raid_mode": "false",
-      "timer": "425"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 425
     },
     "Guk": {
-      "raid_mode": "false",
-      "timer": "990"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 990
     },
     "High Keep": {
-      "raid_mode": "false",
-      "timer": "600"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 600
     },
     "Highpass Hold": {
-      "raid_mode": "false",
-      "timer": "300"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 300
     },
     "Howling Stones": {
-      "raid_mode": "false",
-      "timer": "1230"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1230
     },
     "Iceclad Ocean": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Icewell Keep": {
-      "raid_mode": "true",
-      "timer": "1260"
+      "indoors": true,
+      "raid_mode": true,
+      "timer": 1260
     },
     "Infected Paw": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1320
     },
     "Innothule Swamp": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Kael Drakkel": {
-      "raid_mode": "true",
-      "timer": "1680"
+      "indoors": true,
+      "raid_mode": true,
+      "timer": 1680
     },
     "Kaesora": {
-      "raid_mode": "false",
-      "timer": "1080"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1080
     },
     "Karnor's Castle": {
-      "raid_mode": "false",
-      "timer": "1620"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1620
     },
     "Kedge Keep": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1320
     },
     "Kithicor Woods": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Kurn's Tower": {
-      "raid_mode": "false",
-      "timer": "1100"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1100
     },
     "Lake Rathetear": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Lake of Ill Omen": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Lavastorm Mountains": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Lesser Faydark": {
-      "raid_mode": "false",
-      "timer": "390"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 390
     },
     "Lost Temple of Cazic-Thule": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1320
     },
     "Mines of Nurga": {
-      "raid_mode": "false",
-      "timer": "1230"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1230
     },
     "Misty Thicket": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Nagafen's Lair": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1320
     },
     "Najena": {
-      "raid_mode": "false",
-      "timer": "1110"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1110
     },
     "North Freeport": {
-      "raid_mode": "false",
-      "timer": "1440"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1440
     },
     "Northern Desert of Ro": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Northern Felwithe": {
-      "raid_mode": "false",
-      "timer": "1440"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1440
     },
     "Northern Plains of Karana": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Oasis of Marr": {
-      "raid_mode": "false",
-      "timer": "990"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 990
     },
     "Ocean of Tears": {
-      "raid_mode": "false",
-      "timer": "360"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 360
     },
     "Old Sebilis": {
-      "raid_mode": "false",
-      "timer": "1620"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1620
     },
     "Paineel": {
-      "raid_mode": "false",
-      "timer": "630"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 630
     },
     "Permafrost Caverns": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1320
     },
     "Plane of Air": {
-      "raid_mode": "true",
-      "timer": "28800"
+      "indoors": false,
+      "raid_mode": true,
+      "timer": 28800
     },
     "Plane of Fear": {
-      "raid_mode": "true",
-      "timer": "28800"
+      "indoors": false,
+      "raid_mode": true,
+      "timer": 28800
     },
     "Plane of Growth": {
-      "raid_mode": "true",
-      "timer": "43200"
+      "indoors": false,
+      "raid_mode": true,
+      "timer": 43200
     },
     "Plane of Hate": {
-      "raid_mode": "true",
-      "timer": "28800"
+      "indoors": false,
+      "raid_mode": true,
+      "timer": 28800
     },
     "Plane of Mischief": {
-      "raid_mode": "false",
-      "timer": "4210"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 4210
     },
     "Qeynos Hills": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Rathe Mountains": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Rivervale": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1320
     },
     "Ruins of Old Guk": {
-      "raid_mode": "false",
-      "timer": "1680"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1680
     },
     "Sirens Grotto": {
-      "raid_mode": "false",
-      "timer": "1680"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1680
     },
     "Skyfire Mountains": {
-      "raid_mode": "false",
-      "timer": "780"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 780
     },
     "Skyshrine": {
-      "raid_mode": "true",
-      "timer": "1800"
+      "indoors": false,
+      "raid_mode": true,
+      "timer": 1800
     },
     "Sleepers Tomb": {
-      "raid_mode": "true",
-      "timer": "28800"
+      "indoors": false,
+      "raid_mode": true,
+      "timer": 28800
     },
     "South Kaladim": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 400
     },
     "Southern Desert of Ro": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Southern Felwithe": {
-      "raid_mode": "false",
-      "timer": "1440"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1440
     },
     "Southern Plains of Karana": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Steamfont Mountains": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Surefall Glade": {
-      "raid_mode": "false",
-      "timer": "0"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 0
     },
     "Temple of Droga": {
-      "raid_mode": "false",
-      "timer": "1230"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1230
     },
     "Temple of Solusek Ro": {
-      "raid_mode": "false",
-      "timer": "0"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 0
     },
     "Temple of Veeshan": {
-      "raid_mode": "true",
-      "timer": "4398"
+      "indoors": true,
+      "raid_mode": true,
+      "timer": 4398
     },
     "The Arena": {
-      "raid_mode": "false",
-      "timer": "0"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 0
     },
     "The Burning Wood": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "The City of Mist": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1320
     },
     "The Emerald Jungle": {
-      "raid_mode": "false",
-      "timer": "0"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 0
     },
     "The Feerrott": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "The Hole": {
-      "raid_mode": "false",
-      "timer": "1290"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1290
     },
     "The Nektulos Forest": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "The Overthere": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "The Wakening Lands": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Tower of Frozen Shadow": {
-      "raid_mode": "false",
-      "timer": "1200"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1200
     },
     "Timorous Deep": {
-      "raid_mode": "false",
-      "timer": "720"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 720
     },
     "Toxxulia Forest": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Trakanon's Teeth": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "Veeshan's Peak": {
-      "raid_mode": "true",
-      "timer": "0"
+      "indoors": false,
+      "raid_mode": true,
+      "timer": 0
     },
     "Velketor's Labyrinth": {
-      "raid_mode": "false",
-      "timer": "1972"
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1972
     },
     "Warrens": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "West Commonlands": {
-      "raid_mode": "false",
-      "timer": "400"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 400
     },
     "West Freeport": {
-      "raid_mode": "false",
-      "timer": "1440"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1440
     },
     "Western Plains of Karana": {
-      "raid_mode": "false",
-      "timer": "1320"
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 1320
     },
     "Western Wastes": {
-      "raid_mode": "true",
-      "timer": "0"
+      "indoors": false,
+      "raid_mode": true,
+      "timer": 0
     },
-    "unavailable": {
-      "raid_mode": "false",
-      "timer": "0"
+    "Unavailable": {
+      "indoors": false,
+      "raid_mode": false,
+      "timer": 0
     }
   },
   "version": "%s"
@@ -8951,73 +9224,73 @@ def build_config(base_path):
     },
     "combat_other_ds_fire_damage": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_ds_thorns_damage": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_flurry": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_melee": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_melee_block": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_melee_crip_blow": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_melee_crit": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_melee_crit_kick": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_melee_dodge": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_melee_invulnerable": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_melee_miss": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_melee_parry": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_melee_riposte": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_other_rune_damage": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_ranger_drake": {
       "alert": {},
@@ -9036,53 +9309,53 @@ def build_config(base_path):
     },
     "combat_you_ds_fire_damage": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_you_ds_thorns_damage": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_you_melee": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_you_melee_dodge": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_you_melee_dodge": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_you_melee_invulnerable": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_your_melee_invulnerable": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_you_melee_parry": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_you_melee_riposte": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_you_melee_miss": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_you_receive_melee": {
       "alert": {},
@@ -9091,18 +9364,18 @@ def build_config(base_path):
     },
     "combat_you_rune_damage": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "combat_your_rune_damage": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "experience_group": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "experience_lost": {
       "alert": {},
@@ -9111,18 +9384,18 @@ def build_config(base_path):
     },
     "experience_solo": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "experience_solo_resurrection": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "mob_enrage_off": {
       "alert": {},
       "reaction": "group",
-      "sound": "true"
+      "sound": true
     },
     "mob_enrage_on": {
       "alert": {},
@@ -9142,22 +9415,22 @@ def build_config(base_path):
     "mob_slain_other": {
       "alert": {},
       "reaction": "solo_group_only",
-      "sound": "true"
+      "sound": true
     },
     "mob_slain_you": {
       "alert": {},
       "reaction": "solo_group_only",
-      "sound": "true"
+      "sound": true
     },
     "unconscious": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_slain": {
       "alert": {},
       "reaction": "solo_only",
-      "sound": "true"
+      "sound": true
     }
   },
   "version": "%s"
@@ -9169,38 +9442,38 @@ def build_config(base_path):
   "line": {
     "songs_interrupted_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_bind_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_cast_item_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_cast_oom": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_cast_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_cast_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_cooldown_active": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_cured_other": {
       "alert": {},
@@ -9209,33 +9482,33 @@ def build_config(base_path):
     },
     "spells_damage_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_damage_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_distracted": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_fizzle_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_fizzle_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_forget": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_gate_collapse": {
       "alert": {},
@@ -9254,13 +9527,13 @@ def build_config(base_path):
     },
     "spells_heal_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_heal_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_illusion_dropping_you": {
       "alert": {},
@@ -9269,18 +9542,18 @@ def build_config(base_path):
     },
     "spells_interrupt_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_interrupt_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_invis_already": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_invis_dropping_you": {
       "alert": {},
@@ -9299,23 +9572,23 @@ def build_config(base_path):
     },
     "spells_memorize_abort": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_memorize_already": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_memorize_begin": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_memorize_finish": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_memorize_too_high": {
       "alert": {},
@@ -9324,8 +9597,8 @@ def build_config(base_path):
     },
     "spells_no_target": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_not_hold": {
       "alert": {},
@@ -9334,23 +9607,23 @@ def build_config(base_path):
     },
     "spells_protected_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_protected_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_recover_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_recover_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_resist_other": {
       "alert": {},
@@ -9359,38 +9632,38 @@ def build_config(base_path):
     },
     "spells_resist_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_scribe_begin": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_scribe_finish": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_scribe_swap": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_scribe_swap_instruction": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_sitting": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_song_end": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spells_stun_cast_block": {
       "alert": {},
@@ -9410,7 +9683,7 @@ def build_config(base_path):
     "spells_worn_off": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     }
   },
   "version": "%s"
@@ -9422,23 +9695,23 @@ def build_config(base_path):
   "line": {
     "spell_aanyas_quickening_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aanyas_quickening_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_abolish_enchantment_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_abolish_enchantment_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_acid_jet_other_casts": {
       "alert": {},
@@ -9447,23 +9720,23 @@ def build_config(base_path):
     },
     "spell_acid_jet_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_adorning_grace_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_adorning_grace_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aegis_of_bathezid_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aegis_of_bathezid_you_off": {
       "alert": {},
@@ -9472,13 +9745,13 @@ def build_config(base_path):
     },
     "spell_aegis_of_bathezid_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aegis_of_ro_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aegis_of_ro_you_off": {
       "alert": {},
@@ -9487,23 +9760,23 @@ def build_config(base_path):
     },
     "spell_aegis_of_ro_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aegis_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aegis_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aegolism_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aegolism_you_off": {
       "alert": {},
@@ -9512,18 +9785,18 @@ def build_config(base_path):
     },
     "spell_aegolism_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_agility_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_agilmentes_aria_of_eagles_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_agilmentes_aria_of_eagles_you_off": {
       "alert": {},
@@ -9532,28 +9805,28 @@ def build_config(base_path):
     },
     "spell_agilmentes_aria_of_eagles_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_allure_of_death_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_alluring_aura_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_alluring_aura_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aloe_sweat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aloe_sweat_you_off": {
       "alert": {},
@@ -9562,18 +9835,18 @@ def build_config(base_path):
     },
     "spell_aloe_sweat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_anarchy_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_anarchy_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ancient_breath_you_on": {
       "alert": {},
@@ -9582,23 +9855,23 @@ def build_config(base_path):
     },
     "spell_annul_magic_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_annul_magic_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_anthem_de_arms_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_armor_of_protection_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_asystole_you_off": {
       "alert": {},
@@ -9607,33 +9880,33 @@ def build_config(base_path):
     },
     "spell_asystole_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_atols_spectral_shackles_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_atols_spectral_shackles_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_atone_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_atone_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_black_petals_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_black_petals_you_off": {
       "alert": {},
@@ -9642,13 +9915,13 @@ def build_config(base_path):
     },
     "spell_aura_of_black_petals_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_blue_petals_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_blue_petals_you_off": {
       "alert": {},
@@ -9657,13 +9930,13 @@ def build_config(base_path):
     },
     "spell_aura_of_blue_petals_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_green_petals_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_green_petals_you_off": {
       "alert": {},
@@ -9672,13 +9945,13 @@ def build_config(base_path):
     },
     "spell_aura_of_green_petals_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_marr_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_marr_you_off": {
       "alert": {},
@@ -9687,8 +9960,8 @@ def build_config(base_path):
     },
     "spell_aura_of_red_petals_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_red_petals_you_off": {
       "alert": {},
@@ -9697,13 +9970,13 @@ def build_config(base_path):
     },
     "spell_aura_of_red_petals_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_white_petals_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_aura_of_white_petals_you_off": {
       "alert": {},
@@ -9712,28 +9985,28 @@ def build_config(base_path):
     },
     "spell_aura_of_white_petals_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_avalanche_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_avalanche_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_avatar_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_avatar_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_avatar_power_you_on": {
       "alert": {},
@@ -9742,8 +10015,8 @@ def build_config(base_path):
     },
     "spell_avatar_snare_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_avatar_snare_you_off": {
       "alert": {},
@@ -9762,23 +10035,23 @@ def build_config(base_path):
     },
     "spell_avatar_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bane_of_nife_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bane_of_nife_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_banshee_aura_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_banshee_aura_you_off": {
       "alert": {},
@@ -9787,28 +10060,28 @@ def build_config(base_path):
     },
     "spell_banshee_aura_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_barbcoat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_barbcoat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_barrier_of_combustion_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_barrier_of_force_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_barrier_of_force_you_off": {
       "alert": {},
@@ -9817,13 +10090,13 @@ def build_config(base_path):
     },
     "spell_barrier_of_force_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_battery_vision_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_battery_vision_you_off": {
       "alert": {},
@@ -9832,13 +10105,13 @@ def build_config(base_path):
     },
     "spell_battery_vision_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bedlam_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bedlam_you_off": {
       "alert": {},
@@ -9847,8 +10120,8 @@ def build_config(base_path):
     },
     "spell_bedlam_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_berserker_spirit_you_off": {
       "alert": {},
@@ -9857,13 +10130,13 @@ def build_config(base_path):
     },
     "spell_berserker_spirit_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_berserker_strength_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_berserker_strength_you_off": {
       "alert": {},
@@ -9872,23 +10145,23 @@ def build_config(base_path):
     },
     "spell_berserker_strength_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bind_affinity_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bind_affinity_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bind_affinity_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bind_affinity_you_on": {
       "alert": {},
@@ -9902,53 +10175,53 @@ def build_config(base_path):
     },
     "spell_bind_sight_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bladecoat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bladecoat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blast_of_cold_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blast_of_cold_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blessing_of_nature_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blessing_of_nature_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blessing_of_the_blackstar_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blessing_of_the_blackstar_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blessing_of_the_theurgist_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blinding_fear_other_cast": {
       "alert": {},
@@ -9957,23 +10230,23 @@ def build_config(base_path):
     },
     "spell_blinding_fear_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blizzard_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blizzard_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blood_claw_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_blood_claw_you_off": {
       "alert": {},
@@ -9982,83 +10255,83 @@ def build_config(base_path):
     },
     "spell_blood_claw_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bobbing_corpse_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bobbing_corpse_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_boil_blood_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_boil_blood_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bonds_of_force_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bonds_of_force_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bonds_of_tunare_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bonds_of_tunare_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bone_shatter_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_boneshear_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_boon_of_the_garou_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_boon_of_the_garou_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bramblecoat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bramblecoat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bravery_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bravery_you_off": {
       "alert": {},
@@ -10067,33 +10340,33 @@ def build_config(base_path):
     },
     "spell_bravery_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_breath_of_karana_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_breath_of_karana_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_breath_of_the_dead_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_breath_of_the_dead_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_breath_of_the_sea_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_breath_of_the_sea_you_off": {
       "alert": {},
@@ -10102,13 +10375,13 @@ def build_config(base_path):
     },
     "spell_breath_of_the_sea_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_breeze_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_breeze_you_off": {
       "alert": {},
@@ -10117,13 +10390,13 @@ def build_config(base_path):
     },
     "spell_breeze_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_brilliance_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_brilliance_you_off": {
       "alert": {},
@@ -10132,48 +10405,48 @@ def build_config(base_path):
     },
     "spell_bruscos_boastful_bellow_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bruscos_boastful_bellow_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bruscos_bombastic_bellow_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bruscos_bombastic_bellow_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bulwark_of_faith_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_bulwark_of_faith_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_burn_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_burn_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_burning_vengeance_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_burning_vengeance_you_on": {
       "alert": {},
@@ -10192,58 +10465,58 @@ def build_config(base_path):
     },
     "spell_burrowing_scarab_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_burst_of_fire_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_burst_of_fire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_burst_of_flame_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_burst_of_flame_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_burst_of_strength_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cadeau_of_flame_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cadeau_of_flame_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_calefaction_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_calefaction_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_calimony_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_calimony_you_off": {
       "alert": {},
@@ -10252,13 +10525,13 @@ def build_config(base_path):
     },
     "spell_calimony_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_earth_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_earth_you_off": {
       "alert": {},
@@ -10267,33 +10540,33 @@ def build_config(base_path):
     },
     "spell_call_of_earth_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_flame_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_flame_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_sky_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_sky_strike_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_sky_strike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_sky_you_off": {
       "alert": {},
@@ -10302,18 +10575,18 @@ def build_config(base_path):
     },
     "spell_call_of_sky_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_the_hero_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_the_predator_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_the_predator_you_off": {
       "alert": {},
@@ -10322,8 +10595,8 @@ def build_config(base_path):
     },
     "spell_call_of_the_predator_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_call_of_the_zero_other_on": {
       "alert": {},
@@ -10342,23 +10615,23 @@ def build_config(base_path):
     },
     "spell_camouflage_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cancel_magic_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cancel_magic_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_captain_nalots_quickening_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_captain_nalots_quickening_you_off": {
       "alert": {},
@@ -10367,43 +10640,43 @@ def build_config(base_path):
     },
     "spell_captain_nalots_quickening_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cascade_of_hail_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cascade_of_hail_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cassindras_chorus_of_clarity_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cassindras_chorus_of_clarity_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cassindras_elegy_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cassindras_elegy_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cassindras_insipid_ditty_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cassindras_insipid_ditty_you_off": {
       "alert": {},
@@ -10412,18 +10685,18 @@ def build_config(base_path):
     },
     "spell_cassindras_insipid_ditty_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cast_force_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cast_force_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cast_sight_you_off": {
       "alert": {},
@@ -10432,13 +10705,13 @@ def build_config(base_path):
     },
     "spell_cast_sight_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_center_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_center_you_off": {
       "alert": {},
@@ -10447,13 +10720,13 @@ def build_config(base_path):
     },
     "spell_center_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cessation_of_cor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cessation_of_cor_you_off": {
       "alert": {},
@@ -10462,8 +10735,8 @@ def build_config(base_path):
     },
     "spell_cessation_of_cor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ceticious_cloud_other_cast": {
       "alert": {},
@@ -10472,63 +10745,63 @@ def build_config(base_path):
     },
     "spell_ceticious_cloud_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ceticious_cloud_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ceticious_cloud_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chant_of_battle_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chant_of_battle_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chaos_flux_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chaos_flux_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chaotic_feedback_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chaotic_feedback_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_char_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_char_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chase_the_moon_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chase_the_moon_you_off": {
       "alert": {},
@@ -10537,23 +10810,23 @@ def build_config(base_path):
     },
     "spell_chase_the_moon_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chill_bones_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chill_bones_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chill_of_unlife_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chill_of_unlife_you_off": {
       "alert": {},
@@ -10567,8 +10840,8 @@ def build_config(base_path):
     },
     "spell_chilling_embrace_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chilling_embrace_you_off": {
       "alert": {},
@@ -10577,18 +10850,18 @@ def build_config(base_path):
     },
     "spell_chilling_embrace_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chloroblast_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_chloroblast_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cindas_charismatic_carillon_you_off": {
       "alert": {},
@@ -10597,23 +10870,23 @@ def build_config(base_path):
     },
     "spell_cindas_charismatic_carillon_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_circle_of_force_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_circle_of_force_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_circle_of_summer_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_circle_of_summer_you_off": {
       "alert": {},
@@ -10622,18 +10895,18 @@ def build_config(base_path):
     },
     "spell_circle_of_summer_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_circle_of_the_combines_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_circle_of_winter_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_circle_of_winter_you_off": {
       "alert": {},
@@ -10642,28 +10915,28 @@ def build_config(base_path):
     },
     "spell_circle_of_winter_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cleanse_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_clinging_darkness_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_clinging_darkness_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_clockwork_poison_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_clockwork_poison_you_off": {
       "alert": {},
@@ -10672,8 +10945,8 @@ def build_config(base_path):
     },
     "spell_clockwork_poison_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cloud_of_fear_you_on": {
       "alert": {},
@@ -10682,18 +10955,18 @@ def build_config(base_path):
     },
     "spell_cloud_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cloud_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cog_boost_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cog_boost_you_off": {
       "alert": {},
@@ -10702,93 +10975,93 @@ def build_config(base_path):
     },
     "spell_cog_boost_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_coldlight_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_coldlight_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_color_slant_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_color_slant_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_column_of_fire_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_column_of_fire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_column_of_lightning_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_column_of_lightning_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_combust_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_companion_spirit_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_complete_healing_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_complete_healing_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_concussion_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_concussion_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_conglaciation_of_bone_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_conglaciation_of_bone_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_courage_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_courage_you_off": {
       "alert": {},
@@ -10797,43 +11070,43 @@ def build_config(base_path):
     },
     "spell_courage_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_creeping_vision_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_creeping_vision_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cripple_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cripple_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_crissions_pixie_strike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_cure_blindness_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_curse_of_the_simple_mind_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_curse_of_the_simple_mind_you_off": {
       "alert": {},
@@ -10842,13 +11115,13 @@ def build_config(base_path):
     },
     "spell_curse_of_the_simple_mind_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_curse_of_the_spirits_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_curse_of_the_spirits_you_off": {
       "alert": {},
@@ -10857,8 +11130,8 @@ def build_config(base_path):
     },
     "spell_curse_of_the_spirits_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dance_of_the_blade_you_off": {
       "alert": {},
@@ -10867,23 +11140,23 @@ def build_config(base_path):
     },
     "spell_dance_of_the_blade_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dance_of_the_fireflies_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dance_of_the_fireflies_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_daring_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_daring_you_off": {
       "alert": {},
@@ -10892,28 +11165,28 @@ def build_config(base_path):
     },
     "spell_daring_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dark_empathy_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dark_empathy_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dark_pact_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dawncall_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dawncall_you_off": {
       "alert": {},
@@ -10922,13 +11195,13 @@ def build_config(base_path):
     },
     "spell_dawncall_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dead_man_floating_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dead_man_floating_you_off": {
       "alert": {},
@@ -10937,23 +11210,23 @@ def build_config(base_path):
     },
     "spell_dead_man_floating_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_deadly_lifetap_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_deadly_lifetap_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_deadly_velium_poison_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_deadly_velium_poison_you_off": {
       "alert": {},
@@ -10962,83 +11235,83 @@ def build_config(base_path):
     },
     "spell_deadly_velium_poison_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_death_pact_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_death_pact_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_deliriously_nimble_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_deliriously_nimble_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dementia_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dementia_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dementing_visions_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dementing_visions_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_denons_bereavement_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_denons_bereavement_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_denons_desperate_dirge_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_denons_desperate_dirge_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_denons_desperate_dirge_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_denons_desperate_dirge_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_desperate_hope_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_desperate_hope_you_off": {
       "alert": {},
@@ -11047,23 +11320,23 @@ def build_config(base_path):
     },
     "spell_desperate_hope_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_devouring_darkness_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_devouring_darkness_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dexterous_aura_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dexterous_aura_you_off": {
       "alert": {},
@@ -11072,28 +11345,28 @@ def build_config(base_path):
     },
     "spell_diamondskin_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_diamondskin_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_discordant_mind_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_discordant_mind_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_disease_cloud_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_disease_cloud_you_off": {
       "alert": {},
@@ -11102,53 +11375,53 @@ def build_config(base_path):
     },
     "spell_disease_cloud_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_diseased_cloud_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_diseased_cloud_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_diseased_cloud_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_diseased_cloud_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_disintegrate_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_distraction_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_distraction_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_aura_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_barrier_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_barrier_you_off": {
       "alert": {},
@@ -11157,13 +11430,13 @@ def build_config(base_path):
     },
     "spell_divine_barrier_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_favor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_favor_you_off": {
       "alert": {},
@@ -11172,13 +11445,13 @@ def build_config(base_path):
     },
     "spell_divine_favor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_glory_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_glory_you_off": {
       "alert": {},
@@ -11187,23 +11460,23 @@ def build_config(base_path):
     },
     "spell_divine_glory_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_intervention_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_intervention_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_intervention_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_intervention_you_off": {
       "alert": {},
@@ -11212,33 +11485,33 @@ def build_config(base_path):
     },
     "spell_divine_intervention_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_light_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_light_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_might_effect_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_might_effect_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_might_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_might_you_off": {
       "alert": {},
@@ -11247,13 +11520,13 @@ def build_config(base_path):
     },
     "spell_divine_might_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_purpose_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_purpose_you_off": {
       "alert": {},
@@ -11262,13 +11535,13 @@ def build_config(base_path):
     },
     "spell_divine_purpose_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_strength_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_strength_you_off": {
       "alert": {},
@@ -11277,43 +11550,43 @@ def build_config(base_path):
     },
     "spell_divine_strength_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_divine_wrath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dizzy_i_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dizzy_iv_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_doljons_rage_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_doljons_rage_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dot_nec_heart_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_draconic_rage_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_draconic_rage_you_off": {
       "alert": {},
@@ -11322,8 +11595,8 @@ def build_config(base_path):
     },
     "spell_draconic_rage_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dragon_roar_other_cast": {
       "alert": {},
@@ -11332,63 +11605,63 @@ def build_config(base_path):
     },
     "spell_dragon_roar_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_draught_of_fire_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_draught_of_fire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_draught_of_ice_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_draught_of_ice_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_draught_of_jiva_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_draught_of_jiva_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_drybonefireburst_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_drybonefireburst_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dulsehound_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_dulsehound_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_earthcall_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_earthcall_you_off": {
       "alert": {},
@@ -11397,33 +11670,33 @@ def build_config(base_path):
     },
     "spell_earthcall_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_earthelementalattack_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_earthelementalattack_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_earthquake_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_earthquake_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_echinacea_infusion_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_echinacea_infusion_you_off": {
       "alert": {},
@@ -11432,8 +11705,8 @@ def build_config(base_path):
     },
     "spell_echinacea_infusion_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_efreeti_fire_you_on": {
       "alert": {},
@@ -11442,13 +11715,13 @@ def build_config(base_path):
     },
     "spell_egress_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_electric_blast_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_electric_blast_you_on": {
       "alert": {},
@@ -11462,8 +11735,8 @@ def build_config(base_path):
     },
     "spell_elemental_maelstrom_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_elemental_maelstrom_you_off": {
       "alert": {},
@@ -11472,13 +11745,13 @@ def build_config(base_path):
     },
     "spell_elemental_maelstrom_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_elemental_rhythms_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_elemental_shield_you_off": {
       "alert": {},
@@ -11487,8 +11760,8 @@ def build_config(base_path):
     },
     "spell_embrace_of_the_kelpmaiden_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_embrace_of_the_kelpmaiden_you_off": {
       "alert": {},
@@ -11502,8 +11775,8 @@ def build_config(base_path):
     },
     "spell_endure_cold_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_endure_cold_you_off": {
       "alert": {},
@@ -11512,8 +11785,8 @@ def build_config(base_path):
     },
     "spell_endure_disease_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_endure_disease_you_off": {
       "alert": {},
@@ -11522,8 +11795,8 @@ def build_config(base_path):
     },
     "spell_endure_fire_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_endure_fire_you_off": {
       "alert": {},
@@ -11532,8 +11805,8 @@ def build_config(base_path):
     },
     "spell_endure_magic_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_endure_magic_you_off": {
       "alert": {},
@@ -11542,8 +11815,8 @@ def build_config(base_path):
     },
     "spell_endure_poison_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_endure_poison_you_off": {
       "alert": {},
@@ -11552,13 +11825,13 @@ def build_config(base_path):
     },
     "spell_energy_sap_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_energy_sap_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_energy_sap_you_off": {
       "alert": {},
@@ -11567,53 +11840,53 @@ def build_config(base_path):
     },
     "spell_energy_sap_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_energy_storm_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_energy_storm_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_enfeeblement_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_enfeeblement_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_enforced_reverence_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_enforced_reverence_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_engorging_roots_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_engorging_roots_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_enlightenment_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_enlightenment_you_off": {
       "alert": {},
@@ -11622,8 +11895,8 @@ def build_config(base_path):
     },
     "spell_enlightenment_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ensnare_you_off": {
       "alert": {},
@@ -11632,8 +11905,8 @@ def build_config(base_path):
     },
     "spell_enthrall_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_enthrall_you_off": {
       "alert": {},
@@ -11642,18 +11915,18 @@ def build_config(base_path):
     },
     "spell_enthrall_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_enticement_of_flame_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_enticement_of_flame_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_entomb_in_ice_other_cast": {
       "alert": {},
@@ -11667,8 +11940,8 @@ def build_config(base_path):
     },
     "spell_entrance_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_entrance_you_off": {
       "alert": {},
@@ -11677,38 +11950,38 @@ def build_config(base_path):
     },
     "spell_entrance_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_envenomed_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_envenomed_heal_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_envenomed_heal_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_essence_drain_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_essence_tap_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_eye_of_confusion_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_eye_of_confusion_you_off": {
       "alert": {},
@@ -11717,8 +11990,8 @@ def build_config(base_path):
     },
     "spell_eye_of_confusion_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_eye_of_tallon_you_off": {
       "alert": {},
@@ -11727,13 +12000,13 @@ def build_config(base_path):
     },
     "spell_eyes_of_the_cat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fade_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fade_you_off": {
       "alert": {},
@@ -11742,23 +12015,23 @@ def build_config(base_path):
     },
     "spell_fade_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fangols_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fangols_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fascination_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fascination_you_off": {
       "alert": {},
@@ -11767,13 +12040,13 @@ def build_config(base_path):
     },
     "spell_fascination_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fatigue_drain_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fatigue_drain_you_on": {
       "alert": {},
@@ -11782,23 +12055,23 @@ def build_config(base_path):
     },
     "spell_fear_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fear_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_feeble_mind_iv_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_feedback_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_feedback_you_off": {
       "alert": {},
@@ -11807,23 +12080,23 @@ def build_config(base_path):
     },
     "spell_feedback_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_feet_like_cat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_feet_like_cat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_feign_death_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_feign_death_you_off": {
       "alert": {},
@@ -11832,8 +12105,8 @@ def build_config(base_path):
     },
     "spell_fellspine_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fellspine_you_off": {
       "alert": {},
@@ -11842,13 +12115,13 @@ def build_config(base_path):
     },
     "spell_fellspine_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fiery_might_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fiery_might_you_off": {
       "alert": {},
@@ -11857,28 +12130,28 @@ def build_config(base_path):
     },
     "spell_fiery_might_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fingers_of_fire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fire_spiral_of_alkabor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fire_spiral_of_alkabor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_firefist_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_firefist_you_off": {
       "alert": {},
@@ -11887,28 +12160,28 @@ def build_config(base_path):
     },
     "spell_firefist_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_firestorm_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fist_of_karana_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fist_of_karana_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fist_of_sentience_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fist_of_sentience_you_off": {
       "alert": {},
@@ -11917,13 +12190,13 @@ def build_config(base_path):
     },
     "spell_fist_of_sentience_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fist_of_water_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fist_of_water_you_on": {
       "alert": {},
@@ -11932,8 +12205,8 @@ def build_config(base_path):
     },
     "spell_fixation_of_ro_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fixation_of_ro_you_off": {
       "alert": {},
@@ -11942,8 +12215,8 @@ def build_config(base_path):
     },
     "spell_fixation_of_ro_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flame_jet_other_cast": {
       "alert": {},
@@ -11952,13 +12225,13 @@ def build_config(base_path):
     },
     "spell_flame_jet_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flame_lick_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flame_lick_you_off": {
       "alert": {},
@@ -11967,58 +12240,58 @@ def build_config(base_path):
     },
     "spell_flame_lick_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flame_of_light_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flame_of_light_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flame_of_the_efreeti_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flame_of_the_efreeti_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flames_of_ro_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flames_of_ro_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flavor_nec_hp": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fleeting_fury_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fleeting_fury_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flurry_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_flurry_you_off": {
       "alert": {},
@@ -12027,13 +12300,13 @@ def build_config(base_path):
     },
     "spell_flurry_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_focus_of_spirit_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_focus_of_spirit_you_off": {
       "alert": {},
@@ -12042,23 +12315,23 @@ def build_config(base_path):
     },
     "spell_focus_of_spirit_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_force_spiral_of_alkabor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_force_spiral_of_alkabor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_form_of_the_great_bear_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_form_of_the_great_bear_you_off": {
       "alert": {},
@@ -12067,18 +12340,18 @@ def build_config(base_path):
     },
     "spell_form_of_the_great_bear_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fortitude_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fortitude_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_freezing_breath_other_cast": {
       "alert": {},
@@ -12087,48 +12360,48 @@ def build_config(base_path):
     },
     "spell_freezing_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_freezing_breath_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_freezing_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frenzied_spirit_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frenzied_spirit_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frenzied_strength_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frenzied_strength_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_bolt_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_bolt_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_breath_other_cast": {
       "alert": {},
@@ -12137,38 +12410,38 @@ def build_config(base_path):
     },
     "spell_frost_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_breath_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_rift_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_rift_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_storm_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_storm_you_off": {
       "alert": {},
@@ -12177,38 +12450,38 @@ def build_config(base_path):
     },
     "spell_frost_storm_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_strike_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_strike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frost_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frostbite_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frostbite_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frostreavers_blessing_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frostreavers_blessing_you_off": {
       "alert": {},
@@ -12217,13 +12490,13 @@ def build_config(base_path):
     },
     "spell_frostreavers_blessing_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frosty_death_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_frosty_death_you_on": {
       "alert": {},
@@ -12232,8 +12505,8 @@ def build_config(base_path):
     },
     "spell_fufils_curtailing_chant_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fufils_curtailing_chant_you_off": {
       "alert": {},
@@ -12242,23 +12515,23 @@ def build_config(base_path):
     },
     "spell_fufils_curtailing_chant_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fungal_regrowth_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fungal_regrowth_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fungus_spores_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_fungus_spores_you_off": {
       "alert": {},
@@ -12267,33 +12540,33 @@ def build_config(base_path):
     },
     "spell_fungus_spores_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_furor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_furor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_gangrenous_touch_of_zumuul_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_gangrenous_touch_of_zumuul_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_gangrenous_touch_of_zumuul_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_garzicors_vengeance_other_on": {
       "alert": {},
@@ -12307,8 +12580,8 @@ def build_config(base_path):
     },
     "spell_gather_shadows_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_gather_shadows_you_off": {
       "alert": {},
@@ -12317,8 +12590,8 @@ def build_config(base_path):
     },
     "spell_gather_shadows_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_gaze_you_off": {
       "alert": {},
@@ -12327,8 +12600,8 @@ def build_config(base_path):
     },
     "spell_gaze_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_gelatroot_other_cast": {
       "alert": {},
@@ -12342,8 +12615,8 @@ def build_config(base_path):
     },
     "spell_gelatroot_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ghoul_root_other_cast": {
       "alert": {},
@@ -12357,13 +12630,13 @@ def build_config(base_path):
     },
     "spell_ghoul_root_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_gift_of_aerr_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_gift_of_aerr_you_on": {
       "alert": {},
@@ -12392,23 +12665,23 @@ def build_config(base_path):
     },
     "spell_girdle_of_karana_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_glamour_of_kintaz_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_glamour_of_kintaz_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_glamour_of_tunare_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_glamour_of_tunare_you_off": {
       "alert": {},
@@ -12417,18 +12690,18 @@ def build_config(base_path):
     },
     "spell_graveyard_dust_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_graveyard_dust_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_grease_injection_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_grease_injection_you_off": {
       "alert": {},
@@ -12437,23 +12710,23 @@ def build_config(base_path):
     },
     "spell_grease_injection_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_greenmist_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_greenmist_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_grim_aura_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_grim_aura_you_off": {
       "alert": {},
@@ -12462,28 +12735,28 @@ def build_config(base_path):
     },
     "spell_grim_aura_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_guardian_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_guardian_rhythms_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_guardian_spirit_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_guardian_spirit_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_guardian_you_off": {
       "alert": {},
@@ -12492,23 +12765,23 @@ def build_config(base_path):
     },
     "spell_guardian_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_halo_of_light_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_halo_of_light_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_harmshield_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_harpy_voice_you_off": {
       "alert": {},
@@ -12522,23 +12795,23 @@ def build_config(base_path):
     },
     "spell_harvest_leaves_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_harvest_leaves_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_harvest_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_harvest_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_haste_you_off": {
       "alert": {},
@@ -12547,13 +12820,13 @@ def build_config(base_path):
     },
     "spell_health_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_health_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_heart_flutter_you_off": {
       "alert": {},
@@ -12562,33 +12835,33 @@ def build_config(base_path):
     },
     "spell_heart_flutter_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_heat_blood_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_heat_blood_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_holy_shock_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_holy_shock_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_hug_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_hug_you_off": {
       "alert": {},
@@ -12602,8 +12875,8 @@ def build_config(base_path):
     },
     "spell_ice_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ice_breath_you_off": {
       "alert": {},
@@ -12617,8 +12890,8 @@ def build_config(base_path):
     },
     "spell_ice_rend_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ice_rend_you_on": {
       "alert": {},
@@ -12627,18 +12900,18 @@ def build_config(base_path):
     },
     "spell_ice_spear_of_solist_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ice_spear_of_solist_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ice_strike_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ice_strike_you_off": {
       "alert": {},
@@ -12647,33 +12920,33 @@ def build_config(base_path):
     },
     "spell_ice_strike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_icestrike_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_icestrike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ignite_bones_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ignite_bones_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_immolate_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_immolate_you_off": {
       "alert": {},
@@ -12682,8 +12955,8 @@ def build_config(base_path):
     },
     "spell_immolate_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_immolating_breath_other_cast": {
       "alert": {},
@@ -12692,18 +12965,18 @@ def build_config(base_path):
     },
     "spell_immolating_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_immolating_breath_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_immolating_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_impart_strength_you_off": {
       "alert": {},
@@ -12712,43 +12985,43 @@ def build_config(base_path):
     },
     "spell_incinerate_bones_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_incinerate_bones_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_infectious_cloud_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_infectious_cloud_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_inferno_of_alkabor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_inferno_of_alkabor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_infusion_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_infusion_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_inner_fire_you_off": {
       "alert": {},
@@ -12757,8 +13030,8 @@ def build_config(base_path):
     },
     "spell_insight_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_insight_you_off": {
       "alert": {},
@@ -12767,38 +13040,38 @@ def build_config(base_path):
     },
     "spell_insight_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_inspire_fear_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_invert_gravity_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_invigorate_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_invisibility_cloak_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_invisibility_cloak_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_invoke_fear_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_jonthans_inspiration_you_off": {
       "alert": {},
@@ -12807,13 +13080,13 @@ def build_config(base_path):
     },
     "spell_jonthans_inspiration_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_jonthans_provocation_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_jonthans_provocation_you_off": {
       "alert": {},
@@ -12822,8 +13095,8 @@ def build_config(base_path):
     },
     "spell_jonthans_provocation_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_jonthans_whistling_warsong_you_off": {
       "alert": {},
@@ -12832,38 +13105,38 @@ def build_config(base_path):
     },
     "spell_jonthans_whistling_warsong_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_jylls_static_pulse_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_jylls_static_pulse_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_jylls_wave_of_heat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_jylls_wave_of_heat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_jylls_zephyr_of_ice_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_jylls_zephyr_of_ice_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_kazumis_note_of_preservation_you_off": {
       "alert": {},
@@ -12872,8 +13145,8 @@ def build_config(base_path):
     },
     "spell_kelins_lucid_lullaby_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_kelins_lucid_lullaby_you_off": {
       "alert": {},
@@ -12882,13 +13155,13 @@ def build_config(base_path):
     },
     "spell_kelins_lucid_lullaby_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_kelins_lugubrious_lament_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_kelins_lugubrious_lament_you_off": {
       "alert": {},
@@ -12897,8 +13170,8 @@ def build_config(base_path):
     },
     "spell_kelins_lugubrious_lament_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_knockback_other_cast": {
       "alert": {},
@@ -12907,33 +13180,33 @@ def build_config(base_path):
     },
     "spell_knockback_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_knockback_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_knockback_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_kylies_venom_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_kylies_venom_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_largarns_lamentation_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_largarns_lamentation_you_off": {
       "alert": {},
@@ -12942,8 +13215,8 @@ def build_config(base_path):
     },
     "spell_largarns_lamentation_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_largos_absonant_binding_you_off": {
       "alert": {},
@@ -12952,8 +13225,8 @@ def build_config(base_path):
     },
     "spell_lava_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lava_breath_you_on": {
       "alert": {},
@@ -12962,38 +13235,38 @@ def build_config(base_path):
     },
     "spell_lava_storm_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_leach_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_leach_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_leatherskin_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_leatherskin_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_levant_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_levitate_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_levitate_you_off": {
       "alert": {},
@@ -13002,68 +13275,68 @@ def build_config(base_path):
     },
     "spell_levitate_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_life_leech_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_light_healing_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lightning_bolt_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lightning_bolt_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lightning_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lightning_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lightning_shock_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lightning_storm_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lightning_storm_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lightning_strike_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lightning_strike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_agility_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_agility_you_off": {
       "alert": {},
@@ -13077,13 +13350,13 @@ def build_config(base_path):
     },
     "spell_line_bard_cancel_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_berserk_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_berserk_you_off": {
       "alert": {},
@@ -13092,13 +13365,13 @@ def build_config(base_path):
     },
     "spell_line_berserk_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_berserker_madness_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_berserker_madness_you_off": {
       "alert": {},
@@ -13107,18 +13380,18 @@ def build_config(base_path):
     },
     "spell_line_berserker_madness_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_bind_sight_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_blind_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_blind_you_off": {
       "alert": {},
@@ -13127,28 +13400,28 @@ def build_config(base_path):
     },
     "spell_line_blind_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_blinding_poison_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_blinding_poison_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_blizzard_blast_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_blizzard_blast_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_boil_blood_you_off": {
       "alert": {},
@@ -13157,38 +13430,38 @@ def build_config(base_path):
     },
     "spell_line_bolt_of_flame_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_bolt_of_flame_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_bolt_of_karana_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_bolt_of_karana_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_brd_bruscos_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_brd_bruscos_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_brd_cc_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_brd_charm_you_off": {
       "alert": {},
@@ -13197,13 +13470,13 @@ def build_config(base_path):
     },
     "spell_line_brd_dd_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_brd_haste_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_brd_resists_you_off": {
       "alert": {},
@@ -13227,8 +13500,8 @@ def build_config(base_path):
     },
     "spell_line_brd_tuyen_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_brd_tuyen_you_off": {
       "alert": {},
@@ -13237,8 +13510,8 @@ def build_config(base_path):
     },
     "spell_line_brd_tuyen_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_brittle_haste_you_off": {
       "alert": {},
@@ -13247,23 +13520,23 @@ def build_config(base_path):
     },
     "spell_line_brittle_haste_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_cannibalize_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_cat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_charisma_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_charisma_you_off": {
       "alert": {},
@@ -13272,13 +13545,13 @@ def build_config(base_path):
     },
     "spell_line_charisma_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_charm_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_charm_you_off": {
       "alert": {},
@@ -13287,13 +13560,13 @@ def build_config(base_path):
     },
     "spell_line_charm_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_clarity_ii_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_clarity_ii_you_off": {
       "alert": {},
@@ -13302,13 +13575,13 @@ def build_config(base_path):
     },
     "spell_line_clarity_ii_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_clarity_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_clarity_you_off": {
       "alert": {},
@@ -13317,28 +13590,28 @@ def build_config(base_path):
     },
     "spell_line_clarity_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_cold_resist_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_combust_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_combusts_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_debuff_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_debuff_you_off": {
       "alert": {},
@@ -13347,18 +13620,18 @@ def build_config(base_path):
     },
     "spell_line_debuff_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_defoliation_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dexterity_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dexterity_you_off": {
       "alert": {},
@@ -13367,23 +13640,23 @@ def build_config(base_path):
     },
     "spell_line_dexterity_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_disease_resist_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dizzy_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dot_disease_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dot_disease_you_off": {
       "alert": {},
@@ -13392,13 +13665,13 @@ def build_config(base_path):
     },
     "spell_line_dot_disease_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dot_enc_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dot_enc_you_off": {
       "alert": {},
@@ -13407,23 +13680,23 @@ def build_config(base_path):
     },
     "spell_line_dot_enc_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_best_hp_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_best_hp_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_ds_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_ds_you_off": {
       "alert": {},
@@ -13432,23 +13705,23 @@ def build_config(base_path):
     },
     "spell_line_dru_ds_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_fire_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_fire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_root_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_root_you_off": {
       "alert": {},
@@ -13457,23 +13730,23 @@ def build_config(base_path):
     },
     "spell_line_dru_root_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_skyfire_or_ej_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_skyfire_or_ej_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_tree_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_dru_tree_you_off": {
       "alert": {},
@@ -13482,13 +13755,13 @@ def build_config(base_path):
     },
     "spell_line_dru_tree_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_ac_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_ac_you_off": {
       "alert": {},
@@ -13497,18 +13770,18 @@ def build_config(base_path):
     },
     "spell_line_enc_ac_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_cancel_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_cancel_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_charisma_you_off": {
       "alert": {},
@@ -13517,28 +13790,28 @@ def build_config(base_path):
     },
     "spell_line_enc_debuff_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_debuff_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_mana_buff_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_mana_buff_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_slow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_slow_you_off": {
       "alert": {},
@@ -13547,13 +13820,13 @@ def build_config(base_path):
     },
     "spell_line_enc_slow_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_stun_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enc_stun_you_off": {
       "alert": {},
@@ -13562,23 +13835,23 @@ def build_config(base_path):
     },
     "spell_line_enc_stun_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_endurance_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_endurance_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enduring_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_enduring_breath_you_off": {
       "alert": {},
@@ -13587,13 +13860,13 @@ def build_config(base_path):
     },
     "spell_line_enduring_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_faction_increase_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_faction_increase_you_off": {
       "alert": {},
@@ -13602,28 +13875,28 @@ def build_config(base_path):
     },
     "spell_line_faction_increase_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fade_away_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fear_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fear_undead_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fear_undead_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fear_you_off": {
       "alert": {},
@@ -13632,13 +13905,13 @@ def build_config(base_path):
     },
     "spell_line_fear_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_feeble_mind_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_feel_better_you_off": {
       "alert": {},
@@ -13652,43 +13925,43 @@ def build_config(base_path):
     },
     "spell_line_fire_flame_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fire_flame_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fire_flames_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fire_flames_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fire_ignite_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fire_ignite_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fire_resist_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_flesh_rot_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_flesh_rot_you_off": {
       "alert": {},
@@ -13697,38 +13970,38 @@ def build_config(base_path):
     },
     "spell_line_flesh_rot_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_force_strike_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_force_strike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fragile_sow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fragile_sow_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_frost_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_frost_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_fury_you_off": {
       "alert": {},
@@ -13737,18 +14010,18 @@ def build_config(base_path):
     },
     "spell_line_grav_flux_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_grav_flux_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_group_portal_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_group_portal_you_off": {
       "alert": {},
@@ -13757,13 +14030,13 @@ def build_config(base_path):
     },
     "spell_line_hammer_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_haste_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_haste_you_off": {
       "alert": {},
@@ -13772,33 +14045,33 @@ def build_config(base_path):
     },
     "spell_line_haste_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_haste_stats_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_npc_item_haste_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_healing_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_healing_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_heroic_valor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_heroic_valor_you_off": {
       "alert": {},
@@ -13807,13 +14080,13 @@ def build_config(base_path):
     },
     "spell_line_heroic_valor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_holy_armor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_holy_armor_you_off": {
       "alert": {},
@@ -13822,8 +14095,8 @@ def build_config(base_path):
     },
     "spell_line_holy_armor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_holy_ds_you_off": {
       "alert": {},
@@ -13837,8 +14110,8 @@ def build_config(base_path):
     },
     "spell_line_hot_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_hot_you_off": {
       "alert": {},
@@ -13847,18 +14120,18 @@ def build_config(base_path):
     },
     "spell_line_hot_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_hungry_earth_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_illusion_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_illusion_you_off": {
       "alert": {},
@@ -13867,13 +14140,13 @@ def build_config(base_path):
     },
     "spell_line_illusion_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_infravision_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_infravision_you_off": {
       "alert": {},
@@ -13882,8 +14155,8 @@ def build_config(base_path):
     },
     "spell_line_infravision_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_int_caster_shield_you_off": {
       "alert": {},
@@ -13892,23 +14165,23 @@ def build_config(base_path):
     },
     "spell_line_int_caster_shield_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_int_resists_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_int_resists_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_invis_animal_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_invis_animal_you_off": {
       "alert": {},
@@ -13917,13 +14190,13 @@ def build_config(base_path):
     },
     "spell_line_invis_animal_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_invis_undead_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_invis_undead_you_off": {
       "alert": {},
@@ -13932,8 +14205,8 @@ def build_config(base_path):
     },
     "spell_line_invis_undead_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_invis_you_off": {
       "alert": {},
@@ -13942,8 +14215,8 @@ def build_config(base_path):
     },
     "spell_line_invis_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_invulnerable_you_off": {
       "alert": {},
@@ -13952,43 +14225,43 @@ def build_config(base_path):
     },
     "spell_line_koi_or_trident_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_lava_storm_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_leach_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_liquid_silver_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_liquid_silver_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_low_nec_mana_regen_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_low_tash_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_lower_resists_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_mag_armor_you_off": {
       "alert": {},
@@ -13997,63 +14270,63 @@ def build_config(base_path):
     },
     "spell_line_mag_ds_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_high_mag_ds_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_low_mag_ds_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_mag_shock_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_mag_shock_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_mag_sow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_magic_resist_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_magic_resist_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_magnify_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_magnify_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_magnify_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_malo_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_malo_you_off": {
       "alert": {},
@@ -14062,8 +14335,8 @@ def build_config(base_path):
     },
     "spell_line_malo_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_memblur_other_on": {
       "alert": {},
@@ -14072,13 +14345,13 @@ def build_config(base_path):
     },
     "spell_line_memblur_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_mez_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_mez_you_off": {
       "alert": {},
@@ -14087,13 +14360,13 @@ def build_config(base_path):
     },
     "spell_line_mez_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_mind_clears_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_minor_shielding_you_off": {
       "alert": {},
@@ -14102,33 +14375,33 @@ def build_config(base_path):
     },
     "spell_line_muscle_lock_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_charm_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_fire_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_fire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_haste_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_heal_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_heal_you_off": {
       "alert": {},
@@ -14142,23 +14415,23 @@ def build_config(base_path):
     },
     "spell_line_nec_hp_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_pet_heal_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_pet_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_regen_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_regen_you_off": {
       "alert": {},
@@ -14167,18 +14440,18 @@ def build_config(base_path):
     },
     "spell_line_nec_regen_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_scent_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_snare_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_snare_you_off": {
       "alert": {},
@@ -14187,23 +14460,23 @@ def build_config(base_path):
     },
     "spell_line_nec_snare_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_twitch_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_twitch_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_nec_twitch_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_npc_buff_you_off": {
       "alert": {},
@@ -14217,8 +14490,8 @@ def build_config(base_path):
     },
     "spell_line_npc_disease_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_npc_disease_you_off": {
       "alert": {},
@@ -14227,13 +14500,13 @@ def build_config(base_path):
     },
     "spell_line_npc_disease_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_npc_fire_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_npc_fire_you_off": {
       "alert": {},
@@ -14242,23 +14515,23 @@ def build_config(base_path):
     },
     "spell_line_npc_item_poison_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_npc_port_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_npc_root_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_npc_sick_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_npc_thunder_other_cast": {
       "alert": {},
@@ -14267,53 +14540,53 @@ def build_config(base_path):
     },
     "spell_line_npc_thunder_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_pacify_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_pacify_undead_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_pacify_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_paralyzing_poison_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_paralyzing_poison_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_peace_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_pet_haste_or_rabies_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_poison_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_poison_resist_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_poison_you_off": {
       "alert": {},
@@ -14322,18 +14595,18 @@ def build_config(base_path):
     },
     "spell_line_poison_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_portal_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_potion_ds_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_potion_ds_you_off": {
       "alert": {},
@@ -14342,13 +14615,13 @@ def build_config(base_path):
     },
     "spell_line_potion_ds_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_potion_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_potion_you_off": {
       "alert": {},
@@ -14367,8 +14640,8 @@ def build_config(base_path):
     },
     "spell_line_protection_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_raid_ae_other_cast": {
       "alert": {},
@@ -14377,8 +14650,8 @@ def build_config(base_path):
     },
     "spell_line_raid_silence_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_raid_silence_you_on": {
       "alert": {},
@@ -14387,8 +14660,8 @@ def build_config(base_path):
     },
     "spell_line_regen_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_regen_you_off": {
       "alert": {},
@@ -14397,23 +14670,23 @@ def build_config(base_path):
     },
     "spell_line_regen_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_rng_aggro_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_rng_aggro_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_root_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_root_you_off": {
       "alert": {},
@@ -14422,13 +14695,13 @@ def build_config(base_path):
     },
     "spell_line_root_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_rune_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_rune_you_off": {
       "alert": {},
@@ -14437,18 +14710,18 @@ def build_config(base_path):
     },
     "spell_line_rune_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_scarab_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_see_invis_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_see_invis_you_off": {
       "alert": {},
@@ -14457,18 +14730,18 @@ def build_config(base_path):
     },
     "spell_line_see_invis_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shm_dis_dd_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shm_dis_dd_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shm_dr_you_off": {
       "alert": {},
@@ -14477,8 +14750,8 @@ def build_config(base_path):
     },
     "spell_line_shm_hp_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shm_hp_you_off": {
       "alert": {},
@@ -14487,33 +14760,33 @@ def build_config(base_path):
     },
     "spell_line_shm_hp_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shm_insidious_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shm_pet_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shm_poison_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shm_poison_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shm_sta_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shm_sta_you_off": {
       "alert": {},
@@ -14522,13 +14795,13 @@ def build_config(base_path):
     },
     "spell_line_shm_str_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shrink_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_shrink_you_off": {
       "alert": {},
@@ -14537,13 +14810,13 @@ def build_config(base_path):
     },
     "spell_line_shrink_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_siphon_strength_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_siphon_strength_you_off": {
       "alert": {},
@@ -14552,18 +14825,18 @@ def build_config(base_path):
     },
     "spell_line_siphon_strength_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_skin_freeze_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_skin_freeze_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_skin_you_off": {
       "alert": {},
@@ -14587,18 +14860,18 @@ def build_config(base_path):
     },
     "spell_line_snare_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_snare_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_spin_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_spin_you_off": {
       "alert": {},
@@ -14612,8 +14885,8 @@ def build_config(base_path):
     },
     "spell_line_stagger_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_strength_burst_you_off": {
       "alert": {},
@@ -14622,8 +14895,8 @@ def build_config(base_path):
     },
     "spell_line_strength_debuff_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_strength_debuff_you_off": {
       "alert": {},
@@ -14632,13 +14905,13 @@ def build_config(base_path):
     },
     "spell_line_strength_debuff_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_strength_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_strength_you_off": {
       "alert": {},
@@ -14647,13 +14920,13 @@ def build_config(base_path):
     },
     "spell_line_strength_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_stun_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_stun_you_off": {
       "alert": {},
@@ -14667,8 +14940,8 @@ def build_config(base_path):
     },
     "spell_line_swarm_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_swarm_you_off": {
       "alert": {},
@@ -14677,33 +14950,33 @@ def build_config(base_path):
     },
     "spell_line_swarms_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_system_shock_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_target_vision_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_target_vision_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_target_vision_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_tash_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_tash_you_off": {
       "alert": {},
@@ -14712,13 +14985,13 @@ def build_config(base_path):
     },
     "spell_line_tash_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_ultravision_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_ultravision_you_off": {
       "alert": {},
@@ -14727,23 +15000,23 @@ def build_config(base_path):
     },
     "spell_line_wince_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_wiz_alkabor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_wiz_alkabor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_wiz_ds_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_wiz_ds_you_off": {
       "alert": {},
@@ -14752,28 +15025,28 @@ def build_config(base_path):
     },
     "spell_line_wiz_ds_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_wiz_ice_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_wiz_ice_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_wiz_plane_port_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_wolf_form_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_wolf_form_you_off": {
       "alert": {},
@@ -14787,103 +15060,103 @@ def build_config(base_path):
     },
     "spell_line_word_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_word_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_yaulp_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_line_yaulp_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_locate_corpse_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lower_resists_i_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lull_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lure_of_flame_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lure_of_flame_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lure_of_frost_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lure_of_frost_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lure_of_ice_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lure_of_ice_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lure_of_lightning_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lure_of_lightning_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lyssas_cataloging_libretto_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lyssas_locating_lyric_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lyssas_locating_lyric_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lyssas_solidarity_of_vision_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lyssas_solidarity_of_vision_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_lyssas_veracious_concord_you_off": {
       "alert": {},
@@ -14892,13 +15165,13 @@ def build_config(base_path):
     },
     "spell_lyssas_veracious_concord_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_magi_curse_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_magi_curse_you_on": {
       "alert": {},
@@ -14907,8 +15180,8 @@ def build_config(base_path):
     },
     "spell_malevolent_grasp_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_malevolent_grasp_you_off": {
       "alert": {},
@@ -14917,18 +15190,18 @@ def build_config(base_path):
     },
     "spell_malevolent_grasp_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mana_conversion_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mana_flare_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mana_flare_you_off": {
       "alert": {},
@@ -14937,73 +15210,73 @@ def build_config(base_path):
     },
     "spell_mana_flare_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mana_sieve_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mana_sieve_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mana_sink_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_manasink_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_manasink_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_manaskin_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_manaskin_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_manastorm_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_manastorm_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_maniacal_strength_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_maniacal_strength_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_manifest_elements_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_manifest_elements_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_manticore_poison_other_cast": {
       "alert": {},
@@ -15012,18 +15285,18 @@ def build_config(base_path):
     },
     "spell_mark_of_karn_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mark_of_karn_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mask_of_the_hunter_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mask_of_the_hunter_you_off": {
       "alert": {},
@@ -15032,28 +15305,28 @@ def build_config(base_path):
     },
     "spell_mask_of_the_hunter_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mcvaxius_berserker_crescendo_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mcvaxius_rousing_rondo_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mcvaxius_rousing_rondo_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_melanies_mellifluous_motion_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_melanies_mellifluous_motion_you_off": {
       "alert": {},
@@ -15062,8 +15335,8 @@ def build_config(base_path):
     },
     "spell_melanies_mellifluous_motion_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_melody_of_ervaj_you_off": {
       "alert": {},
@@ -15077,13 +15350,13 @@ def build_config(base_path):
     },
     "spell_mesmerizing_breath_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mind_cloud_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mind_cloud_you_off": {
       "alert": {},
@@ -15097,43 +15370,43 @@ def build_config(base_path):
     },
     "spell_minor_healing_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_minor_healing_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_minor_shielding_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mistwalker_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mistwalker_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_modulation_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_modulation_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mortal_deftness_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mortal_deftness_you_off": {
       "alert": {},
@@ -15142,13 +15415,13 @@ def build_config(base_path):
     },
     "spell_mortal_deftness_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mystic_precision_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_mystic_precision_you_off": {
       "alert": {},
@@ -15157,13 +15430,13 @@ def build_config(base_path):
     },
     "spell_mystic_precision_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_naltrons_mark_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_naltrons_mark_you_off": {
       "alert": {},
@@ -15172,68 +15445,68 @@ def build_config(base_path):
     },
     "spell_naltrons_mark_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_nature_walkers_behest_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_nature_walkers_behest_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_natures_holy_wrath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_natures_holy_wrath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_natures_melody_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_natures_melody_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_natures_wrath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_natures_wrath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_nillipus_march_of_the_wee_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_nillipus_march_of_the_wee_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_nimble_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_nimble_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_nivs_harmonic_you_off": {
       "alert": {},
@@ -15242,63 +15515,63 @@ def build_config(base_path):
     },
     "spell_nivs_harmonic_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_nivs_melody_of_preservation_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_nullify_magic_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_nullify_magic_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_numbing_cold_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_numbing_cold_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_obscure_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_obscure_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_occlusion_of_sound_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_occlusion_of_sound_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_occlusion_of_sound_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_one_hundred_blows_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_one_hundred_blows_you_off": {
       "alert": {},
@@ -15307,98 +15580,98 @@ def build_config(base_path):
     },
     "spell_one_hundred_blows_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_open_black_box_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_open_black_box_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_overwhelming_splendor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_overwhelming_splendor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_panic_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_panic_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_phantom_armor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_phantom_armor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_phantom_chain_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_phantom_chain_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_phantom_leather_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_phantom_leather_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_phantom_plate_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_phantom_plate_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_pillar_of_frost_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_pillar_of_frost_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_pillar_of_lightning_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_pillar_of_lightning_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_plagueratdisease_other_cast": {
       "alert": {},
@@ -15412,43 +15685,43 @@ def build_config(base_path):
     },
     "spell_pogonip_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_pogonip_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_poison_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_poisonous_chill_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_poisonous_chill_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_porlos_fury_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_porlos_fury_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_power_of_the_forests_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_power_of_the_forests_you_on": {
       "alert": {},
@@ -15457,8 +15730,8 @@ def build_config(base_path):
     },
     "spell_pox_of_bertoxxulous_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_pox_of_bertoxxulous_you_off": {
       "alert": {},
@@ -15467,13 +15740,13 @@ def build_config(base_path):
     },
     "spell_pox_of_bertoxxulous_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_primal_essence_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_primal_essence_you_off": {
       "alert": {},
@@ -15482,13 +15755,13 @@ def build_config(base_path):
     },
     "spell_primal_essence_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_prime_healers_blessing_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_prime_healers_blessing_you_off": {
       "alert": {},
@@ -15497,63 +15770,63 @@ def build_config(base_path):
     },
     "spell_prime_healers_blessing_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_project_lightning_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_project_lightning_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_protect_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_protect_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_purifying_rhythms_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_putrefy_flesh_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_putrefy_flesh_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_putrid_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_quivering_veil_of_xarn_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_quivering_veil_of_xarn_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_radiant_visage_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_radiant_visage_you_off": {
       "alert": {},
@@ -15562,13 +15835,13 @@ def build_config(base_path):
     },
     "spell_radiant_visage_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rage_of_tallon_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rage_of_tallon_you_off": {
       "alert": {},
@@ -15577,13 +15850,13 @@ def build_config(base_path):
     },
     "spell_rage_of_tallon_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rage_of_vallon_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rage_of_vallon_you_off": {
       "alert": {},
@@ -15592,13 +15865,13 @@ def build_config(base_path):
     },
     "spell_rage_of_vallon_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rage_of_zek_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rage_of_zek_you_off": {
       "alert": {},
@@ -15607,13 +15880,13 @@ def build_config(base_path):
     },
     "spell_rage_of_zek_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rage_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rage_you_off": {
       "alert": {},
@@ -15622,8 +15895,8 @@ def build_config(base_path):
     },
     "spell_rage_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rain_of_molten_lava_you_on": {
       "alert": {},
@@ -15632,8 +15905,8 @@ def build_config(base_path):
     },
     "spell_rapture_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rapture_you_off": {
       "alert": {},
@@ -15642,23 +15915,23 @@ def build_config(base_path):
     },
     "spell_rapture_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_recant_magic_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_recant_magic_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_reckless_health_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_reckless_health_you_off": {
       "alert": {},
@@ -15667,73 +15940,73 @@ def build_config(base_path):
     },
     "spell_reckless_health_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_reckless_strength_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_reckless_strength_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_reckoning_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_reckoning_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_reclaim_energy_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_reclaim_energy_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_remedy_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_remedy_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rend_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rend_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_renew_elements_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_renew_summoning_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resist_cold_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resist_cold_you_off": {
       "alert": {},
@@ -15742,13 +16015,13 @@ def build_config(base_path):
     },
     "spell_resist_cold_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resist_disease_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resist_disease_you_off": {
       "alert": {},
@@ -15757,13 +16030,13 @@ def build_config(base_path):
     },
     "spell_resist_disease_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resist_fire_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resist_fire_you_off": {
       "alert": {},
@@ -15772,8 +16045,8 @@ def build_config(base_path):
     },
     "spell_resist_fire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resist_magic_you_off": {
       "alert": {},
@@ -15782,13 +16055,13 @@ def build_config(base_path):
     },
     "spell_resist_magic_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resist_poison_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resist_poison_you_off": {
       "alert": {},
@@ -15797,13 +16070,13 @@ def build_config(base_path):
     },
     "spell_resist_poison_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resistant_skin_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resistant_skin_you_off": {
       "alert": {},
@@ -15812,13 +16085,13 @@ def build_config(base_path):
     },
     "spell_resistant_skin_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resolution_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resolution_you_off": {
       "alert": {},
@@ -15827,53 +16100,53 @@ def build_config(base_path):
     },
     "spell_resolution_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_resurrection_effects_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_retribution_of_alkabor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_retribution_of_alkabor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_retribution_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_retribution_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_riotous_health_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_riotous_health_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rotting_flesh_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rubicite_aura_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rubicite_aura_you_off": {
       "alert": {},
@@ -15882,28 +16155,28 @@ def build_config(base_path):
     },
     "spell_rubicite_aura_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rune_i_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rune_ii_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_rune_iii_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_savage_spirit_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_savage_spirit_you_off": {
       "alert": {},
@@ -15912,8 +16185,8 @@ def build_config(base_path):
     },
     "spell_savage_spirit_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scale_of_wolf_you_off": {
       "alert": {},
@@ -15922,8 +16195,8 @@ def build_config(base_path):
     },
     "spell_scale_skin_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scale_skin_you_off": {
       "alert": {},
@@ -15932,8 +16205,8 @@ def build_config(base_path):
     },
     "spell_scale_skin_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scarab_storm_other_cast": {
       "alert": {},
@@ -15947,18 +16220,18 @@ def build_config(base_path):
     },
     "spell_scarab_storm_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scars_of_sigil_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scars_of_sigil_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scent_of_darkness_you_off": {
       "alert": {},
@@ -15967,13 +16240,13 @@ def build_config(base_path):
     },
     "spell_scent_of_darkness_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scent_of_dusk_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scent_of_dusk_you_off": {
       "alert": {},
@@ -15982,13 +16255,13 @@ def build_config(base_path):
     },
     "spell_scent_of_dusk_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scent_of_shadow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scent_of_shadow_you_off": {
       "alert": {},
@@ -15997,8 +16270,8 @@ def build_config(base_path):
     },
     "spell_scent_of_shadow_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scent_of_terris_you_off": {
       "alert": {},
@@ -16007,38 +16280,38 @@ def build_config(base_path):
     },
     "spell_scent_of_terris_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scintillation_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scintillation_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scoriae_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_scoriae_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_screaming_mace_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_screaming_terror_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_screaming_terror_you_off": {
       "alert": {},
@@ -16047,8 +16320,8 @@ def build_config(base_path):
     },
     "spell_screaming_terror_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_sear_you_off": {
       "alert": {},
@@ -16057,23 +16330,23 @@ def build_config(base_path):
     },
     "spell_sear_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_seeking_flame_of_seukor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_seeking_flame_of_seukor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_seething_fury_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_seething_fury_you_off": {
       "alert": {},
@@ -16082,88 +16355,88 @@ def build_config(base_path):
     },
     "spell_seething_fury_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_accelerando_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_assonant_strane_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_assonant_strane_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_assonant_strane_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_chords_of_cessation_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_chords_of_cessation_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_chords_of_cessation_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_consonant_chain_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_consonant_chain_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_consonant_chain_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_song_of_travel_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_selos_song_of_travel_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_sentinel_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shade_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shade_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shadow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shadow_sight_you_off": {
       "alert": {},
@@ -16172,13 +16445,13 @@ def build_config(base_path):
     },
     "spell_shadow_sight_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shadow_vortex_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shadow_vortex_you_off": {
       "alert": {},
@@ -16187,13 +16460,13 @@ def build_config(base_path):
     },
     "spell_shadow_vortex_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shadow_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shadowbond_you_off": {
       "alert": {},
@@ -16202,13 +16475,13 @@ def build_config(base_path):
     },
     "spell_shards_of_sorrow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shards_of_sorrow_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shauris_sonorous_clouding_you_off": {
       "alert": {},
@@ -16217,13 +16490,13 @@ def build_config(base_path):
     },
     "spell_shauris_sonorous_clouding_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shield_of_blades_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shield_of_blades_you_off": {
       "alert": {},
@@ -16232,18 +16505,18 @@ def build_config(base_path):
     },
     "spell_shield_of_blades_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shield_of_song_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shield_of_song_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shield_of_the_magi_you_off": {
       "alert": {},
@@ -16252,18 +16525,18 @@ def build_config(base_path):
     },
     "spell_shieldskin_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shieldskin_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shifting_shield_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shifting_shield_you_off": {
       "alert": {},
@@ -16272,8 +16545,8 @@ def build_config(base_path):
     },
     "spell_shifting_shield_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shifting_sight_you_off": {
       "alert": {},
@@ -16282,73 +16555,73 @@ def build_config(base_path):
     },
     "spell_shifting_sight_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shock_of_lightning_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shock_of_lightning_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shock_of_poison_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shock_of_poison_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shock_of_steel_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shock_of_steel_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shock_spiral_of_alkabor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shock_spiral_of_alkabor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shrieking_howl_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shrieking_howl_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shroud_of_death_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shroud_of_death_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shroud_of_hate_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shroud_of_hate_you_off": {
       "alert": {},
@@ -16357,13 +16630,13 @@ def build_config(base_path):
     },
     "spell_shroud_of_hate_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shroud_of_pain_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shroud_of_pain_you_off": {
       "alert": {},
@@ -16372,13 +16645,13 @@ def build_config(base_path):
     },
     "spell_shroud_of_pain_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shroud_of_the_spirits_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shroud_of_the_spirits_you_off": {
       "alert": {},
@@ -16387,23 +16660,23 @@ def build_config(base_path):
     },
     "spell_shroud_of_the_spirits_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shroud_of_undeath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_shroud_of_undeath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_silver_skin_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_silver_skin_you_off": {
       "alert": {},
@@ -16412,78 +16685,78 @@ def build_config(base_path):
     },
     "spell_silver_skin_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_sirocco_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_sirocco_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_like_diamond_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_like_diamond_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_like_nature_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_like_nature_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_like_rock_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_like_rock_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_like_steel_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_like_steel_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_like_wood_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_like_wood_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_of_the_shadow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skin_of_the_shadow_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skunkspray_other_cast": {
       "alert": {},
@@ -16492,13 +16765,13 @@ def build_config(base_path):
     },
     "spell_skunkspray_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skunkspray_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_skunkspray_you_off": {
       "alert": {},
@@ -16507,8 +16780,8 @@ def build_config(base_path):
     },
     "spell_skunkspray_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_slime_mist_other_cast": {
       "alert": {},
@@ -16517,28 +16790,28 @@ def build_config(base_path):
     },
     "spell_slime_mist_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_smite_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_smite_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_smolder_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_smolder_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_snakeelefireburst_other_cast": {
       "alert": {},
@@ -16547,68 +16820,68 @@ def build_config(base_path):
     },
     "spell_solons_bewitching_bravura_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_solons_song_of_the_sirens_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_song_of_dawn_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_song_of_dawn_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_song_of_midnight_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_song_of_midnight_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_song_of_midnight_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_song_of_the_deep_seas_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_song_of_the_deep_seas_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_song_of_twilight_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_song_of_twilight_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_song_of_twilight_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_soul_devour_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_soul_devour_you_on": {
       "alert": {},
@@ -16617,13 +16890,13 @@ def build_config(base_path):
     },
     "spell_soul_leech_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_speed_of_the_shissar_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_speed_of_the_shissar_you_off": {
       "alert": {},
@@ -16632,28 +16905,28 @@ def build_config(base_path):
     },
     "spell_speed_of_the_shissar_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spikecoat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spikecoat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spin_the_bottle_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_armor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_armor_you_off": {
       "alert": {},
@@ -16662,13 +16935,13 @@ def build_config(base_path):
     },
     "spell_spirit_armor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_bear_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_bear_you_off": {
       "alert": {},
@@ -16677,8 +16950,8 @@ def build_config(base_path):
     },
     "spell_spirit_of_bear_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_cat_you_off": {
       "alert": {},
@@ -16687,8 +16960,8 @@ def build_config(base_path):
     },
     "spell_spirit_of_cat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_cheetah_you_off": {
       "alert": {},
@@ -16697,13 +16970,13 @@ def build_config(base_path):
     },
     "spell_spirit_of_cheetah_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_monkey_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_monkey_you_off": {
       "alert": {},
@@ -16712,13 +16985,13 @@ def build_config(base_path):
     },
     "spell_spirit_of_monkey_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_ox_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_ox_you_off": {
       "alert": {},
@@ -16727,8 +17000,8 @@ def build_config(base_path):
     },
     "spell_spirit_of_ox_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_scale_you_off": {
       "alert": {},
@@ -16737,8 +17010,8 @@ def build_config(base_path):
     },
     "spell_spirit_of_snake_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_snake_you_off": {
       "alert": {},
@@ -16747,23 +17020,23 @@ def build_config(base_path):
     },
     "spell_spirit_of_snake_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_the_howler_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_the_howler_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_wolf_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_spirit_of_wolf_you_off": {
       "alert": {},
@@ -16772,13 +17045,13 @@ def build_config(base_path):
     },
     "spell_spirit_of_wolf_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_splurt_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_splurt_you_off": {
       "alert": {},
@@ -16787,23 +17060,23 @@ def build_config(base_path):
     },
     "spell_splurt_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stalking_probe_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stalwart_regeneration_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stalwart_regeneration_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stamina_you_off": {
       "alert": {},
@@ -16812,43 +17085,43 @@ def build_config(base_path):
     },
     "spell_stamina_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_starfire_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_starfire_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_starshine_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_starshine_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_static_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_static_strike_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_static_strike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_static_you_on": {
       "alert": {},
@@ -16857,8 +17130,8 @@ def build_config(base_path):
     },
     "spell_steam_overload_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_steam_overload_you_off": {
       "alert": {},
@@ -16867,28 +17140,28 @@ def build_config(base_path):
     },
     "spell_steam_overload_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_steelskin_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_steelskin_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stone_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stone_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stream_of_acid_other_cast": {
       "alert": {},
@@ -16897,23 +17170,23 @@ def build_config(base_path):
     },
     "spell_stream_of_acid_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stream_of_acid_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stream_of_acid_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_strength_of_nature_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_strength_of_nature_you_off": {
       "alert": {},
@@ -16922,23 +17195,23 @@ def build_config(base_path):
     },
     "spell_strength_of_nature_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_strength_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_strike_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_strike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stun_breath_other_cast": {
       "alert": {},
@@ -16947,33 +17220,33 @@ def build_config(base_path):
     },
     "spell_stun_breath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stun_breath_you_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stun_breath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stunning_blow_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_stunning_blow_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_suffocating_sphere_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_suffocating_sphere_you_off": {
       "alert": {},
@@ -16982,83 +17255,83 @@ def build_config(base_path):
     },
     "spell_suffocating_sphere_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_summon_companion_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_summon_companion_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_summon_orb_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_summon_orb_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_summon_wisp_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_summon_wisp_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_sunbeam_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_sunbeam_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_sunstrike_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_sunstrike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_swarm_of_retribution_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_swarm_of_retribution_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_swarming_pain_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_swarming_pain_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_sympathetic_aura_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_sympathetic_aura_you_off": {
       "alert": {},
@@ -17067,28 +17340,28 @@ def build_config(base_path):
     },
     "spell_sympathetic_aura_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_symphonic_harmony_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_system_shock_i_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_system_shock_v_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_syvelians_antimagic_aria_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_tainted_breath_you_off": {
       "alert": {},
@@ -17097,23 +17370,23 @@ def build_config(base_path):
     },
     "spell_talisman_of_jasinth_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_talisman_of_jasinth_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_talisman_of_shadoo_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_talisman_of_shadoo_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_talisman_of_the_brute_you_off": {
       "alert": {},
@@ -17122,8 +17395,8 @@ def build_config(base_path):
     },
     "spell_talisman_of_the_brute_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_talisman_of_the_cat_you_off": {
       "alert": {},
@@ -17132,8 +17405,8 @@ def build_config(base_path):
     },
     "spell_talisman_of_the_cat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_talisman_of_the_raptor_you_off": {
       "alert": {},
@@ -17142,8 +17415,8 @@ def build_config(base_path):
     },
     "spell_talisman_of_the_raptor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_talisman_of_the_rhino_you_off": {
       "alert": {},
@@ -17152,8 +17425,8 @@ def build_config(base_path):
     },
     "spell_talisman_of_the_rhino_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_talisman_of_the_serpent_you_off": {
       "alert": {},
@@ -17162,18 +17435,18 @@ def build_config(base_path):
     },
     "spell_talisman_of_the_serpent_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_taper_enchantment_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_taper_enchantment_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_tarews_aquatic_ayre_you_off": {
       "alert": {},
@@ -17182,48 +17455,48 @@ def build_config(base_path):
     },
     "spell_tarews_aquatic_ayre_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_tashan_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_tears_of_druzzil_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_tears_of_druzzil_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_tears_of_solusek_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_tears_of_solusek_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_telescope_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_telescope_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_telescope_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_the_dains_justice_other_on": {
       "alert": {},
@@ -17237,8 +17510,8 @@ def build_config(base_path):
     },
     "spell_the_unspoken_word_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_the_unspoken_word_you_off": {
       "alert": {},
@@ -17247,88 +17520,88 @@ def build_config(base_path):
     },
     "spell_the_unspoken_word_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_theft_of_thought_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_thistlecoat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_thistlecoat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_thorncoat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_thorncoat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_thunder_strike_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_thunder_strike_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_thunderbold_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_thunderbold_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_thunderclap_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_thunderclap_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torbas_acid_blast_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torbas_acid_blast_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torment_of_argli_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torment_of_argli_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torment_of_shadows_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torment_of_shadows_you_off": {
       "alert": {},
@@ -17337,13 +17610,13 @@ def build_config(base_path):
     },
     "spell_torment_of_shadows_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torment_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torment_you_off": {
       "alert": {},
@@ -17352,13 +17625,13 @@ def build_config(base_path):
     },
     "spell_torment_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torpor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torpor_you_off": {
       "alert": {},
@@ -17367,33 +17640,33 @@ def build_config(base_path):
     },
     "spell_torpor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torrent_of_poison_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_torrent_of_poison_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_touch_of_night_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_track_corpse_you_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_travelerboots_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_travelerboots_you_off": {
       "alert": {},
@@ -17402,18 +17675,18 @@ def build_config(base_path):
     },
     "spell_travelerboots_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_tremor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_trepidation_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_trepidation_you_off": {
       "alert": {},
@@ -17422,23 +17695,23 @@ def build_config(base_path):
     },
     "spell_trepidation_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_true_north_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_tsunami_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_turning_of_the_unnatural_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_turning_of_the_unnatural_you_off": {
       "alert": {},
@@ -17447,48 +17720,48 @@ def build_config(base_path):
     },
     "spell_turning_of_the_unnatural_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_umbra_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_umbra_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_unfailing_reverence_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_unfailing_reverence_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_upheaval_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_upheaval_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_valiant_companion_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_valor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_valor_you_off": {
       "alert": {},
@@ -17497,38 +17770,38 @@ def build_config(base_path):
     },
     "spell_valor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_vengeance_of_alkabor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_vengeance_of_alkabor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_vengeance_of_the_glades_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_verlekarnorms_disaster_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_verlekarnorms_disaster_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_vexing_mordinia_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_vexing_mordinia_you_off": {
       "alert": {},
@@ -17537,18 +17810,18 @@ def build_config(base_path):
     },
     "spell_vexing_mordinia_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_vigilant_spirit_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_visions_of_grandeur_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_visions_of_grandeur_you_off": {
       "alert": {},
@@ -17557,33 +17830,33 @@ def build_config(base_path):
     },
     "spell_visions_of_grandeur_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_voice_graft_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_voice_of_the_berserker_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wake_of_karana_other_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wake_of_karana_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wandering_mind_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wandering_mind_you_off": {
       "alert": {},
@@ -17592,8 +17865,8 @@ def build_config(base_path):
     },
     "spell_wandering_mind_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wave_of_cold_you_on": {
       "alert": {},
@@ -17602,8 +17875,8 @@ def build_config(base_path):
     },
     "spell_wave_of_fire_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wave_of_fire_you_on": {
       "alert": {},
@@ -17617,48 +17890,48 @@ def build_config(base_path):
     },
     "spell_wave_of_flame_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wave_of_healing_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wave_of_healing_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wave_of_heat_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wave_of_heat_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_waves_of_the_deep_sea_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_whirlwind_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_whirlwind_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wildfire_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wildfire_you_on": {
       "alert": {},
@@ -17667,28 +17940,28 @@ def build_config(base_path):
     },
     "spell_winds_of_gelid_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_winds_of_gelid_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_winged_death_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_winged_death_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wonderous_rapidity_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wonderous_rapidity_you_on": {
       "alert": {},
@@ -17697,38 +17970,38 @@ def build_config(base_path):
     },
     "spell_word_of_redemption:_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_word_of_redemption:_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_word_of_restoration_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_word_of_restoration_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_word_of_vigor_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_word_of_vigor_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wrath_of_nature_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wrath_of_nature_you_off": {
       "alert": {},
@@ -17737,28 +18010,28 @@ def build_config(base_path):
     },
     "spell_wrath_of_nature_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wrath_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_wrath_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ykesha_other_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "spell_ykesha_you_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -17770,13 +18043,13 @@ def build_config(base_path):
   "line": {
     "pet_attack": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "pet_back": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "pet_dead": {
       "alert": {},
@@ -17785,33 +18058,33 @@ def build_config(base_path):
     },
     "pet_follow": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "pet_guard": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "pet_illegal_target": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "pet_sit_stand": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "pet_spawn": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "pet_taunt_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -17823,28 +18096,28 @@ def build_config(base_path):
   "line": {
     "say_npc": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "shout_npc": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tell_npc": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tell_npc_bank_closed": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tell_npc_bank_open": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -17856,39 +18129,39 @@ def build_config(base_path):
   "line": {
     "auction": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "auction_wtb": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "auction_wts": {
       "alert": {
-        "shiny brass idol": "true"
+        "shiny brass idol": true
       },
       "reaction": "alert",
       "sound": "look at auction"
     },
     "auction_unknown_tongue": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "broadcast": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "group": {
       "alert": {
         "drop": "raid",
         "help": "raid",
-        "inc": "true",
+        "inc": true,
         "invis": "raid",
         "invite": "raid",
-        "oom": "true"
+        "oom": true
       },
       "reaction": "alert",
       "sound": "look at group"
@@ -17903,7 +18176,7 @@ def build_config(base_path):
         "fixated": "raid",
         "fixation": "raid",
         "harmony": "raid",
-        "help": "true",
+        "help": true,
         "incoming": "raid",
         "logs": "raid",
         "malo": "raid",
@@ -17925,12 +18198,12 @@ def build_config(base_path):
     },
     "ooc": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "say": {
       "alert": {
-        "help": "true",
+        "help": true,
         "spot": "raid"
       },
       "reaction": "alert",
@@ -17938,28 +18211,28 @@ def build_config(base_path):
     },
     "say_unknown_tongue": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "shout": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "shout_unknown_tongue": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tell": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "tell_unknown_tongue": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -17971,23 +18244,23 @@ def build_config(base_path):
   "line": {
     "auction_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "ooc_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "petition_you": {
       "alert": {},
@@ -17996,18 +18269,18 @@ def build_config(base_path):
     },
     "say_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "shout_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tell_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -18029,78 +18302,78 @@ def build_config(base_path):
     },
     "client_ui_load": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "corpse_consent": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "command_block": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "command_block_casting": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "command_block_moving": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "command_block_spellbook": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "command_invalid": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "direction": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "direction_miss": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "drink_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "drink_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "drink_you_finish": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "eat_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "eat_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "eat_you_finish": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "eat_you_full": {
       "alert": {},
@@ -18109,8 +18382,8 @@ def build_config(base_path):
     },
     "friend_add": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "friend_empty": {
       "alert": {},
@@ -18119,28 +18392,28 @@ def build_config(base_path):
     },
     "friend_list_header": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "friend_list_line": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "friend_list_total": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "friend_remove": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "forage_attacking": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "forage_cursor_empty": {
       "alert": {},
@@ -18149,103 +18422,103 @@ def build_config(base_path):
     },
     "forage_edible": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "forage_fail": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "forage_not_edible": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "forage_standing": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "help_command_chat": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "help_command_emote": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "help_command_format": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "help_command_guild": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "help_command_header": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "help_command_line": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "help_command_normal": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "help_command_output": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "help_command_voice": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "hide_corpse_all": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "hide_corpse_looted": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "hide_corpse_none": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "ignore_add": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "ignore_list_header": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "inspect_toggle_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "inspect_toggle_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "list_added": {
       "alert": {},
@@ -18264,18 +18537,18 @@ def build_config(base_path):
     },
     "list_none": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "list_out_of_range": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "list_position": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "list_removed_range": {
       "alert": {},
@@ -18289,48 +18562,48 @@ def build_config(base_path):
     },
     "location": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "motd_game": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "motd_guild": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "player_linkdead": {
       "alert": {},
       "reaction": "group",
-      "sound": "true"
+      "sound": true
     },
     "played_session": {
       "alert": {},
       "reaction": "solo",
-      "sound": "false"
+      "sound": false
     },
     "played_total": {
       "alert": {},
       "reaction": "solo",
-      "sound": "false"
+      "sound": false
     },
     "random": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "reply_empty": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "server_message": {
       "alert": {},
       "reaction": "all",
-      "sound": "true"
+      "sound": true
     },
     "skill_max": {
       "alert": {},
@@ -18339,23 +18612,23 @@ def build_config(base_path):
     },
     "skill_max_tradeskill": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "skill_up": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "summon_corpse": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "summon_corpse_no_consent": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "summon_corpse_none": {
       "alert": {},
@@ -18369,58 +18642,58 @@ def build_config(base_path):
     },
     "target": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "target_command_format": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "time_earth": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "time_game": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_afk_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_afk_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_camping": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_camping_abandoned": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_camping_standing": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_lfg_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_lfg_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -18433,12 +18706,12 @@ def build_config(base_path):
     "achievement_first": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "anon_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "anon_on": {
       "alert": {},
@@ -18467,18 +18740,18 @@ def build_config(base_path):
     },
     "autofollow_advice": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "autofollow_no_target": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "autofollow_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "autofollow_on": {
       "alert": {},
@@ -18487,8 +18760,8 @@ def build_config(base_path):
     },
     "bandage_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "bandage_cap": {
       "alert": {},
@@ -18503,7 +18776,7 @@ def build_config(base_path):
     "cast_animal_only": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "cast_change_form_block": {
       "alert": {},
@@ -18513,12 +18786,12 @@ def build_config(base_path):
     "cast_night_only": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "cast_outdoors_only": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "chat_disconnected": {
       "alert": {},
@@ -18527,13 +18800,13 @@ def build_config(base_path):
     },
     "command_error": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "command_usage": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "concious_you": {
       "alert": {},
@@ -18542,8 +18815,8 @@ def build_config(base_path):
     },
     "consider": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "consider_dead": {
       "alert": {},
@@ -18552,8 +18825,8 @@ def build_config(base_path):
     },
     "consider_no_target": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "container_container": {
       "alert": {},
@@ -18562,33 +18835,33 @@ def build_config(base_path):
     },
     "corpse_decay_timer": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "corpse_res_timer": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "corpse_too_old": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "dead_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "dead_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "ding_down": {
       "alert": {},
       "reaction": "all",
-      "sound": "true"
+      "sound": true
     },
     "ding_up": {
       "alert": {},
@@ -18598,12 +18871,12 @@ def build_config(base_path):
     "drag_permission_received": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "duel_accept_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "duel_challenge": {
       "alert": {},
@@ -18612,8 +18885,8 @@ def build_config(base_path):
     },
     "duel_end_fled": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "earthquake": {
       "alert": {},
@@ -18627,18 +18900,18 @@ def build_config(base_path):
     },
     "encumbered_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "encumbered_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "engage": {
       "alert": {},
       "reaction": "all",
-      "sound": "true"
+      "sound": true
     },
     "equip_block": {
       "alert": {},
@@ -18647,33 +18920,33 @@ def build_config(base_path):
     },
     "faction_line": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "fall_damage_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "fall_damage_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "feign_failure_other": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "fishing_cast": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "fishing_caught_nothing": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "fishing_caught_something": {
       "alert": {},
@@ -18682,33 +18955,33 @@ def build_config(base_path):
     },
     "fishing_creatively": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "fishing_holding": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "fishing_lost_bait": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "fishing_no_pole": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "fishing_no_water": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "fishing_pole_broke": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "fishing_spill_beer": {
       "alert": {},
@@ -18727,13 +19000,13 @@ def build_config(base_path):
     },
     "hide_attacking": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "hide_disabled": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "hide_drop": {
       "alert": {},
@@ -18742,13 +19015,13 @@ def build_config(base_path):
     },
     "hide_enabled": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "hide_moving": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "item_too_big": {
       "alert": {},
@@ -18757,13 +19030,13 @@ def build_config(base_path):
     },
     "inspect_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "inspect_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "item_dropped": {
       "alert": {},
@@ -18782,8 +19055,8 @@ def build_config(base_path):
     },
     "item_no_drop": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "jump_fatigue": {
       "alert": {},
@@ -18797,13 +19070,13 @@ def build_config(base_path):
     },
     "npc_guild_wrong": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "motd_welcome": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "required_pick": {
       "alert": {},
@@ -18812,18 +19085,18 @@ def build_config(base_path):
     },
     "rewind_output": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "rewind_output_wait": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "roleplay_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "roleplay_on": {
       "alert": {},
@@ -18832,8 +19105,8 @@ def build_config(base_path):
     },
     "target_attack_sitting": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "target_attack_too_far": {
       "alert": {},
@@ -18852,28 +19125,28 @@ def build_config(base_path):
     },
     "target_lost": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tell_offline": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tell_yourself": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "tell_queued_offline": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "titanium_client_help_message": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "too_many_pets": {
       "alert": {},
@@ -18882,28 +19155,28 @@ def build_config(base_path):
     },
     "tracking": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tracking_begin": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tracking_player_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tracking_player_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tracking_target_lost": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "use_block": {
       "alert": {},
@@ -18912,28 +19185,28 @@ def build_config(base_path):
     },
     "walk_of_shame": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "warrior_berserk_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "warrior_berserk_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "weather_start_rain": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "weather_start_snow": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "wrong_key": {
       "alert": {},
@@ -18947,103 +19220,103 @@ def build_config(base_path):
     },
     "yell_help_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_auto_attack_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_auto_attack_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_cannot_reach": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_char_bound": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_hungry": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_lowdrink": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_lowfood": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_lowfoodlowdrink": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_new_zone": {
       "alert": {},
       "reaction": "all",
-      "sound": "true"
+      "sound": true
     },
     "you_outdrink": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_outdrinklowfood": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_outfood": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_outfooddrink": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_outfoodlowdrink": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_stun_off": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_stun_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "you_thirsty": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "zone_message": {
       "alert": {},
       "reaction": "all",
-      "sound": "true"
+      "sound": true
     },
     "zoning": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -19060,8 +19333,8 @@ def build_config(base_path):
     },
     "group_already": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_considering": {
       "alert": {},
@@ -19070,113 +19343,113 @@ def build_config(base_path):
     },
     "group_created": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_disbanded": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_invite_already": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_invite_instruction": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_invite_not_lead": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_invite_npc": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_invite_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_invite_you": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "group_invite_yourself": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "group_invite_you_cancel": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_join_notify": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_join_reject": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_joined": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_joined_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_leader_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_leader_you": {
       "alert": {},
       "reaction": "group",
-      "sound": "true"
+      "sound": true
     },
     "group_leave_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "group_removed": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "group_removed_other": {
       "alert": {},
       "reaction": "solo",
-      "sound": "true"
+      "sound": true
     },
     "guild_invite_instructions": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_invite_other_decline": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_member_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_member_other_accept": {
       "alert": {},
@@ -19185,28 +19458,28 @@ def build_config(base_path):
     },
     "guild_member_other_invite": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_member_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_member_you_accept": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_motd_wrong_command": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_officer_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_officer_you": {
       "alert": {},
@@ -19215,8 +19488,8 @@ def build_config(base_path):
     },
     "guild_remove_fail": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_remove_you": {
       "alert": {},
@@ -19225,28 +19498,28 @@ def build_config(base_path):
     },
     "guild_remove_you_attempt": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_status_instructions": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_status_none": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "guild_status_officer": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "invite_no_target": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -19288,43 +19561,43 @@ def build_config(base_path):
     },
     "looted_item_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "looted_item_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "looted_money_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "looted_money_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "looted_money_you_split": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "split_format": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "split_format_example": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "split_invalid": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "split_off": {
       "alert": {},
@@ -19333,8 +19606,8 @@ def build_config(base_path):
     },
     "split_on": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "split_shared": {
       "alert": {},
@@ -19354,17 +19627,17 @@ def build_config(base_path):
     "tradeskill_create_other": {
       "alert": {},
       "reaction": "solo_group_only",
-      "sound": "false"
+      "sound": false
     },
     "tradeskill_create_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tradeskill_fail_other": {
       "alert": {},
       "reaction": "solo_group_only",
-      "sound": "false"
+      "sound": false
     },
     "tradeskill_fail_you": {
       "alert": {},
@@ -19378,8 +19651,8 @@ def build_config(base_path):
     },
     "tradeskill_skill_cap": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "tradeskill_wrong_container": {
       "alert": {},
@@ -19403,33 +19676,33 @@ def build_config(base_path):
     },
     "trade_item": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "trade_money": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "trade_money_add": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "trade_npc_item_price": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "trade_npc_item_sold": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "trade_npc_payment": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "trade_too_far": {
       "alert": {},
@@ -19446,203 +19719,203 @@ def build_config(base_path):
   "line": {
     "emote_agree_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_agree_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_amaze_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_apologize_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bird_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bird_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bite_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bite_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bleed_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bleed_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_blink_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_blush_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_blush_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_boggle_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bonk_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bonk_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bored_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bounce_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bow_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bow_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_brb_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_burp_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_burp_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bye_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_bye_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_cackle_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_calm_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_cheer_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_cheer_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_chuckle_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_chuckle_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_clap_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_clap_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_comfort_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_comfort_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_congratulate_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_congratulate_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_cough_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_cringe_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_cry_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_cry_you": {
       "alert": {},
@@ -19651,123 +19924,123 @@ def build_config(base_path):
     },
     "emote_curious_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_dance_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_dance_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_drool_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_duck_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_eye_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_fidget_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_flex_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_flex_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_frown_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_frown_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_gasp_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_gasp_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_giggle_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_giggle_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_glare_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_grin_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_grin_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_groan_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_grovel_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_happy_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_hug_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_hug_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_hungry_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_introduce_other": {
       "alert": {},
@@ -19781,8 +20054,8 @@ def build_config(base_path):
     },
     "emote_jk_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_kiss_other": {
       "alert": {},
@@ -19791,323 +20064,323 @@ def build_config(base_path):
     },
     "emote_kiss_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_kneel_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_kneel_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_laugh_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_laugh_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_lost_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_massage_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_moan_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_mourn_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_mourn_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_nod_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_nod_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_nudge_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_panic_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_pat_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_pat_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_peer_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_peer_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_plead_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_plead_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_point_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_point_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_poke_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_poke_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_ponder_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_ponder_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_purr_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_puzzle_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_raise_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_ready_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_roar_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_roar_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_rofl_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_rofl_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_salute_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_salute_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_shiver_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_shiver_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_shrug_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_shrug_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_sigh_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_sigh_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_smack_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_smile_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_smile_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_smirk_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_smirk_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_snarl_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_snicker_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_stare_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_tap_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_tap_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_tease_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_thank_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_thank_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_thirsty_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_veto_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_veto_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_wave_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_wave_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_whine_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_whistle_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_yawn_other": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "emote_yawn_you": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -20119,53 +20392,53 @@ def build_config(base_path):
   "line": {
     "who_etc": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "who_line": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "who_line_friends": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "who_player": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "who_top": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "who_top_friends": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "who_top_lfg": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "who_total": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "who_total_empty": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "who_total_local_empty": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -20177,13 +20450,13 @@ def build_config(base_path):
   "line": {
     "all": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
     "undetermined": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -20192,7 +20465,6 @@ def build_config(base_path):
 
     try:
         home = os.path.expanduser("~")
-        version = str(pkg_resources.get_distribution("eqalert").version)
         generated = False
 
         # Check for old config.yml
@@ -20218,7 +20490,7 @@ def build_config(base_path):
         characters_json_path = base_path + "config/characters.json"
         if not os.path.isfile(characters_json_path):
             f = open(characters_json_path, "w", encoding="utf-8")
-            f.write(new_char_config)
+            f.write(new_char_config % (version))
             f.close()
             generated = True
 

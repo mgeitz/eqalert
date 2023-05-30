@@ -169,12 +169,9 @@ def process(
                     elif metronome_stop == False:
                         metronome_stop = True
                 elif timer_event.type == "new_zone":
-                    if (
-                        configs.settings.config["settings"]["timers"][
-                            "spell_timer_zone_drift"
-                        ]
-                        == "true"
-                    ):
+                    if configs.settings.config["settings"]["timers"]["spell"][
+                        "zone_drift"
+                    ]:
                         if zoning_start_time is not None:
                             adjustment = (
                                 timer_event.time - zoning_start_time
@@ -305,7 +302,7 @@ def remove_spell_timer(state, timers, remove_timer):
                     remove_timer.target == timer_event.target
                     and remove_timer.spell == timer_event.spell
                 ):
-                    if state.debug == "true":
+                    if state.debug:
                         eqa_settings.log(
                             "Removing timer: "
                             + timer_event.spell
@@ -339,7 +336,7 @@ def add_spell_timer(state, timers, new_timer_event):
                     new_timer_event.target == timer_event.target
                     and new_timer_event.spell == timer_event.spell
                 ):
-                    if state.debug == "true":
+                    if state.debug:
                         eqa_settings.log(
                             "Removing old timer: "
                             + timer_event.spell
