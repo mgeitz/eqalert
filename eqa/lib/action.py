@@ -344,7 +344,11 @@ def process(
                         action_consider_evaluation(sound_q, check_line)
 
                 ## State Building Line Types
-                if line_type == "location":
+                if line_type == "who_player":
+                    action_who_player(
+                        configs, system_q, state, check_line, player_list, class_mapping
+                    )
+                elif line_type == "location":
                     action_location(system_q, check_line)
                 elif line_type == "direction":
                     action_direction(system_q, check_line)
@@ -374,10 +378,6 @@ def process(
                     action_you_afk_off(system_q)
                 elif line_type == "you_afk_on":
                     action_you_afk_on(system_q)
-                elif line_type == "who_player":
-                    action_who_player(
-                        configs, system_q, state, check_line, player_list, class_mapping
-                    )
                 elif line_type == "say_you":
                     if (
                         re.fullmatch(r"^You say, \'parser .+\'$", check_line)
@@ -415,7 +415,7 @@ def process(
                         )
                     )
                 ## Spell Casting Buffer Other
-                elif "spells_cast_other" == line_type:
+                elif line_type == "spells_cast_other":
                     action_spell_casting_other(
                         check_line,
                         line_type,
@@ -423,7 +423,7 @@ def process(
                         spell_casting_buffer_other,
                     )
                 ## Spell Casting Buffer You
-                elif "spells_cast_you" == line_type:
+                elif line_type == "spells_cast_you":
                     spell_casting_buffer_you = action_spell_casting_you(
                         check_line,
                         line_type,
