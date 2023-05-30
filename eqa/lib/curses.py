@@ -471,14 +471,14 @@ def draw_events_status_bar(stdscr, state):
         stdscr.addstr(center_y, center_x - offset, state.server, curses.color_pair(2))
 
         ## Context
-        if state.afk == "true":
-            stdscr.addstr(center_y + 1, center_x - 1, "AFK", curses.color_pair(2))
-        elif state.group == "false" and state.raid == "false":
+        if not state.group and not state.raid:
             stdscr.addstr(center_y + 1, center_x - 2, "Solo", curses.color_pair(2))
-        elif state.group == "true" and state.raid == "false":
+        elif state.group and not state.raid:
             stdscr.addstr(center_y + 1, center_x - 3, "Group", curses.color_pair(2))
-        elif state.raid == "true":
+        elif state.raid:
             stdscr.addstr(center_y + 1, center_x - 2, "Raid", curses.color_pair(2))
+        elif state.afk:
+            stdscr.addstr(center_y + 1, center_x - 1, "AFK", curses.color_pair(2))
 
         ## Bottom of stats bar
         stdscr.addch(center_y + 2, 0, curses.ACS_LTEE)
@@ -1187,23 +1187,23 @@ def draw_state(stdscr, state, version):
         # afk state
         stdscr.addstr(14, 5, "AFK", curses.color_pair(2))
         stdscr.addstr(14, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(14, 18, state.afk.title(), curses.color_pair(3))
+        stdscr.addstr(14, 18, str(state.afk), curses.color_pair(3))
 
         # group state
         stdscr.addstr(16, 5, "Group", curses.color_pair(2))
         stdscr.addstr(16, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(16, 18, state.group.title(), curses.color_pair(3))
+        stdscr.addstr(16, 18, str(state.group), curses.color_pair(3))
 
         # leader state
-        if state.group == "true":
+        if state.group:
             stdscr.addstr(16, 25, "Leader", curses.color_pair(2))
             stdscr.addstr(16, 32, ": ", curses.color_pair(1))
-            stdscr.addstr(16, 34, state.leader.title(), curses.color_pair(3))
+            stdscr.addstr(16, 34, str(state.leader), curses.color_pair(3))
 
         # raid state
         stdscr.addstr(17, 5, "Raid", curses.color_pair(2))
         stdscr.addstr(17, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(17, 18, state.raid.title(), curses.color_pair(3))
+        stdscr.addstr(17, 18, str(state.raid), curses.color_pair(3))
 
         # zone
         stdscr.addstr(19, 5, "Zone", curses.color_pair(2))
@@ -1481,9 +1481,9 @@ def draw_settings_options(optscr, configs, state, s_option, s_setting):
         else:
             optscr.addstr(7, first_q, "Raid Mode", curses.color_pair(1))
         optscr.addstr(7, second_third, "[", curses.color_pair(3))
-        if state.raid == "true":
+        if state.raid:
             optscr.addstr(7, second_third + 1, "on", curses.color_pair(5))
-        elif state.raid == "false":
+        else:
             optscr.addstr(7, second_third + 4, "off", curses.color_pair(6))
         optscr.addstr(7, second_third + 7, "]", curses.color_pair(3))
 

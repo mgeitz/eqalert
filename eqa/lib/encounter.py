@@ -1685,14 +1685,14 @@ def encounter_report(
         encounter_report["encounter_summary"]["zone"] = str(encounter_zone)
         if state.loc != ["0.00", "0.00", "0.00"]:
             encounter_report["encounter_summary"]["location"] = str(state.loc)
-        if state.afk == "true":
-            encounter_report["encounter_summary"]["context"] = "afk"
-        elif state.group == "false" and state.raid == "false":
+        if not state.group and not state.raid:
             encounter_report["encounter_summary"]["context"] = "solo"
-        elif state.group == "true" and state.raid == "false":
+        elif state.group and not state.raid:
             encounter_report["encounter_summary"]["context"] = "group"
-        elif state.group == "true" and state.raid == "true":
+        elif state.group and state.raid:
             encounter_report["encounter_summary"]["context"] = "raid"
+        elif state.afk:
+            encounter_report["encounter_summary"]["context"] = "afk"
         encounter_report["encounter_summary"]["target"] = str(encounter_target)
         encounter_report["encounter_summary"]["total_events"] = str(
             this_encounter_events

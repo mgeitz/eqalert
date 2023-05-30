@@ -355,7 +355,7 @@ def process(
                                         "all",
                                     )
                                 )
-                            elif option == "raid" and state.raid == "true":
+                            elif option == "raid" and state.raid:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),
@@ -500,7 +500,7 @@ def process(
                                         "all",
                                     )
                                 )
-                            elif option == "raid" and state.raid == "false":
+                            elif option == "raid" and not state.raid:
                                 system_q.put(
                                     eqa_struct.message(
                                         eqa_settings.eqa_time(),

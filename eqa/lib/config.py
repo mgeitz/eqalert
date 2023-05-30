@@ -312,10 +312,10 @@ def bootstrap_state(configs, char, server):
             {
                 "server": server,
                 "character": char,
-                "afk": "false",
-                "group": "false",
-                "leader": "false",
-                "raid": "false",
+                "afk": False,
+                "group": False,
+                "leader": False,
+                "raid": False,
             }
         )
         json_data = open(configs.settings.path, "w", encoding="utf-8")
@@ -8077,10 +8077,10 @@ def set_last_state(state, configs):
             {
                 "server": str(state.server),
                 "character": str(state.char),
-                "afk": str(state.afk),
-                "group": str(state.group),
-                "leader": str(state.leader),
-                "raid": str(state.raid),
+                "afk": state.afk,
+                "group": state.group,
+                "leader": state.leader,
+                "raid": state.raid,
             }
         )
         configs.settings.config["settings"]["encounter_parsing"].update(

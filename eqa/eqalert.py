@@ -928,34 +928,35 @@ def system_raid(configs, state, display_q, sound_q, new_message):
 
     try:
         # Toggle raid state to true
-        if state.raid == "false" and new_message.rx == "toggle":
-            state.set_raid("true")
-            eqa_config.set_last_state(state, configs)
-            display_q.put(
-                eqa_struct.display(
-                    eqa_settings.eqa_time(),
-                    "event",
-                    "events",
-                    "Raid mode enabled",
+        if new_message.rx == "toggle":
+            if not state.raid:
+                state.set_raid(True)
+                eqa_config.set_last_state(state, configs)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Raid mode enabled",
+                    )
                 )
-            )
-            sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
-        # Toggle raid state to false
-        elif state.raid == "true" and new_message.rx == "toggle":
-            state.set_raid("false")
-            eqa_config.set_last_state(state, configs)
-            display_q.put(
-                eqa_struct.display(
-                    eqa_settings.eqa_time(),
-                    "event",
-                    "events",
-                    "Raid mode disabled",
+                sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
+            # Toggle raid state to false
+            else:
+                state.set_raid(False)
+                eqa_config.set_last_state(state, configs)
+                display_q.put(
+                    eqa_struct.display(
+                        eqa_settings.eqa_time(),
+                        "event",
+                        "events",
+                        "Raid mode disabled",
+                    )
                 )
-            )
-            sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
+                sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
         # Set raid state to true
-        elif state.raid == "false" and new_message.rx == "true":
-            state.set_raid("true")
+        elif not state.raid and new_message.rx == True:
+            state.set_raid(True)
             eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
@@ -966,8 +967,8 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                 )
             )
         # Set raid state to false
-        elif state.raid == "true" and new_message.rx == "false":
-            state.set_raid("false")
+        elif state.raid and not new_message.rx == True:
+            state.set_raid(False)
             eqa_config.set_last_state(state, configs)
             display_q.put(
                 eqa_struct.display(
@@ -1030,7 +1031,7 @@ def system_afk(configs, state, display_q, new_message):
 
     try:
         # Set afk state to true
-        if new_message.payload == "true" and state.afk == "false":
+        if new_message.payload and not state.afk:
             state.set_afk(new_message.payload)
             eqa_config.set_last_state(state, configs)
             display_q.put(
@@ -1042,7 +1043,7 @@ def system_afk(configs, state, display_q, new_message):
                 )
             )
         # Set afk state to false
-        elif new_message.payload == "false" and state.afk == "true":
+        elif not new_message.payload and state.afk:
             state.set_afk(new_message.payload)
             eqa_config.set_last_state(state, configs)
             display_q.put(

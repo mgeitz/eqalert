@@ -1361,9 +1361,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is solo_only and you are solo and not in a raid
-        elif (
-            reaction == "solo_only" and state.group == "false" and state.raid == "false"
-        ):
+        elif reaction == "solo_only" and not state.group and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1374,7 +1372,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is solo and you are solo and not in a raid
-        elif reaction == "solo" and state.group == "false" and state.raid == "false":
+        elif reaction == "solo" and not state.group and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1385,7 +1383,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is solo and you are grouped but not in a raid
-        elif reaction == "solo" and state.group == "true" and state.raid == "false":
+        elif reaction == "solo" and state.group and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1396,7 +1394,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is solo_group_only and you are not in a raid
-        elif reaction == "solo_group_only" and state.raid == "false":
+        elif reaction == "solo_group_only" and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1407,9 +1405,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction group_only and you are grouped but not in a raid
-        elif (
-            reaction == "group_only" and state.group == "true" and state.raid == "false"
-        ):
+        elif reaction == "group_only" and state.group and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1420,7 +1416,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is group and you are grouped but not in a raid
-        elif reaction == "group" and state.group == "true" and state.raid == "false":
+        elif reaction == "group" and state.group and not state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1431,7 +1427,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is solo regardless of group state and in a raid
-        elif reaction == "solo" and state.raid == "true":
+        elif reaction == "solo" and state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1442,7 +1438,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is group regardless of group state and in a raid
-        elif reaction == "group" and state.raid == "true":
+        elif reaction == "group" and state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1453,7 +1449,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is raid regardless of group state and in a raid
-        elif reaction == "raid" and state.raid == "true":
+        elif reaction == "raid" and state.raid:
             send_alerts(
                 line_type,
                 check_line,
@@ -1464,7 +1460,7 @@ def reaction_context(
             )
 
         # Or if line_type reaction is afk and you are afk
-        elif reaction == "afk" and state.afk == "true":
+        elif reaction == "afk" and state.afk:
             send_alerts(
                 line_type,
                 check_line,
@@ -1506,11 +1502,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is solo_only
-                elif (
-                    value == "solo_only"
-                    and state.group == "false"
-                    and state.raid == "false"
-                ):
+                elif value == "solo_only" and not state.group and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1522,9 +1514,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is solo
-                elif (
-                    value == "solo" and state.group == "false" and state.raid == "false"
-                ):
+                elif value == "solo" and not state.group and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1536,9 +1526,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is group
-                elif (
-                    value == "group" and state.group == "true" and state.raid == "false"
-                ):
+                elif value == "group" and state.group and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1550,11 +1538,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is group_only
-                elif (
-                    value == "group_only"
-                    and state.group == "true"
-                    and state.raid == "false"
-                ):
+                elif value == "group_only" and state.group and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1566,9 +1550,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is solo, but you are grouped
-                elif (
-                    value == "solo" and state.group == "true" and state.raid == "false"
-                ):
+                elif value == "solo" and state.group and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1580,7 +1562,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is solo_group_only
-                elif value == "solo_group_only" and state.raid == "false":
+                elif value == "solo_group_only" and not state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1592,7 +1574,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is raid
-                elif value == "raid" and state.raid == "true":
+                elif value == "raid" and state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1604,7 +1586,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is group, but you are in a raid
-                elif value == "group" and state.raid == "true":
+                elif value == "group" and state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1616,7 +1598,7 @@ def reaction_alert(
                         mute_list,
                     )
                 # If the alert value is solo, but you are in a raid
-                elif value == "solo" and state.raid == "true":
+                elif value == "solo" and state.raid:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -2236,13 +2218,13 @@ def action_you_say_commands(
                             + " around "
                             + str(state.loc)
                             + ". Group state is "
-                            + state.group
+                            + str(state.group)
                             + ". Leader state is "
-                            + state.leader
+                            + str(state.leader)
                             + ". Raid state is "
-                            + state.raid
+                            + str(state.raid)
                             + ". AFK state is "
-                            + state.afk
+                            + str(state.afk)
                             + ". Encumbered state is "
                             + state.encumbered
                             + ". Debug state is "
@@ -2252,14 +2234,14 @@ def action_you_say_commands(
                         )
                     )
                 elif args[1] == "context":
-                    if state.afk == "true":
-                        context = "afk"
-                    elif state.group == "false" and state.raid == "false":
+                    if not state.group and not state.raid:
                         context = "solo"
-                    elif state.group == "true" and state.raid == "false":
+                    elif state.group and not state.raid:
                         context = "group"
-                    elif state.raid == "raid":
+                    elif state.raid:
                         context = "raid"
+                    elif state.afk:
+                        context = "afk"
                     sound_q.put(
                         eqa_struct.sound("You are in a " + context + " context.")
                     )
@@ -2669,39 +2651,31 @@ def action_you_new_zone(
 
         if current_zone[0] not in configs.zones.config["zones"].keys():
             eqa_config.add_zone(current_zone[0], base_path)
-        elif (
-            current_zone[0] in configs.zones.config["zones"].keys()
-            and not state.raid == "true"
-        ):
+        elif current_zone[0] in configs.zones.config["zones"].keys() and not state.raid:
             if (
                 configs.zones.config["zones"][current_zone[0]]["raid_mode"] == "true"
-                and configs.settings.config["settings"]["raid_mode"]["auto_set"]
-                == "true"
+                and state.auto_raid
             ):
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),
                         "system",
                         "raid",
-                        "true",
+                        True,
                         "Raid mode auto-enabled",
                     )
                 )
-        elif (
-            current_zone[0] in configs.zones.config["zones"].keys()
-            and state.raid == "true"
-        ):
+        elif current_zone[0] in configs.zones.config["zones"].keys() and state.raid:
             if (
                 configs.zones.config["zones"][current_zone[0]]["raid_mode"] == "false"
-                and configs.settings.config["settings"]["raid_mode"]["auto_set"]
-                == "true"
+                and state.auto_raid
             ):
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),
                         "system",
                         "raid",
-                        "false",
+                        False,
                         "Raid mode auto-disabled",
                     )
                 )
