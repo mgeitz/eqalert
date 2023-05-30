@@ -278,13 +278,6 @@ def process(
                                 state.zone,
                             )
 
-                ## TODO: Spell Casting Item Buffer
-                # Interesting note, these only show up for the active player for any non-instant cast item.  Other plays get the normal casting message.
-                # if line_type == "spells_cast_item_you":
-                #    action_spell_casting(
-                #        check_line, line_type, line_time, spell_casting_buffer_other, spell_casting_buffer_you
-                #    )
-
                 ## Self Spell Timers
                 if (
                     state.spell_timer_self
@@ -336,11 +329,44 @@ def process(
                     if line_type == "consider":
                         action_consider_evaluation(sound_q, check_line)
 
-                ## State Building Line Types
+                ## Always on line_type specific actions
                 if line_type == "who_player":
                     action_who_player(
                         configs, system_q, state, check_line, player_list, class_mapping
                     )
+                ### Spell Casting Buffer Other
+                elif line_type == "spells_cast_other":
+                    action_spell_casting_other(
+                        check_line,
+                        line_type,
+                        line_time,
+                        spell_casting_buffer_other,
+                    )
+                ### Spell Casting Buffer You
+                elif line_type == "spells_cast_you":
+                    spell_casting_buffer_you = action_spell_casting_you(
+                        check_line,
+                        line_type,
+                        line_time,
+                        spell_casting_buffer_you,
+                    )
+                ### TODO: Spell Casting Item Buffer
+                # Interesting note, these only show up for the active player for any non-instant cast item.  Other plays get the normal casting message.
+                # elif line_type == "spells_cast_item_you":
+                #    action_spell_casting(
+                #        check_line, line_type, line_time, spell_casting_buffer_other, spell_casting_buffer_you
+                #    )
+                ### Spell timer zone drift
+                elif line_type == "zoning":
+                    timer_q.put(
+                        eqa_struct.timer(
+                            datetime.datetime.now(),
+                            "zoning",
+                            None,
+                            None,
+                        )
+                    )
+                ### State building line types
                 elif line_type == "location":
                     action_location(system_q, check_line)
                 elif line_type == "direction":
@@ -371,6 +397,7 @@ def process(
                     action_you_afk_off(system_q)
                 elif line_type == "you_afk_on":
                     action_you_afk_on(system_q)
+                ### Parser say commands
                 elif line_type == "say_you":
                     if (
                         re.fullmatch(r"^You say, \'parser .+\'$", check_line)
@@ -387,6 +414,7 @@ def process(
                             state,
                             player_list,
                         )
+                ### You new zone
                 elif line_type == "you_new_zone":
                     action_you_new_zone(
                         base_path,
@@ -397,31 +425,6 @@ def process(
                         state,
                         configs,
                         check_line,
-                    )
-                elif line_type == "zoning":
-                    timer_q.put(
-                        eqa_struct.timer(
-                            datetime.datetime.now(),
-                            "zoning",
-                            None,
-                            None,
-                        )
-                    )
-                ## Spell Casting Buffer Other
-                elif line_type == "spells_cast_other":
-                    action_spell_casting_other(
-                        check_line,
-                        line_type,
-                        line_time,
-                        spell_casting_buffer_other,
-                    )
-                ## Spell Casting Buffer You
-                elif line_type == "spells_cast_you":
-                    spell_casting_buffer_you = action_spell_casting_you(
-                        check_line,
-                        line_type,
-                        line_time,
-                        spell_casting_buffer_you,
                     )
 
                 ## If line_type exists in the config
