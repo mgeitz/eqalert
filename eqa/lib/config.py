@@ -5169,7 +5169,7 @@ def update_spell_casters(data_path, version):
       "item": true
     }
   },
-  "version": %s
+  "version": "%s"
 }
 """
 
