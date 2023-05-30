@@ -1913,10 +1913,7 @@ def encounter_report(
         )
 
         ## Write Encounter to File
-        if (
-            configs.settings.config["settings"]["encounter_parsing"]["auto_save"]
-            == "true"
-        ):
+        if configs.settings.config["settings"]["encounter_parsing"]["auto_save"]:
             encounter_report_json_string = json.dumps(encounter_report, indent=2)
             encounter_report_file = open(
                 encounter_zone_date_path + encounter_filename, "w"
