@@ -216,7 +216,7 @@ def read_config(base_path):
         )
 
 
-def update_logs(configs):
+def update_logs(configs, version):
     """Add characters and servers of eqemu_ prefixed files in the log path"""
 
     try:
@@ -242,6 +242,8 @@ def update_logs(configs):
                     add_char_log(char_name, server_name, configs)
                 if len(configs.settings.config["last_state"].keys()) == 0:
                     bootstrap_state(configs, char_name, server_name)
+
+        validate_char_log(configs, version)
 
     except Exception as e:
         print(
@@ -270,16 +272,16 @@ def add_char_log(char, server, configs):
                     "character": char,
                     "server": server,
                     "file_name": char_log,
-                    "disabled": "false",
+                    "disabled": False,
                     "char_state": {
                         "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
-                        "direction": "unavailable",
-                        "zone": "unavailable",
-                        "encumbered": "false",
-                        "bind": "unavailable",
-                        "level": "unavailable",
-                        "class": "unavailable",
-                        "guild": "unavailable",
+                        "direction": None,
+                        "zone": None,
+                        "encumbered": False,
+                        "bind": None,
+                        "level": None,
+                        "class": None,
+                        "guild": None,
                     },
                 }
             }
@@ -297,6 +299,110 @@ def add_char_log(char, server, configs):
         )
         eqa_settings.log(
             "add char: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def validate_char_log(configs, version):
+    """Validate characters.json"""
+
+    try:
+        json_data = open(configs.characters.path, "r", encoding="utf-8")
+        characters_json_data = json.load(json_data)
+        json_data.close()
+
+        if "version" in characters_json_data.keys():
+            # For any future needed changes
+            pass
+        else:
+            # no version
+            for char_log in characters_json_data["char_logs"].keys():
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"]["bind"]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "bind"
+                    ] = None
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"]["class"]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "class"
+                    ] = None
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "direction"
+                    ]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "direction"
+                    ] = None
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "encumbered"
+                    ]
+                    == "false"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "encumbered"
+                    ] = False
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "encumbered"
+                    ]
+                    == "true"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "encumbered"
+                    ] = True
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"]["guild"]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "guild"
+                    ] = None
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"]["level"]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "level"
+                    ] = None
+                else:
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "level"
+                    ] = int(
+                        characters_json_data["char_logs"][char_log]["char_state"][
+                            "level"
+                        ]
+                    )
+                if (
+                    characters_json_data["char_logs"][char_log]["char_state"]["zone"]
+                    == "unavailable"
+                ):
+                    characters_json_data["char_logs"][char_log]["char_state"][
+                        "zone"
+                    ] = None
+                if characters_json_data["char_logs"][char_log]["disabled"] == "false":
+                    characters_json_data["char_logs"][char_log]["disabled"] = False
+                if characters_json_data["char_logs"][char_log]["disabled"] == "true":
+                    characters_json_data["char_logs"][char_log]["disabled"] = True
+
+            characters_json_data["version"] = version
+
+            json_data = open(configs.characters.path, "w", encoding="utf-8")
+            json.dump(characters_json_data, json_data, sort_keys=True, indent=2)
+            json_data.close()
+
+    except Exception as e:
+        eqa_settings.log(
+            "validate char log: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
@@ -336,10 +442,7 @@ def get_config_chars(configs):
     try:
         chars = []
         for char_server in configs.characters.config["char_logs"].keys():
-            if (
-                configs.characters.config["char_logs"][char_server]["disabled"]
-                == "false"
-            ):
+            if not configs.characters.config["char_logs"][char_server]["disabled"]:
                 chars.append(char_server)
 
         return chars
@@ -8152,18 +8255,18 @@ def set_last_state(state, configs):
                 + ".txt",
                 "server": str(state.server),
                 "char_state": {
-                    "direction": str(state.direction),
+                    "direction": state.direction,
                     "location": {
-                        "x": str(state.loc[1]),
-                        "y": str(state.loc[0]),
-                        "z": str(state.loc[2]),
+                        "x": state.loc[1],
+                        "y": state.loc[0],
+                        "z": state.loc[2],
                     },
-                    "zone": str(state.zone),
-                    "encumbered": str(state.encumbered),
-                    "bind": str(state.bind),
-                    "level": str(state.char_level),
-                    "class": str(state.char_class),
-                    "guild": str(state.char_guild),
+                    "zone": state.zone,
+                    "encumbered": state.encumbered,
+                    "bind": state.bind,
+                    "level": state.char_level,
+                    "class": state.char_class,
+                    "guild": state.char_guild,
                 },
             }
         )
@@ -8520,7 +8623,8 @@ def build_config(base_path, version):
 
     new_char_config = """
 {
-  "char_logs": {}
+  "char_logs": {},
+  "version": "%s"
 }
 """
 
@@ -20280,7 +20384,7 @@ def build_config(base_path, version):
         characters_json_path = base_path + "config/characters.json"
         if not os.path.isfile(characters_json_path):
             f = open(characters_json_path, "w", encoding="utf-8")
-            f.write(new_char_config)
+            f.write(new_char_config % (version))
             f.close()
             generated = True
 

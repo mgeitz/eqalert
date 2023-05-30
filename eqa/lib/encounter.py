@@ -81,7 +81,10 @@ def process(
                     ):
                         #### Set active encounter
                         active_encounter = True
-                        encounter_zone = re.sub(r"[^\w\s]", "", state.zone)
+                        if state.zone is not None:
+                            encounter_zone = re.sub(r"[^\w\s]", "", state.zone)
+                        else:
+                            encounter_zone = re.sub(r"[^\w\s]", "", "Unavailable")
                 ## Or if active encounter
                 else:
                     ### And we see a line that indicates an encounter ends
@@ -147,7 +150,10 @@ def process(
                     elif interaction == "start":
                         #### Set active encounter
                         active_encounter = True
-                        encounter_zone = re.sub(r"[^\w\s]", "", state.zone)
+                        if state.zone is not None:
+                            encounter_zone = re.sub(r"[^\w\s]", "", state.zone)
+                        else:
+                            encounter_zone = re.sub(r"[^\w\s]", "", "Unavailable")
 
                 ## If we're in an encounter
                 if active_encounter == True:

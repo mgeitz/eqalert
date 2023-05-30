@@ -405,7 +405,7 @@ def draw_events_status_bar(stdscr, state):
         stdscr.addstr(center_y, 2, state.char.title(), curses.color_pair(2))
 
         ## Guild
-        if state.char_guild != "unavailable":
+        if state.char_guild is not None:
             stdscr.addstr(
                 center_y,
                 3 + len(state.char),
@@ -414,20 +414,20 @@ def draw_events_status_bar(stdscr, state):
             )
 
         ## Level
-        if state.char_level != "unavailable":
-            stdscr.addstr(center_y + 1, 2, state.char_level, curses.color_pair(2))
+        if state.char_level is not None:
+            stdscr.addstr(center_y + 1, 2, str(state.char_level), curses.color_pair(2))
 
         ## Class
-        if state.char_class != "unavailable":
+        if state.char_class is not None:
             stdscr.addstr(
                 center_y + 1,
-                3 + len(state.char_level),
+                3 + len(str(state.char_level)),
                 state.char_class.title(),
                 curses.color_pair(2),
             )
 
         ## Zone
-        if state.zone != "unavailable":
+        if state.zone is not None:
             stdscr.addstr(
                 center_y,
                 x - len(state.zone) - 2,
@@ -436,7 +436,7 @@ def draw_events_status_bar(stdscr, state):
             )
 
         ## Direction
-        if state.direction != "unavailable":
+        if state.direction is not None:
             stdscr.addstr(
                 center_y + 1,
                 x - len(state.direction) - 2,
@@ -446,7 +446,7 @@ def draw_events_status_bar(stdscr, state):
 
         ## Location
         if state.loc != ["0.00", "0.00", "0.00"]:
-            if state.direction == "unavailable":
+            if state.direction is not None:
                 offset = (
                     len(str(state.loc[0]))
                     + len(str(state.loc[1]))
@@ -1162,27 +1162,39 @@ def draw_state(stdscr, state, version):
         # class
         stdscr.addstr(8, 5, "Class", curses.color_pair(2))
         stdscr.addstr(8, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(8, 18, state.char_class.title(), curses.color_pair(3))
+        if state.char_class is not None:
+            stdscr.addstr(8, 18, state.char_class.title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(8, 18, "Unavailable", curses.color_pair(3))
 
         # level
         stdscr.addstr(9, 5, "Level", curses.color_pair(2))
         stdscr.addstr(9, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(9, 18, state.char_level.title(), curses.color_pair(3))
+        if state.char_level is not None:
+            stdscr.addstr(9, 18, str(state.char_level).title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(9, 18, "Unavailable", curses.color_pair(3))
 
         # guild
         stdscr.addstr(10, 5, "Guild", curses.color_pair(2))
         stdscr.addstr(10, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(10, 18, state.char_guild.title(), curses.color_pair(3))
+        if state.char_guild is not None:
+            stdscr.addstr(10, 18, state.char_guild.title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(10, 18, "Unavailable", curses.color_pair(3))
 
         # bind state
         stdscr.addstr(12, 5, "Bind", curses.color_pair(2))
         stdscr.addstr(12, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(12, 18, state.bind.title(), curses.color_pair(3))
+        if state.bind is not None:
+            stdscr.addstr(12, 18, state.bind.title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(12, 18, "Unavailable", curses.color_pair(3))
 
         # encumbered state
         stdscr.addstr(13, 5, "Encumbered", curses.color_pair(2))
         stdscr.addstr(13, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(13, 18, state.encumbered.title(), curses.color_pair(3))
+        stdscr.addstr(13, 18, str(state.encumbered), curses.color_pair(3))
 
         # afk state
         stdscr.addstr(14, 5, "AFK", curses.color_pair(2))
@@ -1222,7 +1234,10 @@ def draw_state(stdscr, state, version):
         # direction
         stdscr.addstr(21, 5, "Direction", curses.color_pair(2))
         stdscr.addstr(21, 16, ": ", curses.color_pair(1))
-        stdscr.addstr(21, 18, state.direction.title(), curses.color_pair(3))
+        if state.direction is not None:
+            stdscr.addstr(21, 18, state.direction.title(), curses.color_pair(3))
+        else:
+            stdscr.addstr(21, 18, "Unavailable", curses.color_pair(3))
 
         # debug state
         stdscr.addstr(23, 5, "Debug", curses.color_pair(2))
@@ -1379,48 +1394,73 @@ def draw_settings_char_select(charscr, configs, state, s_char, s_setting):
 
         # Character Select Stats
         charscr.addstr(10, first_q, "Class:", curses.color_pair(1))
+        selected_char_class = configs.characters.config["char_logs"][
+            state.chars[s_char]
+        ]["char_state"]["class"]
+        if selected_char_class is not None:
+            message = selected_char_class.title()
+        else:
+            message = "Unavailable"
         charscr.addstr(
             10,
             first_q + 7,
-            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
-                "class"
-            ].title(),
+            message,
             curses.color_pair(3),
         )
         charscr.addstr(11, first_q, "Level:", curses.color_pair(1))
+        selected_char_level = configs.characters.config["char_logs"][
+            state.chars[s_char]
+        ]["char_state"]["level"]
+        if selected_char_level is not None:
+            message = str(selected_char_level)
+        else:
+            message = "Unavailable"
         charscr.addstr(
             11,
             first_q + 7,
-            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
-                "level"
-            ],
+            message,
             curses.color_pair(3),
         )
         charscr.addstr(12, first_q, "Guild:", curses.color_pair(1))
+        selected_char_guild = configs.characters.config["char_logs"][
+            state.chars[s_char]
+        ]["char_state"]["guild"]
+        if selected_char_guild is not None:
+            message = selected_char_guild.title()
+        else:
+            message = "Unavailable"
         charscr.addstr(
             12,
             first_q + 7,
-            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
-                "guild"
-            ].title(),
+            message,
             curses.color_pair(3),
         )
         charscr.addstr(13, first_q, "Zone:", curses.color_pair(1))
+        selected_char_zone = configs.characters.config["char_logs"][
+            state.chars[s_char]
+        ]["char_state"]["zone"]
+        if selected_char_zone is not None:
+            message = selected_char_zone.title()
+        else:
+            message = "Unavailable"
         charscr.addstr(
             13,
             first_q + 7,
-            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
-                "zone"
-            ].title(),
+            message,
             curses.color_pair(3),
         )
         charscr.addstr(14, first_q, "Bind:", curses.color_pair(1))
+        selected_char_bind = configs.characters.config["char_logs"][
+            state.chars[s_char]
+        ]["char_state"]["bind"]
+        if selected_char_bind is not None:
+            message = selected_char_bind.title()
+        else:
+            message = "Unavailable"
         charscr.addstr(
             14,
             first_q + 7,
-            configs.characters.config["char_logs"][state.chars[s_char]]["char_state"][
-                "bind"
-            ].title(),
+            message,
             curses.color_pair(3),
         )
 

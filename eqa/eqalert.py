@@ -157,7 +157,7 @@ def startup(base_path, version):
             os.makedirs(encounter_path)
 
         # Update config char_logs
-        eqa_config.update_logs(configs)
+        eqa_config.update_logs(configs, version)
 
         server = configs.settings.config["last_state"]["server"]
         char = configs.settings.config["last_state"]["character"]

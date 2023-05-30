@@ -270,12 +270,20 @@ def process(
                         line_type == "experience_solo"
                         or line_type == "experience_group"
                     ):
-                        action_mob_timer(
-                            timer_q,
-                            configs.zones.config["zones"][str(state.zone)]["timer"],
-                            state.auto_mob_timer_delay,
-                            state.zone,
-                        )
+                        if state.zone is not None:
+                            action_mob_timer(
+                                timer_q,
+                                configs.zones.config["zones"][state.zone]["timer"],
+                                state.auto_mob_timer_delay,
+                                state.zone,
+                            )
+                        else:
+                            action_mob_timer(
+                                timer_q,
+                                configs.zones.config["zones"]["Unavailable"]["timer"],
+                                state.auto_mob_timer_delay,
+                                state.zone,
+                            )
 
                 ## TODO: Spell Casting Item Buffer
                 # Interesting note, these only show up for the active player for any non-instant cast item.  Other plays get the normal casting message.
@@ -759,7 +767,7 @@ def action_spell_timer(
                             )
 
                 # First check if the player could have cast this
-                if spell_casting_buffer_you:
+                if spell_casting_buffer_you and state.char_level is not None:
                     # If the most recent player cast spell is in the possible spell list
                     if (
                         spell_casting_buffer_you["spell"]
@@ -912,7 +920,7 @@ def action_spell_timer(
             # If we have spell_caster info on this spell
             if spell in spell_casters["spells"].keys():
                 # Check if player has cast anything
-                if spell_casting_buffer_you:
+                if spell_casting_buffer_you and state.char_level is not None:
                     # If the spell cast by the player is in the spell casters file
                     if (
                         spell_casting_buffer_you["spell"]
@@ -1045,12 +1053,13 @@ def action_spell_timer(
                                     for caster_class in spell_casters["spells"][spell][
                                         "classes"
                                     ]:
-                                        if int(state.char_level) >= int(
-                                            spell_casters["spells"][spell]["classes"][
-                                                caster_class
-                                            ]
-                                        ):
-                                            player_level_could_cast = True
+                                        if state.char_level is not None:
+                                            if state.char_level >= int(
+                                                spell_casters["spells"][spell][
+                                                    "classes"
+                                                ][caster_class]
+                                            ):
+                                                player_level_could_cast = True
 
                                     if player_level_could_cast:
                                         identified_spell_level = state.char_level
@@ -1065,7 +1074,10 @@ def action_spell_timer(
                                     find_time = True
 
                                 # If this is a known npc only spell, just set to current player level
-                                elif spell_casters["spells"][spell]["npc"] == "true":
+                                elif (
+                                    spell_casters["spells"][spell]["npc"] == "true"
+                                    and state.char_level is not None
+                                ):
                                     identified_spell_caster = recent_cast_event[
                                         "caster"
                                     ]
@@ -1077,7 +1089,7 @@ def action_spell_timer(
         if find_time:
             make_timer = True
             # If we only want self or guild spell timers
-            if state.spell_timer_guild_only:
+            if state.spell_timer_guild_only and state.char_guild is not None:
                 # If this was cast by myself or another player
                 if identified_spell_caster in player_list.keys():
                     # If a guildie didn't cast it
@@ -2204,17 +2216,17 @@ def action_you_say_commands(
                             + " as "
                             + state.char
                             + " level "
-                            + state.char_level
+                            + str(state.char_level)
                             + " "
-                            + state.char_class
+                            + str(state.char_class)
                             + " of "
-                            + state.char_guild
+                            + str(state.char_guild)
                             + ". Bound in "
-                            + state.bind
+                            + str(state.bind)
                             + " and currently in "
-                            + state.zone
+                            + str(state.zone)
                             + " facing "
-                            + state.direction
+                            + str(state.direction)
                             + " around "
                             + str(state.loc)
                             + ". Group state is "
@@ -2226,7 +2238,7 @@ def action_you_say_commands(
                             + ". AFK state is "
                             + str(state.afk)
                             + ". Encumbered state is "
-                            + state.encumbered
+                            + str(state.encumbered)
                             + ". Debug state is "
                             + str(state.debug)
                             + ". Encounter parser state is "
@@ -2275,7 +2287,7 @@ def action_you_say_commands(
                         eqa_struct.sound(
                             "speak",
                             "I think you're still in "
-                            + state.zone
+                            + str(state.zone)
                             + ", but considering the circumstances you could be anywhere.",
                         )
                     )
@@ -2315,9 +2327,9 @@ def action_you_say_commands(
                         eqa_struct.sound(
                             "speak",
                             "Did you choose the "
-                            + state.char_class
+                            + str(state.char_class)
                             + " life, or did the "
-                            + state.char_class
+                            + str(state.char_class)
                             + " life choose you?",
                         )
                     )
@@ -2580,7 +2592,7 @@ def action_who_player(configs, system_q, state, line, player_list, class_mapping
                         "system",
                         "level",
                         None,
-                        str(char_level),
+                        char_level,
                     )
                 )
 
@@ -2591,7 +2603,7 @@ def action_who_player(configs, system_q, state, line, player_list, class_mapping
                         "system",
                         "class",
                         None,
-                        char_class,
+                        char_class.title(),
                     )
                 )
 
