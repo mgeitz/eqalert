@@ -267,7 +267,7 @@ def speak(configs, line, play, sound_file_path):
 def alert(configs, line_type):
     """Play configured sounds"""
     try:
-        if not configs.alerts.config["line"][line_type]["sound"] == "false":
+        if not configs.alerts.config["line"][line_type]["sound"] == False:
             phrase = configs.alerts.config["line"][line_type]["sound"]
             sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
             if not os.path.exists(sound_file_path + phrase + ".wav"):

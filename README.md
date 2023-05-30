@@ -260,7 +260,7 @@ Alert for the word `hey` when someone else `/says` it:
 ```
     "say": {
       "alert": {
-        "hey": "true"
+        "hey": true
       },
       "reaction": "alert",
       "sound": "hey"
@@ -287,7 +287,7 @@ Alert for a spell not taking hold only when grouped:
     "spell_not_hold": {
       "alert": {},
       "reaction": "group_only",
-      "sound": "true"
+      "sound": true
     },
 ```
 
@@ -297,7 +297,7 @@ Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is 
 ```
     "auction_wts": {
       "alert": {
-        "Hand Made Backpack": "true"
+        "Hand Made Backpack": true
       },
       "reaction": "alert",
       "sound": "wow buy that"
@@ -313,19 +313,19 @@ Alert for the item `Hand Made Backpack` when someone else `/auctions` it and is 
 - `true`: Alert for the string
 
 ##### Context Driven
-- `solo`: Alert when solo, grouped, and raiding
-- `solo_only`: Alert only when solo
-- `group`: Alert when in a group and raiding
-- `group_only`: Alert only when grouped
-- `solo_group_only`: Alert only when not raiding
-- `raid`: Alert when in a raid
-- `afk`: Alert only when afk
+- `"solo"`: Alert when solo, grouped, and raiding
+- `"solo_only"`: Alert only when solo
+- `"group"`: Alert when in a group and raiding
+- `"group_only"`: Alert only when grouped
+- `"solo_group_only"`: Alert only when not raiding
+- `"raid"`: Alert when in a raid
+- `"afk"`: Alert only when afk
 
 #### Sound Values
 - `true`: When an alert is raised speak the entire line
 - `false`: Play no sound when an alert is raised
 
-> Any other sound value will be spoken as the audio trigger for that line type
+> Any other sound value (as a string) will be spoken as the audio trigger for that line type
 
 #### The all Line Type
 
@@ -347,6 +347,9 @@ This can be helpful if you would like to alert for something not yet matched by 
 
 ### Zones
 Zone data is stored in `config/zones.json`
+
+#### indoors
+Whether or not this zone is considered indoors.  Currently does nothing.
 
 #### raid_mode
 - `false`: If enabled, auto-disable raid mode in this zone

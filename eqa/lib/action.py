@@ -442,7 +442,7 @@ def process(
                         )
 
                     ### Handle Context Reactions
-                    elif reaction != "false":
+                    elif reaction != False:
                         reaction_context(
                             line_type,
                             check_line,
@@ -467,7 +467,7 @@ def process(
                         )
 
                     ### Handle context reaction for all lines
-                    elif configs.alerts.config["line"]["all"]["reaction"] != "false":
+                    elif configs.alerts.config["line"]["all"]["reaction"] != False:
                         reaction_context(
                             "all",
                             check_line,
@@ -957,10 +957,10 @@ def action_spell_timer(
                         # elif (
                         #    state.char_class.lower()
                         #    not in spell_casters["spells"][spell]["classes"].keys()
-                        #    and spell_casters["spells"][spell]["item"] == "true"
+                        #    and spell_casters["spells"][spell]["item"]
                         # ):
                         #    # TODO: This is where item cast durations would be checked
-                        #    if state.spell_timer_guess == "true":
+                        #    if state.spell_timer_guess:
                         #        identified_spell_caster = state.char.lower()
                         #        identified_spell_level = state.char_level
                         #        identified_spell = spell_casting_buffer_you["spell"]
@@ -1211,7 +1211,7 @@ def send_alerts(line_type, check_line, configs, sound_q, display_q, mute_list):
         # Check Sender
         sender = re.findall(r"^([\w\-]+)", check_line)
 
-        if configs.alerts.config["line"][line_type]["sound"] == "true":
+        if configs.alerts.config["line"][line_type]["sound"] == True:
             if (
                 not (line_type, sender[0].lower()) in mute_list
                 and not (line_type, "all") in mute_list
@@ -1235,7 +1235,7 @@ def send_alerts(line_type, check_line, configs, sound_q, display_q, mute_list):
                     )
                 )
 
-        elif configs.alerts.config["line"][line_type]["sound"] != "false":
+        elif configs.alerts.config["line"][line_type]["sound"] != False:
             if (
                 not (line_type, sender[0].lower()) in mute_list
                 and not (line_type, "all") in mute_list
@@ -1277,7 +1277,7 @@ def send_keyphrase_alerts(
         # Check Sender
         sender = re.findall(r"^([\w\-]+)", check_line)
 
-        if configs.alerts.config["line"][line_type]["sound"] == "true":
+        if configs.alerts.config["line"][line_type]["sound"] == True:
             if keyphrase == "assist" or keyphrase == "rampage" or keyphrase == "spot":
                 payload = keyphrase + " on " + sender[0]
             else:
@@ -1286,9 +1286,9 @@ def send_keyphrase_alerts(
                 not (line_type, sender[0].lower()) in mute_list
                 and not (line_type, "all") in mute_list
             ):
-                if context == "true":
+                if context == True:
                     sound_q.put(eqa_struct.sound("speak", check_line))
-                elif context != "false":
+                elif context != False:
                     sound_q.put(eqa_struct.sound("speak", payload))
                 display_q.put(
                     eqa_struct.display(
@@ -1308,7 +1308,7 @@ def send_keyphrase_alerts(
                     )
                 )
 
-        elif configs.alerts.config["line"][line_type]["sound"] != "false":
+        elif configs.alerts.config["line"][line_type]["sound"] != False:
             if keyphrase == "assist" or keyphrase == "rampage" or keyphrase == "spot":
                 payload = keyphrase + " on " + sender[0]
             else:
@@ -1317,9 +1317,9 @@ def send_keyphrase_alerts(
                 not (line_type, sender[0].lower()) in mute_list
                 and not (line_type, "all") in mute_list
             ):
-                if context == "true":
+                if context == True:
                     sound_q.put(eqa_struct.sound("alert", line_type))
-                elif context != "false":
+                elif context != False:
                     sound_q.put(eqa_struct.sound("speak", payload))
                 display_q.put(
                     eqa_struct.display(
@@ -1495,7 +1495,7 @@ def reaction_alert(
         ].items():
             # If the alert value is true
             if str(keyphrase).lower() in check_line.lower():
-                if value == "true":
+                if value == True:
                     send_keyphrase_alerts(
                         line_type,
                         check_line,
@@ -1667,7 +1667,7 @@ def action_motd_welcome(system_q):
                 "system",
                 "group",
                 None,
-                "false",
+                False,
             )
         )
         # Remove group leader
@@ -1677,7 +1677,7 @@ def action_motd_welcome(system_q):
                 "system",
                 "leader",
                 None,
-                "false",
+                False,
             )
         )
         # Remove AFK
@@ -1687,7 +1687,7 @@ def action_motd_welcome(system_q):
                 "system",
                 "afk",
                 None,
-                "false",
+                False,
             )
         )
 
@@ -1710,7 +1710,7 @@ def action_group_created(system_q):
                 "system",
                 "group",
                 None,
-                "true",
+                True,
             )
         )
         system_q.put(
@@ -1742,7 +1742,7 @@ def action_group_removed(system_q):
                 "system",
                 "group",
                 None,
-                "false",
+                False,
             )
         )
         system_q.put(
@@ -1751,7 +1751,7 @@ def action_group_removed(system_q):
                 "system",
                 "leader",
                 None,
-                "false",
+                False,
             )
         )
 
@@ -1774,7 +1774,7 @@ def action_group_disbanded(system_q):
                 "system",
                 "group",
                 None,
-                "false",
+                False,
             )
         )
         system_q.put(
@@ -1783,7 +1783,7 @@ def action_group_disbanded(system_q):
                 "system",
                 "leader",
                 None,
-                "false",
+                False,
             )
         )
 
@@ -1807,7 +1807,7 @@ def action_group_join_notify(system_q, check_line):
                 "system",
                 "group",
                 None,
-                "true",
+                True,
             )
         )
         system_q.put(
@@ -1886,7 +1886,7 @@ def action_encumbered_off(system_q):
                 "system",
                 "encumbered",
                 None,
-                "false",
+                False,
             )
         )
 
@@ -1909,7 +1909,7 @@ def action_encumbered_on(system_q):
                 "system",
                 "encumbered",
                 None,
-                "true",
+                True,
             )
         )
 
@@ -2399,7 +2399,7 @@ def action_you_say_commands(
                                 "system",
                                 "timer",
                                 "mob",
-                                "true",
+                                True,
                             )
                         )
                     else:
@@ -2417,7 +2417,7 @@ def action_you_say_commands(
                                 "system",
                                 "timer",
                                 "mob",
-                                "false",
+                                False,
                             )
                         )
             else:
@@ -2450,7 +2450,7 @@ def action_you_afk_off(system_q):
                 "system",
                 "afk",
                 None,
-                "false",
+                False,
             )
         )
 
@@ -2473,7 +2473,7 @@ def action_you_afk_on(system_q):
                 "system",
                 "afk",
                 None,
-                "true",
+                True,
             )
         )
 
@@ -2634,7 +2634,7 @@ def action_you_new_zone(
                 "system",
                 "afk",
                 None,
-                "false",
+                False,
             )
         )
 
