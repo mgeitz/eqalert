@@ -9099,7 +9099,7 @@ def build_config(base_path, version):
       "raid_mode": "true",
       "timer": "0"
     },
-    "unavailable": {
+    "Unavailable": {
       "raid_mode": "false",
       "timer": "0"
     }
