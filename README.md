@@ -227,8 +227,8 @@ Example configuration for a line type:
 ```
     "line_type_name": {
       "alert": {},
-      "reaction": "false",
-      "sound": "false"
+      "reaction": false,
+      "sound": false
     },
 ```
 
