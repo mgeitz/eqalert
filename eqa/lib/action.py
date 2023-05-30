@@ -174,7 +174,7 @@ def process(
 
                 ## Encounter Parsing
                 if state.encounter_parse:
-                    if re.fullmatch(r"^combat\_.+", line_type) is not None:
+                    if "combat_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -184,7 +184,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif re.fullmatch(r"^you\_auto\_attack\_.+", line_type) is not None:
+                    elif "you_auto_attack_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -194,7 +194,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif re.fullmatch(r"^mob\_slain\_.+", line_type) is not None:
+                    elif "mob_slain_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -234,7 +234,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif re.fullmatch(r"^experience\_.+", line_type) is not None:
+                    elif "experience_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -254,7 +254,7 @@ def process(
                                 check_line,
                             )
                         )
-                    elif re.fullmatch(r"^spells\_.+", line_type) is not None:
+                    elif "spells_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
@@ -291,23 +291,6 @@ def process(
                 #    action_spell_casting(
                 #        check_line, line_type, line_time, spell_casting_buffer_other, spell_casting_buffer_you
                 #    )
-
-                ## Spell Casting Buffer Other
-                if re.fullmatch(r"^spells\_cast\_other", line_type) is not None:
-                    action_spell_casting_other(
-                        check_line,
-                        line_type,
-                        line_time,
-                        spell_casting_buffer_other,
-                    )
-                ## Spell Casting Buffer You
-                if re.fullmatch(r"^spells\_cast\_you", line_type) is not None:
-                    spell_casting_buffer_you = action_spell_casting_you(
-                        check_line,
-                        line_type,
-                        line_time,
-                        spell_casting_buffer_you,
-                    )
 
                 ## Self Spell Timers
                 if (
@@ -356,18 +339,9 @@ def process(
                         )
 
                 ## Consider Evaluation
-                if state.consider_eval and line_type == "consider":
-                    action_consider_evaluation(sound_q, check_line)
-
-                if line_type == "zoning":
-                    timer_q.put(
-                        eqa_struct.timer(
-                            datetime.datetime.now(),
-                            "zoning",
-                            None,
-                            None,
-                        )
-                    )
+                if state.consider_eval:
+                    if line_type == "consider":
+                        action_consider_evaluation(sound_q, check_line)
 
                 ## State Building Line Types
                 if line_type == "location":
@@ -430,6 +404,31 @@ def process(
                         state,
                         configs,
                         check_line,
+                    )
+                elif line_type == "zoning":
+                    timer_q.put(
+                        eqa_struct.timer(
+                            datetime.datetime.now(),
+                            "zoning",
+                            None,
+                            None,
+                        )
+                    )
+                ## Spell Casting Buffer Other
+                elif "spells_cast_other" == line_type:
+                    action_spell_casting_other(
+                        check_line,
+                        line_type,
+                        line_time,
+                        spell_casting_buffer_other,
+                    )
+                ## Spell Casting Buffer You
+                elif "spells_cast_you" == line_type:
+                    spell_casting_buffer_you = action_spell_casting_you(
+                        check_line,
+                        line_type,
+                        line_time,
+                        spell_casting_buffer_you,
                     )
 
                 ## If line_type exists in the config
