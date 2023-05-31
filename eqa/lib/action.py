@@ -145,6 +145,7 @@ def process(
             "motd_welcome",
             "group_join_notify",
             "group_removed",
+            "group_alone",
             "group_disbanded",
             "group_created",
             "group_leader_you",
@@ -358,7 +359,7 @@ def process(
                     # Remove spell timers for the dead
                     elif "_slain" in line_type:
                         action_spell_remove_timer(
-                            state, timer_q, spell_lines, line_type
+                            state, timer_q, spell_lines, line_type, check_line
                         )
 
                 ## Consider Evaluation
@@ -392,6 +393,8 @@ def process(
                         action_group_disbanded(system_q)
                     elif line_type == "group_created":
                         action_group_created(system_q)
+                    elif line_type == "group_alone":
+                        action_group_alone(system_q)
                     elif line_type == "group_leader_you":
                         action_group_leader_you(system_q)
                     elif line_type == "group_leader_other":
@@ -1758,6 +1761,38 @@ def action_motd_welcome(system_q):
     except Exception as e:
         eqa_settings.log(
             "action motd welcome: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_group_alone(system_q):
+    """Perform actions for group alone line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "group",
+                None,
+                False,
+            )
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "leader",
+                None,
+                False,
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action group alone: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
