@@ -309,6 +309,17 @@ def remove_spell_timer(state, timers, remove_timer):
                             + " on "
                             + timer_event.target
                         )
+                elif (
+                    remove_timer.target == timer_event.target
+                    and remove_timer.spell == "all"
+                ):
+                    if state.debug:
+                        eqa_settings.log(
+                            "Removing timer: "
+                            + timer_event.spell
+                            + " on "
+                            + timer_event.target
+                        )
                 else:
                     heapq.heappush(new_timers, timer_event)
             else:

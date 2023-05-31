@@ -317,7 +317,7 @@ def process(
                             re.fullmatch(r"^spell\_.+\_you_off$", line_type) is not None
                         ):
                             action_spell_remove_timer(
-                                state, timer_q, spell_lines, line_type
+                                state, timer_q, spell_lines, line_type, check_line
                             )
                     ### Spell Casting Buffer Other
                     if line_type == "spells_cast_other":
@@ -354,6 +354,11 @@ def process(
                                 None,
                                 None,
                             )
+                        )
+                    # Remove spell timers for the dead
+                    elif "_slain" in line_type:
+                        action_spell_remove_timer(
+                            state, timer_q, spell_lines, line_type
                         )
 
                 ## Consider Evaluation
@@ -654,28 +659,77 @@ def spell_formulas(formula, level, duration):
         )
 
 
-def action_spell_remove_timer(state, timer_q, spell_lines, line_type):
+def action_spell_remove_timer(state, timer_q, spell_lines, line_type, check_line):
     """Remove timer for spell that dropped"""
 
     try:
-        if re.fullmatch(r"^spell\_line\_.+$", line_type) is not None:
-            if line_type in spell_lines["spell_lines"].keys():
-                for spell in spell_lines["spell_lines"][line_type].keys():
-                    # Submit timer removal
-                    timer_q.put(
-                        eqa_struct.spell_timer(
-                            (datetime.datetime.now()),
-                            "remove_spell_timer",
-                            None,
-                            state.char.lower(),
-                            spell,
-                            None,
-                            None,
-                            None,
+        if "spell_" in line_type:
+            if re.fullmatch(r"^spell\_line\_.+$", line_type) is not None:
+                if line_type in spell_lines["spell_lines"].keys():
+                    for spell in spell_lines["spell_lines"][line_type].keys():
+                        # Submit timer removal
+                        timer_q.put(
+                            eqa_struct.spell_timer(
+                                (datetime.datetime.now()),
+                                "remove_spell_timer",
+                                None,
+                                state.char.lower(),
+                                spell,
+                                None,
+                                None,
+                                None,
+                            )
                         )
+            else:
+                spell = re.findall(
+                    r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_you\_off)", line_type
+                )[0]
+                # Submit timer removal
+                timer_q.put(
+                    eqa_struct.spell_timer(
+                        (datetime.datetime.now()),
+                        "remove_spell_timer",
+                        None,
+                        state.char.lower(),
+                        spell,
+                        None,
+                        None,
+                        None,
                     )
-        else:
-            spell = re.findall(r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_you\_off)", line_type)[0]
+                )
+        elif line_type == "mob_slain_other":
+            target = re.findall(r"(?:^|(?:[.!?]\s))(\w+)", check_line)[0].lower()
+            # Submit timer removal
+            timer_q.put(
+                eqa_struct.spell_timer(
+                    (datetime.datetime.now()),
+                    "remove_spell_timer",
+                    None,
+                    target,
+                    "all",
+                    None,
+                    None,
+                    None,
+                )
+            )
+        elif line_type == "mob_slain_you":
+            target = re.findall(r"(?<=You have slain )[a-zA-Z\_]+", check_line)[
+                0
+            ].lower()
+            # Submit timer removal
+            timer_q.put(
+                eqa_struct.spell_timer(
+                    (datetime.datetime.now()),
+                    "remove_spell_timer",
+                    None,
+                    target,
+                    "all",
+                    None,
+                    None,
+                    None,
+                )
+            )
+        elif line_type == "you_slain":
             # Submit timer removal
             timer_q.put(
                 eqa_struct.spell_timer(
@@ -683,7 +737,7 @@ def action_spell_remove_timer(state, timer_q, spell_lines, line_type):
                     "remove_spell_timer",
                     None,
                     state.char.lower(),
-                    spell,
+                    "all",
                     None,
                     None,
                     None,
@@ -728,6 +782,7 @@ def action_spell_timer(
             re.fullmatch(r"^spell\_line\_[a-zA-Z\s\_]+\_other\_on", line_type)
             is not None
         ):
+            # TODO: Find way to reliably pull multi-word NPC names from spell_line_*_other_on
             target = re.findall(r"(?:^|(?:[.!?]\s))(\w+)", line)[0].lower()
             spell_line = re.findall(
                 r"(?<=spell\_line\_)[a-zA-Z\s\_]+(?=\_other\_on)", line_type
@@ -740,6 +795,7 @@ def action_spell_timer(
             spell = re.findall(r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_other\_on)", line_type)[
                 0
             ]
+            # TODO: Find way to reliably pull multi-word NPC names from spell_*_other_on () sans spell_line_
             target = re.findall(r"(?:^|(?:[.!?]\s))(\w+)", line)[0].lower()
 
         # If this is a spell cast line output shared by more than one spell

@@ -18,7 +18,6 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-from collections import deque
 import sys
 import time
 import re
@@ -37,16 +36,13 @@ def process(exit_flag, log_q, action_q):
     try:
         while not exit_flag.is_set():
             # Sleep between empty checks
-            queue_size = log_q.qsize()
-            if queue_size < 1:
+            if log_q.qsize() < 1:
                 time.sleep(0.01)
 
             # Check queue for message
             if not log_q.empty():
                 ## Read new message
-                log_line = log_q.get()
-                ## Strip line of any trailing space
-                line = log_line.strip()
+                line = log_q.get().strip()
                 ## If line fits assumed log line structure
                 if (
                     re.fullmatch(
@@ -66,10 +62,9 @@ def process(exit_flag, log_q, action_q):
                     ### Determine line type
                     line_type = determine(payload)
                     ### Build and queue action
-                    new_message = eqa_struct.message(
-                        timestamp, line_type, "null", "null", payload
+                    action_q.put(
+                        eqa_struct.message(timestamp, line_type, None, None, payload)
                     )
-                    action_q.put(new_message)
                 else:
                     eqa_settings.log("process_log: Cannot process: " + line)
 
