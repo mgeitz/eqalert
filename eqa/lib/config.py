@@ -8215,12 +8215,12 @@ def set_last_state(state, configs):
                 "guess": state.spell_timer_guess,
             }
         )
-        configs.settings.config["settings"]["timers"]["spell"].update(
+        configs.settings.config["settings"]["timers"]["spell"]["filter"].update(
             {
                 "guild_only": state.spell_timer_guild_only,
             }
         )
-        configs.settings.config["settings"]["timers"]["spell"].update(
+        configs.settings.config["settings"]["timers"]["spell"]["filter"].update(
             {
                 "yours_only": state.spell_timer_yours_only,
             }
@@ -8374,11 +8374,11 @@ def get_last_state(configs, char_name, char_server):
             "other"
         ]
         spell_timer_guild_only = configs.settings.config["settings"]["timers"]["spell"][
-            "guild_only"
-        ]
+            "filter"
+        ]["guild_only"]
         spell_timer_yours_only = configs.settings.config["settings"]["timers"]["spell"][
-            "yours_only"
-        ]
+            "filter"
+        ]["yours_only"]
         spell_timer_self = configs.settings.config["settings"]["timers"]["spell"][
             "self"
         ]
@@ -8677,11 +8677,17 @@ def build_config(base_path, version):
         "auto_delay": 10
       },
       "spell": {
+        "filter": {
+          "by_list": false,
+          "filter_list": {
+            "spirit_of_wolf": false
+          },
+          "guild_only": false,
+          "yours_only": true,
+        },
         "delay": 24,
         "guess": true,
         "other": true,
-        "guild_only": false,
-        "yours_only": true,
         "self": true,
         "zone_drift": true
       }

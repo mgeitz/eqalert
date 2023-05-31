@@ -54,7 +54,7 @@ def process(
 
     try:
         # Spell Cast Buffers
-        spell_casting_buffer_other = deque(maxlen=10)
+        spell_casting_buffer_other = deque(maxlen=8)
         spell_casting_buffer_you = {}
 
         # Spell Timer Data
@@ -287,6 +287,7 @@ def process(
                         ):
                             action_spell_timer(
                                 state,
+                                configs,
                                 timer_q,
                                 line_type,
                                 line_time,
@@ -303,6 +304,7 @@ def process(
                         if re.fullmatch(r"^spell\_.+\_you_on$", line_type) is not None:
                             action_spell_timer(
                                 state,
+                                configs,
                                 timer_q,
                                 line_type,
                                 line_time,
@@ -383,8 +385,6 @@ def process(
                         action_location(system_q, check_line)
                     elif line_type == "direction":
                         action_direction(system_q, check_line)
-                    elif line_type == "motd_welcome":
-                        action_motd_welcome(system_q)
                     elif line_type == "group_join_notify":
                         action_group_join_notify(system_q, check_line)
                     elif line_type == "group_removed":
@@ -403,16 +403,23 @@ def process(
                         action_encumbered_off(system_q)
                     elif line_type == "encumbered_on":
                         action_encumbered_on(system_q)
-                    elif line_type == "you_char_bound":
-                        action_you_char_bound(system_q, check_line)
-                    elif line_type == "spell_bind_you":
-                        action_spell_bind_you(system_q, state)
                     elif line_type == "you_afk_off":
                         action_you_afk_off(system_q)
                     elif line_type == "you_afk_on":
                         action_you_afk_on(system_q)
-                    ### Parser say commands
+                    elif line_type == "you_new_zone":
+                        action_you_new_zone(
+                            base_path,
+                            system_q,
+                            display_q,
+                            sound_q,
+                            timer_q,
+                            state,
+                            configs,
+                            check_line,
+                        )
                     elif line_type == "say_you":
+                        ### Parser say commands
                         if (
                             re.fullmatch(r"^You say, \'parser .+\'$", check_line)
                             is not None
@@ -428,18 +435,14 @@ def process(
                                 state,
                                 player_list,
                             )
-                    ### You new zone
-                    elif line_type == "you_new_zone":
-                        action_you_new_zone(
-                            base_path,
-                            system_q,
-                            display_q,
-                            sound_q,
-                            timer_q,
-                            state,
-                            configs,
-                            check_line,
-                        )
+                    elif line_type == "motd_welcome":
+                        action_motd_welcome(system_q)
+                    elif (
+                        line_type == "spell_bind_you"
+                    ):  # TODO: Whats going on here is this a dupe?
+                        action_spell_bind_you(system_q, state)
+                    elif line_type == "you_char_bound":
+                        action_you_char_bound(system_q, check_line)
 
                 ## If line_type exists in the config
                 if line_type in configs.alerts.config["line"].keys():
@@ -758,6 +761,7 @@ def action_spell_remove_timer(state, timer_q, spell_lines, line_type, check_line
 
 def action_spell_timer(
     state,
+    configs,
     timer_q,
     line_type,
     line_time,
@@ -1148,7 +1152,8 @@ def action_spell_timer(
 
         if find_time:
             make_timer = True
-            # If we only want self or guild spell timers
+
+            # Guild Only Filter
             if state.spell_timer_guild_only and state.char_guild is not None:
                 # If this was cast by myself or another player
                 if identified_spell_caster in player_list.keys():
@@ -1168,9 +1173,32 @@ def action_spell_timer(
                 else:
                     make_timer = False
 
+            # Yours Only Filter
             if state.spell_timer_yours_only:
                 if identified_spell_caster != state.char.lower():
                     make_timer = False
+
+            # By List Filter
+            if configs.settings.config["settings"]["timers"]["spell"]["filter"][
+                "by_list"
+            ]:
+                make_timer = False
+                if (
+                    len(
+                        configs.settings.config["settings"]["timers"]["spell"][
+                            "filter"
+                        ]["filter_list"].keys()
+                    )
+                    > 0
+                ):
+                    for spell in configs.settings.config["settings"]["timers"]["spell"][
+                        "filter"
+                    ]["filter_list"].keys():
+                        if configs.settings.config["settings"]["timers"]["spell"][
+                            "filter"
+                        ]["filter_list"][spell]:
+                            if spell == identified_spell:
+                                make_timer = True
 
             # See if this is a timer which will at least last longer than spell timer delay
             spell_duration = spell_formulas(
@@ -2700,7 +2728,6 @@ def action_who_player(configs, system_q, state, line, player_list, class_mapping
                 )
 
             if char_guild is not None:
-                char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0]
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),
