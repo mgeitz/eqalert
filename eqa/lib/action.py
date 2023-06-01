@@ -369,6 +369,11 @@ def process(
                     if line_type == "consider":
                         action_consider_evaluation(sound_q, check_line)
 
+                if configs.settings.config["settings"]["hail_alert"]["enabled"]:
+                    if line_type == "say":
+                        if "hail" in check_line:
+                            action_say_hail_alert(sound_q, state, check_line)
+
                 ## Always on line_type specific actions
                 if line_type in action_line_types:
                     if line_type == "who_player":
@@ -583,6 +588,22 @@ def action_spell_casting_you(
     except Exception as e:
         eqa_settings.log(
             "acton spell casting you: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_say_hail_alert(sound_q, state, check_line):
+    """Alert when active character is hailed"""
+
+    try:
+        if state.char.lower() in check_line:
+            sound_q.put(eqa_struct.sound("speak", check_line))
+
+    except Exception as e:
+        eqa_settings.log(
+            "acton say hail alert: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)

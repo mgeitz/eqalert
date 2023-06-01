@@ -8648,6 +8648,9 @@ def build_config(base_path, version):
       "auto_save": false,
       "enabled": true
     },
+    "hail_alert": {
+      "enabled": true
+    },
     "mute": {
       "enabled": false
     },
