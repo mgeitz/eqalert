@@ -369,12 +369,16 @@ def process(
                     if line_type == "consider":
                         action_consider_evaluation(sound_q, check_line)
 
-                if configs.settings.config["settings"]["hail_alert"]["enabled"]:
-                    if line_type == "say":
-                        if "hail" in check_line:
-                            action_say_hail_alert(sound_q, state, check_line)
+                ## Active Character Mention Alerts
+                if configs.settings.config["settings"]["character_mention_alert"][
+                    "enabled"
+                ]:
+                    if line_type in ["say", "group", "guild", "shout", "ooc"]:
+                        action_your_char_alert(
+                            sound_q, display_q, state, check_line, line_type
+                        )
 
-                ## Always on line_type specific actions
+                ## Always-on line_type specific actions
                 if line_type in action_line_types:
                     if line_type == "who_player":
                         action_who_player(
@@ -594,16 +598,25 @@ def action_spell_casting_you(
         )
 
 
-def action_say_hail_alert(sound_q, state, check_line):
-    """Alert when active character is hailed"""
+def action_your_char_alert(sound_q, display_q, state, check_line, line_type):
+    """Alert when active character is mentioned in chat"""
 
     try:
-        if state.char.lower() in check_line:
-            sound_q.put(eqa_struct.sound("speak", check_line))
+        if state.char.lower() in check_line.lower():
+            speaker_channel, message = check_line.split(",", 1)
+            sound_q.put(eqa_struct.sound("speak", message))
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    line_type + ": " + check_line,
+                )
+            )
 
     except Exception as e:
         eqa_settings.log(
-            "acton say hail alert: Error on line "
+            "action your char alert: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)

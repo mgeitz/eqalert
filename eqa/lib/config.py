@@ -8635,6 +8635,9 @@ def build_config(base_path, version):
 {
   "last_state": {},
   "settings": {
+    "character_mention_alert": {
+      "enabled": true
+    },
     "consider_eval": {
       "enabled": true
     },
@@ -8646,9 +8649,6 @@ def build_config(base_path, version):
     },
     "encounter_parsing": {
       "auto_save": false,
-      "enabled": true
-    },
-    "hail_alert": {
       "enabled": true
     },
     "mute": {
@@ -8686,7 +8686,7 @@ def build_config(base_path, version):
             "spirit_of_wolf": false
           },
           "guild_only": false,
-          "yours_only": true,
+          "yours_only": true
         },
         "delay": 24,
         "guess": true,
