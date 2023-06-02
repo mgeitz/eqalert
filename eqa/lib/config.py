@@ -8227,7 +8227,7 @@ def set_last_state(state, configs):
         )
         configs.settings.config["settings"]["timers"]["spell"].update(
             {
-                "other": str(state.spell_timer_other),
+                "other": state.spell_timer_other,
             }
         )
         configs.settings.config["settings"]["timers"]["spell"].update(
