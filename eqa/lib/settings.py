@@ -33,11 +33,7 @@ def usage():
 
 def timestamp():
     """Returns a neat little timestamp for things"""
-    unixstamp = int(time.time())
-    timestamp = datetime.datetime.fromtimestamp(int(unixstamp)).strftime(
-        "%Y-%m-%d_%H:%M:%S"
-    )
-    return str(timestamp)
+    return datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
 
 
 def eqa_time():

@@ -190,24 +190,28 @@ You can control some parser settings using `/say` in-game.  This is better suite
 
 Settings and options can be modified in `config/settings.json`
 
+- `character mention alert`: if enabled, speak any chat received line containing the active players name
 - `consider eval`: Speak "safe" or "danger" based on consider output
 - `debug mode`: Slows down parser performance and produces lots of file output
 - `detect character`: Automatically set parser to listen to the most recently active eqlog
 - `encounter parsing`: Parse encounter damage
 - `encounter parsing auto save`: Save verbose encounter parse results to a file
 - `mute`: Disable all text-to-speech output
+- `persist player data`: Save /who player output for spell timers
+- `raid mode auto set`: Auto-set raid context by zone
 - `speech expand lingo`: When speaking a line, replace common EQ abbreviations with complete words
 - `speech tld`: Top-level domain for the Google Translate host - [gTTS documentation reference](https://gtts.readthedocs.io/en/latest/module.html)
 - `speech lang`: The language (IETF language tag) to read the text in - [gTTS documentation reference](https://gtts.readthedocs.io/en/latest/module.html)
 - `auto mob timer`: Create timer events after gaining experience for a duration based on the zone you are in
 - `auto mob timer delay`: Set a delay for the auto mob timer notification n seconds before the actual event
 - `spell timer delay`: Set a delay for all spell timer notifications n seconds before the actual event
+- `spell timer filter by list`: If enabled only create spell timers for spells in filter list
+- `spell timer filter list`: List of spells, when true, to filter timers to
+- `spell timer filter guild only`: Filter all spell timer events so they are only for yourself or guild members
+- `spell timer filter yours only`: Filter all spell timer events to be only spells you cast
 - `spell timer guess`: If there is moderate uncertainty in guessing a spell, go for it
 - `spell timer other`: Set spell timers for spells that land on other players
-- `spell timer guild only`: Filter all spell timer events so they are only for yourself or guild members
 - `spell timer self`: Set spell timers for spells that land on yourself
-- `persist player data`: Save /who player output for spell timers
-- `spell timer yours only`: Filter all spell timer events to be only spells you cast
 - `spell timer zone drift`: If enabled add time between zoning to spell timers targetting yourself
 
 
@@ -236,21 +240,21 @@ Example configuration for a line type:
 
 ##### General
 - `false`: Disable alerting for this line type
-- `alert`: Alert for matching strings in `alert` for the line type using the set sound
-- `all`: Alert for all lines of a given line type using the set sound
+- `"alert"`: Alert for matching strings in `alert` for the line type using the set sound
+- `"all"`: Alert for all lines of a given line type using the set sound
 
 ##### Context Driven
-- `solo`: Alert when solo, grouped, and raiding
-- `solo_only`: Alert only when solo
-- `group`: Alert when in a group and raiding
-- `group_only`: Alert only when grouped
-- `solo_group_only`: Alert only when not raiding
-- `raid`: Alert when in a raid
-- `afk`: Alert only when afk
+- `"solo"`: Alert when solo, grouped, and raiding
+- `"solo_only"`: Alert only when solo
+- `"group"`: Alert when in a group and raiding
+- `"group_only"`: Alert only when grouped
+- `"solo_group_only"`: Alert only when not raiding
+- `"raid"`: Alert when in a raid
+- `"afk"`: Alert only when afk
 
 #### Alert Keys
 
-`alert` can be populated with key value pairs.  The key here is any string you would like an alert for within that line type.
+`"alert"` can be populated with key value pairs.  The key here is any string you would like an alert for within that line type.
 
 ##### Examples
 

@@ -54,7 +54,7 @@ def process(
 
     try:
         # Spell Cast Buffers
-        spell_casting_buffer_other = deque(maxlen=10)
+        spell_casting_buffer_other = deque(maxlen=8)
         spell_casting_buffer_you = {}
 
         # Spell Timer Data
@@ -137,6 +137,29 @@ def process(
             "sorcerer": "wizard",
         }
 
+        # Always on line_type actions
+        action_line_types = [
+            "who_player",
+            "location",
+            "direction",
+            "motd_welcome",
+            "group_join_notify",
+            "group_removed",
+            "group_alone",
+            "group_disbanded",
+            "group_created",
+            "group_leader_you",
+            "group_leader_other",
+            "encumbered_off",
+            "encumbered_on",
+            "you_char_bound",
+            "spell_bind_you",
+            "you_afk_off",
+            "you_afk_on",
+            "say_you",
+            "you_new_zone",
+        ]
+
         while (
             not exit_flag.is_set()
             and not cfg_reload.is_set()
@@ -182,52 +205,22 @@ def process(
                                 check_line,
                             )
                         )
+                    elif "spells_" in line_type:
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "spell",
+                                None,
+                                check_line,
+                            )
+                        )
                     elif "you_auto_attack_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
                                 line_type,
                                 "combat",
-                                None,
-                                check_line,
-                            )
-                        )
-                    elif "mob_slain_" in line_type:
-                        encounter_q.put(
-                            eqa_struct.message(
-                                line_time,
-                                line_type,
-                                "stop",
-                                None,
-                                check_line,
-                            )
-                        )
-                    elif line_type == "spells_cast_other":
-                        encounter_q.put(
-                            eqa_struct.message(
-                                line_time,
-                                line_type,
-                                "spell",
-                                None,
-                                check_line,
-                            )
-                        )
-                    elif line_type == "spells_cast_you":
-                        encounter_q.put(
-                            eqa_struct.message(
-                                line_time,
-                                line_type,
-                                "spell",
-                                None,
-                                check_line,
-                            )
-                        )
-                    elif line_type == "you_new_zone":
-                        encounter_q.put(
-                            eqa_struct.message(
-                                line_time,
-                                line_type,
-                                "stop",
                                 None,
                                 check_line,
                             )
@@ -252,22 +245,30 @@ def process(
                                 check_line,
                             )
                         )
-                    elif "spells_" in line_type:
+                    elif "mob_slain_" in line_type:
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
                                 line_type,
-                                "spell",
+                                "stop",
                                 None,
                                 check_line,
                             )
                         )
+                    elif line_type == "you_new_zone":
+                        encounter_q.put(
+                            eqa_struct.message(
+                                line_time,
+                                line_type,
+                                "stop",
+                                None,
+                                check_line,
+                            )
+                        )
+
                 ## Mob Timers
                 if state.auto_mob_timer:
-                    if (
-                        line_type == "experience_solo"
-                        or line_type == "experience_group"
-                    ):
+                    if "experience_" in line_type:
                         if state.zone is not None:
                             action_mob_timer(
                                 timer_q,
@@ -276,50 +277,91 @@ def process(
                                 state.zone,
                             )
 
-                ## Self Spell Timers
-                if (
-                    state.spell_timer_self
-                    or state.spell_timer_guild_only
-                    or state.spell_timer_yours_only
-                ):
-                    if re.fullmatch(r"^spell\_.+\_you_on$", line_type) is not None:
-                        action_spell_timer(
-                            state,
-                            timer_q,
+                ## Spell Timers
+                if state.spell_timer_self or state.spell_timer_other:
+                    ## Other Spell Timers
+                    if state.spell_timer_other:
+                        if (
+                            re.fullmatch(r"^spell\_.+\_other_on$", line_type)
+                            is not None
+                        ):
+                            action_spell_timer(
+                                state,
+                                configs,
+                                timer_q,
+                                line_type,
+                                line_time,
+                                check_line,
+                                spell_casting_buffer_other,
+                                spell_casting_buffer_you,
+                                spell_timers,
+                                spell_lines,
+                                spell_casters,
+                                player_list,
+                            )
+                    ## Self Spell Timers
+                    if state.spell_timer_self:
+                        if re.fullmatch(r"^spell\_.+\_you_on$", line_type) is not None:
+                            action_spell_timer(
+                                state,
+                                configs,
+                                timer_q,
+                                line_type,
+                                line_time,
+                                check_line,
+                                spell_casting_buffer_other,
+                                spell_casting_buffer_you,
+                                spell_timers,
+                                spell_lines,
+                                spell_casters,
+                                player_list,
+                            )
+                        elif (
+                            re.fullmatch(r"^spell\_.+\_you_off$", line_type) is not None
+                        ):
+                            action_spell_remove_timer(
+                                state, timer_q, spell_lines, line_type, check_line
+                            )
+                    ### Spell Casting Buffer Other
+                    if line_type == "spells_cast_other":
+                        action_spell_casting_other(
+                            check_line,
                             line_type,
                             line_time,
-                            check_line,
                             spell_casting_buffer_other,
-                            spell_casting_buffer_you,
-                            spell_timers,
-                            spell_lines,
-                            spell_casters,
-                            player_list,
                         )
-                    elif re.fullmatch(r"^spell\_.+\_you_off$", line_type) is not None:
+                    ### Spell Casting Buffer You
+                    elif line_type == "spells_cast_you":
+                        spell_casting_buffer_you = action_spell_casting_you(
+                            check_line,
+                            line_type,
+                            line_time,
+                            spell_casting_buffer_you,
+                        )
+                    ### TODO: Spell Casting Item Buffer
+                    # Interesting note, these only show up for the active player for any non-instant cast item.  Other plays get the normal casting message.
+                    # elif line_type == "spells_cast_item_you":
+                    #    action_spell_casting(
+                    #        check_line,
+                    #        line_type,
+                    #        line_time,
+                    #        spell_casting_buffer_other,
+                    #        spell_casting_buffer_you,
+                    #    )
+                    ### Zone drift
+                    elif line_type == "zoning":
+                        timer_q.put(
+                            eqa_struct.timer(
+                                datetime.datetime.now(),
+                                "zoning",
+                                None,
+                                None,
+                            )
+                        )
+                    # Remove spell timers for the dead
+                    elif "_slain" in line_type:
                         action_spell_remove_timer(
-                            state, timer_q, spell_lines, line_type
-                        )
-
-                ## Other Spell Timers
-                if (
-                    state.spell_timer_other
-                    or state.spell_timer_guild_only
-                    or state.spell_timer_yours_only
-                ):
-                    if re.fullmatch(r"^spell\_.+\_other_on$", line_type) is not None:
-                        action_spell_timer(
-                            state,
-                            timer_q,
-                            line_type,
-                            line_time,
-                            check_line,
-                            spell_casting_buffer_other,
-                            spell_casting_buffer_you,
-                            spell_timers,
-                            spell_lines,
-                            spell_casters,
-                            player_list,
+                            state, timer_q, spell_lines, line_type, check_line
                         )
 
                 ## Consider Evaluation
@@ -327,103 +369,89 @@ def process(
                     if line_type == "consider":
                         action_consider_evaluation(sound_q, check_line)
 
-                ## Always on line_type specific actions
-                if line_type == "who_player":
-                    action_who_player(
-                        configs, system_q, state, check_line, player_list, class_mapping
-                    )
-                ### Spell Casting Buffer Other
-                elif line_type == "spells_cast_other":
-                    action_spell_casting_other(
-                        check_line,
-                        line_type,
-                        line_time,
-                        spell_casting_buffer_other,
-                    )
-                ### Spell Casting Buffer You
-                elif line_type == "spells_cast_you":
-                    spell_casting_buffer_you = action_spell_casting_you(
-                        check_line,
-                        line_type,
-                        line_time,
-                        spell_casting_buffer_you,
-                    )
-                ### TODO: Spell Casting Item Buffer
-                # Interesting note, these only show up for the active player for any non-instant cast item.  Other plays get the normal casting message.
-                # elif line_type == "spells_cast_item_you":
-                #    action_spell_casting(
-                #        check_line, line_type, line_time, spell_casting_buffer_other, spell_casting_buffer_you
-                #    )
-                ### Spell timer zone drift
-                elif line_type == "zoning":
-                    timer_q.put(
-                        eqa_struct.timer(
-                            datetime.datetime.now(),
-                            "zoning",
-                            None,
-                            None,
+                ## Active Character Mention Alerts
+                if configs.settings.config["settings"]["character_mention_alert"][
+                    "enabled"
+                ]:
+                    if line_type in ["say", "group", "guild", "shout", "ooc"]:
+                        action_your_char_alert(
+                            sound_q, display_q, state, check_line, line_type
                         )
-                    )
-                ### State building line types
-                elif line_type == "location":
-                    action_location(system_q, check_line)
-                elif line_type == "direction":
-                    action_direction(system_q, check_line)
-                elif line_type == "motd_welcome":
-                    action_motd_welcome(system_q)
-                elif line_type == "group_join_notify":
-                    action_group_join_notify(system_q, check_line)
-                elif line_type == "group_removed":
-                    action_group_removed(system_q)
-                elif line_type == "group_disbanded":
-                    action_group_disbanded(system_q)
-                elif line_type == "group_created":
-                    action_group_created(system_q)
-                elif line_type == "group_leader_you":
-                    action_group_leader_you(system_q)
-                elif line_type == "group_leader_other":
-                    action_group_leader_other(system_q, check_line)
-                elif line_type == "encumbered_off":
-                    action_encumbered_off(system_q)
-                elif line_type == "encumbered_on":
-                    action_encumbered_on(system_q)
-                elif line_type == "you_char_bound":
-                    action_you_char_bound(system_q, check_line)
-                elif line_type == "spell_bind_you":
-                    action_spell_bind_you(system_q, state)
-                elif line_type == "you_afk_off":
-                    action_you_afk_off(system_q)
-                elif line_type == "you_afk_on":
-                    action_you_afk_on(system_q)
-                ### Parser say commands
-                elif line_type == "say_you":
-                    if (
-                        re.fullmatch(r"^You say, \'parser .+\'$", check_line)
-                        is not None
-                    ):
-                        action_you_say_commands(
-                            timer_q,
-                            system_q,
-                            sound_q,
-                            display_q,
-                            check_line,
+
+                ## Always-on line_type specific actions
+                if line_type in action_line_types:
+                    if line_type == "who_player":
+                        action_who_player(
                             configs,
-                            mute_list,
+                            system_q,
                             state,
+                            check_line,
                             player_list,
+                            class_mapping,
                         )
-                ### You new zone
-                elif line_type == "you_new_zone":
-                    action_you_new_zone(
-                        base_path,
-                        system_q,
-                        display_q,
-                        sound_q,
-                        timer_q,
-                        state,
-                        configs,
-                        check_line,
-                    )
+                    ### State building line types
+                    elif line_type == "location":
+                        action_location(system_q, check_line)
+                    elif line_type == "direction":
+                        action_direction(system_q, check_line)
+                    elif line_type == "group_join_notify":
+                        action_group_join_notify(system_q, check_line)
+                    elif line_type == "group_removed":
+                        action_group_removed(system_q)
+                    elif line_type == "group_disbanded":
+                        action_group_disbanded(system_q)
+                    elif line_type == "group_created":
+                        action_group_created(system_q)
+                    elif line_type == "group_alone":
+                        action_group_alone(system_q)
+                    elif line_type == "group_leader_you":
+                        action_group_leader_you(system_q)
+                    elif line_type == "group_leader_other":
+                        action_group_leader_other(system_q, check_line)
+                    elif line_type == "encumbered_off":
+                        action_encumbered_off(system_q)
+                    elif line_type == "encumbered_on":
+                        action_encumbered_on(system_q)
+                    elif line_type == "you_afk_off":
+                        action_you_afk_off(system_q)
+                    elif line_type == "you_afk_on":
+                        action_you_afk_on(system_q)
+                    elif line_type == "you_new_zone":
+                        action_you_new_zone(
+                            base_path,
+                            system_q,
+                            display_q,
+                            sound_q,
+                            timer_q,
+                            state,
+                            configs,
+                            check_line,
+                        )
+                    elif line_type == "say_you":
+                        ### Parser say commands
+                        if (
+                            re.fullmatch(r"^You say, \'parser .+\'$", check_line)
+                            is not None
+                        ):
+                            action_you_say_commands(
+                                timer_q,
+                                system_q,
+                                sound_q,
+                                display_q,
+                                check_line,
+                                configs,
+                                mute_list,
+                                state,
+                                player_list,
+                            )
+                    elif line_type == "motd_welcome":
+                        action_motd_welcome(system_q)
+                    elif (
+                        line_type == "spell_bind_you"
+                    ):  # TODO: Whats going on here is this a dupe?
+                        action_spell_bind_you(system_q, state)
+                    elif line_type == "you_char_bound":
+                        action_you_char_bound(system_q, check_line)
 
                 ## If line_type exists in the config
                 if line_type in configs.alerts.config["line"].keys():
@@ -570,6 +598,31 @@ def action_spell_casting_you(
         )
 
 
+def action_your_char_alert(sound_q, display_q, state, check_line, line_type):
+    """Alert when active character is mentioned in chat"""
+
+    try:
+        if state.char.lower() in check_line.lower():
+            speaker_channel, message = check_line.split(",", 1)
+            sound_q.put(eqa_struct.sound("speak", message))
+            display_q.put(
+                eqa_struct.display(
+                    eqa_settings.eqa_time(),
+                    "event",
+                    "events",
+                    line_type + ": " + check_line,
+                )
+            )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action your char alert: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def spell_formulas(formula, level, duration):
     """Calculate spell duration"""
 
@@ -646,28 +699,77 @@ def spell_formulas(formula, level, duration):
         )
 
 
-def action_spell_remove_timer(state, timer_q, spell_lines, line_type):
+def action_spell_remove_timer(state, timer_q, spell_lines, line_type, check_line):
     """Remove timer for spell that dropped"""
 
     try:
-        if re.fullmatch(r"^spell\_line\_.+$", line_type) is not None:
-            if line_type in spell_lines["spell_lines"].keys():
-                for spell in spell_lines["spell_lines"][line_type].keys():
-                    # Submit timer removal
-                    timer_q.put(
-                        eqa_struct.spell_timer(
-                            (datetime.datetime.now()),
-                            "remove_spell_timer",
-                            None,
-                            state.char.lower(),
-                            spell,
-                            None,
-                            None,
-                            None,
+        if "spell_" in line_type:
+            if re.fullmatch(r"^spell\_line\_.+$", line_type) is not None:
+                if line_type in spell_lines["spell_lines"].keys():
+                    for spell in spell_lines["spell_lines"][line_type].keys():
+                        # Submit timer removal
+                        timer_q.put(
+                            eqa_struct.spell_timer(
+                                (datetime.datetime.now()),
+                                "remove_spell_timer",
+                                None,
+                                state.char.lower(),
+                                spell,
+                                None,
+                                None,
+                                None,
+                            )
                         )
+            else:
+                spell = re.findall(
+                    r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_you\_off)", line_type
+                )[0]
+                # Submit timer removal
+                timer_q.put(
+                    eqa_struct.spell_timer(
+                        (datetime.datetime.now()),
+                        "remove_spell_timer",
+                        None,
+                        state.char.lower(),
+                        spell,
+                        None,
+                        None,
+                        None,
                     )
-        else:
-            spell = re.findall(r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_you\_off)", line_type)[0]
+                )
+        elif line_type == "mob_slain_other":
+            target = re.findall(r"(?:^|(?:[.!?]\s))(\w+)", check_line)[0].lower()
+            # Submit timer removal
+            timer_q.put(
+                eqa_struct.spell_timer(
+                    (datetime.datetime.now()),
+                    "remove_spell_timer",
+                    None,
+                    target,
+                    "all",
+                    None,
+                    None,
+                    None,
+                )
+            )
+        elif line_type == "mob_slain_you":
+            target = re.findall(r"(?<=You have slain )[a-zA-Z\_]+", check_line)[
+                0
+            ].lower()
+            # Submit timer removal
+            timer_q.put(
+                eqa_struct.spell_timer(
+                    (datetime.datetime.now()),
+                    "remove_spell_timer",
+                    None,
+                    target,
+                    "all",
+                    None,
+                    None,
+                    None,
+                )
+            )
+        elif line_type == "you_slain":
             # Submit timer removal
             timer_q.put(
                 eqa_struct.spell_timer(
@@ -675,7 +777,7 @@ def action_spell_remove_timer(state, timer_q, spell_lines, line_type):
                     "remove_spell_timer",
                     None,
                     state.char.lower(),
-                    spell,
+                    "all",
                     None,
                     None,
                     None,
@@ -693,6 +795,7 @@ def action_spell_remove_timer(state, timer_q, spell_lines, line_type):
 
 def action_spell_timer(
     state,
+    configs,
     timer_q,
     line_type,
     line_time,
@@ -720,6 +823,7 @@ def action_spell_timer(
             re.fullmatch(r"^spell\_line\_[a-zA-Z\s\_]+\_other\_on", line_type)
             is not None
         ):
+            # TODO: Find way to reliably pull multi-word NPC names from spell_line_*_other_on
             target = re.findall(r"(?:^|(?:[.!?]\s))(\w+)", line)[0].lower()
             spell_line = re.findall(
                 r"(?<=spell\_line\_)[a-zA-Z\s\_]+(?=\_other\_on)", line_type
@@ -732,6 +836,7 @@ def action_spell_timer(
             spell = re.findall(r"(?<=spell\_)[a-zA-Z\s\_]+(?=\_other\_on)", line_type)[
                 0
             ]
+            # TODO: Find way to reliably pull multi-word NPC names from spell_*_other_on () sans spell_line_
             target = re.findall(r"(?:^|(?:[.!?]\s))(\w+)", line)[0].lower()
 
         # If this is a spell cast line output shared by more than one spell
@@ -1081,7 +1186,8 @@ def action_spell_timer(
 
         if find_time:
             make_timer = True
-            # If we only want self or guild spell timers
+
+            # Guild Only Filter
             if state.spell_timer_guild_only and state.char_guild is not None:
                 # If this was cast by myself or another player
                 if identified_spell_caster in player_list.keys():
@@ -1101,9 +1207,32 @@ def action_spell_timer(
                 else:
                     make_timer = False
 
+            # Yours Only Filter
             if state.spell_timer_yours_only:
                 if identified_spell_caster != state.char.lower():
                     make_timer = False
+
+            # By List Filter
+            if configs.settings.config["settings"]["timers"]["spell"]["filter"][
+                "by_list"
+            ]:
+                make_timer = False
+                if (
+                    len(
+                        configs.settings.config["settings"]["timers"]["spell"][
+                            "filter"
+                        ]["filter_list"].keys()
+                    )
+                    > 0
+                ):
+                    for spell in configs.settings.config["settings"]["timers"]["spell"][
+                        "filter"
+                    ]["filter_list"].keys():
+                        if configs.settings.config["settings"]["timers"]["spell"][
+                            "filter"
+                        ]["filter_list"][spell]:
+                            if spell == identified_spell:
+                                make_timer = True
 
             # See if this is a timer which will at least last longer than spell timer delay
             spell_duration = spell_formulas(
@@ -1694,6 +1823,38 @@ def action_motd_welcome(system_q):
     except Exception as e:
         eqa_settings.log(
             "action motd welcome: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_group_alone(system_q):
+    """Perform actions for group alone line types"""
+
+    try:
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "group",
+                None,
+                False,
+            )
+        )
+        system_q.put(
+            eqa_struct.message(
+                eqa_settings.eqa_time(),
+                "system",
+                "leader",
+                None,
+                False,
+            )
+        )
+
+    except Exception as e:
+        eqa_settings.log(
+            "action group alone: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
@@ -2601,7 +2762,6 @@ def action_who_player(configs, system_q, state, line, player_list, class_mapping
                 )
 
             if char_guild is not None:
-                char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0]
                 system_q.put(
                     eqa_struct.message(
                         eqa_settings.eqa_time(),
@@ -2685,14 +2845,15 @@ def action_you_new_zone(
                     )
                 )
 
-        timer_q.put(
-            eqa_struct.timer(
-                datetime.datetime.now(),
-                "new_zone",
-                None,
-                None,
+        if state.spell_timer_self or state.spell_timer_other:
+            timer_q.put(
+                eqa_struct.timer(
+                    datetime.datetime.now(),
+                    "new_zone",
+                    None,
+                    None,
+                )
             )
-        )
 
     except Exception as e:
         eqa_settings.log(

@@ -107,6 +107,7 @@ def eq_lingo(line):
         r"(?<=[^A-z])bbm(?=[^A-z])", "butcherblock mountains", line, flags=re.I
     )
     line = re.sub(r"(?<=[^A-z])brb(?=[^A-z])", "be right back", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])brt(?=[^A-z])", "be right there", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])bc(?=[^A-z])", "because", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])bp(?=[^A-z])", "bat phone", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])cb(?=[^A-z])", "crushbone", line, flags=re.I)

@@ -284,8 +284,8 @@ def main():
         process_keys.start()
 
         # Act on Parsed Log Lines
-        ## Consume action_q
-        ## Produce display_q, encounter_q, sound_q, system_q, timer_q
+        ## Consume action_q, spell-lines.json, spell-casters.json, spell-timers.json, players.json
+        ## Produce display_q, encounter_q, sound_q, system_q, timer_q, players.json
 
         ### Mute List
         mute_list = []
@@ -332,7 +332,7 @@ def main():
         process_encounter.daemon = True
         process_encounter.start()
 
-        # Create (many) Sounds
+        # Create Sounds, at most 3 sounds at once (sound blocking enabled)
         ## Consume sound_q
         ## Produce sounds
 
