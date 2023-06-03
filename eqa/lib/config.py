@@ -113,20 +113,20 @@ def read_config(base_path):
         json_data.close()
         line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Chat Recieved NPC
-        config_path_line_chat_recieved_npc = (
+        ## Chat Received NPC
+        config_path_line_chat_received_npc = (
             base_path + "config/line-alerts/chat-received-npc.json"
         )
-        json_data = open(config_path_line_chat_recieved_npc, "r", encoding="utf-8")
+        json_data = open(config_path_line_chat_received_npc, "r", encoding="utf-8")
         config_file_line_alerts = json.load(json_data)
         json_data.close()
         line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Chat Recieved
-        config_path_line_chat_recieved = (
+        ## Chat Received
+        config_path_line_chat_received = (
             base_path + "config/line-alerts/chat-received.json"
         )
-        json_data = open(config_path_line_chat_recieved, "r", encoding="utf-8")
+        json_data = open(config_path_line_chat_received, "r", encoding="utf-8")
         config_file_line_alerts = json.load(json_data)
         json_data.close()
         line_alerts["line"].update(config_file_line_alerts["line"])
@@ -18100,7 +18100,7 @@ def build_config(base_path, version):
 }
 """
 
-    new_line_chat_recieved_npc_config = """
+    new_line_chat_received_npc_config = """
 {
   "line": {
     "say_npc": {
@@ -18133,7 +18133,7 @@ def build_config(base_path, version):
 }
 """
 
-    new_line_chat_recieved_config = """
+    new_line_chat_received_config = """
 {
   "line": {
     "auction": {
@@ -20555,7 +20555,7 @@ def build_config(base_path, version):
             base_path,
             "line-alerts/chat-received-npc",
             version,
-            new_line_chat_recieved_npc_config,
+            new_line_chat_received_npc_config,
         )
         if generated_received_npc:
             generated = True
@@ -20565,7 +20565,7 @@ def build_config(base_path, version):
             base_path,
             "line-alerts/chat-received",
             version,
-            new_line_chat_recieved_config,
+            new_line_chat_received_config,
         )
         if generated_received:
             generated = True
