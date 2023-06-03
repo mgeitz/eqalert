@@ -1252,7 +1252,7 @@ def draw_state(stdscr, state, version):
         stdscr.addstr(24, 16, ": ", curses.color_pair(1))
         stdscr.addstr(24, 18, str(state.mute), curses.color_pair(3))
 
-        # enounter parse state
+        # encounter parse state
         stdscr.addstr(25, 5, "Encounter", curses.color_pair(2))
         stdscr.addstr(25, 16, ": ", curses.color_pair(1))
         stdscr.addstr(25, 18, str(state.encounter_parse), curses.color_pair(3))

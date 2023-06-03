@@ -1497,9 +1497,9 @@ def encounter_report(
         ## Scrape This Encounter Events
         pet_and_target_same = False
         this_encounter_events = len(this_encounter)
-        target_melee_damage_recieved = {}
+        target_melee_damage_received = {}
         target_melee_damage_done = {}
-        target_spell_damage_recieved = {}
+        target_spell_damage_received = {}
         target_spell_damage_done = {}
         encounter_target_damage_total = {}
         encounter_target_damage_done_total = {}
@@ -1579,10 +1579,10 @@ def encounter_report(
                             encounter_target_damage_total[target] = int(result)
                         else:
                             encounter_target_damage_total[target] += int(result)
-                        if source not in target_melee_damage_recieved.keys():
-                            target_melee_damage_recieved[source] = int(result)
+                        if source not in target_melee_damage_received.keys():
+                            target_melee_damage_received[source] = int(result)
                         else:
-                            target_melee_damage_recieved[source] += int(result)
+                            target_melee_damage_received[source] += int(result)
                 elif source == encounter_target:
                     if result == "block":
                         if source not in source_block.keys():
@@ -1639,10 +1639,10 @@ def encounter_report(
                     if source == "Unknown" and target != encounter_target:
                         source = encounter_target
                     if target == encounter_target:
-                        if source not in target_spell_damage_recieved.keys():
-                            target_spell_damage_recieved[source] = int(result)
-                        elif source in target_spell_damage_recieved.keys():
-                            target_spell_damage_recieved[source] += int(result)
+                        if source not in target_spell_damage_received.keys():
+                            target_spell_damage_received[source] = int(result)
+                        elif source in target_spell_damage_received.keys():
+                            target_spell_damage_received[source] += int(result)
                         if target not in encounter_target_spell_total.keys():
                             encounter_target_spell_total[target] = int(result)
                         elif target in encounter_target_spell_total.keys():
@@ -1835,16 +1835,16 @@ def encounter_report(
                 ) * 100
                 encounter_report["participants"][l_part]["activity"] = str(activity)
                 total_damage = 0
-                if participant in target_melee_damage_recieved.keys():
+                if participant in target_melee_damage_received.keys():
                     encounter_report["participants"][l_part]["melee_damage_done"] = str(
-                        target_melee_damage_recieved[participant]
+                        target_melee_damage_received[participant]
                     )
-                    total_damage += int(target_melee_damage_recieved[participant])
-                if participant in target_spell_damage_recieved.keys():
+                    total_damage += int(target_melee_damage_received[participant])
+                if participant in target_spell_damage_received.keys():
                     encounter_report["participants"][l_part]["spell_damage_done"] = str(
-                        target_spell_damage_recieved[participant]
+                        target_spell_damage_received[participant]
                     )
-                    total_damage += int(target_spell_damage_recieved[participant])
+                    total_damage += int(target_spell_damage_received[participant])
                 if total_damage > 0 and int(encounter_duration) > 0:
                     encounter_report["participants"][l_part]["melee_dps_done"] = str(
                         total_damage / int(encounter_duration)
