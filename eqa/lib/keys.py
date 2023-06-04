@@ -32,6 +32,7 @@ def process(
     display_q,
     keyboard_q,
     system_q,
+    timer_q,
     cfg_reload,
     exit_flag,
 ):
@@ -107,6 +108,8 @@ def process(
                             eqa_settings.eqa_time(), "draw", "help", None
                         )
                     )
+                elif key == ord("t"):
+                    timer_q.put(eqa_struct.timer(None, "draw_timers", None, None))
                 elif key == ord("0"):
                     system_q.put(
                         eqa_struct.message(
@@ -166,7 +169,7 @@ def process(
                                 "all",
                             )
                         )
-                    elif key == ord("t"):
+                    elif key == ord("y"):
                         if not state.auto_mob_timer:
                             system_q.put(
                                 eqa_struct.message(

@@ -97,7 +97,8 @@ EQ Alert uses in-game `/who` output to keep an up-to-date list of each seen play
   - 3       : Parse
   - 4       : Settings
   - q / esc : Quit
-  - h       : Help
+  - h       : Help pop-up
+  - t       : Timers pop-up
 
 #### Events
   - c       : Clear event box
@@ -106,7 +107,7 @@ EQ Alert uses in-game `/who` output to keep an up-to-date list of each seen play
   - m       : Toggle global audio mute
   - p       : Toggle encounter parse save
   - r       : Toggle raid mode
-  - t       : Toggle automatic mob respawn timers
+  - y       : Toggle automatic mob respawn timers
 
 #### Settings
   - up      : Up in selection

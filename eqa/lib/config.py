@@ -18206,9 +18206,11 @@ def build_config(base_path, version):
       "sound": "look at guild"
     },
     "ooc": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
+      "alert": {
+        "train": "solo_group_only"
+      },
+      "reaction": "alert",
+      "sound": "watch out"
     },
     "say": {
       "alert": {
@@ -18224,9 +18226,11 @@ def build_config(base_path, version):
       "sound": false
     },
     "shout": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
+      "alert": {
+        "train": "solo_group_only"
+      },
+      "reaction": "alert",
+      "sound": "watch out"
     },
     "shout_unknown_tongue": {
       "alert": {},
