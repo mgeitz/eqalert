@@ -100,14 +100,19 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
                     if display_event.screen == "help":
                         if page == "help":
                             page = last_page
-                        else:
+                        elif page != "timers":
                             last_page = page
+                            page = display_event.screen
+                        else:
                             page = display_event.screen
                     elif display_event.screen == "timers":
                         if page == "timers":
                             page = last_page
-                        else:
+                        elif page != "help":
                             last_page = page
+                            timers = display_event.payload
+                            page = display_event.screen
+                        else:
                             timers = display_event.payload
                             page = display_event.screen
                     elif display_event.screen == "redraw":
@@ -247,7 +252,8 @@ def draw_page(
             elif page == "help":
                 draw_help(stdscr)
             elif page == "timers":
-                draw_timers(stdscr, timers)
+                copy_timers = timers.copy()
+                draw_timers(stdscr, copy_timers)
         else:
             draw_toosmall(stdscr)
     except Exception as e:
@@ -1959,38 +1965,99 @@ def draw_timers(stdscr, timers):
         # Title
         timer_scr.addstr(2, mid_timer_x - 7, "Active Timers", curses.color_pair(2))
 
-        if len(timers) > 0:
-            print_timer_y = 4
-            now = datetime.now()
-            while len(timers) > 0:
-                if print_timer_y > int(timer_y * 0.8):
-                    break
-                timer = heapq.heappop(timers)
-                time_remaining = str((timer.time - now).seconds) + " seconds"
-                if timer.type == "spell":
-                    message = (
-                        timer.caster
-                        + " -> "
-                        + timer.target
-                        + " "
-                        + timer.spell.replace("_", " ")
+        # Ensure there are timers to show
+        if timers is not None:
+            if len(timers) > 0:
+                print_timer_y = 4
+                now = datetime.now()
+                ## Show timers
+                while len(timers) > 0:
+                    ### Break if there are more timers than room
+                    if print_timer_y > int(timer_y * 0.9):
+                        break
+                    ### Get timer
+                    timer = heapq.heappop(timers)
+                    ### Duration remaining
+                    time_remaining = timer.time - now
+                    time_remaining_days = time_remaining.days
+                    time_remaining_seconds = time_remaining.seconds
+                    timer_hours = (
+                        time_remaining_days * 24 + time_remaining_seconds // 3600
                     )
-                else:
-                    message = timer.payload
-                timer_scr.addstr(print_timer_y, 5, time_remaining, curses.color_pair(2))
-                timer_scr.addstr(
-                    print_timer_y,
-                    5 + len(time_remaining) + 1,
-                    ":",
-                    curses.color_pair(1),
-                )
-                timer_scr.addstr(
-                    print_timer_y,
-                    5 + len(time_remaining) + 3,
-                    message,
-                    curses.color_pair(3),
-                )
-                print_timer_y = print_timer_y + 2
+                    timer_minutes = (time_remaining_seconds % 3600) // 60
+                    timer_seconds = time_remaining_seconds % 60
+                    if timer_minutes < 1:
+                        color = 6
+                    elif timer_minutes < 2:
+                        color = 4
+                    elif timer_minutes < 5:
+                        color = 2
+                    else:
+                        color = 5
+                    timer_scr.addstr(
+                        print_timer_y, 5, f"{timer_hours:02}", curses.color_pair(color)
+                    )
+                    timer_scr.addstr(
+                        print_timer_y,
+                        5 + len(f"{timer_hours:02}"),
+                        ":",
+                        curses.color_pair(1),
+                    )
+                    timer_scr.addstr(
+                        print_timer_y,
+                        6 + len(f"{timer_hours:02}"),
+                        f"{timer_minutes:02}",
+                        curses.color_pair(color),
+                    )
+                    timer_scr.addstr(
+                        print_timer_y,
+                        8 + len(f"{timer_hours:02}"),
+                        ":",
+                        curses.color_pair(1),
+                    )
+                    timer_scr.addstr(
+                        print_timer_y,
+                        9 + len(f"{timer_hours:02}"),
+                        f"{timer_seconds:02}",
+                        curses.color_pair(color),
+                    )
+                    timestamp_len = 11 + len(f"{timer_hours:02}")
+                    ### Timer details
+                    if timer.type == "spell":
+                        timer_scr.addstr(
+                            print_timer_y,
+                            2 + timestamp_len,
+                            timer.caster,
+                            curses.color_pair(3),
+                        )
+                        timer_scr.addch(
+                            print_timer_y,
+                            2 + timestamp_len + len(timer.caster),
+                            curses.ACS_RARROW,
+                        )
+                        timer_scr.addstr(
+                            print_timer_y,
+                            4 + timestamp_len + len(timer.caster),
+                            timer.target,
+                            curses.color_pair(3),
+                        )
+                        timer_scr.addstr(
+                            print_timer_y,
+                            6 + timestamp_len + len(timer.caster) + len(timer.target),
+                            timer.spell.replace("_", " "),
+                            curses.color_pair(color),
+                        )
+                    else:
+                        message = timer.payload
+                        timer_scr.addstr(
+                            print_timer_y,
+                            2 + timestamp_len,
+                            message,
+                            curses.color_pair(3),
+                        )
+                    print_timer_y = print_timer_y + 2
+            else:
+                draw_mascot_message(timer_scr, "No active timers")
         else:
             draw_mascot_message(timer_scr, "No active timers")
 
