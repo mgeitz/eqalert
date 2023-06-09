@@ -1986,11 +1986,11 @@ def draw_timers(stdscr, timers):
                     )
                     timer_minutes = (time_remaining_seconds % 3600) // 60
                     timer_seconds = time_remaining_seconds % 60
-                    if timer_minutes < 1:
+                    if timer_minutes < 1 and timer_hours == 0:
                         color = 6
-                    elif timer_minutes < 2:
+                    elif timer_minutes < 2 and timer_hours == 0:
                         color = 4
-                    elif timer_minutes < 5:
+                    elif timer_minutes < 5 and timer_hours == 0:
                         color = 2
                     else:
                         color = 5

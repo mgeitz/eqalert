@@ -144,6 +144,9 @@ def startup(base_path, version):
         # Generate spell-casters.json
         eqa_config.update_spell_casters(data_path, version)
 
+        # Generate spell-items.json
+        eqa_config.update_spell_items(data_path, version)
+
         # Generate Players List File
         player_data_file = data_path + "players.json"
         if not os.path.isfile(player_data_file):

@@ -72,6 +72,11 @@ def process(
             configs.settings.config["settings"]["paths"]["data"]
         )
 
+        # Spell Item Data
+        spell_items = eqa_config.get_spell_items(
+            configs.settings.config["settings"]["paths"]["data"]
+        )
+
         # Player Data
         player_list = eqa_config.get_players_file(
             configs.settings.config["settings"]["paths"]["data"], state.server
@@ -297,6 +302,7 @@ def process(
                                 spell_timers,
                                 spell_lines,
                                 spell_casters,
+                                spell_items,
                                 player_list,
                             )
                     ## Self Spell Timers
@@ -314,6 +320,7 @@ def process(
                                 spell_timers,
                                 spell_lines,
                                 spell_casters,
+                                spell_items,
                                 player_list,
                             )
                         elif (
@@ -793,6 +800,132 @@ def action_spell_remove_timer(state, timer_q, spell_lines, line_type, check_line
         )
 
 
+def action_spell_timer_player_click_check(
+    spell_land_time,
+    cast_start_time,
+    cast_duration,
+    caster_name,
+    caster_level,
+    caster_class,
+    check_spell,
+    spell_items,
+    item,
+):
+    """Check if a given player could click a given spell"""
+
+    try:
+        if cast_duration > 0:
+            if (
+                action_spell_timer_cast_check(
+                    spell_land_time, cast_start_time, cast_duration
+                )
+                == 0
+            ):
+                if check_spell in spell_items["spells"].keys():
+                    # If the player class can cast this spell
+                    if (
+                        caster_class
+                        in spell_items["spells"][check_spell][item]["classes"].keys()
+                    ):
+                        # If that players level can cast this spell
+                        if (
+                            spell_items["spells"][check_spell][item]["classes"][
+                                caster_class
+                            ]
+                            <= caster_level
+                        ):
+                            return [caster_name, caster_level, check_spell]
+        else:
+            if check_spell in spell_items["spells"].keys():
+                if (
+                    caster_class
+                    in spell_items["spells"][check_spell][item]["classes"].keys()
+                ):
+                    # If that players level can cast this spell
+                    if (
+                        spell_items["spells"][check_spell][item]["classes"][
+                            caster_class
+                        ]
+                        <= caster_level
+                    ):
+                        return [caster_name, caster_level, check_spell]
+
+        return None
+
+    except Exception as e:
+        eqa_settings.log(
+            "acton spell timer player click check: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_spell_timer_player_cast_check(
+    spell_land_time,
+    cast_start_time,
+    cast_duration,
+    caster_name,
+    caster_level,
+    caster_class,
+    check_spell,
+    spell_casters,
+):
+    """Check if a given player could cast a given spell"""
+
+    try:
+        if (
+            action_spell_timer_cast_check(
+                spell_land_time, cast_start_time, cast_duration
+            )
+            == 0
+        ):
+            if check_spell in spell_casters["spells"].keys():
+                # If the player class can cast this spell
+                if (
+                    caster_class
+                    in spell_casters["spells"][check_spell]["classes"].keys()
+                ):
+                    # If that players level can cast this spell
+                    if (
+                        spell_casters["spells"][check_spell]["classes"][caster_class]
+                        <= caster_level
+                    ):
+                        return [caster_name, caster_level, check_spell]
+
+        return None
+
+    except Exception as e:
+        eqa_settings.log(
+            "acton spell timer player cast check: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_spell_timer_cast_check(spell_land_time, cast_start_time, cast_duration):
+    """Return int (spell landed - spell cast - spell cast duration)"""
+    try:
+        cast_land_duration_diff = int(
+            (
+                datetime.datetime.strptime(spell_land_time, "%H:%M:%S.%f")
+                - datetime.datetime.strptime(cast_start_time, "%H:%M:%S.%f")
+                - datetime.timedelta(seconds=float(cast_duration))
+            ).total_seconds()
+        )
+
+        return cast_land_duration_diff
+
+    except Exception as e:
+        eqa_settings.log(
+            "acton spell timer cast check: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def action_spell_timer(
     state,
     configs,
@@ -805,13 +938,14 @@ def action_spell_timer(
     spell_timers,
     spell_lines,
     spell_casters,
+    spell_items,
     player_list,
 ):
     """Set timer for spell duration"""
 
     try:
         is_spell_line = False
-        find_time = False
+        identified_spell_level = None
 
         if re.fullmatch(r"^spell\_line\_[a-zA-Z\s\_]+\_you\_on", line_type) is not None:
             target = state.char.lower()
@@ -841,323 +975,499 @@ def action_spell_timer(
 
         # If this is a spell cast line output shared by more than one spell
         if is_spell_line:
-            if state.debug:
-                eqa_settings.log("spell line found: " + line_type)
             # Determine possible spells
             if line_type in spell_lines["spell_lines"].keys():
                 possible_spells = spell_lines["spell_lines"][line_type].keys()
-                if state.debug:
-                    eqa_settings.log("possible spells: " + str(possible_spells))
-                check_for_spells = []
-                # Retrieve casting requirements for each possible spell
-                for possible_spell in possible_spells:
-                    if possible_spell in spell_casters["spells"].keys():
-                        # Validate a player cast this spell
-                        ## TODO: later try and guess npc/item only spells with vague messages, for now thats too much guessing
-                        if spell_casters["spells"][possible_spell]["classes"]:
-                            check_for_spells.append(
-                                {
-                                    "spell": possible_spell,
-                                    "classes": spell_casters["spells"][possible_spell][
-                                        "classes"
-                                    ].keys(),
-                                }
-                            )
 
-                # First check if the player could have cast this
-                if spell_casting_buffer_you and state.char_level is not None:
-                    # If the most recent player cast spell is in the possible spell list
-                    if (
-                        spell_casting_buffer_you["spell"]
-                        in spell_lines["spell_lines"][line_type].keys()
-                        and spell_casting_buffer_you["spell"]
-                        in spell_casters["spells"].keys()
-                    ):
-                        if state.debug:
-                            eqa_settings.log(
-                                "Checking if cast for: "
-                                + spell_casting_buffer_you["spell"]
-                                + " occurred "
-                                + spell_timers["spells"][
-                                    spell_casting_buffer_you["spell"]
-                                ]["cast_time"]
-                                + " seconds ago"
-                            )
-                        # If most recent player cast spell occurred spell time ago to this spell landing
-                        if (
-                            int(
-                                (
-                                    datetime.datetime.strptime(line_time, "%H:%M:%S.%f")
-                                    - datetime.datetime.strptime(
-                                        spell_casting_buffer_you["time"], "%H:%M:%S.%f"
-                                    )
-                                    - datetime.timedelta(
-                                        seconds=float(
-                                            spell_timers["spells"][
-                                                spell_casting_buffer_you["spell"]
-                                            ]["cast_time"]
-                                        )
-                                    )
-                                ).total_seconds()
-                            )
-                            == 0
-                        ):
-                            identified_spell_caster = state.char.lower()
-                            identified_spell_level = state.char_level
-                            identified_spell = spell_casting_buffer_you["spell"]
+                # First check if the active player could have cast this
+                if (
+                    spell_casting_buffer_you
+                    and state.char_level is not None
+                    and state.char_class is not None
+                ):
+                    if spell_casting_buffer_you["spell"] in possible_spells:
+                        cast_duration = spell_timers["spells"][
+                            spell_casting_buffer_you["spell"]
+                        ]["cast_time"]
+                        identified = action_spell_timer_player_cast_check(
+                            line_time,
+                            spell_casting_buffer_you["time"],
+                            cast_duration,
+                            state.char.lower(),
+                            state.char_level,
+                            state.char_class.lower(),
+                            spell_casting_buffer_you["spell"],
+                            spell_casters,
+                        )
+                        if identified is not None:
+                            identified_spell_caster = identified[0]
+                            identified_spell_level = identified[1]
+                            identified_spell = identified[2]
                             identified_spell_target = target
-                            find_time = True
 
-                # Then check spell cast buffer other cast time ago for each possible spell
-                if not find_time:
+                        # Check if active player could have clicked this spell
+                        elif spell_casters["spells"][spell_casting_buffer_you["spell"]][
+                            "item"
+                        ]:
+                            for item in spell_items["spells"][
+                                spell_casting_buffer_you["spell"]
+                            ]:
+                                cast_duration = spell_items["spells"][
+                                    spell_casting_buffer_you["spell"]
+                                ][item]["cast"]
+                                if cast_duration > 0:
+                                    identified = action_spell_timer_player_click_check(
+                                        line_time,
+                                        spell_casting_buffer_you["time"],
+                                        cast_duration,
+                                        state.char.lower(),
+                                        state.char_level,
+                                        state.char_class.lower(),
+                                        spell_casting_buffer_you["spell"],
+                                        spell_items,
+                                        item,
+                                    )
+                                    if identified is not None:
+                                        identified_spell_caster = identified[0]
+                                        identified_spell_level = identified[1]
+                                        identified_spell = identified[2]
+                                        identified_spell_target = target
+
+                # Check if another player could have cast this
+                if identified_spell_level is None:
                     # For each possible spell
-                    for spell_caster in check_for_spells:
-                        # Retrieve cast time for the possible spell
-                        cast_time = spell_timers["spells"][
-                            spell_caster["spell"]
-                        ]  # this is way too hard to read
-                        # Check each event in spell cast buffer other if it occurred possible spell cast time ago
+                    for check_spell in possible_spells:
+                        # Check each recent cast event
                         for recent_cast_event in spell_casting_buffer_other:
-                            # If this spell event coincides with a spell cast event cast time ago
-                            if (
-                                int(
-                                    (
-                                        datetime.datetime.strptime(
-                                            line_time, "%H:%M:%S.%f"
-                                        )
-                                        - datetime.datetime.strptime(
-                                            recent_cast_event["time"], "%H:%M:%S.%f"
-                                        )
-                                        - datetime.timedelta(
-                                            seconds=float(
-                                                spell_timers["spells"][
-                                                    spell_caster["spell"]
-                                                ]["cast_time"]
-                                            )
-                                        )
-                                    ).total_seconds()
-                                )
-                                == 0
-                            ):
-                                # Check if caster is able to cast potential spell
-                                if recent_cast_event["caster"] in player_list.keys():
-                                    player_class = player_list[
-                                        recent_cast_event["caster"]
-                                    ]["class"]
-                                    player_level = player_list[
-                                        recent_cast_event["caster"]
-                                    ]["level"]
-                                    # If we know this players class and level
-                                    if player_class is not None and player_level > 0:
-                                        # If the player class can cast this spell
-                                        if (
-                                            player_class
-                                            in spell_casters["spells"][
-                                                spell_caster["spell"]
-                                            ]["classes"].keys()
-                                        ):
-                                            # If that players level can cast this spell
+                            caster_name = recent_cast_event["caster"]
+                            cast_duration = spell_timers["spells"][check_spell][
+                                "cast_time"
+                            ]
+                            # If we know the class/level of the caster
+                            if caster_name in player_list.keys():
+                                caster_class = player_list[caster_name]["class"]
+                                caster_level = player_list[caster_name]["level"]
+                                if caster_class is not None and caster_level > 0:
+                                    # Check if another player could cast this possible spell
+                                    identified = action_spell_timer_player_cast_check(
+                                        line_time,
+                                        recent_cast_event["time"],
+                                        cast_duration,
+                                        caster_name,
+                                        caster_level,
+                                        caster_class,
+                                        check_spell,
+                                        spell_casters,
+                                    )
+                                    if identified is not None:
+                                        if identified_spell_level is not None:
                                             if (
-                                                int(
-                                                    spell_casters["spells"][
-                                                        spell_caster["spell"]
-                                                    ]["classes"][player_class]
-                                                )
-                                                <= player_level
+                                                spell_casters["spells"][
+                                                    identified_spell
+                                                ]["classes"][
+                                                    player_list[
+                                                        identified_spell_caster
+                                                    ]["class"]
+                                                ]
+                                                < spell_casters["spells"][
+                                                    identified[2]
+                                                ]["classes"][
+                                                    player_list[identified[0]]["class"]
+                                                ]
                                             ):
-                                                if not find_time:
-                                                    identified_spell_caster = (
-                                                        recent_cast_event["caster"]
+                                                identified_spell_caster = identified[0]
+                                                identified_spell_level = identified[1]
+                                                identified_spell = identified[2]
+                                                identified_spell_target = target
+                                        else:
+                                            identified_spell_caster = identified[0]
+                                            identified_spell_level = identified[1]
+                                            identified_spell = identified[2]
+                                            identified_spell_target = target
+                                    # Check if another player used a clicky
+                                    elif check_spell in spell_casters["spells"].keys():
+                                        if spell_casters["spells"][check_spell]["item"]:
+                                            for item in spell_items["spells"][
+                                                check_spell
+                                            ]:
+                                                cast_duration = spell_items["spells"][
+                                                    check_spell
+                                                ][item]["cast"]
+                                                # Non-zero click casts have spell casting messages
+                                                if cast_duration > 0:
+                                                    identified = action_spell_timer_player_click_check(
+                                                        line_time,
+                                                        recent_cast_event["time"],
+                                                        cast_duration,
+                                                        caster_name,
+                                                        caster_level,
+                                                        caster_class,
+                                                        check_spell,
+                                                        spell_items,
+                                                        item,
                                                     )
-                                                    identified_spell_level = (
-                                                        player_list[
-                                                            identified_spell_caster
+                                                    if identified is not None:
+                                                        identified_spell_caster = (
+                                                            identified[0]
+                                                        )
+                                                        identified_spell_level = (
+                                                            identified[1]
+                                                        )
+                                                        idenfitied_spell = identified[2]
+                                                        identified_spell_target = target
+                                                # Instant click cast event but self only spell
+                                                elif spell_casters["spells"][
+                                                    check_spell
+                                                ]["self"]:
+                                                    if target in player_list.keys():
+                                                        caster_name = target
+                                                        caster_level = player_list[
+                                                            target
                                                         ]["level"]
-                                                    )
-                                                    identified_spell = spell_caster[
-                                                        "spell"
-                                                    ]
-                                                    identified_spell_target = target
-                                                    find_time = True
-                                                # Favor matched spell with highest level casting requirements
-                                                elif int(
-                                                    spell_casters["spells"][
-                                                        identified_spell
-                                                    ]["classes"][
-                                                        player_list[
-                                                            identified_spell_caster
+                                                        caster_class = player_list[
+                                                            target
                                                         ]["class"]
-                                                    ]
-                                                ) < int(
-                                                    spell_casters["spells"][
-                                                        identified_spell
-                                                    ]["classes"][
-                                                        player_list[
-                                                            recent_cast_event["caster"]
-                                                        ]["class"]
-                                                    ]
+                                                    if (
+                                                        caster_class is not None
+                                                        and caster_level > 0
+                                                    ):
+                                                        identified = action_spell_timer_player_click_check(
+                                                            line_time,
+                                                            recent_cast_event["time"],
+                                                            cast_duration,
+                                                            caster_name,
+                                                            caster_level,
+                                                            caster_class,
+                                                            check_spell,
+                                                            spell_items,
+                                                            item,
+                                                        )
+                                                        if identified is not None:
+                                                            identified_spell_caster = (
+                                                                identified[0]
+                                                            )
+                                                            identified_spell_level = (
+                                                                identified[1]
+                                                            )
+                                                            idenfitied_spell = (
+                                                                identified[2]
+                                                            )
+                                                            identified_spell_target = (
+                                                                target
+                                                            )
+
+                # Haven't found anything yet, check if it could be an instant click (these have no casting messages)
+                if identified_spell_level is None and target == state.char.lower():
+                    for check_spell in possible_spells:
+                        if check_spell in spell_items["spells"].keys():
+                            for item in spell_items["spells"][check_spell]:
+                                if (
+                                    spell_items["spells"][check_spell][item]["cast"]
+                                    == 0
+                                ):
+                                    identified = action_spell_timer_player_click_check(
+                                        line_time,
+                                        line_time,
+                                        0,
+                                        state.char.lower(),
+                                        state.char_level,
+                                        state.char_class.lower(),
+                                        check_spell,
+                                        spell_items,
+                                        item,
+                                    )
+                                    if identified is not None:
+                                        identified_spell_caster = identified[0]
+                                        identified_spell_level = identified[1]
+                                        identified_spell = identified[2]
+                                        identified_spell_target = target
+
+                # Time to guess the spell level
+                if identified_spell_level is None and state.spell_timer_guess:
+                    # For each possible spell
+                    for check_spell in possible_spells:
+                        # Check each recent cast event
+                        for recent_cast_event in spell_casting_buffer_other:
+                            # If this is a known npc spell, just set to current player level
+                            if (
+                                spell_casters["spells"][check_spell]["npc"]
+                                and state.char_level is not None
+                                and identified_spell_level is None
+                            ):
+                                identified_spell_caster = recent_cast_event["caster"]
+                                identified_spell_level = state.char_level
+                                identified_spell = check_spell
+                                identified_spell_target = target
+
+                            # If a player could cast this
+                            player_level_could_cast = False
+                            if (
+                                spell_casters["spells"][check_spell]["classes"]
+                                and identified_spell_level is None
+                                or spell_casters["spells"][check_spell]["item"]
+                            ):
+                                # Check if the current player level could cast this (assuming it is a grouped peer or target mob)
+                                for any_class in spell_casters["spells"][check_spell][
+                                    "classes"
+                                ]:
+                                    if state.char_level is not None:
+                                        if (
+                                            state.char_level
+                                            >= spell_casters["spells"][check_spell][
+                                                "classes"
+                                            ][any_class]
+                                        ):
+                                            player_level_could_cast = True
+
+                                        if (
+                                            identified_spell_level is None
+                                            and spell_casters["spells"][check_spell][
+                                                "item"
+                                            ]
+                                        ):
+                                            for item in spell_items["spells"][
+                                                check_spell
+                                            ]:
+                                                if (
+                                                    spell_items["spells"][check_spell][
+                                                        item
+                                                    ]["cast"]
+                                                    == 0
                                                 ):
-                                                    identified_spell_caster = (
-                                                        recent_cast_event["caster"]
-                                                    )
-                                                    identified_spell_level = (
-                                                        player_list[
-                                                            identified_spell_caster
-                                                        ]["level"]
-                                                    )
-                                                    identified_spell = spell_caster[
-                                                        "spell"
-                                                    ]
-                                                    identified_spell_target = target
-                                # TODO: Maybe add an option to assume your player level if player data is not found and your level is sufficient to cast the identified spell?
+                                                    for clickable_class in spell_items[
+                                                        "spells"
+                                                    ][check_spell][item]["classes"]:
+                                                        if (
+                                                            spell_items["spells"][
+                                                                check_spell
+                                                            ][item]["classes"][
+                                                                clickable_class
+                                                            ]
+                                                            <= state.char_level
+                                                        ):
+                                                            player_level_could_cast = (
+                                                                True
+                                                            )
+
+                                        if player_level_could_cast:
+                                            identified_spell_level = state.char_level
+                                        else:
+                                            identified_spell_level = 60
+
+                                        identified_spell_caster = recent_cast_event[
+                                            "caster"
+                                        ]
+                                        identified_spell = check_spell
+                                        identified_spell_target = target
 
         # We know the spell which landed
         else:
-            if state.debug:
-                eqa_settings.log("Checking for spell: " + spell)
             # If we have spell_caster info on this spell
             if spell in spell_casters["spells"].keys():
-                # Check if player has cast anything
-                if spell_casting_buffer_you and state.char_level is not None:
-                    # If the spell cast by the player is in the spell casters file
-                    if (
-                        spell_casting_buffer_you["spell"]
-                        in spell_casters["spells"].keys()
-                    ):
-                        # If most recent player cast spell occurred spell time ago to this spell landing
-                        if (
-                            int(
-                                (
-                                    datetime.datetime.strptime(line_time, "%H:%M:%S.%f")
-                                    - datetime.datetime.strptime(
-                                        spell_casting_buffer_you["time"], "%H:%M:%S.%f"
-                                    )
-                                    - datetime.timedelta(
-                                        seconds=float(
-                                            spell_timers["spells"][
-                                                spell_casting_buffer_you["spell"]
-                                            ]["cast_time"]
-                                        )
-                                    )
-                                ).total_seconds()
-                            )
-                            == 0
-                        ):
-                            identified_spell_caster = state.char.lower()
-                            identified_spell_level = state.char_level
-                            identified_spell = spell_casting_buffer_you["spell"]
+                # If what just landed is what the active player last cast
+                if (
+                    spell_casting_buffer_you
+                    and state.char_level is not None
+                    and state.char_class is not None
+                ):
+                    if spell == spell_casting_buffer_you["spell"]:
+                        # First check if the active player could have cast this
+                        cast_duration = spell_timers["spells"][
+                            spell_casting_buffer_you["spell"]
+                        ]["cast_time"]
+                        identified = action_spell_timer_player_cast_check(
+                            line_time,
+                            spell_casting_buffer_you["time"],
+                            cast_duration,
+                            state.char.lower(),
+                            state.char_level,
+                            state.char_class.lower(),
+                            spell_casting_buffer_you["spell"],
+                            spell_casters,
+                        )
+                        if identified is not None:
+                            identified_spell_caster = identified[0]
+                            identified_spell_level = identified[1]
+                            identified_spell = identified[2]
                             identified_spell_target = target
-                            find_time = True
-                        # This spell has no listed classes listed and can be an item cast and you cast it
-                        elif (
-                            not spell_casters["spells"][spell]["classes"]
-                            and spell_casters["spells"][spell]["item"]
-                        ):
-                            identified_spell_caster = state.char.lower()
-                            identified_spell_level = state.char_level
-                            identified_spell = spell_casting_buffer_you["spell"]
-                            identified_spell_target = target
-                            find_time = True
-                        # The spell cannot be cast by your class and can be an item cast and you cast it but not spell cast time ago
-                        # elif (
-                        #    state.char_class.lower()
-                        #    not in spell_casters["spells"][spell]["classes"].keys()
-                        #    and spell_casters["spells"][spell]["item"]
-                        # ):
-                        #    # TODO: This is where item cast durations would be checked
-                        #    if state.spell_timer_guess:
-                        #        identified_spell_caster = state.char.lower()
-                        #        identified_spell_level = state.char_level
-                        #        identified_spell = spell_casting_buffer_you["spell"]
-                        #        identified_spell_target = target
-                        #        find_time = True
 
-                # Check for matching spell cast event
-                if not find_time:
+                        # Check if active player could have clicked this spell
+                        elif spell_casters["spells"][spell]["item"]:
+                            for item in spell_items["spells"][spell]:
+                                cast_duration = spell_items["spells"][spell][item][
+                                    "cast"
+                                ]
+                                if cast_duration > 0:
+                                    identified = action_spell_timer_player_click_check(
+                                        line_time,
+                                        spell_casting_buffer_you["time"],
+                                        cast_duration,
+                                        state.char.lower(),
+                                        state.char_level,
+                                        state.char_class.lower(),
+                                        spell,
+                                        spell_items,
+                                        item,
+                                    )
+                                    if identified is not None:
+                                        identified_spell_caster = identified[0]
+                                        identified_spell_level = identified[1]
+                                        identified_spell = identified[2]
+                                        identified_spell_target = target
+
+                # Check if another player cast this spell
+                if identified_spell_level is None:
                     for recent_cast_event in spell_casting_buffer_other:
-                        if state.debug:
-                            eqa_settings.log("Checking " + recent_cast_event["caster"])
-                        if (
-                            int(
-                                (
-                                    datetime.datetime.strptime(line_time, "%H:%M:%S.%f")
-                                    - datetime.datetime.strptime(
-                                        recent_cast_event["time"], "%H:%M:%S.%f"
-                                    )
-                                    - datetime.timedelta(
-                                        seconds=float(
-                                            spell_timers["spells"][spell]["cast_time"]
-                                        )
-                                    )
-                                ).total_seconds()
-                            )
-                            == 0
-                        ):
-                            if state.debug:
-                                eqa_settings.log(
-                                    "Checking player info for "
-                                    + recent_cast_event["caster"]
+                        caster_name = recent_cast_event["caster"]
+                        cast_duration = spell_timers["spells"][spell]["cast_time"]
+                        # If we know the class/level of the caster
+                        if caster_name in player_list.keys():
+                            caster_class = player_list[caster_name]["class"]
+                            caster_level = player_list[caster_name]["level"]
+                            if caster_class is not None and caster_level > 0:
+                                # Check if another player could cast this possible spell
+                                identified = action_spell_timer_player_cast_check(
+                                    line_time,
+                                    recent_cast_event["time"],
+                                    cast_duration,
+                                    caster_name,
+                                    caster_level,
+                                    caster_class,
+                                    spell,
+                                    spell_casters,
                                 )
-                            # Do we have player info on the likely caster?
-                            if recent_cast_event["caster"] in player_list.keys():
-                                player_class = player_list[recent_cast_event["caster"]][
-                                    "class"
-                                ]
-                                player_level = player_list[recent_cast_event["caster"]][
-                                    "level"
-                                ]
-                                if player_class is not None and player_level > 0:
-                                    if (
-                                        player_class
-                                        in spell_casters["spells"][spell][
-                                            "classes"
-                                        ].keys()
-                                    ):
-                                        player_level = int(
-                                            player_list[recent_cast_event["caster"]][
-                                                "level"
-                                            ]
-                                        )
-                                        if (
-                                            int(
-                                                spell_casters["spells"][spell][
-                                                    "classes"
-                                                ][player_class]
-                                            )
-                                            <= player_level
-                                        ):
-                                            identified_spell_caster = recent_cast_event[
-                                                "caster"
-                                            ]
-                                            identified_spell_level = player_list[
-                                                identified_spell_caster
-                                            ]["level"]
-                                            identified_spell = spell
-                                            identified_spell_target = target
-                                            find_time = True
-                                            if state.debug:
-                                                eqa_settings.log(
-                                                    "Found spell cast by "
-                                                    + identified_spell_caster
+                                if identified is not None:
+                                    identified_spell_caster = identified[0]
+                                    identified_spell_level = identified[1]
+                                    identified_spell = identified[2]
+                                    identified_spell_target = target
+                                # Check if another player used a clicky
+                                elif spell_casters["spells"][spell]["item"]:
+                                    for item in spell_items["spells"][spell]:
+                                        cast_duration = spell_items["spells"][spell][
+                                            item
+                                        ]["cast"]
+                                        # Non-zero click casts have spell casting messages
+                                        if cast_duration > 0:
+                                            identified = (
+                                                action_spell_timer_player_click_check(
+                                                    line_time,
+                                                    recent_cast_event["time"],
+                                                    cast_duration,
+                                                    caster_name,
+                                                    caster_level,
+                                                    caster_class,
+                                                    spell,
+                                                    spell_items,
+                                                    item,
                                                 )
-                            # Time to guess the spell level
-                            elif state.spell_timer_guess:
-                                if state.debug:
-                                    eqa_settings.log("Into spell guessing territory")
-                                player_level_could_cast = False
-                                # If a player could cast this
-                                if spell_casters["spells"][spell]["classes"]:
-                                    # Check if the current player level could cast this (assuming it is a grouped peer or target mob)
-                                    for caster_class in spell_casters["spells"][spell][
-                                        "classes"
-                                    ]:
-                                        if state.char_level is not None:
-                                            if state.char_level >= int(
-                                                spell_casters["spells"][spell][
-                                                    "classes"
-                                                ][caster_class]
+                                            )
+                                            if identified is not None:
+                                                identified_spell_caster = identified[0]
+                                                identified_spell_level = identified[1]
+                                                identified_spell = identified[2]
+                                                identified_spell_target = target
+                                        # Instant click cast event but self only spell
+                                        elif (
+                                            spell_casters["spells"][spell]["self"]
+                                            and recent_cast_event["caster"] == target
+                                        ):
+                                            identified = (
+                                                action_spell_timer_player_click_check(
+                                                    line_time,
+                                                    recent_cast_event["time"],
+                                                    cast_duration,
+                                                    caster_name,
+                                                    caster_level,
+                                                    caster_class,
+                                                    spell,
+                                                    spell_items,
+                                                    item,
+                                                )
+                                            )
+                                            if identified is not None:
+                                                identified_spell_caster = identified[0]
+                                                identified_spell_level = identified[1]
+                                                identified_spell = identified[2]
+                                                identified_spell_target = target
+
+                # Haven't found anything yet, check if it could be an instant click (these have no casting messages)
+                if identified_spell_level is None and target == state.char.lower():
+                    if spell in spell_items["spells"].keys():
+                        for item in spell_items["spells"][spell]:
+                            if spell_items["spells"][spell][item]["cast"] == 0:
+                                identified = action_spell_timer_player_click_check(
+                                    line_time,
+                                    line_time,
+                                    0,
+                                    state.char.lower(),
+                                    state.char_level,
+                                    state.char_class.lower(),
+                                    spell,
+                                    spell_items,
+                                    item,
+                                )
+                                if identified is not None:
+                                    identified_spell_caster = identified[0]
+                                    identified_spell_level = identified[1]
+                                    identified_spell = identified[2]
+                                    identified_spell_target = target
+
+                # Time to guess the spell level
+                if identified_spell_level is None and state.spell_timer_guess:
+                    for recent_cast_event in spell_casting_buffer_other:
+                        # If this is a known npc only spell, just set to current player level
+                        if (
+                            spell_casters["spells"][spell]["npc"]
+                            and state.char_level is not None
+                            and identified_spell_level is None
+                        ):
+                            identified_spell_caster = recent_cast_event["caster"]
+                            identified_spell_level = state.char_level
+                            identified_spell = spell
+                            identified_spell_target = target
+
+                        # If a player could cast this
+                        player_level_could_cast = False
+                        if (
+                            spell_casters["spells"][spell]["classes"]
+                            and identified_spell_level is None
+                        ):
+                            # Check if the current player level could cast this (assuming it is a grouped peer or target mob)
+                            for any_class in spell_casters["spells"][spell]["classes"]:
+                                if (
+                                    state.char_level is not None
+                                    and identified_spell_level is None
+                                ):
+                                    if (
+                                        state.char_level
+                                        >= spell_casters["spells"][spell]["classes"][
+                                            any_class
+                                        ]
+                                    ):
+                                        player_level_could_cast = True
+
+                                    if (
+                                        identified_spell_level is None
+                                        and spell_casters["spells"][spell]["item"]
+                                    ):
+                                        for item in spell_items["spells"][spell]:
+                                            if (
+                                                spell_items["spells"][spell][item][
+                                                    "cast"
+                                                ]
+                                                == 0
                                             ):
-                                                player_level_could_cast = True
+                                                for clickable_class in spell_items[
+                                                    "spells"
+                                                ][spell][item]["classes"]:
+                                                    if (
+                                                        spell_items["spells"][spell][
+                                                            item
+                                                        ]["classes"][clickable_class]
+                                                        <= state.char_level
+                                                    ):
+                                                        player_level_could_cast = True
 
                                     if player_level_could_cast:
                                         identified_spell_level = state.char_level
@@ -1169,22 +1479,8 @@ def action_spell_timer(
                                     ]
                                     identified_spell = spell
                                     identified_spell_target = target
-                                    find_time = True
 
-                                # If this is a known npc only spell, just set to current player level
-                                elif (
-                                    spell_casters["spells"][spell]["npc"]
-                                    and state.char_level is not None
-                                ):
-                                    identified_spell_caster = recent_cast_event[
-                                        "caster"
-                                    ]
-                                    identified_spell_level = state.char_level
-                                    identified_spell = spell
-                                    identified_spell_target = target
-                                    find_time = True
-
-        if find_time:
+        if identified_spell_level is not None:
             make_timer = True
 
             # Guild Only Filter
