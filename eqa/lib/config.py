@@ -14153,7 +14153,7 @@ def build_config(base_path, version):
     },
     "Cobalt Scar": {
       "indoors": false,
-      "raid_mode": false,
+      "raid_mode": true,
       "timer": 1200
     },
     "Crushbone": {
@@ -14178,12 +14178,12 @@ def build_config(base_path, version):
     },
     "Dragon Necropolis": {
       "indoors": true,
-      "raid_mode": false,
+      "raid_mode": true,
       "timer": 1620
     },
     "Dreadlands": {
       "indoors": false,
-      "raid_mode": false,
+      "raid_mode": true,
       "timer": 400
     },
     "East Commonlands": {
@@ -14363,7 +14363,7 @@ def build_config(base_path, version):
     },
     "Nagafen's Lair": {
       "indoors": true,
-      "raid_mode": false,
+      "raid_mode": true,
       "timer": 1320
     },
     "Najena": {
@@ -14403,7 +14403,7 @@ def build_config(base_path, version):
     },
     "Old Sebilis": {
       "indoors": true,
-      "raid_mode": false,
+      "raid_mode": true,
       "timer": 1620
     },
     "Paineel": {
@@ -14413,7 +14413,7 @@ def build_config(base_path, version):
     },
     "Permafrost Caverns": {
       "indoors": true,
-      "raid_mode": false,
+      "raid_mode": true,
       "timer": 1320
     },
     "Plane of Air": {
@@ -14468,7 +14468,7 @@ def build_config(base_path, version):
     },
     "Skyfire Mountains": {
       "indoors": false,
-      "raid_mode": false,
+      "raid_mode": true,
       "timer": 780
     },
     "Skyshrine": {
@@ -14543,7 +14543,7 @@ def build_config(base_path, version):
     },
     "The Emerald Jungle": {
       "indoors": false,
-      "raid_mode": false,
+      "raid_mode": true,
       "timer": 0
     },
     "The Feerrott": {
@@ -14578,7 +14578,7 @@ def build_config(base_path, version):
     },
     "Timorous Deep": {
       "indoors": false,
-      "raid_mode": false,
+      "raid_mode": true,
       "timer": 720
     },
     "Toxxulia Forest": {
@@ -14598,7 +14598,7 @@ def build_config(base_path, version):
     },
     "Velketor's Labyrinth": {
       "indoors": true,
-      "raid_mode": false,
+      "raid_mode": true,
       "timer": 1972
     },
     "Warrens": {
