@@ -6315,8 +6315,8 @@ def update_spell_items(data_path, version):
     },
     "avatar": {
       "primal_weapon": {
-        "  cast": 0,
-        "  classes": {
+        "cast": 0,
+        "classes": {
           "bard": 0,
           "cleric": 0,
           "druid": 0,
@@ -6504,7 +6504,7 @@ def update_spell_items(data_path, version):
     },
     "blessing_of_nature": {
       "razor_fang_of_xygoz": {
-        "  cast": 0,
+        "cast": 0,
         "classes": {
           "ranger": 50,
           "rogue": 50,
@@ -8006,22 +8006,24 @@ def update_spell_items(data_path, version):
       }
     },
     "frostreavers_blessing": {
-      "cast": 0,
-      "classes": {
-        "bard": 0,
-        "cleric": 0,
-        "druid": 0,
-        "enchanter": 0,
-        "magician": 0,
-        "monk": 0,
-        "necromancer": 0,
-        "paladin": 0,
-        "ranger": 0,
-        "rogue": 0,
-        "shadow knight": 0,
-        "shaman": 0,
-        "warrior": 0,
-        "wizard": 0
+      "ring_of_dain_frostraver_iv": {
+        "cast": 0,
+        "classes": {
+          "bard": 0,
+          "cleric": 0,
+          "druid": 0,
+          "enchanter": 0,
+          "magician": 0,
+          "monk": 0,
+          "necromancer": 0,
+          "paladin": 0,
+          "ranger": 0,
+          "rogue": 0,
+          "shadow knight": 0,
+          "shaman": 0,
+          "warrior": 0,
+          "wizard": 0
+        }
       }
     },
     "fungal_regrowth": {
@@ -8532,22 +8534,24 @@ def update_spell_items(data_path, version):
       }
     },
     "lower_resists_ii": {
-      "cast": 0,
-      "classes": {
-        "bard": 20,
-        "cleric": 20,
-        "druid": 20,
-        "enchanter": 20,
-        "magician": 20,
-        "monk": 20,
-        "necromancer": 20,
-        "paladin": 20,
-        "ranger": 20,
-        "rogue": 20,
-        "shadow knight": 20,
-        "shaman": 20,
-        "warrior": 20,
-        "wizard": 20
+      "dilapidating_ash": {
+        "cast": 0,
+        "classes": {
+          "bard": 20,
+          "cleric": 20,
+          "druid": 20,
+          "enchanter": 20,
+          "magician": 20,
+          "monk": 20,
+          "necromancer": 20,
+          "paladin": 20,
+          "ranger": 20,
+          "rogue": 20,
+          "shadow knight": 20,
+          "shaman": 20,
+          "warrior": 20,
+          "wizard": 20
+        }
       }
     },
     "lower_resists_iii": {
@@ -9581,7 +9585,7 @@ def update_spell_items(data_path, version):
     },
     "siphon_strength": {
       "discple_symbol_of_innoruuk": {
-        "  cast": 6,
+        "cast": 6,
         "classes": {
           "cleric": 5,
           "shaman": 5
