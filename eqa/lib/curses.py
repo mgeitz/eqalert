@@ -2055,7 +2055,7 @@ def draw_timers(stdscr, timers):
                             message,
                             curses.color_pair(3),
                         )
-                    print_timer_y = print_timer_y + 2
+                    print_timer_y = print_timer_y + 1
             else:
                 draw_mascot_message(timer_scr, "No active timers")
         else:
