@@ -31,6 +31,7 @@ $ docker compose run eqalert
 
 > Note: If running through docker after installing and running on your host, update or regenerate `~/.eqa/config/settings.json` to reflect local container paths in `/home/eqalert`
 
+
 ## Getting Started
 
 Start things up
@@ -44,6 +45,7 @@ $HOME/.eqa
         ⎿ config/
           ⎿ line-alerts/
         ⎿ data/
+          ⎿ timers/
         ⎿ encounters/
         ⎿ log/
           ⎿ debug/
@@ -65,6 +67,7 @@ Spot check these default paths generated in `config/settings.json`
 ```
 > Press `0` to reload your configs or restart the program if any changes were made.  Though generally, it's a good idea to stop eqalert before manually editing your config files.
 
+
 ## Data
 
 ### Spell Timers
@@ -81,9 +84,22 @@ EQ Alert will generate/overwrite `data/spell-casters.json` each version.  This f
 
 Many spells cast in EverQuest share the same log output lines.  EQ Alert will generate/overwrite `data/spell-lines.json` each version as a mapping of which possible spells a given output line could be associated to.
 
+### Spell Items
+
+EQ Alert will generate/overwrite `data/spell-items.json` each version as a mapping of which items a given spell could be cast by.
+
 ### Players
 
 EQ Alert uses in-game `/who` output to keep an up-to-date list of each seen players class, level, and guild organized by server in `data/players.json` for alerting spell duration.
+
+### Saved Timers
+
+If the active character is changed or EQ Alert is stopped, all active timers are saved to a file in `data/timers/` by the previously active character and server name.  This file is consumed when the parser sets that character as active again, adding all non-expired timers back to the timer list.
+
+
+## Encounters
+
+When encounter parse saving is enabled, complete encounter reports are saved under `encounters/[zone_name]/[date]/` as the time stamp of the encounter and the encounter target.
 
 
 ## Controls
@@ -97,7 +113,8 @@ EQ Alert uses in-game `/who` output to keep an up-to-date list of each seen play
   - 3       : Parse
   - 4       : Settings
   - q / esc : Quit
-  - h       : Help
+  - h       : Help pop-up
+  - t       : Timers pop-up
 
 #### Events
   - c       : Clear event box
@@ -106,7 +123,7 @@ EQ Alert uses in-game `/who` output to keep an up-to-date list of each seen play
   - m       : Toggle global audio mute
   - p       : Toggle encounter parse save
   - r       : Toggle raid mode
-  - t       : Toggle automatic mob respawn timers
+  - y       : Toggle automatic mob respawn timers
 
 #### Settings
   - up      : Up in selection

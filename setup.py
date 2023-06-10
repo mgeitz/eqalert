@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-# read the contents of your README file
+# read the contents of README.md
 from pathlib import Path
 
 this_directory = Path(__file__).parent
@@ -8,7 +8,7 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="eqalert",
-    version="3.5.2",
+    version="3.5.3",
     author="M Geitz",
     author_email="git@geitz.xyz",
     install_requires=[

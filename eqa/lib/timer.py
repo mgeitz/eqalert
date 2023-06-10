@@ -183,6 +183,13 @@ def process(
                                 )
                 elif timer_event.type == "zoning":
                     zoning_start_time = timer_event.time
+                elif timer_event.type == "draw_timers":
+                    draw_timers = timers.copy()
+                    display_q.put(
+                        eqa_struct.display(
+                            eqa_settings.eqa_time(), "draw", "timers", draw_timers
+                        )
+                    )
                 elif timer_event.type == "clear":
                     timers = []
 

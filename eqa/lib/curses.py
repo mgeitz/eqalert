@@ -19,6 +19,7 @@
 """
 
 import curses
+import heapq
 import os
 import sys
 import time
@@ -46,6 +47,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
     s_opt = "debug"
     s_line = 0
     encounter_report = None
+    timers = None
 
     try:
         while not exit_flag.is_set() and not cfg_reload.is_set():
@@ -90,6 +92,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
                         s_line,
                         encounter_report,
                         version,
+                        timers,
                     )
 
                 ## Display Draw
@@ -97,11 +100,23 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
                     if display_event.screen == "help":
                         if page == "help":
                             page = last_page
-                        else:
+                        elif page != "timers":
                             last_page = page
                             page = display_event.screen
+                        else:
+                            page = display_event.screen
+                    elif display_event.screen == "timers":
+                        if page == "timers":
+                            page = last_page
+                        elif page != "help":
+                            last_page = page
+                            timers = display_event.payload
+                            page = display_event.screen
+                        else:
+                            timers = display_event.payload
+                            page = display_event.screen
                     elif display_event.screen == "redraw":
-                        if page == "help":
+                        if page == "help" or page == "timers":
                             draw_page(
                                 stdscr,
                                 page,
@@ -115,6 +130,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
                                 s_line,
                                 encounter_report,
                                 version,
+                                timers,
                             )
                     else:
                         page = display_event.screen
@@ -132,6 +148,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
                         s_line,
                         encounter_report,
                         version,
+                        timers,
                     )
 
                 ## Draw Update
@@ -152,6 +169,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
                                 s_line,
                                 encounter_report,
                                 version,
+                                timers,
                             )
                     elif display_event.screen == "debug":
                         debug_events.append(display_event)
@@ -168,6 +186,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
                             s_line,
                             encounter_report,
                             version,
+                            timers,
                         )
                     elif display_event.screen == "clear":
                         events = []
@@ -185,6 +204,7 @@ def display(stdscr, display_q, state, configs, exit_flag, cfg_reload, version):
                             s_line,
                             encounter_report,
                             version,
+                            timers,
                         )
                 display_q.task_done()
 
@@ -212,6 +232,7 @@ def draw_page(
     s_line,
     encounter_report,
     version,
+    timers,
 ):
     y, x = stdscr.getmaxyx()
     try:
@@ -230,6 +251,9 @@ def draw_page(
                 draw_parse(stdscr, state, encounter_report, version)
             elif page == "help":
                 draw_help(stdscr)
+            elif page == "timers":
+                copy_timers = timers.copy()
+                draw_timers(stdscr, copy_timers)
         else:
             draw_toosmall(stdscr)
     except Exception as e:
@@ -1916,6 +1940,130 @@ def draw_mascot_message(scr, message):
     except Exception as e:
         eqa_settings.log(
             "draw settings options: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def draw_timers(stdscr, timers):
+    """Draw timers pop up"""
+
+    try:
+        y, x = stdscr.getmaxyx()
+
+        timer_scr = stdscr.derwin(
+            int(y / 2) + int(y / 4), int(x / 2) + int(x / 4), int(y / 8), int(x / 8)
+        )
+        timer_scr.clear()
+        timer_scr.box()
+
+        timer_y, timer_x = timer_scr.getmaxyx()
+        mid_timer_y = int(timer_y / 2)
+        mid_timer_x = int(timer_x / 2)
+
+        # Title
+        timer_scr.addstr(2, mid_timer_x - 7, "Active Timers", curses.color_pair(2))
+
+        # Ensure there are timers to show
+        if timers is not None:
+            if len(timers) > 0:
+                print_timer_y = 4
+                now = datetime.now()
+                ## Show timers
+                while len(timers) > 0:
+                    ### Break if there are more timers than room
+                    if print_timer_y > int(timer_y * 0.9):
+                        break
+                    ### Get timer
+                    timer = heapq.heappop(timers)
+                    ### Duration remaining
+                    time_remaining = timer.time - now
+                    time_remaining_days = time_remaining.days
+                    time_remaining_seconds = time_remaining.seconds
+                    timer_hours = (
+                        time_remaining_days * 24 + time_remaining_seconds // 3600
+                    )
+                    timer_minutes = (time_remaining_seconds % 3600) // 60
+                    timer_seconds = time_remaining_seconds % 60
+                    if timer_minutes < 1 and timer_hours == 0:
+                        color = 6
+                    elif timer_minutes < 2 and timer_hours == 0:
+                        color = 4
+                    elif timer_minutes < 5 and timer_hours == 0:
+                        color = 2
+                    else:
+                        color = 5
+                    timer_scr.addstr(
+                        print_timer_y, 5, f"{timer_hours:02}", curses.color_pair(color)
+                    )
+                    timer_scr.addstr(
+                        print_timer_y,
+                        5 + len(f"{timer_hours:02}"),
+                        ":",
+                        curses.color_pair(1),
+                    )
+                    timer_scr.addstr(
+                        print_timer_y,
+                        6 + len(f"{timer_hours:02}"),
+                        f"{timer_minutes:02}",
+                        curses.color_pair(color),
+                    )
+                    timer_scr.addstr(
+                        print_timer_y,
+                        8 + len(f"{timer_hours:02}"),
+                        ":",
+                        curses.color_pair(1),
+                    )
+                    timer_scr.addstr(
+                        print_timer_y,
+                        9 + len(f"{timer_hours:02}"),
+                        f"{timer_seconds:02}",
+                        curses.color_pair(color),
+                    )
+                    timestamp_len = 11 + len(f"{timer_hours:02}")
+                    ### Timer details
+                    if timer.type == "spell":
+                        timer_scr.addstr(
+                            print_timer_y,
+                            2 + timestamp_len,
+                            timer.caster,
+                            curses.color_pair(3),
+                        )
+                        timer_scr.addch(
+                            print_timer_y,
+                            2 + timestamp_len + len(timer.caster),
+                            curses.ACS_RARROW,
+                        )
+                        timer_scr.addstr(
+                            print_timer_y,
+                            4 + timestamp_len + len(timer.caster),
+                            timer.target,
+                            curses.color_pair(3),
+                        )
+                        timer_scr.addstr(
+                            print_timer_y,
+                            6 + timestamp_len + len(timer.caster) + len(timer.target),
+                            timer.spell.replace("_", " "),
+                            curses.color_pair(color),
+                        )
+                    else:
+                        message = timer.payload
+                        timer_scr.addstr(
+                            print_timer_y,
+                            2 + timestamp_len,
+                            message,
+                            curses.color_pair(3),
+                        )
+                    print_timer_y = print_timer_y + 2
+            else:
+                draw_mascot_message(timer_scr, "No active timers")
+        else:
+            draw_mascot_message(timer_scr, "No active timers")
+
+    except Exception as e:
+        eqa_settings.log(
+            "draw timers: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
