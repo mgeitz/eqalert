@@ -21,6 +21,7 @@
 import os
 import re
 import time
+import threading
 import sys
 import hashlib
 import gtts
@@ -290,7 +291,7 @@ def alert(configs, line_type):
 def play_sound(sound):
     """Play the sound given"""
     try:
-        playsound(sound, block=False)
+        threading.Thread(target=playsound, args=(sound,), daemon=True).start()
     except Exception as e:
         eqa_settings.log(
             "sound_play_sound: Error on line "
