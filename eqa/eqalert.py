@@ -339,30 +339,12 @@ def main():
         # Create Sounds, at most 3 sounds at once (sound blocking enabled)
         ## Consume sound_q
         ## Produce sounds
-
-        ### Thread 1
-        process_sound_1 = threading.Thread(
+        process_sound = threading.Thread(
             target=eqa_sound.process,
             args=(configs, sound_q, exit_flag, cfg_reload, state),
         )
-        process_sound_1.daemon = True
-        process_sound_1.start()
-
-        ### Thread 2
-        process_sound_2 = threading.Thread(
-            target=eqa_sound.process,
-            args=(configs, sound_q, exit_flag, cfg_reload, state),
-        )
-        process_sound_2.daemon = True
-        process_sound_2.start()
-
-        ### Thread 3
-        process_sound_3 = threading.Thread(
-            target=eqa_sound.process,
-            args=(configs, sound_q, exit_flag, cfg_reload, state),
-        )
-        process_sound_3.daemon = True
-        process_sound_3.start()
+        process_sound.daemon = True
+        process_sound.start()
 
         # Draw the TUI
         ## Consume display_q
@@ -741,9 +723,7 @@ def main():
                         cfg_reload.set()
                         process_action.join()
                         process_encounter.join()
-                        process_sound_1.join()
-                        process_sound_2.join()
-                        process_sound_3.join()
+                        process_sound.join()
                         process_timer.join()
                         process_watch.join()
                         process_keys.join()
@@ -825,30 +805,12 @@ def main():
                         process_encounter.start()
 
                         #### Restart process_sound
-
-                        ##### Thread 1
-                        process_sound_1 = threading.Thread(
+                        process_sound = threading.Thread(
                             target=eqa_sound.process,
                             args=(configs, sound_q, exit_flag, cfg_reload, state),
                         )
-                        process_sound_1.daemon = True
-                        process_sound_1.start()
-
-                        ##### Thread 2
-                        process_sound_2 = threading.Thread(
-                            target=eqa_sound.process,
-                            args=(configs, sound_q, exit_flag, cfg_reload, state),
-                        )
-                        process_sound_2.daemon = True
-                        process_sound_2.start()
-
-                        ##### Thread 3
-                        process_sound_3 = threading.Thread(
-                            target=eqa_sound.process,
-                            args=(configs, sound_q, exit_flag, cfg_reload, state),
-                        )
-                        process_sound_3.daemon = True
-                        process_sound_3.start()
+                        process_sound.daemon = True
+                        process_sound.start()
 
                         #### Restart process_timer
                         process_timer = threading.Thread(
@@ -919,9 +881,7 @@ def main():
     process_action.join()
     process_encounter.join()
     process_timer.join()
-    process_sound_1.join()
-    process_sound_2.join()
-    process_sound_3.join()
+    process_sound.join()
     process_display.join()
 
     ## Close curses

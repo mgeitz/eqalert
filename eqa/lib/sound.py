@@ -290,7 +290,7 @@ def alert(configs, line_type):
 def play_sound(sound):
     """Play the sound given"""
     try:
-        playsound(sound)
+        playsound(sound, block=False)
     except Exception as e:
         eqa_settings.log(
             "sound_play_sound: Error on line "
