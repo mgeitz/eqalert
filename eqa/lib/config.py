@@ -10166,7 +10166,7 @@ def update_spell_items(data_path, version):
         }
       },
       "swarmcaller": {
-        "casat": 0,
+        "cast": 0,
         "classes": {
           "ranger": 46
         }
