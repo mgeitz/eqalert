@@ -2055,7 +2055,7 @@ def draw_timers(stdscr, timers):
                             message,
                             curses.color_pair(3),
                         )
-                    print_timer_y = print_timer_y + 2
+                    print_timer_y = print_timer_y + 1
             else:
                 draw_mascot_message(timer_scr, "No active timers")
         else:
@@ -2123,69 +2123,73 @@ def draw_help(stdscr):
         helpscr.addstr(14, 15, ":", curses.color_pair(1))
         helpscr.addstr(14, 17, "Help", curses.color_pair(3))
 
+        helpscr.addstr(15, 9, "t", curses.color_pair(2))
+        helpscr.addstr(15, 15, ":", curses.color_pair(1))
+        helpscr.addstr(15, 17, "Timers", curses.color_pair(3))
+
         # Events commands
-        helpscr.addstr(16, 7, "Events", curses.color_pair(1))
+        helpscr.addstr(17, 7, "Events", curses.color_pair(1))
 
-        helpscr.addstr(17, 9, "c", curses.color_pair(2))
-        helpscr.addstr(17, 15, ":", curses.color_pair(1))
-        helpscr.addstr(17, 17, "Clear events", curses.color_pair(3))
-
-        helpscr.addstr(18, 9, "d", curses.color_pair(2))
+        helpscr.addstr(18, 9, "c", curses.color_pair(2))
         helpscr.addstr(18, 15, ":", curses.color_pair(1))
-        helpscr.addstr(18, 17, "Toggle debug mode", curses.color_pair(3))
+        helpscr.addstr(18, 17, "Clear events", curses.color_pair(3))
 
-        helpscr.addstr(19, 9, "e", curses.color_pair(2))
+        helpscr.addstr(19, 9, "d", curses.color_pair(2))
         helpscr.addstr(19, 15, ":", curses.color_pair(1))
-        helpscr.addstr(19, 17, "Toggle encounter parsing", curses.color_pair(3))
+        helpscr.addstr(19, 17, "Toggle debug mode", curses.color_pair(3))
 
-        helpscr.addstr(20, 9, "m", curses.color_pair(2))
+        helpscr.addstr(20, 9, "e", curses.color_pair(2))
         helpscr.addstr(20, 15, ":", curses.color_pair(1))
-        helpscr.addstr(20, 17, "Toggle mute", curses.color_pair(3))
+        helpscr.addstr(20, 17, "Toggle encounter parsing", curses.color_pair(3))
 
-        helpscr.addstr(21, 9, "p", curses.color_pair(2))
+        helpscr.addstr(21, 9, "m", curses.color_pair(2))
         helpscr.addstr(21, 15, ":", curses.color_pair(1))
-        helpscr.addstr(21, 17, "Toggle encounter parse save", curses.color_pair(3))
+        helpscr.addstr(21, 17, "Toggle mute", curses.color_pair(3))
 
-        helpscr.addstr(22, 9, "r", curses.color_pair(2))
+        helpscr.addstr(22, 9, "p", curses.color_pair(2))
         helpscr.addstr(22, 15, ":", curses.color_pair(1))
-        helpscr.addstr(22, 17, "Toggle raid mode", curses.color_pair(3))
+        helpscr.addstr(22, 17, "Toggle encounter parse save", curses.color_pair(3))
 
-        helpscr.addstr(23, 9, "t", curses.color_pair(2))
+        helpscr.addstr(23, 9, "r", curses.color_pair(2))
         helpscr.addstr(23, 15, ":", curses.color_pair(1))
+        helpscr.addstr(23, 17, "Toggle raid mode", curses.color_pair(3))
+
+        helpscr.addstr(24, 9, "y", curses.color_pair(2))
+        helpscr.addstr(24, 15, ":", curses.color_pair(1))
         helpscr.addstr(
-            23, 17, "Toggle automatic mob respawn timers", curses.color_pair(3)
+            24, 17, "Toggle automatic mob respawn timers", curses.color_pair(3)
         )
 
         # Settings commands
-        helpscr.addstr(25, 7, "Settings", curses.color_pair(1))
+        helpscr.addstr(26, 7, "Settings", curses.color_pair(1))
 
-        helpscr.addstr(26, 9, "up", curses.color_pair(2))
-        helpscr.addstr(26, 15, ":", curses.color_pair(1))
-        helpscr.addstr(26, 17, "Up in selection", curses.color_pair(3))
-
-        helpscr.addstr(27, 9, "down", curses.color_pair(2))
+        helpscr.addstr(27, 9, "up", curses.color_pair(2))
         helpscr.addstr(27, 15, ":", curses.color_pair(1))
-        helpscr.addstr(27, 17, "Down in selection", curses.color_pair(3))
+        helpscr.addstr(27, 17, "Up in selection", curses.color_pair(3))
 
-        helpscr.addstr(28, 9, "right", curses.color_pair(2))
+        helpscr.addstr(28, 9, "down", curses.color_pair(2))
         helpscr.addstr(28, 15, ":", curses.color_pair(1))
-        helpscr.addstr(28, 17, "Selection options", curses.color_pair(3))
+        helpscr.addstr(28, 17, "Down in selection", curses.color_pair(3))
 
-        helpscr.addstr(29, 9, "left", curses.color_pair(2))
+        helpscr.addstr(29, 9, "right", curses.color_pair(2))
         helpscr.addstr(29, 15, ":", curses.color_pair(1))
         helpscr.addstr(29, 17, "Selection options", curses.color_pair(3))
 
-        helpscr.addstr(30, 9, "space", curses.color_pair(2))
+        helpscr.addstr(30, 9, "left", curses.color_pair(2))
         helpscr.addstr(30, 15, ":", curses.color_pair(1))
-        helpscr.addstr(30, 17, "Select", curses.color_pair(3))
+        helpscr.addstr(30, 17, "Selection options", curses.color_pair(3))
 
-        helpscr.addstr(31, 9, "enter", curses.color_pair(2))
+        helpscr.addstr(31, 9, "space", curses.color_pair(2))
         helpscr.addstr(31, 15, ":", curses.color_pair(1))
         helpscr.addstr(31, 17, "Select", curses.color_pair(3))
 
-        helpscr.addstr(32, 9, "tab", curses.color_pair(2))
+        helpscr.addstr(32, 9, "enter", curses.color_pair(2))
         helpscr.addstr(32, 15, ":", curses.color_pair(1))
-        helpscr.addstr(32, 17, "Cycle category", curses.color_pair(3))
+        helpscr.addstr(32, 17, "Select", curses.color_pair(3))
+
+        helpscr.addstr(33, 9, "tab", curses.color_pair(2))
+        helpscr.addstr(33, 15, ":", curses.color_pair(1))
+        helpscr.addstr(33, 17, "Cycle category", curses.color_pair(3))
 
     except Exception as e:
         eqa_settings.log(
