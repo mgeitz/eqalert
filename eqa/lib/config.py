@@ -14101,6 +14101,7 @@ def build_config(base_path, version):
           "guild_only": false,
           "yours_only": true
         },
+        "consolidate": true,
         "delay": 24,
         "guess": true,
         "other": true,

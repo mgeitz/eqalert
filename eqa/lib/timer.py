@@ -232,6 +232,13 @@ def process(
                                     timer.payload,
                                 )
                             )
+                    elif timer.type == "spell":
+                        if configs.settings.config["settings"]["timers"]["spell"][
+                            "consolidate"
+                        ]:
+                            timers = consolidate_spell_timers(
+                                timer, timers, sound_q, display_q
+                            )
                     else:
                         sound_q.put(eqa_struct.sound("speak", str(timer.payload)))
                         display_q.put(
@@ -337,6 +344,57 @@ def remove_spell_timer(state, timers, remove_timer):
     except Exception as e:
         eqa_settings.log(
             "Remove spell timer: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def consolidate_spell_timers(expired_timer, timers, sound_q, display_q):
+    """Consolidate like spell timers"""
+
+    try:
+        new_timers = []
+        for timer_event in timers:
+            if timer_event.type == "spell":
+                if expired_timer.spell == timer_event.spell:
+                    if int((timer_event.time - expired_timer.time).total_seconds()) < 3:
+                        if expired_timer.payload.endswith(" has worn off"):
+                            payload = (
+                                expired_timer.spell.replace("_", " ")
+                                + " on "
+                                + expired_timer.target
+                                + " and others has worn off"
+                            )
+                        else:
+                            payload = (
+                                expired_timer.spell.replace("_", " ")
+                                + " on "
+                                + expired_timer.target
+                                + " and others is wearing off"
+                            )
+                    else:
+                        heapq.heappush(new_timers, timer_event)
+                else:
+                    heapq.heappush(new_timers, timer_event)
+            else:
+                heapq.heappush(new_timers, timer_event)
+
+        sound_q.put(eqa_struct.sound("speak", payload))
+        display_q.put(
+            eqa_struct.display(
+                eqa_settings.eqa_time(),
+                "event",
+                "events",
+                "Timer: " + str(payload),
+            )
+        )
+
+        return new_timers
+
+    except Exception as e:
+        eqa_settings.log(
+            "Consolidate spell timer: Error on line "
             + str(sys.exc_info()[-1].tb_lineno)
             + ": "
             + str(e)
