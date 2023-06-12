@@ -355,6 +355,7 @@ def consolidate_spell_timers(expired_timer, timers, sound_q, display_q):
 
     try:
         new_timers = []
+        payload = expired_timer.payload
         for timer_event in timers:
             if timer_event.type == "spell":
                 if expired_timer.spell == timer_event.spell:
