@@ -14103,7 +14103,7 @@ def build_config(base_path, version):
         },
         "consolidate": true,
         "delay": 24,
-        "guess": true,
+        "guess": false,
         "other": true,
         "self": true,
         "zone_drift": true

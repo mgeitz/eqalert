@@ -1977,85 +1977,92 @@ def draw_timers(stdscr, timers):
                         break
                     ### Get timer
                     timer = heapq.heappop(timers)
-                    ### Duration remaining
-                    time_remaining = timer.time - now
-                    time_remaining_days = time_remaining.days
-                    time_remaining_seconds = time_remaining.seconds
-                    timer_hours = (
-                        time_remaining_days * 24 + time_remaining_seconds // 3600
-                    )
-                    timer_minutes = (time_remaining_seconds % 3600) // 60
-                    timer_seconds = time_remaining_seconds % 60
-                    if timer_minutes < 1 and timer_hours == 0:
-                        color = 6
-                    elif timer_minutes < 2 and timer_hours == 0:
-                        color = 4
-                    elif timer_minutes < 5 and timer_hours == 0:
-                        color = 2
-                    else:
-                        color = 5
-                    timer_scr.addstr(
-                        print_timer_y, 5, f"{timer_hours:02}", curses.color_pair(color)
-                    )
-                    timer_scr.addstr(
-                        print_timer_y,
-                        5 + len(f"{timer_hours:02}"),
-                        ":",
-                        curses.color_pair(1),
-                    )
-                    timer_scr.addstr(
-                        print_timer_y,
-                        6 + len(f"{timer_hours:02}"),
-                        f"{timer_minutes:02}",
-                        curses.color_pair(color),
-                    )
-                    timer_scr.addstr(
-                        print_timer_y,
-                        8 + len(f"{timer_hours:02}"),
-                        ":",
-                        curses.color_pair(1),
-                    )
-                    timer_scr.addstr(
-                        print_timer_y,
-                        9 + len(f"{timer_hours:02}"),
-                        f"{timer_seconds:02}",
-                        curses.color_pair(color),
-                    )
-                    timestamp_len = 11 + len(f"{timer_hours:02}")
-                    ### Timer details
-                    if timer.type == "spell":
+                    if timer.type != "metronome":
+                        ### Duration remaining
+                        time_remaining = timer.time - now
+                        time_remaining_days = time_remaining.days
+                        time_remaining_seconds = time_remaining.seconds
+                        timer_hours = (
+                            time_remaining_days * 24 + time_remaining_seconds // 3600
+                        )
+                        timer_minutes = (time_remaining_seconds % 3600) // 60
+                        timer_seconds = time_remaining_seconds % 60
+                        if timer_minutes < 1 and timer_hours == 0:
+                            color = 6
+                        elif timer_minutes < 2 and timer_hours == 0:
+                            color = 4
+                        elif timer_minutes < 5 and timer_hours == 0:
+                            color = 2
+                        else:
+                            color = 5
                         timer_scr.addstr(
                             print_timer_y,
-                            2 + timestamp_len,
-                            timer.caster,
-                            curses.color_pair(3),
-                        )
-                        timer_scr.addch(
-                            print_timer_y,
-                            2 + timestamp_len + len(timer.caster),
-                            curses.ACS_RARROW,
-                        )
-                        timer_scr.addstr(
-                            print_timer_y,
-                            4 + timestamp_len + len(timer.caster),
-                            timer.target,
-                            curses.color_pair(3),
-                        )
-                        timer_scr.addstr(
-                            print_timer_y,
-                            6 + timestamp_len + len(timer.caster) + len(timer.target),
-                            timer.spell.replace("_", " "),
+                            5,
+                            f"{timer_hours:02}",
                             curses.color_pair(color),
                         )
-                    else:
-                        message = timer.payload
                         timer_scr.addstr(
                             print_timer_y,
-                            2 + timestamp_len,
-                            message,
-                            curses.color_pair(3),
+                            5 + len(f"{timer_hours:02}"),
+                            ":",
+                            curses.color_pair(1),
                         )
-                    print_timer_y = print_timer_y + 1
+                        timer_scr.addstr(
+                            print_timer_y,
+                            6 + len(f"{timer_hours:02}"),
+                            f"{timer_minutes:02}",
+                            curses.color_pair(color),
+                        )
+                        timer_scr.addstr(
+                            print_timer_y,
+                            8 + len(f"{timer_hours:02}"),
+                            ":",
+                            curses.color_pair(1),
+                        )
+                        timer_scr.addstr(
+                            print_timer_y,
+                            9 + len(f"{timer_hours:02}"),
+                            f"{timer_seconds:02}",
+                            curses.color_pair(color),
+                        )
+                        timestamp_len = 11 + len(f"{timer_hours:02}")
+                        ### Timer details
+                        if timer.type == "spell":
+                            timer_scr.addstr(
+                                print_timer_y,
+                                2 + timestamp_len,
+                                timer.caster,
+                                curses.color_pair(3),
+                            )
+                            timer_scr.addch(
+                                print_timer_y,
+                                2 + timestamp_len + len(timer.caster),
+                                curses.ACS_RARROW,
+                            )
+                            timer_scr.addstr(
+                                print_timer_y,
+                                4 + timestamp_len + len(timer.caster),
+                                timer.target,
+                                curses.color_pair(3),
+                            )
+                            timer_scr.addstr(
+                                print_timer_y,
+                                6
+                                + timestamp_len
+                                + len(timer.caster)
+                                + len(timer.target),
+                                timer.spell.replace("_", " "),
+                                curses.color_pair(color),
+                            )
+                        else:
+                            message = timer.payload
+                            timer_scr.addstr(
+                                print_timer_y,
+                                2 + timestamp_len,
+                                message,
+                                curses.color_pair(3),
+                            )
+                        print_timer_y = print_timer_y + 1
             else:
                 draw_mascot_message(timer_scr, "No active timers")
         else:

@@ -1613,7 +1613,7 @@ def action_spell_timer(
                         identified_spell_caster,
                         identified_spell_target,
                         identified_spell,
-                        spell_duration,
+                        spell_duration - state.spell_timer_delay,
                         datetime.datetime.now(),
                         message,
                     )
