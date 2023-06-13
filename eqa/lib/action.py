@@ -946,6 +946,7 @@ def action_spell_timer(
     try:
         is_spell_line = False
         identified_spell_level = None
+        identified_spell = None
 
         if re.fullmatch(r"^spell\_line\_[a-zA-Z\s\_]+\_you\_on", line_type) is not None:
             target = state.char.lower()
@@ -1063,7 +1064,10 @@ def action_spell_timer(
                                             )
                                         )
                                         if identified is not None:
-                                            if identified_spell_level is not None:
+                                            if (
+                                                identified_spell_level is not None
+                                                and identified_spell is not None
+                                            ):
                                                 if (
                                                     spell_casters["spells"][
                                                         identified_spell
@@ -1511,7 +1515,7 @@ def action_spell_timer(
                                     identified_spell = spell
                                     identified_spell_target = target
 
-        if identified_spell_level is not None:
+        if identified_spell_level is not None and identified_spell is not None:
             make_timer = True
 
             # Guild Only Filter

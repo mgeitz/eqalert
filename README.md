@@ -230,6 +230,7 @@ Settings and options can be modified in `config/settings.json`
 - `spell timer other`: Set spell timers for spells that land on other players
 - `spell timer self`: Set spell timers for spells that land on yourself
 - `spell timer zone drift`: If enabled add time between zoning to spell timers targetting yourself
+- `spell timer consolidate`: When a spell timer expires consolidate timers for the same spell in the next 3 seconds to one alert
 
 
 ## Custom Alerting
