@@ -1804,7 +1804,7 @@ def draw_settings_line_editor(linescr, configs, state, s_line, s_setting):
         linescr.addstr(
             7,
             first_q + 10,
-            configs.alerts.config["line"][config_line_type]["reaction"].title(),
+            str(configs.alerts.config["line"][config_line_type]["reaction"]).title(),
             curses.color_pair(3),
         )
 
@@ -1813,7 +1813,7 @@ def draw_settings_line_editor(linescr, configs, state, s_line, s_setting):
         linescr.addstr(
             9,
             first_q + 10,
-            configs.alerts.config["line"][config_line_type]["sound"].title(),
+            str(configs.alerts.config["line"][config_line_type]["sound"]).title(),
             curses.color_pair(3),
         )
 
