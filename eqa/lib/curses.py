@@ -1145,9 +1145,9 @@ def draw_parse(stdscr, state, encounter_report, version):
                     else:
                         player_y += 1
             else:
-                draw_mascot_message(encounterscr, "no encounter parse yet")
+                draw_mascot_message(encounterscr, "No encounter parse yet")
         else:
-            draw_mascot_message(encounterscr, "encounter parsing disabled")
+            draw_mascot_message(encounterscr, "Encounter parsing disabled")
 
     except Exception as e:
         eqa_settings.log(

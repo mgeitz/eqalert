@@ -59,11 +59,11 @@ def process(exit_flag, log_q, action_q):
                         + datetime.datetime.now().strftime("%f")[:1]
                         + "0"
                     )
-                    ### Determine line type
-                    line_type = determine(payload)
                     ### Build and queue action
                     action_q.put(
-                        eqa_struct.message(timestamp, line_type, None, None, payload)
+                        eqa_struct.message(
+                            timestamp, determine(payload), None, None, payload
+                        )
                     )
                 else:
                     eqa_settings.log("process_log: Cannot process: " + line)
