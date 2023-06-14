@@ -102,7 +102,7 @@ def process(
                     else:
                         item_time = datetime.datetime.strptime(
                             saved_timers["timers"][item]["time"], "%Y-%m-%d %H:%M:%S.%f"
-                        ) - datetime.timedelta(seconds=state.spell_timer_delay)
+                        )
                     if not item_time <= now:
                         heapq.heappush(
                             timers,
