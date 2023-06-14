@@ -988,6 +988,7 @@ def action_spell_timer(
                             spell_casting_buffer_you,
                             spell_casters,
                             spell_items,
+                            spell_timers,
                             line_time,
                         )
                         if identified is not None:
@@ -1269,6 +1270,7 @@ def action_spell_timer(
                             spell_casting_buffer_you,
                             spell_casters,
                             spell_items,
+                            spell_timers,
                             line_time,
                         )
                         if identified is not None:
@@ -1570,7 +1572,7 @@ def action_spell_timer(
 
 
 def find_spell_cast_you(
-    state, spell_casting_buffer_you, spell_casters, spell_items, line_time
+    state, spell_casting_buffer_you, spell_casters, spell_items, spell_timers, line_time
 ):
     """Check if the player cast this spell"""
 
