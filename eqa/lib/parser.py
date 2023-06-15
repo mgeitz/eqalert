@@ -3794,6 +3794,7 @@ def check_spell_specific(line):
                 # return "spell_shield_of_brambles_you_on"
                 # return "spell_shield_of_spikes_you_on"
                 # return "spell_shield_of_thistles_you_on"
+                # return "spell_shield_of_thorns_you_on"
                 # return "spell_thorny_shield_you_on"
             elif re.fullmatch(r"^You can no longer levitate\.$", line) is not None:
                 return "spell_levitate_you_off"
@@ -6184,6 +6185,7 @@ def check_spell_specific(line):
                 # return "spell_shield_of_brambles_you_off"
                 # return "spell_shield_of_spikes_you_off"
                 # return "spell_shield_of_thistles_you_off"
+                # return "spell_shield_of_thorns_you_off"
                 # return "spell_thorny_shield_you_off"
             elif (
                 re.fullmatch(
@@ -8964,6 +8966,7 @@ def check_spell_specific(line):
             # return "spell_shield_of_brambles_other_on"
             # return "spell_shield_of_spikes_other_on"
             # return "spell_shield_of_thistles_other_on"
+            # return "spell_shield_of_thorns_other_on"
             # return "spell_thorny_shield_other_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ steps into the shadows\.$", line) is not None:
             return "spell_levant_other_on"

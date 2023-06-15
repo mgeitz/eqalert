@@ -4595,6 +4595,14 @@ def update_spell_casters(data_path, version):
       "npc": false,
       "self": false
     },
+    "shield_of_thorns": {
+      "classes": {
+        "druid": 49
+      },
+      "item": true,
+      "npc": false,
+      "self": false
+    },
     "shield_of_the_magi": {
       "classes": {
         "enchanter": 54,
@@ -9489,6 +9497,14 @@ def update_spell_items(data_path, version):
         }
       }
     },
+    "shield_of_thorns": {
+      "gloves_of_earthcrafting": {
+        "cast": 8,
+        "classes": {
+          "druid": 46
+        }
+      }
+    },
     "shield_of_words": {
       "runed_protectors_breastplate": {
         "cast": 15,
@@ -10888,6 +10904,7 @@ def update_spell_lines(data_path, version):
       "shield_of_brambles": {},
       "shield_of_spikes": {},
       "shield_of_thistles": {},
+      "shield_of_thorns": {},
       "thorny_shield": {}
     },
     "spell_line_wiz_ds_you_on": {
@@ -11390,6 +11407,7 @@ def update_spell_lines(data_path, version):
       "shield_of_brambles": {},
       "shield_of_spikes": {},
       "shield_of_thistles": {},
+      "shield_of_thorns": {},
       "thorny_shield": {}
     },
     "spell_line_malo_other_on": {
@@ -11896,6 +11914,7 @@ def update_spell_lines(data_path, version):
       "shield_of_brambles": {},
       "shield_of_spikes": {},
       "shield_of_thistles": {},
+      "shield_of_thorns": {},
       "thorny_shield": {}
     },
     "spell_line_wiz_ds_you_off": {
@@ -13096,6 +13115,7 @@ def update_spell_timers(data_path, eq_spells_file_path):
             "shield_of_eighth",
             "shield_of_the_magi",
             "shield_of_thistles",
+            "shield_of_thorns",
             "shield_of_words",
             "shielding",
             "shieldskin",
@@ -13502,6 +13522,10 @@ def update_spell_timers(data_path, eq_spells_file_path):
                     generate_spell_timer_file = True
                 else:
                     generate_spell_timer_file = False
+
+            # TODO: This isn't the best but works for missing spells from valid list for now
+            if "shield_of_thorns" not in spell_timers_hash_check["spells"].keys():
+                generate_spell_timer_file = True
 
             if generate_spell_timer_file:
                 print("    - generating spell-timers.json (this may take a minute)")
