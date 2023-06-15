@@ -19362,8 +19362,8 @@ def build_config(base_path, version):
     },
     "spell_line_feel_better_you_off": {
       "alert": {},
-      "reaction": "solo",
-      "sound": "that was nice"
+      "reaction": "false",
+      "sound": "false"
     },
     "spell_line_fire_ds_you_off": {
       "alert": {},
