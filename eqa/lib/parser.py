@@ -59,11 +59,11 @@ def process(exit_flag, log_q, action_q):
                         + datetime.datetime.now().strftime("%f")[:1]
                         + "0"
                     )
-                    ### Determine line type
-                    line_type = determine(payload)
                     ### Build and queue action
                     action_q.put(
-                        eqa_struct.message(timestamp, line_type, None, None, payload)
+                        eqa_struct.message(
+                            timestamp, determine(payload), None, None, payload
+                        )
                     )
                 else:
                     eqa_settings.log("process_log: Cannot process: " + line)
@@ -387,7 +387,7 @@ def check_melee(line):
             )
             is not None
         ):
-            return "combat_you_ds_fire_damage"
+            return "combat_you_no_target"
         elif (
             re.fullmatch(r"^You can\'t see your target from here\.$", line) is not None
         ):
@@ -3627,6 +3627,7 @@ def check_spell_specific(line):
                 return "spell_line_illusion_you_on"
                 # return "spell_illusion_air_elemental_you_on"
                 # return "spell_illusion_barbarian_you_on"
+                # return "spell_illusion_dark_elf_you_on"
                 # return "spell_illusion_dry_bone_you_on"
                 # return "spell_illusion_dwarf_you_on"
                 # return "spell_illusion_earth_elemental_you_on"
@@ -3794,6 +3795,7 @@ def check_spell_specific(line):
                 # return "spell_shield_of_brambles_you_on"
                 # return "spell_shield_of_spikes_you_on"
                 # return "spell_shield_of_thistles_you_on"
+                # return "spell_shield_of_thorns_you_on"
                 # return "spell_thorny_shield_you_on"
             elif re.fullmatch(r"^You can no longer levitate\.$", line) is not None:
                 return "spell_levitate_you_off"
@@ -4835,6 +4837,7 @@ def check_spell_specific(line):
                 # return "spell_boon_of_the_garou_you_off"
                 # return "spell_illusion_air_elemental_you_off"
                 # return "spell_illusion_barbarian_you_off"
+                # return "spell_illusion_dark_elf_you_off"
                 # return "spell_illusion_dry_bone_you_off"
                 # return "spell_illusion_dwarf_you_off"
                 # return "spell_illusion_earth_elemental_you_off"
@@ -6184,6 +6187,7 @@ def check_spell_specific(line):
                 # return "spell_shield_of_brambles_you_off"
                 # return "spell_shield_of_spikes_you_off"
                 # return "spell_shield_of_thistles_you_off"
+                # return "spell_shield_of_thorns_you_off"
                 # return "spell_thorny_shield_you_off"
             elif (
                 re.fullmatch(
@@ -8803,6 +8807,7 @@ def check_spell_specific(line):
             return "spell_line_illusion_other_on"
             # return "spell_illusion_air_elemental_other_on"
             # return "spell_illusion_barbarian_other_on"
+            # return "spell_illusion_dark_elf_other_on"
             # return "spell_illusion_dry_bone_other_on"
             # return "spell_illusion_dwarf_other_on"
             # return "spell_illusion_earth_elemental_other_on"
@@ -8964,6 +8969,7 @@ def check_spell_specific(line):
             # return "spell_shield_of_brambles_other_on"
             # return "spell_shield_of_spikes_other_on"
             # return "spell_shield_of_thistles_other_on"
+            # return "spell_shield_of_thorns_other_on"
             # return "spell_thorny_shield_other_on"
         elif re.fullmatch(r"^[a-zA-Z`\s]+ steps into the shadows\.$", line) is not None:
             return "spell_levant_other_on"

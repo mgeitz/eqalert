@@ -91,8 +91,10 @@ def process(
                     item_payload = saved_timers["timers"][item]["payload"]
                     if item_target == state.char.lower():
                         spell_seconds_used = (file_saved - item_landed).total_seconds()
-                        spell_seconds_left = int(item_duration) - int(
-                            spell_seconds_used
+                        spell_seconds_left = (
+                            int(item_duration)
+                            - int(spell_seconds_used)
+                            - state.spell_timer_delay
                         )
                         item_time = datetime.datetime.now() + datetime.timedelta(
                             seconds=spell_seconds_left
