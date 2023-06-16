@@ -2985,6 +2985,182 @@ def update_spell_casters(data_path, version):
       "npc": true,
       "self": false
     },
+    "illusion_air_elemental": {
+      "classes": {
+        "enchanter": 29
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_barbarian": {
+      "classes": {
+        "enchanter": 16
+      }
+      "item": true,
+      "npc": false,
+      "self": true
+    },
+    "illusion_dark_elf": {
+      "classes": {
+        "enchanter": 12
+      }
+      "item": true,
+      "npc": false,
+      "self": true
+    },
+    "illusion_dry_bone": {
+      "classes": {
+        "enchanter": 39
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_dwarf": {
+      "classes": {
+        "enchanter": 16
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_earth_elemental": {
+      "classes": {
+        "enchanter": 24
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_erudite": {
+      "classes": {
+        "enchanter": 12
+      }
+      "item": true,
+      "npc": false,
+      "self": true
+    },
+    "illusion_fire_elemental": {
+      "classes": {
+        "enchanter": 34
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_gnome": {
+      "classes": {
+        "enchanter": 8
+      }
+      "item": true,
+      "npc": false,
+      "self": true
+    },
+    "illusion_halfelf": {
+      "classes": {
+        "enchanter": 4
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_halfling": {
+      "classes": {
+        "enchanter": 12
+      }
+      "item": true,
+      "npc": false,
+      "self": true
+    },
+    "illusion_high_elf": {
+      "classes": {
+        "enchanter": 12
+      }
+      "item": true,
+      "npc": false,
+      "self": true
+    },
+    "illusion_human": {
+      "classes": {
+        "enchanter": 4
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_iksar": {
+      "classes": {
+        "enchanter": 20
+      }
+      "item": true,
+      "npc": false,
+      "self": true
+    },
+    "illusion_ogre": {
+      "classes": {
+        "enchanter": 20
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_skeleton": {
+      "classes": {
+        "enchanter": 20
+      }
+      "item": true,
+      "npc": false,
+      "self": true
+    },
+    "illusion_spirit_wolf": {
+      "classes": {
+        "enchanter": 39
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_tree": {
+      "classes": {
+        "enchanter": 16
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_troll": {
+      "classes": {
+        "enchanter": 20
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
+    "illusion_water_elemental": {
+      "classes": {
+        "enchanter": 29
+      }
+      "item": true,
+      "npc": false,
+      "self": true
+    },
+    "illusion_werewolf": {
+      "classes": {
+        "enchanter": 44
+      }
+      "item": true,
+      "npc": false,
+      "self": true
+    },
+    "illusion_wood_elf": {
+      "classes": {
+        "enchanter": 8
+      }
+      "item": false,
+      "npc": false,
+      "self": true
+    },
     "immolate": {
       "classes": {
         "druid": 29,
@@ -3522,6 +3698,14 @@ def update_spell_casters(data_path, version):
       "item": false,
       "npc": true,
       "self": false
+    },
+    "minor_illusion": {
+      "classes": {
+        "enchanter": 1
+      },
+      "item": false,
+      "npc": false,
+      "self": true
     },
     "minor_shielding": {
       "classes": {
@@ -8316,6 +8500,133 @@ def update_spell_items(data_path, version):
         }
       }
     },
+    "illusion_barbarian": {
+      "flayed_barbarian_hide_mask": {
+        "cast": 6,
+        "classes": {
+          "bard": 15,
+          "rogue": 15
+        }
+      }
+    },
+    "illusion_dark_elf": {
+      "mask_of_deception": {
+        "cast": 6,
+        "classes": {
+          "bard": 15,
+          "rogue": 15
+        }
+      },
+      "guise_of_the_deceiver": {
+        "cast": 6,
+        "classes": {
+          "bard": 15,
+          "cleric": 15,
+          "druid": 15,
+          "enchanter": 15,
+          "magician": 15,
+          "monk": 15,
+          "necromancer": 15,
+          "paladin": 15,
+          "ranger": 15,
+          "rogue": 15,
+          "shadow knight": 15,
+          "shaman": 15,
+          "warrior": 15,
+          "wizard": 15
+        }
+      }
+    },
+    "illusion_erudite": {
+      "mask_of_obtenebration": {
+        "cast": 6,
+        "classes": {
+          "bard": 15,
+          "rogue": 15
+        }
+      }
+    },
+    "illusion_gnome": {
+      "mask_of_tinkering": {
+        "cast": 4,
+        "classes": {
+          "bard": 46,
+          "rogue": 46
+        }
+      }
+    },
+    "illusion_halfling": {
+      "desiccated_halfling_mask": {
+        "cast": 8,
+        "classes": {
+          "bard": 49,
+          "enchanter": 49,
+          "rogue": 49
+        }
+      }
+    },
+    "illusion_high_elf": {
+      "inlaid_jade_hoop": {
+        "cast": 1.5,
+        "classes": {
+          "enchanter": 45
+        }
+      },
+      "guise_of_the_coercer": {
+        "cast": 6,
+        "classes": {
+          "bard": 15,
+          "rogue": 15
+        }
+      }
+    },
+    "illusion_iksar": {
+      "iksar_hide_mask": {
+        "cast": 6,
+        "classes": {
+          "bard": 38,
+          "rogue": 38
+        }
+      }
+    },
+    "illusion_skeleton": {
+      "amulet_of_necropotence": {
+        "cast": 0,
+        "classes": {
+          "bard": 0,
+          "cleric": 0,
+          "druid": 0,
+          "enchanter": 0,
+          "magician": 0,
+          "monk": 0,
+          "necromancer": 0,
+          "paladin": 0,
+          "ranger": 0,
+          "rogue": 0,
+          "shadow knight": 0,
+          "shaman": 0,
+          "warrior": 0,
+          "wizard": 0
+        }
+      }
+    },
+    "illusion_water_elemental": {
+      "neriad_shawl": {
+        "cast": 4,
+        "classes": {
+          "bard": 25,
+          "enchanter": 25
+        }
+      }
+    },
+    "illusion_werewolf": {
+      "lute_of_the_howler": {
+        "cast": 10,
+        "classes": {
+          "bard": 40
+        }
+      }
+    },
     "incapacitate": {
       "cracked_claw_of_zlandicar": {
         "cast": 0,
@@ -10966,6 +11277,31 @@ def update_spell_lines(data_path, version):
       "spirit_sight": {},
       "ultravision": {}
     },
+    "spell_line_illusion_you_on": {
+      "minor_illusion": {},
+      "illusion_air_elemental": {},
+      "illusion_barbarian": {},
+      "illusion_dark_elf": {},
+      "illusion_dry_bone": {},
+      "illusion_dwarf": {},
+      "illusion_earth_elemental": {},
+      "illusion_erudite": {},
+      "illusion_fire_elemental": {},
+      "illusion_gnome": {},
+      "illusion_halfelf": {},
+      "illusion_halfling": {},
+      "illusion_high_elf": {},
+      "illusion_human": {},
+      "illusion_iksar": {},
+      "illusion_ogre": {},
+      "illusion_skeleton": {},
+      "illusion_spirit_wolf": {},
+      "illusion_tree": {},
+      "illusion_troll": {},
+      "illusion_water_elemental": {},
+      "illusion_werewolf": {},
+      "illusion_wood_elf": {}
+    },
     "spell_line_blinding_poison_you_on": {
       "blinding_poison_i": {},
       "blinding_poison_iii": {}
@@ -11396,6 +11732,30 @@ def update_spell_lines(data_path, version):
       "ignite_blood": {},
       "pyrocruor": {}
     },
+    "spell_line_illusion_other_on": {
+      "illusion_air_elemental": {},
+      "illusion_barbarian": {},
+      "illusion_dark_elf": {},
+      "illusion_dry_bone": {},
+      "illusion_dwarf": {},
+      "illusion_earth_elemental": {},
+      "illusion_erudite": {},
+      "illusion_fire_elemental": {},
+      "illusion_gnome": {},
+      "illusion_halfelf": {},
+      "illusion_halfling": {},
+      "illusion_high_elf": {},
+      "illusion_human": {},
+      "illusion_iksar": {},
+      "illusion_ogre": {},
+      "illusion_skeleton": {},
+      "illusion_spirit_wolf": {},
+      "illusion_tree": {},
+      "illusion_troll": {},
+      "illusion_water_elemental": {},
+      "illusion_werewolf": {},
+      "illusion_wood_elf": {}
+    },
     "spell_line_potion_ds_other_on": {
       "kilvas_skin_of_flame": {},
       "scorching_skin": {}
@@ -11567,6 +11927,32 @@ def update_spell_lines(data_path, version):
       "resurrection_effects": {},
       "surge_of_enfeeblement": {},
       "wave_of_enfeeblement": {}
+    },
+    "spell_line_illusion_you_off": {
+      "minor_illusion": {},
+      "boon_of_the_garou": {},
+      "illusion_air_elemental": {},
+      "illusion_barbarian": {},
+      "illusion_dark_elf": {},
+      "illusion_dry_bone": {},
+      "illusion_dwarf": {},
+      "illusion_earth_elemental": {},
+      "illusion_erudite": {},
+      "illusion_fire_elemental": {},
+      "illusion_gnome": {},
+      "illusion_halfelf": {},
+      "illusion_halfling": {},
+      "illusion_high_elf": {},
+      "illusion_human": {},
+      "illusion_iksar": {},
+      "illusion_ogre": {},
+      "illusion_skeleton": {},
+      "illusion_spirit_wolf": {},
+      "illusion_tree": {},
+      "illusion_troll": {},
+      "illusion_water_elemental": {},
+      "illusion_werewolf": {},
+      "illusion_wood_elf": {}
     },
     "spell_line_npc_disease_you_off": {
       "disease": {},
@@ -12661,6 +13047,7 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
             "ikatiars_revenge",
             "illusion_air_elemental",
             "illusion_barbarian",
+            "illusion_dark_elf",
             "illusion_dry_bone",
             "illusion_dwarf",
             "illusion_earth_elemental",
