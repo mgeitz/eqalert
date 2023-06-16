@@ -578,11 +578,13 @@ def action_spell_casting_you(
 
     try:
         spell = (
-            re.findall(r"(?<=casting\ )[a-zA-Z\s]+", check_line)[0]
+            re.findall(r"(?<=casting\ )[a-zA-Z\s:]+", check_line)[0]
             .lower()
+            .replace(":", "")
             .replace(" ", "_")
         )
         spell_casting_buffer_you = {"spell": spell, "time": line_time}
+        eqa_settings.log("you cast: " + spell)
 
         return spell_casting_buffer_you
 

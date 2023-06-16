@@ -2988,7 +2988,7 @@ def update_spell_casters(data_path, version):
     "illusion_air_elemental": {
       "classes": {
         "enchanter": 29
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -2996,7 +2996,7 @@ def update_spell_casters(data_path, version):
     "illusion_barbarian": {
       "classes": {
         "enchanter": 16
-      }
+      },
       "item": true,
       "npc": false,
       "self": true
@@ -3004,7 +3004,7 @@ def update_spell_casters(data_path, version):
     "illusion_dark_elf": {
       "classes": {
         "enchanter": 12
-      }
+      },
       "item": true,
       "npc": false,
       "self": true
@@ -3012,7 +3012,7 @@ def update_spell_casters(data_path, version):
     "illusion_dry_bone": {
       "classes": {
         "enchanter": 39
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -3020,7 +3020,7 @@ def update_spell_casters(data_path, version):
     "illusion_dwarf": {
       "classes": {
         "enchanter": 16
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -3028,7 +3028,7 @@ def update_spell_casters(data_path, version):
     "illusion_earth_elemental": {
       "classes": {
         "enchanter": 24
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -3036,7 +3036,7 @@ def update_spell_casters(data_path, version):
     "illusion_erudite": {
       "classes": {
         "enchanter": 12
-      }
+      },
       "item": true,
       "npc": false,
       "self": true
@@ -3044,7 +3044,7 @@ def update_spell_casters(data_path, version):
     "illusion_fire_elemental": {
       "classes": {
         "enchanter": 34
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -3052,7 +3052,7 @@ def update_spell_casters(data_path, version):
     "illusion_gnome": {
       "classes": {
         "enchanter": 8
-      }
+      },
       "item": true,
       "npc": false,
       "self": true
@@ -3060,7 +3060,7 @@ def update_spell_casters(data_path, version):
     "illusion_halfelf": {
       "classes": {
         "enchanter": 4
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -3068,7 +3068,7 @@ def update_spell_casters(data_path, version):
     "illusion_halfling": {
       "classes": {
         "enchanter": 12
-      }
+      },
       "item": true,
       "npc": false,
       "self": true
@@ -3076,7 +3076,7 @@ def update_spell_casters(data_path, version):
     "illusion_high_elf": {
       "classes": {
         "enchanter": 12
-      }
+      },
       "item": true,
       "npc": false,
       "self": true
@@ -3084,7 +3084,7 @@ def update_spell_casters(data_path, version):
     "illusion_human": {
       "classes": {
         "enchanter": 4
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -3092,7 +3092,7 @@ def update_spell_casters(data_path, version):
     "illusion_iksar": {
       "classes": {
         "enchanter": 20
-      }
+      },
       "item": true,
       "npc": false,
       "self": true
@@ -3100,7 +3100,7 @@ def update_spell_casters(data_path, version):
     "illusion_ogre": {
       "classes": {
         "enchanter": 20
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -3108,7 +3108,7 @@ def update_spell_casters(data_path, version):
     "illusion_skeleton": {
       "classes": {
         "enchanter": 20
-      }
+      },
       "item": true,
       "npc": false,
       "self": true
@@ -3116,7 +3116,7 @@ def update_spell_casters(data_path, version):
     "illusion_spirit_wolf": {
       "classes": {
         "enchanter": 39
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -3124,7 +3124,7 @@ def update_spell_casters(data_path, version):
     "illusion_tree": {
       "classes": {
         "enchanter": 16
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -3132,7 +3132,7 @@ def update_spell_casters(data_path, version):
     "illusion_troll": {
       "classes": {
         "enchanter": 20
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
@@ -3140,7 +3140,7 @@ def update_spell_casters(data_path, version):
     "illusion_water_elemental": {
       "classes": {
         "enchanter": 29
-      }
+      },
       "item": true,
       "npc": false,
       "self": true
@@ -3148,7 +3148,7 @@ def update_spell_casters(data_path, version):
     "illusion_werewolf": {
       "classes": {
         "enchanter": 44
-      }
+      },
       "item": true,
       "npc": false,
       "self": true
@@ -3156,7 +3156,7 @@ def update_spell_casters(data_path, version):
     "illusion_wood_elf": {
       "classes": {
         "enchanter": 8
-      }
+      },
       "item": false,
       "npc": false,
       "self": true
