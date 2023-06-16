@@ -131,7 +131,7 @@ def startup(base_path, version):
         # Generate Spell Timers
         eq_spells_file_path = eq_files_path + "spells_us.txt"
         if os.path.isfile(eq_spells_file_path):
-            eqa_config.update_spell_timers(data_path, eq_spells_file_path)
+            eqa_config.update_spell_timers(data_path, eq_spells_file_path, version)
         else:
             print(
                 "Please review paths in config/settings.json. Unable to find spells_us.txt in "

@@ -11992,7 +11992,7 @@ def get_spell_lines(data_path):
         )
 
 
-def update_spell_timers(data_path, eq_spells_file_path):
+def update_spell_timers(data_path, eq_spells_file_path, version):
     """Parse spells_us.txt to data/spell-timers.json"""
 
     try:
@@ -13509,23 +13509,10 @@ def update_spell_timers(data_path, eq_spells_file_path):
                 generate_spell_timer_file = True
             elif not spell_timers_hash_check["hash"] == spells_hash:
                 generate_spell_timer_file = True
-            else:
-                # Legacy check
-                file_hash = hashlib.md5()
-                with open(spell_timer_file, "r") as check_file:
-                    buf = check_file.read(BLOCKSIZE)
-                    while len(buf) > 0:
-                        file_hash.update(buf.encode("utf-8"))
-                        buf = check_file.read(BLOCKSIZE)
-                spells_timer_hash = file_hash.hexdigest()
-                if spells_timer_hash == "5f6460b226f5f765de13f3f758fff4d9":
-                    generate_spell_timer_file = True
-                else:
-                    generate_spell_timer_file = False
-
-            # TODO: This isn't the best but works for missing spells from valid list for now
-            if "shield_of_thorns" not in spell_timers_hash_check["spells"].keys():
+            elif "version" not in spell_timers_hash_check.keys():
                 generate_spell_timer_file = True
+            else:
+                generate_spell_timer_file = False
 
             if generate_spell_timer_file:
                 print("    - generating spell-timers.json (this may take a minute)")
@@ -13562,6 +13549,8 @@ def update_spell_timers(data_path, eq_spells_file_path):
                         )
 
                     spell_timer_json.update({"hash": spells_hash})
+
+                    spell_timer_json.update({"version": version})
 
                     json_data = open(spell_timer_file, "w")
                     json.dump(spell_timer_json, json_data, sort_keys=True, indent=2)
