@@ -1035,13 +1035,25 @@ def action_spell_timer(
                                         identified_spell_target = target
                                     # Favor spell match with highest level cast requirement
                                     elif identified is not None:
-                                        previous_match_min_level = spell_casters[
-                                            "spells"
-                                        ][identified_spell]["classes"][
+                                        if (
                                             player_list[identified_spell_caster][
                                                 "class"
                                             ]
-                                        ]
+                                            in spell_casters["spells"][
+                                                identified_spell
+                                            ]["classes"].keys()
+                                        ):
+                                            previous_match_min_level = spell_casters[
+                                                "spells"
+                                            ][identified_spell]["classes"][
+                                                player_list[identified_spell_caster][
+                                                    "class"
+                                                ]
+                                            ]
+                                        else:
+                                            previous_match_min_level = (
+                                                identified_spell_level
+                                            )
                                         new_match_min_level = spell_casters["spells"][
                                             identified[2]
                                         ]["classes"][
