@@ -584,7 +584,6 @@ def action_spell_casting_you(
             .replace(" ", "_")
         )
         spell_casting_buffer_you = {"spell": spell, "time": line_time}
-        eqa_settings.log("you cast: " + spell)
 
         return spell_casting_buffer_you
 
