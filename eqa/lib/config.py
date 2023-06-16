@@ -14123,7 +14123,7 @@ def build_config(base_path, version):
             "spirit_of_wolf": false
           },
           "guild_only": false,
-          "yours_only": true
+          "yours_only": false
         },
         "consolidate": true,
         "delay": 24,
