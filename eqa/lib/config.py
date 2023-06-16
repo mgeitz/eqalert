@@ -14804,6 +14804,11 @@ def build_config(base_path, version):
       "reaction": false,
       "sound": false
     },
+    "combat_you_no_target": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "select a target"
+    },
     "combat_you_receive_melee": {
       "alert": {},
       "reaction": "afk",

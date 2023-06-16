@@ -387,7 +387,7 @@ def check_melee(line):
             )
             is not None
         ):
-            return "combat_you_ds_fire_damage"
+            return "combat_you_no_target"
         elif (
             re.fullmatch(r"^You can\'t see your target from here\.$", line) is not None
         ):
