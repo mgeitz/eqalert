@@ -2112,15 +2112,12 @@ def action_consider_evaluation(sound_q, check_line):
     try:
         faction, level = check_line.split(" -- ")
         if "threateningly" in faction or "scowls" in faction:
-            if (
-                "gamble" in level
-                or "floor" in level
-                or "tombstone" in level
-                or "formidable" in level
-            ):
-                danger = True
-            else:
+            if "safe opponent" in level:
                 danger = False
+            elif "could probably win this fight" in level:
+                danger = False
+            else:
+                danger = True
         else:
             danger = False
 
@@ -2817,7 +2814,9 @@ def action_you_say_commands(
                         message = args[1] + " is "
                         if player_list[args[1]]["level"] > 0:
                             message = (
-                                message + " a level " + player_list[args[1]]["level"]
+                                message
+                                + " a level "
+                                + str(player_list[args[1]]["level"])
                             )
                         if player_list[args[1]]["class"] is not None:
                             message = message + " " + player_list[args[1]]["class"]

@@ -1977,7 +1977,7 @@ def draw_timers(stdscr, timers):
                         break
                     ### Get timer
                     timer = heapq.heappop(timers)
-                    if timer.type != "metronome":
+                    if timer.type == "timer" or timer.type == "spell":
                         ### Duration remaining
                         time_remaining = timer.time - now
                         time_remaining_days = time_remaining.days
