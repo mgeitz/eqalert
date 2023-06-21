@@ -327,6 +327,7 @@ def main():
                 encounter_q,
                 system_q,
                 display_q,
+                timer_q,
                 exit_flag,
                 cfg_reload,
                 state,
@@ -374,6 +375,11 @@ def main():
         )
         process_timer.daemon = True
         process_timer.start()
+
+        # Sanity check settings dependent on other settings
+        if state.auto_mob_timer and not state.encounter_parse:
+            state.set_encounter_parse(True)
+            eqa_config.set_last_state(state, configs)
 
         # Manage State and Config
         ## Consume system_q
@@ -905,7 +911,6 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                         "Raid mode enabled",
                     )
                 )
-                sound_q.put(eqa_struct.sound("speak", "Raid mode enabled"))
             # Toggle raid state to false
             else:
                 state.set_raid(False)
@@ -918,7 +923,6 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                         "Raid mode disabled",
                     )
                 )
-                sound_q.put(eqa_struct.sound("speak", "Raid mode disabled"))
         # Set raid state to true
         elif not state.raid and new_message.rx == True:
             state.set_raid(True)
@@ -956,11 +960,6 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                         "Raid context will be automatically set by zone",
                     )
                 )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Raid context will be automatically set by zone"
-                    )
-                )
             # Auto-set raid state to false
             elif not new_message.payload and state.auto_raid:
                 state.set_auto_raid(False)
@@ -971,11 +970,6 @@ def system_raid(configs, state, display_q, sound_q, new_message):
                         "event",
                         "events",
                         "Raid context will not be automatically updated",
-                    )
-                )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Raid context will not be automatically updated"
                     )
                 )
         display_q.put(
@@ -1040,6 +1034,17 @@ def system_timer(configs, state, display_q, sound_q, new_message):
         if new_message.rx == "mob":
             # Set auto-mob timer to true
             if not state.auto_mob_timer and new_message.payload:
+                if not state.encounter_parse:
+                    state.set_encounter_parse(True)
+                    eqa_config.set_last_state(state, configs)
+                    display_q.put(
+                        eqa_struct.display(
+                            eqa_settings.eqa_time(),
+                            "event",
+                            "events",
+                            "Encounter Parse Enabled",
+                        )
+                    )
                 state.set_auto_mob_timer(True)
                 eqa_config.set_last_state(state, configs)
                 display_q.put(
@@ -1049,9 +1054,6 @@ def system_timer(configs, state, display_q, sound_q, new_message):
                         "events",
                         "Automatic mob respawn timers enabled",
                     )
-                )
-                sound_q.put(
-                    eqa_struct.sound("speak", "Automatic mob respawn timers enabled")
                 )
             # Set auto-mob timer to false
             elif state.auto_mob_timer and not new_message.payload:
@@ -1064,9 +1066,6 @@ def system_timer(configs, state, display_q, sound_q, new_message):
                         "events",
                         "Automatic mob respawn timers disabled",
                     )
-                )
-                sound_q.put(
-                    eqa_struct.sound("speak", "Automatic mob respawn timers disabled")
                 )
         # If timer setting is spell related
         elif new_message.rx == "spell":
@@ -1100,11 +1099,6 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                         "Spell timers disabled for spells targetting you",
                     )
                 )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Spell timers disabled for spells targetting you"
-                    )
-                )
             else:
                 state.set_spell_timer_self(True)
                 eqa_config.set_last_state(state, configs)
@@ -1114,11 +1108,6 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                         "event",
                         "events",
                         "Spell timers enabled for spells targetting you",
-                    )
-                )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Spell timers enabled for spells targetting you"
                     )
                 )
         elif new_message.rx == "other":
@@ -1133,11 +1122,6 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                         "Spell timers disabled for spells targetting others",
                     )
                 )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Spell timers disabled for spells targetting others"
-                    )
-                )
             else:
                 state.set_spell_timer_other(True)
                 eqa_config.set_last_state(state, configs)
@@ -1147,11 +1131,6 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                         "event",
                         "events",
                         "Spell timers enabled for spells targetting others",
-                    )
-                )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Spell timers enabled for spells targetting others"
                     )
                 )
         elif new_message.rx == "guild":
@@ -1166,11 +1145,6 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                         "Spell timers will no longer filter for guild members",
                     )
                 )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Spell timers will no longer filter for guild members"
-                    )
-                )
             else:
                 state.set_spell_timer_guild_only(True)
                 eqa_config.set_last_state(state, configs)
@@ -1180,11 +1154,6 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                         "event",
                         "events",
                         "Spell timers will filter for guild members",
-                    )
-                )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Spell timers will filter for guild members"
                     )
                 )
         elif new_message.rx == "yours":
@@ -1199,11 +1168,6 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                         "Spell timers will no longer filter only your spells",
                     )
                 )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Spell timers will no longer filter only your spells"
-                    )
-                )
             else:
                 state.set_spell_timer_yours_only(True)
                 eqa_config.set_last_state(state, configs)
@@ -1213,11 +1177,6 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                         "event",
                         "events",
                         "Spell timers will filter for only your spells",
-                    )
-                )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Spell timers will filter for only your spells"
                     )
                 )
         elif new_message.rx == "guess":
@@ -1232,12 +1191,6 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                         "Spell timers will no longer guess some uncertain spell timers",
                     )
                 )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak",
-                        "Spell timers will no longer guess some uncertain spell timers",
-                    )
-                )
             else:
                 state.set_spell_timer_guess(True)
                 eqa_config.set_last_state(state, configs)
@@ -1247,11 +1200,6 @@ def system_spell_timer(configs, state, display_q, sound_q, new_message):
                         "event",
                         "events",
                         "Spell timers will guess some uncertain spell timers",
-                    )
-                )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Spell timers will guess some uncertain spell timers"
                     )
                 )
         display_q.put(
@@ -1283,7 +1231,6 @@ def system_consider(configs, state, display_q, sound_q, new_message):
                     "Consider evaluation enabled",
                 )
             )
-            sound_q.put(eqa_struct.sound("speak", "Consider evaluation enabled"))
         # Toggle consider eval state to false
         elif state.consider_eval and not new_message.payload:
             state.set_consider_eval(False)
@@ -1296,7 +1243,6 @@ def system_consider(configs, state, display_q, sound_q, new_message):
                     "Consider evaluation disabled",
                 )
             )
-            sound_q.put(eqa_struct.sound("speak", "Consider evaluation disabled"))
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
@@ -1326,9 +1272,6 @@ def system_detect_char(configs, state, display_q, sound_q, new_message):
                     "Automatic character detection enabled",
                 )
             )
-            sound_q.put(
-                eqa_struct.sound("speak", "Automatic character detection enabled")
-            )
         # Toggle detect char state to false
         elif state.detect_char and not new_message.payload:
             state.set_detect_char(False)
@@ -1340,9 +1283,6 @@ def system_detect_char(configs, state, display_q, sound_q, new_message):
                     "events",
                     "Automatic character detection disabled",
                 )
-            )
-            sound_q.put(
-                eqa_struct.sound("speak", "Automatic character detection disabled")
             )
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
@@ -1373,9 +1313,6 @@ def system_debug(configs, state, display_q, sound_q, new_message):
                     "Debug mode enabled",
                 )
             )
-            sound_q.put(
-                eqa_struct.sound("speak", "Displaying and logging all parser output")
-            )
         # Toggle debug state to false
         elif state.debug and new_message.rx == "toggle":
             state.set_debug(False)
@@ -1388,7 +1325,6 @@ def system_debug(configs, state, display_q, sound_q, new_message):
                     "Debug mode disabled",
                 )
             )
-            sound_q.put(eqa_struct.sound("speak", "Debug mode disabled"))
         display_q.put(
             eqa_struct.display(eqa_settings.eqa_time(), "draw", "redraw", None)
         )
@@ -1424,7 +1360,6 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
                         eqa_settings.eqa_time(), None, "clear", None, None
                     )
                 )
-                sound_q.put(eqa_struct.sound("speak", "Encounter Parse Enabled"))
             # Toggle encounter parse to false
             else:
                 state.set_encounter_parse(False)
@@ -1437,7 +1372,6 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
                         "Encounter Parse Disabled",
                     )
                 )
-                sound_q.put(eqa_struct.sound("speak", "Encounter Parse Disabled"))
         # Set encounter parse save to false
         elif new_message.rx == "save":
             if state.save_parse and not new_message.payload:
@@ -1451,11 +1385,6 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
                         "Encounter parse will not save to a file",
                     )
                 )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Encounter parser will not save to a file"
-                    )
-                )
             # Set encounter parse save to true
             elif not state.save_parse and new_message.payload:
                 state.set_encounter_parse_save(True)
@@ -1466,11 +1395,6 @@ def system_encounter(configs, state, display_q, sound_q, encounter_q, new_messag
                         "event",
                         "events",
                         "Encounter parse will automatically save to a file",
-                    )
-                )
-                sound_q.put(
-                    eqa_struct.sound(
-                        "speak", "Encounter parser will automatically save to a file"
                     )
                 )
         # Clear encounter parse stack

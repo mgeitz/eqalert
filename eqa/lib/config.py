@@ -14882,6 +14882,11 @@ def build_config(base_path, version):
       "raid_mode": true,
       "timer": 28800
     },
+    "Solusek's Eye": {
+      "indoors": true,
+      "raid_mode": false,
+      "timer": 1080
+    },
     "South Kaladim": {
       "indoors": true,
       "raid_mode": false,

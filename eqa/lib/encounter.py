@@ -26,6 +26,7 @@ import time
 import os
 import json
 from datetime import datetime
+from datetime import timedelta
 from collections import deque
 
 import eqa.lib.settings as eqa_settings
@@ -38,6 +39,7 @@ def process(
     encounter_q,
     system_q,
     display_q,
+    timer_q,
     exit_flag,
     cfg_reload,
     state,
@@ -64,6 +66,7 @@ def process(
                 line_type = new_message.type
                 line_time = new_message.timestamp
                 interaction = new_message.tx
+                interaction_details = new_message.rx
                 line = new_message.payload
 
                 ## Check for encounter_stack clear
@@ -105,10 +108,12 @@ def process(
                                     state,
                                     configs,
                                     display_q,
+                                    timer_q,
                                     encounter_zone,
                                     version,
+                                    interaction_details,
                                 )
-                            else:
+                            elif interaction_details == True:
                                 encounter_stack.append(
                                     (
                                         line_time,
@@ -127,8 +132,10 @@ def process(
                                 state,
                                 configs,
                                 display_q,
+                                timer_q,
                                 encounter_zone,
                                 version,
+                                interaction_details,
                             )
 
                     if line_type == "you_new_zone":
@@ -143,8 +150,10 @@ def process(
                             state,
                             configs,
                             display_q,
+                            timer_q,
                             encounter_zone,
                             version,
+                            interaction_details,
                         )
 
                     elif interaction == "start":
@@ -1270,8 +1279,10 @@ def encounter_analysis(
     state,
     configs,
     display_q,
+    timer_q,
     encounter_zone,
     version,
+    target_in_player_list,
 ):
     """Analyze encounter stack before reporting"""
 
@@ -1322,7 +1333,11 @@ def encounter_analysis(
             end_time = line_time
 
         # If target is not known, let's make a guess
-        if encounter_stack_events > 0 and not target_known:
+        if (
+            encounter_stack_events > 0
+            and not target_known
+            and not target_in_player_list
+        ):
             target_count = {}
             for event in encounter_stack:
                 time, source, target, mode, result = event
@@ -1421,6 +1436,33 @@ def encounter_analysis(
                 encounter_zone,
                 version,
             )
+
+            # Generate respawn alert
+            if state.auto_mob_timer:
+                default_zone_respawn = configs.zones.config["zones"][state.zone][
+                    "timer"
+                ]
+                timer_seconds = default_zone_respawn - state.auto_mob_timer_delay
+                if state.auto_mob_timer_delay <= 0:
+                    pop_message = "Pop " + encounter_target
+                else:
+                    pop_message = (
+                        encounter_target
+                        + " pop in "
+                        + str(state.auto_mob_timer_delay)
+                        + " seconds"
+                    )
+
+                if timer_seconds > 0:
+                    timer_q.put(
+                        eqa_struct.timer(
+                            datetime.now() + timedelta(seconds=timer_seconds),
+                            "timer",
+                            timer_seconds,
+                            pop_message,
+                        )
+                    )
+
         elif state.debug:
             eqa_settings.log("Encounter Report: Unable to determine encounter target")
 
