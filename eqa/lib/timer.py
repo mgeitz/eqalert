@@ -90,18 +90,17 @@ def process(
                     )
                     item_payload = saved_timers["timers"][item]["payload"]
                     if item_target == state.char.lower():
-                        spell_seconds_used = (file_saved - item_landed).total_seconds()
-                        spell_seconds_left = (
-                            int(item_duration)
-                            - int(spell_seconds_used)
-                            - state.spell_timer_delay
-                        )
                         item_time = datetime.datetime.now() + datetime.timedelta(
-                            seconds=spell_seconds_left
+                            seconds=int(item_duration)
                         )
+                        item_landed = datetime.datetime.now()
                     else:
                         item_time = datetime.datetime.strptime(
                             saved_timers["timers"][item]["time"], "%Y-%m-%d %H:%M:%S.%f"
+                        )
+                        item_landed = datetime.datetime.strptime(
+                            saved_timers["timers"][item]["landed"],
+                            "%Y-%m-%d %H:%M:%S.%f",
                         )
                     if not item_time <= now:
                         heapq.heappush(
@@ -277,6 +276,13 @@ def process(
                         }
                     )
                 elif timer.type == "spell":
+                    if timer.target == state.char.lower():
+                        duration = int(
+                            timer.duration
+                            - (datetime.datetime.now() - timer.landed).total_seconds()
+                        )
+                    else:
+                        duration = timer.duration
                     saved_timers_json["timers"].update(
                         {
                             timer_name: {
@@ -285,7 +291,7 @@ def process(
                                 "caster": str(timer.caster),
                                 "target": str(timer.target),
                                 "spell": str(timer.spell),
-                                "duration": str(timer.duration),
+                                "duration": duration,
                                 "landed": str(timer.landed),
                                 "payload": str(timer.payload),
                             }

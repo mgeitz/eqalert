@@ -251,12 +251,24 @@ def process(
                             )
                         )
                     elif "mob_slain_" in line_type:
+                        line_clean = re.sub(r"[^\w\s\,\-\'\`]", "", check_line)
+
+                        if line_type == "mob_slain_other":
+                            target, source = line_clean.split(" has been slain by ")
+                        else:
+                            source, target = line_clean.split(" have slain ")
+
+                        if target.lower() in player_list.keys():
+                            target_known = True
+                        else:
+                            target_known = False
+
                         encounter_q.put(
                             eqa_struct.message(
                                 line_time,
                                 line_type,
                                 "stop",
-                                None,
+                                target_known,
                                 check_line,
                             )
                         )
@@ -270,17 +282,6 @@ def process(
                                 check_line,
                             )
                         )
-
-                ## Mob Timers
-                if state.auto_mob_timer:
-                    if "experience_" in line_type:
-                        if state.zone is not None:
-                            action_mob_timer(
-                                timer_q,
-                                configs.zones.config["zones"][state.zone]["timer"],
-                                state.auto_mob_timer_delay,
-                                state.zone,
-                            )
 
                 ## Spell Timers
                 if state.spell_timer_self or state.spell_timer_other:
@@ -1664,28 +1665,6 @@ def find_spell_cast(
         )
 
 
-def action_mob_timer(timer_q, timer_seconds, auto_mob_timer_delay, zone):
-    """Set timer for mob spawn using default zone timer value"""
-
-    timer_seconds = timer_seconds - auto_mob_timer_delay
-    if timer_seconds < 0:
-        timer_seconds = 0
-    if auto_mob_timer_delay <= 0:
-        pop_message = "Pop " + str(zone)
-    else:
-        pop_message = (
-            "Pop " + str(zone) + " in " + str(auto_mob_timer_delay) + " seconds."
-        )
-    timer_q.put(
-        eqa_struct.timer(
-            (datetime.datetime.now() + datetime.timedelta(seconds=timer_seconds)),
-            "timer",
-            str(timer_seconds),
-            pop_message,
-        )
-    )
-
-
 def send_alerts(line_type, check_line, configs, sound_q, display_q, mute_list):
     """Send messages to sound and display queues"""
 
@@ -2112,15 +2091,12 @@ def action_consider_evaluation(sound_q, check_line):
     try:
         faction, level = check_line.split(" -- ")
         if "threateningly" in faction or "scowls" in faction:
-            if (
-                "gamble" in level
-                or "floor" in level
-                or "tombstone" in level
-                or "formidable" in level
-            ):
-                danger = True
-            else:
+            if "safe opponent" in level:
                 danger = False
+            elif "could probably win this fight" in level:
+                danger = False
+            else:
+                danger = True
         else:
             danger = False
 
@@ -2817,7 +2793,9 @@ def action_you_say_commands(
                         message = args[1] + " is "
                         if player_list[args[1]]["level"] > 0:
                             message = (
-                                message + " a level " + player_list[args[1]]["level"]
+                                message
+                                + " a level "
+                                + str(player_list[args[1]]["level"])
                             )
                         if player_list[args[1]]["class"] is not None:
                             message = message + " " + player_list[args[1]]["class"]
