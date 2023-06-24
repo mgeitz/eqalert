@@ -696,6 +696,7 @@ def draw_events_default_lower(stdscr):
             "Using 'F7' can target anyone for any buff",
             "You can send tells between servers",
             "'PgUp' & 'PgDn' modify the z-axis in 3rd person",
+            "You can use `/` to replace `/who`",
         ]
         response = random.choice(responses)
 
