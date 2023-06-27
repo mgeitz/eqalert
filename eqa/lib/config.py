@@ -138,6 +138,15 @@ def read_config(base_path):
         json_data.close()
         line_alerts["line"].update(config_file_line_alerts["line"])
 
+        ## Ability Output
+        config_path_line_ability_output = (
+            base_path + "config/line-alerts/ability-output.json"
+        )
+        json_data = open(config_path_line_ability_output, "r", encoding="utf-8")
+        config_file_line_alerts = json.load(json_data)
+        json_data.close()
+        line_alerts["line"].update(config_file_line_alerts["line"])
+
         ## Command Output
         config_path_line_command_output = (
             base_path + "config/line-alerts/command-output.json"
@@ -15478,6 +15487,11 @@ def build_config(base_path, version):
       "reaction": false,
       "sound": false
     },
+    "spells_scribe_not_yet": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "Can't scribe"
+    },
     "spells_scribe_swap": {
       "alert": {},
       "reaction": false,
@@ -24124,6 +24138,199 @@ def build_config(base_path, version):
 }
 """
 
+    new_line_ability_config = """
+{
+  "line": {
+    "ability_not_ready": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": true
+    },
+    "bandage_block_stand": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": true
+    },
+    "bandage_you_other": {
+      "alert": {},
+      "reaction": "solo_group_only",
+      "sound": "please remain still"
+    },
+    "bandage_you_you": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "bandage_cap_other": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "bandage cap"
+    },
+    "bandage_cap_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "bandage cap"
+    },
+    "direction": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "direction_miss": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "fishing_cast": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "fishing_caught_nothing": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "fishing_caught_something": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "yay"
+    },
+    "fishing_creatively": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "fishing_holding": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "fishing_lost_bait": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "fishing_no_pole": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "fishing_no_water": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "fishing_pole_broke": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "fishing_spill_beer": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "not again!"
+    },
+    "forage_attacking": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "forage_cursor_empty": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "remove items from cursor"
+    },
+    "forage_edible": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "forage_fail": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "forage_not_edible": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "forage_standing": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "taunt_missing_target": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "taunt who?"
+    },
+    "taunt_you": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "tracking": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "tracking_begin": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "required_pick": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "let me in!"
+    },
+    "tracking_player_off": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "tracking_player_on": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "tracking_target_lost": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "hide_attacking": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "hide_disabled": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "hide_drop": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "hide drop"
+    },
+    "hide_enabled": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "hide_moving": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    }
+  },
+  "version": "%s"
+}
+"""
+
     new_line_command_output_config = """
 {
   "line": {
@@ -24167,17 +24374,17 @@ def build_config(base_path, version):
       "reaction": false,
       "sound": false
     },
+    "command_error": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
     "command_invalid": {
       "alert": {},
       "reaction": false,
       "sound": false
     },
-    "direction": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "direction_miss": {
+    "command_usage": {
       "alert": {},
       "reaction": false,
       "sound": false
@@ -24243,36 +24450,6 @@ def build_config(base_path, version):
       "sound": false
     },
     "friend_remove": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "forage_attacking": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "forage_cursor_empty": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "remove items from cursor"
-    },
-    "forage_edible": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "forage_fail": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "forage_not_edible": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "forage_standing": {
       "alert": {},
       "reaction": false,
       "sound": false
@@ -24437,6 +24614,16 @@ def build_config(base_path, version):
       "reaction": false,
       "sound": false
     },
+    "rewind_output": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
+    "rewind_output_wait": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
+    },
     "server_message": {
       "alert": {},
       "reaction": "all",
@@ -24545,6 +24732,11 @@ def build_config(base_path, version):
       "reaction": "solo",
       "sound": true
     },
+    "action_not_standing_still": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": true
+    },
     "anon_off": {
       "alert": {},
       "reaction": false,
@@ -24570,6 +24762,11 @@ def build_config(base_path, version):
       "reaction": "solo",
       "sound": "stop hitting yourself"
     },
+    "attack_stun_block": {
+      "alert": {},
+      "reaction": "solo_group_only",
+      "sound": "stunned"
+    },
     "auto_inventory_full": {
       "alert": {},
       "reaction": "solo",
@@ -24594,16 +24791,6 @@ def build_config(base_path, version):
       "alert": {},
       "reaction": "solo",
       "sound": "onward my steed"
-    },
-    "bandage_you": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "bandage_cap": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "bandage cap"
     },
     "boat_operator": {
       "alert": {},
@@ -24634,16 +24821,6 @@ def build_config(base_path, version):
       "alert": {},
       "reaction": "solo",
       "sound": "chat disconnected"
-    },
-    "command_error": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "command_usage": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
     },
     "concious_you": {
       "alert": {},
@@ -24720,6 +24897,16 @@ def build_config(base_path, version):
       "reaction": "solo",
       "sound": "Now witness the firepower of this fully ARMED and OPERATIONAL battle station!"
     },
+    "duel_challenge_you": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "Face me, coward!"
+    },
+    "duel_challenge_you_accepted": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": "Fight!"
+    },
     "duel_end_fled": {
       "alert": {},
       "reaction": false,
@@ -24775,56 +24962,6 @@ def build_config(base_path, version):
       "reaction": "solo",
       "sound": true
     },
-    "fishing_cast": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "fishing_caught_nothing": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "fishing_caught_something": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "yay"
-    },
-    "fishing_creatively": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "fishing_holding": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "fishing_lost_bait": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "fishing_no_pole": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "fishing_no_water": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "fishing_pole_broke": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "fishing_spill_beer": {
-      "alert": {},
-      "reaction": "solo",
-      "sound": "not again!"
-    },
     "gm_reset_ability": {
       "alert": {},
       "reaction": "solo",
@@ -24835,30 +24972,10 @@ def build_config(base_path, version):
       "reaction": "solo",
       "sound": "Disciplines reset"
     },
-    "hide_attacking": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "hide_disabled": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "hide_drop": {
+    "item_click_too_low": {
       "alert": {},
       "reaction": "solo",
-      "sound": "hide drop"
-    },
-    "hide_enabled": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "hide_moving": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
+      "sound": "Can't click yet"
     },
     "item_too_big": {
       "alert": {},
@@ -24915,20 +25032,10 @@ def build_config(base_path, version):
       "reaction": false,
       "sound": false
     },
-    "required_pick": {
+    "pendulum_knife": {
       "alert": {},
       "reaction": "solo",
-      "sound": "let me in!"
-    },
-    "rewind_output": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "rewind_output_wait": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
+      "sound": "what's that thing?"
     },
     "roleplay_off": {
       "alert": {},
@@ -24989,31 +25096,6 @@ def build_config(base_path, version):
       "alert": {},
       "reaction": "solo",
       "sound": "You already have a pet"
-    },
-    "tracking": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "tracking_begin": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "tracking_player_off": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "tracking_player_on": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "tracking_target_lost": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
     },
     "use_block": {
       "alert": {},
@@ -25345,13 +25427,18 @@ def build_config(base_path, version):
     },
     "guild_status_none": {
       "alert": {},
-      "reaction": false,
-      "sound": false
+      "reaction": "solo",
+      "sound": true
+    },
+    "guild_status_member": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": true
     },
     "guild_status_officer": {
       "alert": {},
-      "reaction": false,
-      "sound": false
+      "reaction": "solo",
+      "sound": true
     },
     "invite_no_target": {
       "alert": {},
@@ -25545,6 +25632,11 @@ def build_config(base_path, version):
       "alert": {},
       "reaction": "solo",
       "sound": "too far"
+    },
+    "quest_money": {
+      "alert": {},
+      "reaction": false,
+      "sound": false
     }
   },
   "version": "%s"
@@ -26403,6 +26495,16 @@ def build_config(base_path, version):
             base_path, "line-alerts/chat-sent", version, new_line_chat_sent_config
         )
         if generated_sent:
+            generated = True
+
+        ### Ability Output
+        generated_ability = write_config(
+            base_path,
+            "line-alerts/ability-output",
+            version,
+            new_line_ability_config,
+        )
+        if generated_ability:
             generated = True
 
         ### Command Output
