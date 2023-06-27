@@ -498,7 +498,19 @@ def draw_events_status_bar(stdscr, state):
         if not state.group and not state.raid:
             stdscr.addstr(center_y + 1, center_x - 2, "Solo", curses.color_pair(2))
         elif state.group and not state.raid:
-            stdscr.addstr(center_y + 1, center_x - 3, "Group", curses.color_pair(2))
+            leader_len = len(str(state.leader))
+            stdscr.addstr(
+                center_y + 1,
+                center_x - int((leader_len / 2) + 4),
+                "Group",
+                curses.color_pair(2),
+            )
+            stdscr.addstr(
+                center_y + 1,
+                center_x - int((leader_len / 2) - 3),
+                str(state.leader).title(),
+                curses.color_pair(2),
+            )
         elif state.raid:
             stdscr.addstr(center_y + 1, center_x - 2, "Raid", curses.color_pair(2))
         elif state.afk:
