@@ -14471,6 +14471,7 @@ def build_config(base_path, version):
     },
     "encounter_parsing": {
       "auto_save": false,
+      "allow_player_target": false,
       "enabled": true
     },
     "mute": {

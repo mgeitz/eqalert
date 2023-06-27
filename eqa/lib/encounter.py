@@ -1332,12 +1332,17 @@ def encounter_analysis(
             target_known = True
             end_time = line_time
 
-        # If target is not known, let's make a guess
+        # Check if we should guess if target is known player
         if (
-            encounter_stack_events > 0
-            and not target_known
-            and not target_in_player_list
+            target_in_player_list
+            and configs.settings.config["settings"]["encounter_parsing"][
+                "allow_player_target"
+            ]
         ):
+            if state.debug:
+                eqa_settings.log("Not reporting encounter for " + target)
+        # If target is not known, let's make a guess
+        elif encounter_stack_events > 0 and not target_known:
             target_count = {}
             for event in encounter_stack:
                 time, source, target, mode, result = event
