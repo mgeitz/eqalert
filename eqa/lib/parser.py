@@ -10871,7 +10871,7 @@ def check_emotes(line):
             )
             is not None
         ):
-            return "emote_kneel_you"
+            return "emote_kneel_other"
         elif (
             re.fullmatch(r"^(You laugh|You laugh at [a-zA-Z`\s]+)\.$", line) is not None
         ):
@@ -11126,7 +11126,7 @@ def check_emotes(line):
             )
             is not None
         ):
-            return "emote_shrug_you"
+            return "emote_shrug_other"
         elif (
             re.fullmatch(
                 r"^(You sigh\, clearly disappointed|You sigh at [a-zA-Z`\s]+)\.$",
