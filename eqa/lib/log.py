@@ -51,3 +51,7 @@ def process(log_reload, exit_flag, char_log, log_q):
 
     log_file.close()
     sys.exit()
+
+
+if __name__ == "__main__":
+    print("Test Here")

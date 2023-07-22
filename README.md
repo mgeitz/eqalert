@@ -64,6 +64,7 @@ Spot check these default paths generated in `config/settings.json`
       "sound": "[$HOME/.eqa/]sound/",
       "tmp_sound": "/tmp/eqa/sound/"
     },
+  }
 ```
 > Press `0` to reload your configs or restart the program if any changes were made.  Though generally, it's a good idea to stop eqalert before manually editing your config files.
 

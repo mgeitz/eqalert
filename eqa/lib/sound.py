@@ -338,4 +338,4 @@ def sound_tick(sound_file_path, sound_event):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")

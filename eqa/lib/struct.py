@@ -38,3 +38,6 @@ configs = namedtuple(
         "alerts",
     ],
 )
+
+if __name__ == "__main__":
+    print("Test Here")

@@ -25036,7 +25036,7 @@ def build_config(base_path, version):
     "pendulum_knife": {
       "alert": {},
       "reaction": "solo",
-      "sound": "what's that thing?"
+      "sound": "ow!"
     },
     "roleplay_off": {
       "alert": {},
@@ -26668,4 +26668,4 @@ def write_config(base_path, config_name, version, new_config):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")

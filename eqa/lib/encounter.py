@@ -2021,4 +2021,4 @@ def prune_encounter_stack(encounter_end_time, encounter_stack):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")

@@ -3227,4 +3227,4 @@ def action_matched(line_type, line, base_path, version):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")

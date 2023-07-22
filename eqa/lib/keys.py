@@ -707,4 +707,4 @@ def read(exit_flag, keyboard_q, stdscr):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")

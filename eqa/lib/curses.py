@@ -2244,4 +2244,4 @@ def draw_toosmall(stdscr):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")
