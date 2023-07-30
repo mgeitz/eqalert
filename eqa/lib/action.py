@@ -3041,16 +3041,22 @@ def action_guild_status(line_type, line, player_list):
 
         # Determine char and guild name
         if line_type == "guild_status_leader":
-            char_name = re.findall(r"\w+", line)[0]
-            char_guild = re.findall(r"(?<= is the leader of )[a-zA-Z\s-`]+", line)[0]
+            char_name = re.findall(r"\w+", line)[0].lower()
+            char_guild = re.findall(r"(?<= is the leader of )[a-zA-Z\s-`]+", line)[
+                0
+            ].lower()
         elif line_type == "guild_status_officer":
-            char_name = re.findall(r"\w+", line)[0]
-            char_guild = re.findall(r"(?<= is an officer of )[a-zA-Z\s-`]+", line)[0]
+            char_name = re.findall(r"\w+", line)[0].lower()
+            char_guild = re.findall(r"(?<= is an officer of )[a-zA-Z\s-`]+", line)[
+                0
+            ].lower()
         elif line_type == "guild_status_member":
-            char_name = re.findall(r"\w+", line)[0]
-            char_guild = re.findall(r"(?<= is a member of )[a-zA-Z\s-`]+", line)[0]
+            char_name = re.findall(r"\w+", line)[0].lower()
+            char_guild = re.findall(r"(?<= is a member of )[a-zA-Z\s-`]+", line)[
+                0
+            ].lower()
         elif line_type == "guild_status_none":
-            char_name = re.findall(r"\w+", line)[0]
+            char_name = re.findall(r"\w+", line)[0].lower()
             char_guild = None
 
         # Update player_list
