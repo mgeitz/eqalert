@@ -25426,12 +25426,17 @@ def build_config(base_path, version):
       "reaction": false,
       "sound": false
     },
-    "guild_status_none": {
+    "guild_status_leader": {
       "alert": {},
       "reaction": "solo",
       "sound": true
     },
     "guild_status_member": {
+      "alert": {},
+      "reaction": "solo",
+      "sound": true
+    },
+    "guild_status_none": {
       "alert": {},
       "reaction": "solo",
       "sound": true
