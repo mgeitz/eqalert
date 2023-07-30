@@ -2078,7 +2078,8 @@ def check_group_system_messages(line):
         ):
             return "guild_status_officer"
         elif (
-            re.fullmatch(r"^[a-zA-Z]+ is a member of [A-Za-z\s-`]+\.$", line) is not None
+            re.fullmatch(r"^[a-zA-Z]+ is a member of [A-Za-z\s-`]+\.$", line)
+            is not None
         ):
             return "guild_status_member"
         elif re.fullmatch(r"^[a-zA-Z]+ is not in a guild\.$", line) is not None:

@@ -155,6 +155,10 @@ def process(
             "group_created",
             "group_leader_you",
             "group_leader_other",
+            "guild_status_leader",
+            "guild_status_officer",
+            "guild_status_member",
+            "guild_status_none",
             "encumbered_off",
             "encumbered_on",
             "you_char_bound",
@@ -380,7 +384,6 @@ def process(
                 if line_type in action_line_types:
                     if line_type == "who_player":
                         action_who_player(
-                            configs,
                             system_q,
                             state,
                             check_line,
@@ -450,6 +453,8 @@ def process(
                         action_spell_bind_you(system_q, state)
                     elif line_type == "you_char_bound":
                         action_you_char_bound(system_q, check_line)
+                    elif "guild_status_" in line_type:
+                        action_guild_status(line_type, check_line, player_list)
 
                 ## If line_type exists in the config
                 if line_type in configs.alerts.config["line"].keys():
@@ -3027,8 +3032,49 @@ def action_you_char_bound(system_q, check_line):
         )
 
 
-def action_who_player(configs, system_q, state, line, player_list, class_mapping):
-    """Parse who_player to determine name, level, class, and guild to update players_list"""
+def action_guild_status(line_type, line, player_list):
+    """Parse guild status output and update player_list"""
+
+    try:
+        char_level = 0
+        char_class = None
+
+        # Determine char and guild name
+        if line_type == "guild_status_leader":
+            char_name = re.findall(r"\w+", line)[0]
+            char_guild = re.findall(r"(?<= is the leader of )[a-zA-Z\s-`]+", line)[0]
+        elif line_type == "guild_status_officer":
+            char_name = re.findall(r"\w+", line)[0]
+            char_guild = re.findall(r"(?<= is an officer of )[a-zA-Z\s-`]+", line)[0]
+        elif line_type == "guild_status_member":
+            char_name = re.findall(r"\w+", line)[0]
+            char_guild = re.findall(r"(?<= is a member of )[a-zA-Z\s-`]+", line)[0]
+        elif line_type == "guild_status_none":
+            char_name = re.findall(r"\w+", line)[0]
+            char_guild = None
+
+        # Update player_list
+        if char_name in player_list.keys():
+            char_level = player_list[char_name]["level"]
+            char_class = player_list[char_name]["class"]
+
+        player_list[char_name] = {
+            "class": char_class,
+            "level": char_level,
+            "guild": char_guild,
+        }
+
+    except Exception as e:
+        eqa_settings.log(
+            "action guild status: Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
+def action_who_player(system_q, state, line, player_list, class_mapping):
+    """Parse who_player to determine name, level, class, and guild to update player_list"""
 
     try:
         char_level = 0
