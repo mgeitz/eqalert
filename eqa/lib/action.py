@@ -3097,7 +3097,7 @@ def action_who_player(system_q, state, line, player_list, class_mapping):
 
         # Find guild
         if re.fullmatch(r".+\<[a-zA-Z\s]+\>(.+|)", line) is not None:
-            char_guild = re.findall(r"(?<=\<)[a-zA-Z\s]+", line)[0].lower()
+            char_guild = re.findall(r"(?<=\<)[a-zA-Z\s-`]+", line)[0].lower()
 
         # Find name
         char_name = re.findall(r"(?<=\]\ )[a-zA-Z]+", line)[0].lower()
