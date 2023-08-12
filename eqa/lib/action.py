@@ -447,9 +447,7 @@ def process(
                             )
                     elif line_type == "motd_welcome":
                         action_motd_welcome(system_q)
-                    elif (
-                        line_type == "spell_bind_you"
-                    ):
+                    elif line_type == "spell_bind_you":
                         action_spell_bind_you(system_q, state)
                     elif line_type == "you_char_bound":
                         action_you_char_bound(system_q, check_line)
