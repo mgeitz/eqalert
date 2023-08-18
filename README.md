@@ -16,14 +16,14 @@ $ pip3 install eqalert
 
 _or_ install manually to your host machine
 ```sh
-$ git clone git@github.com:mgeitz/eqalert.git
+$ git clone https://github.com/mgeitz/eqalert.git
 $ cd eqalert
 $ python3 -m pip install -e .
 ```
 
 _or_ install and run through docker
 ```sh
-$ git clone git@github.com:mgeitz/eqalert.git
+$ git clone https://github.com/mgeitz/eqalert.git
 $ cd eqalert
 $ docker compose build
 $ docker compose run eqalert
