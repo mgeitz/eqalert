@@ -496,8 +496,12 @@ def draw_events_status_bar(stdscr, state):
 
         ## Context
 
+        ### AFK (clobbers other status)
+        if state.afk:
+            stdscr.addstr(center_y + 1, center_x - 1, "AFK", curses.color_pair(2))
+
         ### Solo
-        if not state.group and not state.raid:
+        elif not state.group and not state.raid:
             stdscr.addstr(center_y + 1, center_x - 2, "Solo", curses.color_pair(2))
 
         ### Grouped
@@ -528,10 +532,6 @@ def draw_events_status_bar(stdscr, state):
         ### Raiding Ungrouped
         elif state.raid and not state.group:
             stdscr.addstr(center_y + 1, center_x - 2, "Raid", curses.color_pair(2))
-
-        ### AFK
-        elif state.afk:
-            stdscr.addstr(center_y + 1, center_x - 1, "AFK", curses.color_pair(2))
 
         ## Bottom of stats bar
         stdscr.addch(center_y + 2, 0, curses.ACS_LTEE)
