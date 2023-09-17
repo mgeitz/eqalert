@@ -2068,17 +2068,17 @@ def check_group_system_messages(line):
         ):
             return "guild_invite_instructions"
         elif (
-            re.fullmatch(r"^[a-zA-Z]+ is the leader of [A-Za-z\s-`]+\.$", line)
+            re.fullmatch(r"^[a-zA-Z]+ is the leader of [A-Za-z\s\-\`]+\.$", line)
             is not None
         ):
             return "guild_status_leader"
         elif (
-            re.fullmatch(r"^[a-zA-Z]+ is an officer of [A-Za-z\s-`]+\.$", line)
+            re.fullmatch(r"^[a-zA-Z]+ is an officer of [A-Za-z\s\-\`]+\.$", line)
             is not None
         ):
             return "guild_status_officer"
         elif (
-            re.fullmatch(r"^[a-zA-Z]+ is a member of [A-Za-z\s-`]+\.$", line)
+            re.fullmatch(r"^[a-zA-Z]+ is a member of [A-Za-z\s\-\`]+\.$", line)
             is not None
         ):
             return "guild_status_member"

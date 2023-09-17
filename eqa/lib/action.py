@@ -3040,17 +3040,17 @@ def action_guild_status(line_type, line, player_list):
         # Determine char and guild name
         if line_type == "guild_status_leader":
             char_name = re.findall(r"\w+", line)[0].lower()
-            char_guild = re.findall(r"(?<= is the leader of )[a-zA-Z\s-`]+", line)[
+            char_guild = re.findall(r"(?<= is the leader of )[a-zA-Z\s\-\`]+", line)[
                 0
             ].lower()
         elif line_type == "guild_status_officer":
             char_name = re.findall(r"\w+", line)[0].lower()
-            char_guild = re.findall(r"(?<= is an officer of )[a-zA-Z\s-`]+", line)[
+            char_guild = re.findall(r"(?<= is an officer of )[a-zA-Z\s\-\`]+", line)[
                 0
             ].lower()
         elif line_type == "guild_status_member":
             char_name = re.findall(r"\w+", line)[0].lower()
-            char_guild = re.findall(r"(?<= is a member of )[a-zA-Z\s-`]+", line)[
+            char_guild = re.findall(r"(?<= is a member of )[a-zA-Z\s\-\`]+", line)[
                 0
             ].lower()
         elif line_type == "guild_status_none":
@@ -3095,7 +3095,7 @@ def action_who_player(system_q, state, line, player_list, class_mapping):
 
         # Find guild
         if re.fullmatch(r".+\<[a-zA-Z\s]+\>(.+|)", line) is not None:
-            char_guild = re.findall(r"(?<=\<)[a-zA-Z\s-`]+", line)[0].lower()
+            char_guild = re.findall(r"(?<=\<)[a-zA-Z\s\-\`]+", line)[0].lower()
 
         # Find name
         char_name = re.findall(r"(?<=\]\ )[a-zA-Z]+", line)[0].lower()
