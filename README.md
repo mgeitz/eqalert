@@ -23,6 +23,7 @@ $ git clone https://github.com/mgeitz/eqalert.git
 $ cd eqalert
 $ python3 -m pip install -e .
 $ # or if your distribution is using externally managed environments
+$ # (remember the venv must be sourced to run eqalert when installed this way)
 $ python3 -m venv .venv; source .venv/bin/activate; python3 -m pip install -e .
 ```
 
