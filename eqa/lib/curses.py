@@ -500,21 +500,15 @@ def draw_events_status_bar(stdscr, state):
         elif state.group and not state.raid:
             current_leader = state.leader
             if current_leader == "you":
-                group_leader = "your"
-                leader_len = 4
+                group_leader = "Your"
+                leader_len = 10
             else:
-                group_leader = current_leader + "'s"
-                leader_len = len(group_leader)
+                group_leader = current_leader.title() + "'s"
+                leader_len = len(group_leader) + 6
             stdscr.addstr(
                 center_y + 1,
-                center_x - leader_len,
-                group_leader.title(),
-                curses.color_pair(2),
-            )
-            stdscr.addstr(
-                center_y + 1,
-                center_x + 1,
-                "Group",
+                center_x - math.ceil(leader_len / 2),
+                group_leader + " Group",
                 curses.color_pair(2),
             )
         elif state.raid:
