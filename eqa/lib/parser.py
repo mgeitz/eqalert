@@ -113,6 +113,11 @@ def determine(line):
         if line_type is not None:
             return line_type
 
+        # Ability Output
+        line_type = check_ability_output(line)
+        if line_type is not None:
+            return line_type
+
         # Command Output
         line_type = check_command_output(line)
         if line_type is not None:
@@ -506,6 +511,14 @@ def check_spell(line):
         ):
             return "spells_memorize_too_high"
         elif (
+            re.fullmatch(
+                r"^You will have to achieve level \d+ before you can scribe the [a-zA-Z`\s\'\:]+\.$",
+                line,
+            )
+            is not None
+        ):
+            return "spells_scribe_not_yet"
+        elif (
             re.fullmatch(r"^Beginning to scribe [a-zA-Z`\s\'\:]+\.\.\.$", line)
             is not None
         ):
@@ -799,6 +812,171 @@ def check_sent_chat(line):
         )
 
 
+def check_ability_output(line):
+    """
+    Check line for ability output
+    """
+
+    try:
+        if (
+            re.fullmatch(
+                r"^You think you are heading (?:North(?:East|West)?|South(?:East|West)?|(?:Ea|We)st)\.$",
+                line,
+            )
+            is not None
+        ):
+            return "direction"
+        elif (
+            re.fullmatch(r"^You have no idea what direction you are facing\.$", line)
+            is not None
+        ):
+            return "direction_miss"
+        elif re.fullmatch(r"^Forage Error\: Cursor not empty\.$", line) is not None:
+            return "forage_cursor_empty"
+        elif re.fullmatch(r"^You must be standing to forage\.$", line) is not None:
+            return "forage_standing"
+        elif (
+            re.fullmatch(
+                r"^You have scrounged up something that doesn't look edible\.$", line
+            )
+            is not None
+        ):
+            return "forage_not_edible"
+        elif re.fullmatch(r"^You have scrounged up some .+\.$", line) is not None:
+            return "forage_edible"
+        elif (
+            re.fullmatch(r"^You can\'t try to forage while attacking\.$", line)
+            is not None
+        ):
+            return "forage_attacking"
+        elif re.fullmatch(r"^You fail to locate any food nearby\.$", line) is not None:
+            return "forage_fail"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z`\-\s]+ is (?:behind and to the (?:righ|lef)t\.|ahead and to the (?:righ|lef)t\.|(?:straight ahead|behind you)\.|to the (?:righ|lef)t\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "tracking"
+        elif re.fullmatch(r"^Track players \* OFF \*$", line) is not None:
+            return "tracking_player_off"
+        elif re.fullmatch(r"^Track players \* ON \*$", line) is not None:
+            return "tracking_player_on"
+        elif re.fullmatch(r"^You have lost your tracking target\.$", line) is not None:
+            return "tracking_target_lost"
+        elif re.fullmatch(r"^You begin tracking [a-zA-Z\s`]+\.$", line) is not None:
+            return "tracking_begin"
+        elif re.fullmatch(r"^\w+ has fallen to the ground\.", line) is not None:
+            return "feign_failure_other"
+        elif (
+            re.fullmatch(
+                r"^You (?:have moved and are no longer hidden\!\!|are no longer hidden\.)$",
+                line,
+            )
+            is not None
+        ):
+            return "hide_drop"
+        elif re.fullmatch(r"^You begin to hide\.\.\.$", line) is not None:
+            return "hide_enabled"
+        elif re.fullmatch(r"^You stop hiding\.$", line) is not None:
+            return "hide_disabled"
+        elif (
+            re.fullmatch(r"^You must stand perfectly still to hide\!$", line)
+            is not None
+        ):
+            return "hide_moving"
+        elif (
+            re.fullmatch(r"^You can't try to hide while attacking.$", line) is not None
+        ):
+            return "hide_attacking"
+        elif (
+            re.fullmatch(r"^You are being bandaged\. Stay relatively still\.$", line)
+            is not None
+        ):
+            return "bandage_you_other"
+        elif re.fullmatch(r"^You begin to bandage yourself\.$", line) is not None:
+            return "bandage_you_you"
+        elif re.fullmatch(r"^You must be standing to bind wounds\.$", line) is not None:
+            return "bandage_block_stand"
+        elif (
+            re.fullmatch(
+                r"^You cannot have your wounds bound above \d+\% hitpoints\.$", line
+            )
+            is not None
+        ):
+            return "bandage_cap_other"
+        elif (
+            re.fullmatch(r"^You cannot bind wounds above \d+\% hitpoints\.$", line)
+            is not None
+        ):
+            return "bandage_cap_you"
+        elif (
+            re.fullmatch(r"^You can't fish while holding something\.$", line)
+            is not None
+        ):
+            return "fishing_holding"
+        elif (
+            re.fullmatch(r"^You can't fish without a fishing pole, go buy one\.$", line)
+            is not None
+        ):
+            return "fishing_no_pole"
+        elif re.fullmatch(r"^You cast your line\.$", line) is not None:
+            return "fishing_cast"
+        elif re.fullmatch(r"^You caught, something\.\.\.$", line) is not None:
+            return "fishing_caught_something"
+        elif re.fullmatch(r"^You didn't catch anything\.$", line) is not None:
+            return "fishing_caught_nothing"
+        elif re.fullmatch(r"^You lost your bait\!$", line) is not None:
+            return "fishing_lost_bait"
+        elif re.fullmatch(r"^Trying to catch land sharks perhaps\?$", line) is not None:
+            return "fishing_no_water"
+        elif (
+            re.fullmatch(
+                r"^You need to put your fishing pole in your primary hand\.$", line
+            )
+            is not None
+        ):
+            return "fishing_creatively"
+        elif re.fullmatch(r"^Your fishing pole broke\!$", line) is not None:
+            return "fishing_pole_broke"
+        elif (
+            re.fullmatch(r"^You spill your beer while bringing in your line\.$", line)
+            is not None
+        ):
+            return "fishing_spill_beer"
+        elif (
+            re.fullmatch(
+                r"^You must have a lock pick in your inventory to do this\.$", line
+            )
+            is not None
+        ):
+            return "required_pick"
+        elif re.fullmatch(r"^Ability not ready\.$", line) is not None:
+            return "ability_not_ready"
+        elif (
+            re.fullmatch(
+                r"^You taunt [a-zA-Z`\s\-]+ to ignore others and attack you\!$", line
+            )
+            is not None
+        ):
+            return "taunt_you"
+        elif (
+            re.fullmatch(r"^You must target an NPC to taunt first\.$", line) is not None
+        ):
+            return "taunt_missing_target"
+
+        return None
+
+    except Exception as e:
+        eqa_settings.log(
+            "process_log (check_sent_chat): Error on line "
+            + str(sys.exc_info()[-1].tb_lineno)
+            + ": "
+            + str(e)
+        )
+
+
 def check_command_output(line):
     """
     Check line for command output
@@ -813,19 +991,6 @@ def check_command_output(line):
             is not None
         ):
             return "location"
-        elif (
-            re.fullmatch(
-                r"^You think you are heading (?:North(?:East|West)?|South(?:East|West)?|(?:Ea|We)st)\.$",
-                line,
-            )
-            is not None
-        ):
-            return "direction"
-        elif (
-            re.fullmatch(r"^You have no idea what direction you are facing\.$", line)
-            is not None
-        ):
-            return "direction_miss"
         elif (
             re.fullmatch(r"^You are now A\.F\.K\. \(Away From Keyboard\)\.", line)
             is not None
@@ -957,26 +1122,6 @@ def check_command_output(line):
             is not None
         ):
             return "client_ui_load"
-        elif re.fullmatch(r"^Forage Error\: Cursor not empty\.$", line) is not None:
-            return "forage_cursor_empty"
-        elif re.fullmatch(r"^You must be standing to forage\.$", line) is not None:
-            return "forage_standing"
-        elif (
-            re.fullmatch(
-                r"^You have scrounged up something that doesn't look edible\.$", line
-            )
-            is not None
-        ):
-            return "forage_not_edible"
-        elif re.fullmatch(r"^You have scrounged up some .+\.$", line) is not None:
-            return "forage_edible"
-        elif (
-            re.fullmatch(r"^You can\'t try to forage while attacking\.$", line)
-            is not None
-        ):
-            return "forage_attacking"
-        elif re.fullmatch(r"^You fail to locate any food nearby\.$", line) is not None:
-            return "forage_fail"
         elif re.fullmatch(r"^Making all existing corpses visible\.$", line) is not None:
             return "hide_corpse_none"
         elif (
@@ -1165,6 +1310,26 @@ def check_command_output(line):
             is not None
         ):
             return "ignore_list_header"
+        elif re.fullmatch(r"^FORMAT\:.+", line) is not None:
+            return "command_error"
+        elif re.fullmatch(r"^Usage\: .+", line) is not None:
+            return "command_usage"
+        elif (
+            re.fullmatch(
+                r"^You must wait a bit longer before using the rewind command again\.$",
+                line,
+            )
+            is not None
+        ):
+            return "rewind_output_wait"
+        elif (
+            re.fullmatch(
+                r"^Rewinding to previous location\.$",
+                line,
+            )
+            is not None
+        ):
+            return "rewind_output"
 
         return None
 
@@ -1321,22 +1486,6 @@ def check_system_messages(line):
             return "you_char_bound"
         elif (
             re.fullmatch(
-                r"^[a-zA-Z`\-\s]+ is (?:behind and to the (?:righ|lef)t\.|ahead and to the (?:righ|lef)t\.|(?:straight ahead|behind you)\.|to the (?:righ|lef)t\.)$",
-                line,
-            )
-            is not None
-        ):
-            return "tracking"
-        elif re.fullmatch(r"^Track players \* OFF \*$", line) is not None:
-            return "tracking_player_off"
-        elif re.fullmatch(r"^Track players \* ON \*$", line) is not None:
-            return "tracking_player_on"
-        elif re.fullmatch(r"^You have lost your tracking target\.$", line) is not None:
-            return "tracking_target_lost"
-        elif re.fullmatch(r"^You begin tracking [a-zA-Z\s`]+\.$", line) is not None:
-            return "tracking_begin"
-        elif (
-            re.fullmatch(
                 r"^The Gods of Norrath emit a sinister laugh as they toy with their creations\. They are reanimating creatures to provide a greater challenge to the mortals$",
                 line,
             )
@@ -1352,10 +1501,6 @@ def check_system_messages(line):
             return "zone_message"
         elif re.fullmatch(r"^\<\[SERVER MESSAGE\]\>\:.+", line) is not None:
             return "server_message"
-        elif re.fullmatch(r"^FORMAT\:.+", line) is not None:
-            return "command_error"
-        elif re.fullmatch(r"^Usage\: .+", line) is not None:
-            return "command_usage"
         elif re.fullmatch(r"^\w+ is not online at this time\.$", line) is not None:
             return "tell_offline"
         elif (
@@ -1403,29 +1548,6 @@ def check_system_messages(line):
             is not None
         ):
             return "autofollow_advice"
-        elif re.fullmatch(r"^\w+ has fallen to the ground\.", line) is not None:
-            return "feign_failure_other"
-        elif (
-            re.fullmatch(
-                r"^You (?:have moved and are no longer hidden\!\!|are no longer hidden\.)$",
-                line,
-            )
-            is not None
-        ):
-            return "hide_drop"
-        elif re.fullmatch(r"^You begin to hide\.\.\.$", line) is not None:
-            return "hide_enabled"
-        elif re.fullmatch(r"^You stop hiding\.$", line) is not None:
-            return "hide_disabled"
-        elif (
-            re.fullmatch(r"^You must stand perfectly still to hide\!$", line)
-            is not None
-        ):
-            return "hide_moving"
-        elif (
-            re.fullmatch(r"^You can't try to hide while attacking.$", line) is not None
-        ):
-            return "hide_attacking"
         elif re.fullmatch(r"^[a-zA-Z\s`]+ was injured by falling\.$", line) is not None:
             return "fall_damage_other"
         elif re.fullmatch(r"^YOU were injured by falling\.$", line) is not None:
@@ -1465,22 +1587,6 @@ def check_system_messages(line):
             return "inspect_other"
         elif re.fullmatch(r"^You have lost your target\.$", line) is not None:
             return "target_lost"
-        elif (
-            re.fullmatch(
-                r"^You must wait a bit longer before using the rewind command again\.$",
-                line,
-            )
-            is not None
-        ):
-            return "rewind_output_wait"
-        elif (
-            re.fullmatch(
-                r"^Rewinding to previous location\.$",
-                line,
-            )
-            is not None
-        ):
-            return "rewind_output"
         elif (
             re.fullmatch(
                 r"^Inventory full, and item is NO TRADE, so cannot auto-inventory the item\.$",
@@ -1557,18 +1663,6 @@ def check_system_messages(line):
             return "corpse_decay_timer"
         elif re.fullmatch(r"^You are too fatigued to jump\!$", line) is not None:
             return "jump_fatigue"
-        elif (
-            re.fullmatch(r"^You are being bandaged\. Stay relatively still\.$", line)
-            is not None
-        ):
-            return "bandage_you"
-        elif (
-            re.fullmatch(
-                r"^You cannot have your wounds bound above \d+\% hitpoints\.$", line
-            )
-            is not None
-        ):
-            return "bandage_cap"
         elif (
             re.fullmatch(r"^All Discipline Timers have been Reset\.$", line) is not None
         ):
@@ -1742,47 +1836,6 @@ def check_system_messages(line):
         ):
             return "target_group_member"
         elif (
-            re.fullmatch(r"^You can't fish while holding something\.$", line)
-            is not None
-        ):
-            return "fishing_holding"
-        elif (
-            re.fullmatch(r"^You can't fish without a fishing pole, go buy one\.$", line)
-            is not None
-        ):
-            return "fishing_no_pole"
-        elif re.fullmatch(r"^You cast your line\.$", line) is not None:
-            return "fishing_cast"
-        elif re.fullmatch(r"^You caught, something\.\.\.$", line) is not None:
-            return "fishing_caught_something"
-        elif re.fullmatch(r"^You didn't catch anything\.$", line) is not None:
-            return "fishing_caught_nothing"
-        elif re.fullmatch(r"^You lost your bait\!$", line) is not None:
-            return "fishing_lost_bait"
-        elif re.fullmatch(r"^Trying to catch land sharks perhaps\?$", line) is not None:
-            return "fishing_no_water"
-        elif (
-            re.fullmatch(
-                r"^You need to put your fishing pole in your primary hand\.$", line
-            )
-            is not None
-        ):
-            return "fishing_creatively"
-        elif re.fullmatch(r"^Your fishing pole broke\!$", line) is not None:
-            return "fishing_pole_broke"
-        elif (
-            re.fullmatch(r"^You spill your beer while bringing in your line\.$", line)
-            is not None
-        ):
-            return "fishing_spill_beer"
-        elif (
-            re.fullmatch(
-                r"^You must have a lock pick in your inventory to do this\.$", line
-            )
-            is not None
-        ):
-            return "required_pick"
-        elif (
             re.fullmatch(
                 r"^You cannot pick up a lore item you already possess\.$", line
             )
@@ -1815,6 +1868,37 @@ def check_system_messages(line):
             is not None
         ):
             return "duel_challenge"
+        elif (
+            re.fullmatch(
+                r"^You have challenged [a-zA-Z]+ to duel to the death\!$", line
+            )
+            is not None
+        ):
+            return "duel_challenge_you"
+        elif (
+            re.fullmatch(
+                r"^[a-zA-Z]+ has accepted your challenge to duel to the death\!  Fight\!$",
+                line,
+            )
+            is not None
+        ):
+            return "duel_challenge_you_accepted"
+        elif re.fullmatch(r"^You can't attack while stunned\!$", line) is not None:
+            return "attack_stun_block"
+        elif (
+            re.fullmatch(r"^You are not sufficient level to use this item\.$", line)
+            is not None
+        ):
+            return "item_click_too_low"
+        elif (
+            re.fullmatch(
+                r"^You must stand up and be still to perform this action\.$", line
+            )
+            is not None
+        ):
+            return "action_not_standing_still"
+        elif re.fullmatch(r"^YOU were sliced by a pendulum\.$", line) is not None:
+            return "pendulum_knife"
 
         return None
 
@@ -1983,9 +2067,22 @@ def check_group_system_messages(line):
             is not None
         ):
             return "guild_invite_instructions"
-        elif re.fullmatch(r"^\w+ is an officer of [A-Za-z\s]+\.$", line) is not None:
+        elif (
+            re.fullmatch(r"^[a-zA-Z]+ is the leader of [A-Za-z\s\-\`]+\.$", line)
+            is not None
+        ):
+            return "guild_status_leader"
+        elif (
+            re.fullmatch(r"^[a-zA-Z]+ is an officer of [A-Za-z\s\-\`]+\.$", line)
+            is not None
+        ):
             return "guild_status_officer"
-        elif re.fullmatch(r"^\w+ is not in a guild\.$", line) is not None:
+        elif (
+            re.fullmatch(r"^[a-zA-Z]+ is a member of [A-Za-z\s\-\`]+\.$", line)
+            is not None
+        ):
+            return "guild_status_member"
+        elif re.fullmatch(r"^[a-zA-Z]+ is not in a guild\.$", line) is not None:
             return "guild_status_none"
         elif (
             re.fullmatch(
@@ -2051,6 +2148,14 @@ def check_loot_trade(line):
             is not None
         ):
             return "looted_money_you_split"
+        elif (
+            re.fullmatch(
+                r"^You receive .+ pieces\.$",
+                line,
+            )
+            is not None
+        ):
+            return "quest_money"
         elif (
             re.fullmatch(
                 r"^You will now automatically split money with your group\.$",
@@ -10772,7 +10877,7 @@ def check_emotes(line):
             )
             is not None
         ):
-            return "emote_kneel_you"
+            return "emote_kneel_other"
         elif (
             re.fullmatch(r"^(You laugh|You laugh at [a-zA-Z`\s]+)\.$", line) is not None
         ):
@@ -11027,7 +11132,7 @@ def check_emotes(line):
             )
             is not None
         ):
-            return "emote_shrug_you"
+            return "emote_shrug_other"
         elif (
             re.fullmatch(
                 r"^(You sigh\, clearly disappointed|You sigh at [a-zA-Z`\s]+)\.$",
@@ -11359,4 +11464,4 @@ def check_pets(line):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")

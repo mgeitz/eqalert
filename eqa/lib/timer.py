@@ -485,4 +485,4 @@ def self_spell_timer_drift(state, timers, adjustment):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")

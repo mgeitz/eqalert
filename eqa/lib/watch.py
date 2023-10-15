@@ -73,3 +73,7 @@ def process(state, configs, system_q, exit_flag, cfg_reload):
         )
 
     sys.exit()
+
+
+if __name__ == "__main__":
+    print("Test Here")

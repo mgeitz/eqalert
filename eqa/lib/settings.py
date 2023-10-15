@@ -47,4 +47,4 @@ def log(message):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")

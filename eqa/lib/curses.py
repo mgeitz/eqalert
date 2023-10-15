@@ -495,14 +495,43 @@ def draw_events_status_bar(stdscr, state):
         stdscr.addstr(center_y, center_x - offset, state.server, curses.color_pair(2))
 
         ## Context
-        if not state.group and not state.raid:
-            stdscr.addstr(center_y + 1, center_x - 2, "Solo", curses.color_pair(2))
-        elif state.group and not state.raid:
-            stdscr.addstr(center_y + 1, center_x - 3, "Group", curses.color_pair(2))
-        elif state.raid:
-            stdscr.addstr(center_y + 1, center_x - 2, "Raid", curses.color_pair(2))
-        elif state.afk:
+
+        ### AFK (clobbers other status)
+        if state.afk:
             stdscr.addstr(center_y + 1, center_x - 1, "AFK", curses.color_pair(2))
+
+        ### Solo
+        elif not state.group and not state.raid:
+            stdscr.addstr(center_y + 1, center_x - 2, "Solo", curses.color_pair(2))
+
+        ### Grouped
+        elif state.group:
+            current_leader = state.leader
+
+            ### Grouped / Raiding
+            if not state.raid:
+                group_type = " Group"
+            else:
+                group_type = " Raid Group"
+
+            ### Group Leader
+            if current_leader == "you":
+                group_leader = "Your"
+                leader_len = 4 + len(group_type)
+            else:
+                group_leader = current_leader.title() + "'s"
+                leader_len = len(group_leader) + len(group_type)
+
+            stdscr.addstr(
+                center_y + 1,
+                center_x - math.ceil(leader_len / 2),
+                group_leader + group_type,
+                curses.color_pair(2),
+            )
+
+        ### Raiding Ungrouped
+        elif state.raid and not state.group:
+            stdscr.addstr(center_y + 1, center_x - 2, "Raid", curses.color_pair(2))
 
         ## Bottom of stats bar
         stdscr.addch(center_y + 2, 0, curses.ACS_LTEE)
@@ -696,6 +725,7 @@ def draw_events_default_lower(stdscr):
             "Using 'F7' can target anyone for any buff",
             "You can send tells between servers",
             "'PgUp' & 'PgDn' modify the z-axis in 3rd person",
+            "You can use `/` to replace `/who`",
         ]
         response = random.choice(responses)
 
@@ -2231,4 +2261,4 @@ def draw_toosmall(stdscr):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")

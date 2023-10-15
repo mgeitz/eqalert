@@ -1,4 +1,4 @@
-FROM python:3.9.16-slim-buster
+FROM python:3.11-slim-bookworm
 
 LABEL maintainer="mgeitz" \
       description="A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface for Linux"
@@ -16,7 +16,6 @@ RUN apt-get update && \
         gir1.2-gtk-3.0 \
         gstreamer1.0-alsa \
         gstreamer1.0-dev \
-        gstreamer1.0-doc \
         gstreamer1.0-gl \
         gstreamer1.0-gtk3 \
         gstreamer1.0-libav \

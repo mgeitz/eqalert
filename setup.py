@@ -8,12 +8,12 @@ long_description = (this_directory / "README.md").read_text()
 
 setup(
     name="eqalert",
-    version="3.6.0",
+    version="3.6.1",
     author="M Geitz",
     author_email="git@geitz.xyz",
     install_requires=[
         "playsound>=1.3.0",
-        "gtts>=2.3.1",
+        "gtts>=2.3.2",
     ],
     python_requires=">=3.9.2",
     packages=["eqa", "eqa.lib", "eqa.sound"],

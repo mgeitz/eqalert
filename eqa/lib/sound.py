@@ -199,7 +199,7 @@ def eq_lingo(line):
     line = re.sub(r"(?<=[^A-z])rh(?=[^A-z])", "right here", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])rl(?=[^A-z])", "real life", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])rn(?=[^A-z])", "right now", line, flags=re.I)
-    line = re.sub(r"(?<=[^A-z])rog(?=[^A-z])", "rog", line, flags=re.I)
+    line = re.sub(r"(?<=[^A-z])rog(?=[^A-z])", "rogue", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])rw(?=[^A-z])", "ring war", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])shm(?=[^A-z])", "shaman", line, flags=re.I)
     line = re.sub(r"(?<=[^A-z])sow(?=[^A-z])", "spirit of wolf", line, flags=re.I)
@@ -338,4 +338,4 @@ def sound_tick(sound_file_path, sound_event):
 
 
 if __name__ == "__main__":
-    main()
+    print("Test Here")

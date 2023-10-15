@@ -208,3 +208,7 @@ class EQA_State:
     def set_spell_timer_yours_only(self, spell_timer_yours_only):
         """Set Spell Timer Yours Only"""
         self.spell_timer_yours_only = spell_timer_yours_only
+
+
+if __name__ == "__main__":
+    print("Test Here")
