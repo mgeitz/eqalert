@@ -13,7 +13,7 @@ A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface
 #### PyPI
 ```sh
 $ pip3 install eqalert
-$ # or if your distribution is using externally managed environemnts
+$ # or if your distribution is using externally managed environments
 $ pipx install eqalert
 ```
 
