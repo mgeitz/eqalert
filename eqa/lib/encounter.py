@@ -1708,7 +1708,7 @@ def encounter_report(
                 if source not in encounter_heals.keys():
                     encounter_heals[source] = int(result)
                 else:
-                    encounter_heals[source] += int(results)
+                    encounter_heals[source] += int(result)
             ### If mode is slain
             elif mode == "slain":
                 if source == encounter_target:
