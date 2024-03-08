@@ -1,0 +1,33 @@
+name: Test eqalert
+
+on: push
+
+permissions:
+    contents: read
+
+jobs:
+    test:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-python@v5
+          with:
+            python-version: "3.9.16" 
+        - name: Install poetry
+          uses: abatilo/actions-poetry@v2
+          with:
+            poetry-version: "1.7.1" 
+        - name: Define a cache for the virtual environment based on the dependencies lock file
+          uses: actions/cache@v4
+          with:
+            path: ./.venv
+            key: venv-dev-${{ hashFiles('poetry.lock') }}
+        - name: Manual pip installs
+          run: |
+              poetry run pip install --upgrade pip
+              poetry run pip install --upgrade wheel
+              poetry run pip install playsound
+        - name: Install Python deps
+          run: poetry install
+        - name: Run Tests
+          run: poetry run pytest
