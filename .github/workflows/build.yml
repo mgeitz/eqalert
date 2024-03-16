@@ -21,8 +21,6 @@ jobs:
             python-version: ${{ matrix.python-version }}
         - name: Install poetry
           run: |
-              pipx install --user pipx
-              pipx ensurepath
               pipx install poetry==${{ matrix.poetry-version }}
         - name: Define a cache for the virtual environment based on the dependencies lock file
           uses: actions/cache@v4
