@@ -10,23 +10,28 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v4
+
         - uses: actions/setup-python@v5
           with:
-            python-version: "3.9.16" 
-        - name: Install poetry
-          run: |
-              pipx install poetry=="1.7.1"
-        - name: Define a cache for the virtual environment based on the dependencies lock file
+            python-version: "3.11.2" 
+
+        - name: Install Poetry
+          run: pipx install poetry=="1.7.1"
+
+        - name: Cache
           uses: actions/cache@v4
           with:
             path: ./.venv
             key: venv-dev-${{ hashFiles('poetry.lock') }}
-        - name: Manual pip installs
+
+        - name: Install Playsound
           run: |
               poetry run pip install --upgrade pip
               poetry run pip install --upgrade wheel
               poetry run pip install playsound
-        - name: Install Python deps
+
+        - name: Dependencies
           run: poetry install
-        - name: Run Tests
+
+        - name: Tests
           run: poetry run pytest

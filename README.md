@@ -27,6 +27,8 @@ $ cd eqalert
 
 # Install poetry
 $ pipx install poetry
+# or
+#$ sudo apt-get install python3-poetry
 
 # Install playsound
 $ poetry run pip install --upgrade pip
