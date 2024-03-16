@@ -19,7 +19,20 @@ $ pipx install eqalert
 $ eqalert
 ```
 
-#### Locally
+#### Docker
+```sh
+# Clone the repository
+$ git clone https://github.com/mgeitz/eqalert.git
+$ cd eqalert
+
+# Build
+$ docker compose build
+
+# Start eqalert
+$ docker compose run eqalert
+```
+
+#### Local Development
 ```sh
 # Clone the repository
 $ git clone https://github.com/mgeitz/eqalert.git
@@ -35,25 +48,15 @@ $ poetry run pip install --upgrade pip
 $ poetry run pip install --upgrade wheel
 $ poetry run pip install playsound
 
-# Retrieve dependencies and build
+# Retrieve dependencies
+$ poetry update
 $ poetry install
+
+# Build
 $ poetry build
 
 # Start eqalert
 $ poetry run eqalert
-```
-
-#### Docker
-```sh
-# Clone the repository
-$ git clone https://github.com/mgeitz/eqalert.git
-$ cd eqalert
-
-# Build
-$ docker compose build
-
-# Start eqalert
-$ docker compose run eqalert
 ```
 
 > Note: If running through docker after installing and running on your host, update or regenerate `~/.eqa/config/settings.json` to reflect local container paths in `/home/eqalert`
