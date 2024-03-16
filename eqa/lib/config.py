@@ -26607,7 +26607,7 @@ def write_config(base_path, config_name, version, new_config):
         elif os.path.isfile(line_json_path):
             ### Validate file is readable
 
-            old_version = "unknown/"
+            old_version = "unknown"
             generate_config = False
             try:
                 json_data = open(line_json_path, "r", encoding="utf-8")
