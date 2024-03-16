@@ -14494,7 +14494,9 @@ def build_config(base_path, version):
     },
     "speech": {
       "expand_lingo": true,
-      "tld": "com",
+      "varied": true,
+      "local_ai": true,
+      "gtts_tld": "com",
       "lang": "en"
     },
     "timers": {

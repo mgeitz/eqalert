@@ -244,16 +244,24 @@ def eq_lingo(line):
 def speak(configs, line, play, sound_file_path):
     """Play a spoken phrase"""
     try:
+        # Optionally expand lingo
         if configs.settings.config["settings"]["speech"]["expand_lingo"]:
             phrase = eq_lingo(line)
         else:
             phrase = line
+        # Check if line has been generated
         phrase_hash = hashlib.md5(phrase.encode())
         if not os.path.exists(sound_file_path + phrase_hash.hexdigest() + ".wav"):
-            gtts_tld = configs.settings.config["settings"]["speech"]["tld"]
-            gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
-            tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
-            tts.save(sound_file_path + phrase_hash.hexdigest() + ".wav")
+            # If local AI is disabled use gTTS
+            if configs.settings.config["settings"]["speech"]["local_ai"]:
+                gtts_tld = configs.settings.config["settings"]["speech"]["gtts_tld"]
+                gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
+                tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
+                tts.save(sound_file_path + phrase_hash.hexdigest() + ".wav")
+            # Otherwise use local TTS
+            else:
+                # TODO: local TTS magic
+                pass
         if play:
             play_sound(sound_file_path + phrase_hash.hexdigest() + ".wav")
 
@@ -273,10 +281,16 @@ def alert(configs, line_type):
             phrase = configs.alerts.config["line"][line_type]["sound"]
             sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
             if not os.path.exists(sound_file_path + phrase + ".wav"):
-                gtts_tld = configs.settings.config["settings"]["speech"]["tld"]
-                gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
-                tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
-                tts.save(sound_file_path + phrase + ".wav")
+                # If local AI is disabled use gTTS
+                if not configs.settings.config["settings"]["speech"]["local_ai"]:
+                    gtts_tld = configs.settings.config["settings"]["speech"]["gtts_tld"]
+                    gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
+                    tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
+                    tts.save(sound_file_path + phrase + ".wav")
+                # Otherwise use local TTS
+                else:
+                    # TODO: local TTS magic
+                    pass
             play_sound(sound_file_path + phrase + ".wav")
 
     except Exception as e:
