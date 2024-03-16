@@ -20,9 +20,10 @@ jobs:
           with:
             python-version: ${{ matrix.python-version }}
         - name: Install poetry
-          uses: abatilo/actions-poetry@v2
-          with:
-            poetry-version: ${{ matrix.poetry-version }}
+          run: |
+              pipx install --user pipx
+              pipx ensurepath
+              pipx install poetry==${{ matrix.poetry-version }}
         - name: Define a cache for the virtual environment based on the dependencies lock file
           uses: actions/cache@v4
           with:
