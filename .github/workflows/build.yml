@@ -1,0 +1,48 @@
+name: Build eqalert
+
+on: push
+
+permissions:
+    contents: read
+
+jobs:
+    build:
+      strategy:
+        fail-fast: false
+        matrix:
+          python-version: ["3.9.16"]
+          poetry-version: ["1.7.1"]
+          os: [ubuntu-latest]
+      runs-on: ${{ matrix.os }}
+      steps:
+        - uses: actions/checkout@v4
+        - uses: actions/setup-python@v5
+          with:
+            python-version: ${{ matrix.python-version }}
+        - name: Install poetry
+          uses: abatilo/actions-poetry@v2
+          with:
+            poetry-version: ${{ matrix.poetry-version }}
+        - name: Define a cache for the virtual environment based on the dependencies lock file
+          uses: actions/cache@v4
+          with:
+            path: ./.venv
+            key: venv-${{ hashFiles('poetry.lock') }}
+        - name: Manual pip installs
+          run: |
+              poetry run pip install --upgrade pip
+              poetry run pip install --upgrade wheel
+              poetry run pip install playsound
+        - name: Install Python deps
+          run: poetry install --without dev
+        - name: Build package
+          run: poetry build
+        - name: Store build artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: eqalert-bin
+            path: |
+              dist/eqalert-*.tar.gz
+              dist/eqalert-*.whl
+            retention-days: 1
+      
