@@ -10,13 +10,15 @@ packages  = [
 ]
 
 [tool.poetry.dependencies]
-python = "~3.9.2"
+python = ">=3.9.2"
 playsound = "~1.3.0"
-gTTS = "~2.3.2"
-
+gtts = "~2.3.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.2"
+
+[tool.poetry.scripts]
+eqalert = 'eqa.eqalert:main'
 
 [build-system]
 requires = ["poetry-core"]
