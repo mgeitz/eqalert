@@ -12,26 +12,45 @@ A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface
 
 #### PyPI
 ```sh
-$ pip3 install eqalert
-$ # or if your distribution is using externally managed environemnts
+# Download
 $ pipx install eqalert
+
+# Start eqalert
+$ eqalert
 ```
 
 #### Locally
 ```sh
+# Clone the repository
 $ git clone https://github.com/mgeitz/eqalert.git
 $ cd eqalert
-$ python3 -m pip install -e .
-$ # or if your distribution is using externally managed environments
-$ # (remember the venv must be sourced to run eqalert when installed this way)
-$ python3 -m venv .venv; source .venv/bin/activate; python3 -m pip install -e .
+
+# Install poetry
+$ pipx install poetry
+
+# Install playsound
+$ poetry run pip install --upgrade pip
+$ poetry run pip install --upgrade wheel
+$ poetry run pip install playsound
+
+# Retrieve dependencies and build
+$ poetry install
+$ poetry build
+
+# Start eqalert
+$ poetry run eqalert
 ```
 
 #### Docker
 ```sh
+# Clone the repository
 $ git clone https://github.com/mgeitz/eqalert.git
 $ cd eqalert
+
+# Build
 $ docker compose build
+
+# Start eqalert
 $ docker compose run eqalert
 ```
 
