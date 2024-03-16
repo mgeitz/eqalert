@@ -14,18 +14,32 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
+
+    - name: Set-up Python
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.9.16'
-    - name: Install dependencies
+        python-version: '3.11.2'
+
+    - name: Install Poetry
+      run: pipx install poetry=="1.7.1"
+
+    - name: Cache
+      uses: actions/cache@v4
+      with:
+        path: ./.venv
+        key: venv-${{ hashFiles('poetry.lock') }}
+
+    - name: Install Playsound
       run: |
-        python -m pip install --upgrade pip
-        pip install build
-    - name: Build package
-      run: python -m build
-    - name: Publish package
-      uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+          poetry run pip install --upgrade pip
+          poetry run pip install --upgrade wheel
+          poetry run pip install playsound
+
+    - name: Install Dependencies
+      run: poetry install --without dev
+
+    - name: Configure Token
+      run: poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+
+    - name: Build and Publish EQAlert
+      run: poetry publish --build
