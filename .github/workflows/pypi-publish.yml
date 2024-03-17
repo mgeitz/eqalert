@@ -41,5 +41,8 @@ jobs:
     - name: Configure Token
       run: poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
 
-    - name: Build and Publish EQAlert
-      run: poetry publish --build
+    - name: Build
+      run: poetry build -vvv | grep -vi ignoring
+
+    - name: Publish
+      run: poetry publish

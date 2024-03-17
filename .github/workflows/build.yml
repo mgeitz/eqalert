@@ -36,7 +36,7 @@ jobs:
           run: poetry install --without dev
 
         - name: Build EQAlert
-          run: poetry build
+          run: poetry build -vvv | grep -vi ignoring
 
         - name: Store Build Artifact
           uses: actions/upload-artifact@v4
