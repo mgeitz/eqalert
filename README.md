@@ -19,7 +19,20 @@ $ pipx install eqalert
 $ eqalert
 ```
 
-#### Locally
+#### Docker
+```sh
+# Clone the repository
+$ git clone https://github.com/mgeitz/eqalert.git
+$ cd eqalert
+
+# Build
+$ docker compose build
+
+# Start eqalert
+$ docker compose run eqalert
+```
+
+#### Local Development
 ```sh
 # Clone the repository
 $ git clone https://github.com/mgeitz/eqalert.git
@@ -35,25 +48,15 @@ $ poetry run pip install --upgrade pip
 $ poetry run pip install --upgrade wheel
 $ poetry run pip install playsound
 
-# Retrieve dependencies and build
+# Retrieve dependencies
+$ poetry update
 $ poetry install
+
+# Build
 $ poetry build
 
 # Start eqalert
 $ poetry run eqalert
-```
-
-#### Docker
-```sh
-# Clone the repository
-$ git clone https://github.com/mgeitz/eqalert.git
-$ cd eqalert
-
-# Build
-$ docker compose build
-
-# Start eqalert
-$ docker compose run eqalert
 ```
 
 > Note: If running through docker after installing and running on your host, update or regenerate `~/.eqa/config/settings.json` to reflect local container paths in `/home/eqalert`
@@ -190,8 +193,10 @@ Settings and options can be modified in `config/settings.json`
 - `persist player data`: Save /who player output for spell timers
 - `raid mode auto set`: Auto-set raid context by zone
 - `speech expand lingo`: When speaking a line, replace common EQ abbreviations with complete words
-- `speech lang`: The language (IETF language tag) to read the text in - [gTTS documentation reference](https://gtts.readthedocs.io/en/latest/module.html)
-- `speech tld`: Top-level domain for the Google Translate host - [gTTS documentation reference](https://gtts.readthedocs.io/en/latest/module.html)
+- `speech gtts lang`: The language (IETF language tag) to read the text in - [gTTS documentation reference](https://gtts.readthedocs.io/en/latest/module.html)
+- `speech gtts tld`: Top-level domain for the Google Translate host - [gTTS documentation reference](https://gtts.readthedocs.io/en/latest/module.html)
+- `speech local tts enabled`: If enabled, use the local TTS model to generate all speech. When disabled, use Google TTS. Enabling this requires a restart to take effect.
+- `speech local tts model`: Coqui TTS model to use. A few good ones can be [found here](https://github.com/coqui-ai/TTS/discussions/1891), otherwise check the full [documentation](https://docs.coqui.ai/en/latest/index.html). Changing this requires a restart to take effect.
 - `spell timer consolidate`: When a spell timer expires consolidate timers for the same spell in the next 3 seconds to one alert
 - `spell timer delay`: Set a delay for all spell timer notifications n seconds before the actual event
 - `spell timer filter by list`: If enabled only create spell timers for spells in filter list

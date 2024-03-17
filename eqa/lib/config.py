@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/config.py
-   Copyright (C) 2023 M Geitz
+   Copyright (C) 2024 M Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -13911,7 +13911,7 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
                 generate_spell_timer_file = False
 
             if generate_spell_timer_file:
-                print("    - generating spell-timers.json (this may take a minute)")
+                print("    - generating spell-timers.json")
                 # Bootstrap new spell-timers.json
                 spell_timer_json = {"spells": {}, "hash": spells_hash}
 
@@ -13930,10 +13930,12 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
                         r"[^a-z\s]", "", spell_name.lower()
                     ).replace(" ", "_")
 
+                    ## If spell is valid with a duration
                     if (
                         line_type_spell_name in valid_spells
                         and spell_buffdurationformula != "0"
                     ):
+                        ### Write spell to timer file
                         spell_timer_json["spells"].update(
                             {
                                 line_type_spell_name: {
@@ -13944,16 +13946,17 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
                             }
                         )
 
-                    spell_timer_json.update({"hash": spells_hash})
+                # Add spell timer version and file hash
+                spell_timer_json.update({"hash": spells_hash})
+                spell_timer_json.update({"version": version})
 
-                    spell_timer_json.update({"version": version})
-
-                    json_data = open(spell_timer_file, "w")
-                    json.dump(spell_timer_json, json_data, sort_keys=True, indent=2)
-                    json_data.close()
+                # Write spell timers
+                json_data = open(spell_timer_file, "w")
+                json.dump(spell_timer_json, json_data, sort_keys=True, indent=2)
+                json_data.close()
         else:
-            print("Generating new spell-timers.json. This may take a minute . . .")
             # Bootstrap new spell-timers.json
+            print("    - generating spell-timers.json")
             spell_timer_json = {"spells": {}, "hash": spells_hash}
 
             # Read spells_us.txt line
@@ -13971,7 +13974,11 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
                     r"[^a-z\s]", "", spell_name.lower()
                 ).replace(" ", "_")
 
-                if line_type_spell_name in valid_spells:
+                ## If spell is valid with a duration
+                if (
+                    line_type_spell_name in valid_spells
+                    and spell_buffdurationformula != "0"
+                ):
                     spell_timer_json["spells"].update(
                         {
                             line_type_spell_name: {
@@ -13982,9 +13989,14 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
                         }
                     )
 
-                json_data = open(spell_timer_file, "w")
-                json.dump(spell_timer_json, json_data, sort_keys=True, indent=2)
-                json_data.close()
+            # Add spell timer version and file hash
+            spell_timer_json.update({"hash": spells_hash})
+            spell_timer_json.update({"version": version})
+
+            # Write spell timers
+            json_data = open(spell_timer_file, "w")
+            json.dump(spell_timer_json, json_data, sort_keys=True, indent=2)
+            json_data.close()
 
     except Exception as e:
         eqa_settings.log(
@@ -14494,8 +14506,12 @@ def build_config(base_path, version):
     },
     "speech": {
       "expand_lingo": true,
-      "tld": "com",
-      "lang": "en"
+      "gtts_tld": "com",
+      "gtts_lang": "en",
+      "local_tts": {
+        "enabled": false,
+        "model": "tts_models/en/ljspeech/tacotron2-DDC_ph"
+      }
     },
     "timers": {
       "mob": {

@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/sound.py
-   Copyright (C) 2023 M Geitz
+   Copyright (C) 2024 M Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -22,7 +22,9 @@ import os
 import re
 import time
 import threading
+import io
 import sys
+import contextlib
 import hashlib
 import gtts
 from playsound import playsound
@@ -31,21 +33,23 @@ import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
 
 
-def process(configs, sound_q, exit_flag, cfg_reload, state):
+def process(configs, sound_q, exit_flag, cfg_reload, state, local_tts):
     """
     Process: sound_q
     Produce: sound event
     """
 
-    sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
-    tmp_sound_file_path = configs.settings.config["settings"]["paths"]["tmp_sound"]
-    mute_speak = False
-    mute_alert = False
-
-    if not os.path.exists(tmp_sound_file_path):
-        os.makedirs(tmp_sound_file_path)
-
     try:
+        # Initial defaults
+        sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
+        tmp_sound_file_path = configs.settings.config["settings"]["paths"]["tmp_sound"]
+        mute_speak = False
+        mute_alert = False
+
+        # Create tmp sound directory if missing
+        if not os.path.exists(tmp_sound_file_path):
+            os.makedirs(tmp_sound_file_path)
+
         while not exit_flag.is_set() and not cfg_reload.is_set():
             # Sleep between empty checks
             if sound_q.qsize() < 1:
@@ -57,9 +61,15 @@ def process(configs, sound_q, exit_flag, cfg_reload, state):
                 sound_event = sound_q.get()
 
                 if sound_event.sound == "speak" and not mute_speak and not state.mute:
-                    speak(configs, sound_event.payload, True, tmp_sound_file_path)
+                    speak(
+                        configs,
+                        sound_event.payload,
+                        True,
+                        tmp_sound_file_path,
+                        local_tts,
+                    )
                 elif sound_event.sound == "alert" and not mute_alert and not state.mute:
-                    alert(configs, sound_event.payload)
+                    alert(configs, sound_event.payload, local_tts)
                 elif sound_event.sound == "mute_speak":
                     if sound_event.payload == "toggle":
                         if mute_speak:
@@ -241,21 +251,35 @@ def eq_lingo(line):
     return line
 
 
-def speak(configs, line, play, sound_file_path):
+def speak(configs, line, play, sound_file_path, local_tts):
     """Play a spoken phrase"""
     try:
+        # Optionally expand lingo
         if configs.settings.config["settings"]["speech"]["expand_lingo"]:
             phrase = eq_lingo(line)
         else:
             phrase = line
+        # Check if line has been generated
         phrase_hash = hashlib.md5(phrase.encode())
-        if not os.path.exists(sound_file_path + phrase_hash.hexdigest() + ".wav"):
-            gtts_tld = configs.settings.config["settings"]["speech"]["tld"]
-            gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
-            tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
-            tts.save(sound_file_path + phrase_hash.hexdigest() + ".wav")
+        sound_file_name = sound_file_path + phrase_hash.hexdigest() + ".wav"
+        if not os.path.exists(sound_file_name):
+            # If local TTS is disabled use Google TTS
+            if (
+                not configs.settings.config["settings"]["speech"]["local_tts"][
+                    "enabled"
+                ]
+                or local_tts is None
+            ):
+                gtts_tld = configs.settings.config["settings"]["speech"]["gtts_tld"]
+                gtts_lang = configs.settings.config["settings"]["speech"]["gtts_lang"]
+                google_tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
+                google_tts.save(sound_file_name)
+            # Otherwise use local TTS
+            else:
+                with nostdout():
+                    local_tts.tts_to_file(text=phrase, file_path=sound_file_name)
         if play:
-            play_sound(sound_file_path + phrase_hash.hexdigest() + ".wav")
+            play_sound(sound_file_name)
 
     except Exception as e:
         eqa_settings.log(
@@ -266,18 +290,33 @@ def speak(configs, line, play, sound_file_path):
         )
 
 
-def alert(configs, line_type):
+def alert(configs, line_type, local_tts):
     """Play configured sounds"""
     try:
         if not configs.alerts.config["line"][line_type]["sound"] == False:
             phrase = configs.alerts.config["line"][line_type]["sound"]
             sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
-            if not os.path.exists(sound_file_path + phrase + ".wav"):
-                gtts_tld = configs.settings.config["settings"]["speech"]["tld"]
-                gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
-                tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
-                tts.save(sound_file_path + phrase + ".wav")
-            play_sound(sound_file_path + phrase + ".wav")
+            sound_file_name = sound_file_path + phrase + ".wav"
+            if not os.path.exists(sound_file_name):
+                # If local TTS is disabled use gTTS
+                if (
+                    not configs.settings.config["settings"]["speech"]["local_tts"][
+                        "enabled"
+                    ]
+                    or local_tts is None
+                ):
+                    gtts_tld = configs.settings.config["settings"]["speech"]["gtts_tld"]
+                    gtts_lang = configs.settings.config["settings"]["speech"][
+                        "gtts_lang"
+                    ]
+                    google_tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
+                    google_tts.save(sound_file_name)
+                # Otherwise use local TTS
+                else:
+                    with nostdout():
+                        local_tts.tts_to_file(text=phrase, file_path=sound_file_name)
+
+            play_sound(sound_file_name)
 
     except Exception as e:
         eqa_settings.log(
@@ -335,6 +374,14 @@ def sound_tick(sound_file_path, sound_event):
             + ": "
             + str(e)
         )
+
+
+@contextlib.contextmanager
+def nostdout():
+    save_stdout = sys.stdout
+    sys.stdout = io.StringIO()
+    yield
+    sys.stdout = save_stdout
 
 
 if __name__ == "__main__":
