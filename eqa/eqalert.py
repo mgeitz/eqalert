@@ -28,6 +28,8 @@ import threading
 import time
 import queue
 import shutil
+import torch
+from TTS.api import TTS
 
 import eqa.lib.action as eqa_action
 import eqa.lib.config as eqa_config
@@ -212,6 +214,15 @@ def main():
             + configs.characters.config["char_logs"][char + "_" + server]["file_name"]
         )
 
+        # If local tts ai is enabled, initialize
+        local_tts = None
+        if configs.settings.config["settings"]["speech"]["local_tts"]["enabled"]:
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            local_tts = TTS(
+                configs.settings.config["settings"]["speech"]["local_tts"]["model"],
+                progress_bar=False,
+            ).to(device)
+
         # Initialize curses
         screen = eqa_curses.init(state, version)
 
@@ -337,12 +348,12 @@ def main():
         process_encounter.daemon = True
         process_encounter.start()
 
-        # Create Sounds, at most 3 sounds at once (sound blocking enabled)
+        # Create Sounds
         ## Consume sound_q
         ## Produce sounds
         process_sound = threading.Thread(
             target=eqa_sound.process,
-            args=(configs, sound_q, exit_flag, cfg_reload, state),
+            args=(configs, sound_q, exit_flag, cfg_reload, state, local_tts),
         )
         process_sound.daemon = True
         process_sound.start()
@@ -813,7 +824,14 @@ def main():
                         #### Restart process_sound
                         process_sound = threading.Thread(
                             target=eqa_sound.process,
-                            args=(configs, sound_q, exit_flag, cfg_reload, state),
+                            args=(
+                                configs,
+                                sound_q,
+                                exit_flag,
+                                cfg_reload,
+                                state,
+                                local_tts,
+                            ),
                         )
                         process_sound.daemon = True
                         process_sound.start()

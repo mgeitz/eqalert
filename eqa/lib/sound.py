@@ -22,10 +22,11 @@ import os
 import re
 import time
 import threading
+import io
 import sys
+import contextlib
 import hashlib
 import gtts
-import torch
 from TTS.api import TTS
 from playsound import playsound
 
@@ -33,7 +34,7 @@ import eqa.lib.struct as eqa_struct
 import eqa.lib.settings as eqa_settings
 
 
-def process(configs, sound_q, exit_flag, cfg_reload, state):
+def process(configs, sound_q, exit_flag, cfg_reload, state, local_tts):
     """
     Process: sound_q
     Produce: sound event
@@ -45,19 +46,10 @@ def process(configs, sound_q, exit_flag, cfg_reload, state):
         tmp_sound_file_path = configs.settings.config["settings"]["paths"]["tmp_sound"]
         mute_speak = False
         mute_alert = False
-        local_tts = None
 
         # Create tmp sound directory if missing
         if not os.path.exists(tmp_sound_file_path):
             os.makedirs(tmp_sound_file_path)
-
-        # If local tts ai is enabled, initialize
-        if configs.settings.config["settings"]["speech"]["local_tts"]["enabled"]:
-            device = "cuda" if torch.cuda.is_available() else "cpu"
-            local_tts = TTS(
-                configs.settings.config["settings"]["speech"]["local_tts"]["model"],
-                progress_bar=False,
-            ).to(device)
 
         while not exit_flag.is_set() and not cfg_reload.is_set():
             # Sleep between empty checks
@@ -285,7 +277,8 @@ def speak(configs, line, play, sound_file_path, local_tts):
                 google_tts.save(sound_file_name)
             # Otherwise use local TTS
             else:
-                local_tts.tts_to_file(text=phrase, file_path=sound_file_name)
+                with nostdout():
+                    local_tts.tts_to_file(text=phrase, file_path=sound_file_name)
         if play:
             play_sound(sound_file_name)
 
@@ -318,10 +311,11 @@ def alert(configs, line_type, local_tts):
                         "gtts_lang"
                     ]
                     google_tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
-                    google_tts.save(sound_file_path + phrase + ".wav")
+                    google_tts.save(sound_file_name)
                 # Otherwise use local TTS
                 else:
-                    local_tts.tts_to_file(text=phrase, file_path=sound_file_name)
+                    with nostdout():
+                        local_tts.tts_to_file(text=phrase, file_path=sound_file_name)
 
             play_sound(sound_file_name)
 
@@ -381,6 +375,14 @@ def sound_tick(sound_file_path, sound_event):
             + ": "
             + str(e)
         )
+
+
+@contextlib.contextmanager
+def nostdout():
+    save_stdout = sys.stdout
+    sys.stdout = io.StringIO()
+    yield
+    sys.stdout = save_stdout
 
 
 if __name__ == "__main__":
