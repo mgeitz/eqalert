@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/config.py
-   Copyright (C) 2023 M Geitz
+   Copyright (C) 2024 M Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -14494,7 +14494,7 @@ def build_config(base_path, version):
     },
     "speech": {
       "expand_lingo": true,
-      "varied": true,
+      "varied": true, 
       "local_ai": true,
       "gtts_tld": "com",
       "lang": "en"

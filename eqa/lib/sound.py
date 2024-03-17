@@ -3,7 +3,7 @@
 """
    Program:   EQ Alert
    File Name: eqa/lib/sound.py
-   Copyright (C) 2023 M Geitz
+   Copyright (C) 2024 M Geitz
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import threading
 import sys
 import hashlib
 import gtts
+import tts
 from playsound import playsound
 
 import eqa.lib.struct as eqa_struct
