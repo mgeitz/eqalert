@@ -1,4 +1,4 @@
-name: Build eqalert
+name: Build
 
 on: push
 
