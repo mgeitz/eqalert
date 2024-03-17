@@ -27,7 +27,6 @@ import sys
 import contextlib
 import hashlib
 import gtts
-from TTS.api import TTS
 from playsound import playsound
 
 import eqa.lib.struct as eqa_struct
