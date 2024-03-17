@@ -25,7 +25,8 @@ import threading
 import sys
 import hashlib
 import gtts
-import tts
+import torch
+from TTS.api import TTS
 from playsound import playsound
 
 import eqa.lib.struct as eqa_struct
@@ -38,15 +39,26 @@ def process(configs, sound_q, exit_flag, cfg_reload, state):
     Produce: sound event
     """
 
-    sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
-    tmp_sound_file_path = configs.settings.config["settings"]["paths"]["tmp_sound"]
-    mute_speak = False
-    mute_alert = False
-
-    if not os.path.exists(tmp_sound_file_path):
-        os.makedirs(tmp_sound_file_path)
-
     try:
+        # Initial defaults
+        sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
+        tmp_sound_file_path = configs.settings.config["settings"]["paths"]["tmp_sound"]
+        mute_speak = False
+        mute_alert = False
+        local_tts = None
+
+        # Create tmp sound directory if missing
+        if not os.path.exists(tmp_sound_file_path):
+            os.makedirs(tmp_sound_file_path)
+
+        # If local tts ai is enabled, initialize
+        if configs.settings.config["settings"]["speech"]["local_tts"]["enabled"]:
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            local_tts = TTS(
+                configs.settings.config["settings"]["speech"]["local_tts"]["model"],
+                progress_bar=False,
+            ).to(device)
+
         while not exit_flag.is_set() and not cfg_reload.is_set():
             # Sleep between empty checks
             if sound_q.qsize() < 1:
@@ -58,9 +70,15 @@ def process(configs, sound_q, exit_flag, cfg_reload, state):
                 sound_event = sound_q.get()
 
                 if sound_event.sound == "speak" and not mute_speak and not state.mute:
-                    speak(configs, sound_event.payload, True, tmp_sound_file_path)
+                    speak(
+                        configs,
+                        sound_event.payload,
+                        True,
+                        tmp_sound_file_path,
+                        local_tts,
+                    )
                 elif sound_event.sound == "alert" and not mute_alert and not state.mute:
-                    alert(configs, sound_event.payload)
+                    alert(configs, sound_event.payload, local_tts)
                 elif sound_event.sound == "mute_speak":
                     if sound_event.payload == "toggle":
                         if mute_speak:
@@ -242,7 +260,7 @@ def eq_lingo(line):
     return line
 
 
-def speak(configs, line, play, sound_file_path):
+def speak(configs, line, play, sound_file_path, local_tts):
     """Play a spoken phrase"""
     try:
         # Optionally expand lingo
@@ -252,19 +270,24 @@ def speak(configs, line, play, sound_file_path):
             phrase = line
         # Check if line has been generated
         phrase_hash = hashlib.md5(phrase.encode())
-        if not os.path.exists(sound_file_path + phrase_hash.hexdigest() + ".wav"):
-            # If local AI is disabled use gTTS
-            if configs.settings.config["settings"]["speech"]["local_ai"]:
+        sound_file_name = sound_file_path + phrase_hash.hexdigest() + ".wav"
+        if not os.path.exists(sound_file_name):
+            # If local TTS is disabled use Google TTS
+            if (
+                not configs.settings.config["settings"]["speech"]["local_tts"][
+                    "enabled"
+                ]
+                or local_tts is None
+            ):
                 gtts_tld = configs.settings.config["settings"]["speech"]["gtts_tld"]
-                gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
-                tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
-                tts.save(sound_file_path + phrase_hash.hexdigest() + ".wav")
+                gtts_lang = configs.settings.config["settings"]["speech"]["gtts_lang"]
+                google_tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
+                google_tts.save(sound_file_name)
             # Otherwise use local TTS
             else:
-                # TODO: local TTS magic
-                pass
+                local_tts.tts_to_file(text=phrase, file_path=sound_file_name)
         if play:
-            play_sound(sound_file_path + phrase_hash.hexdigest() + ".wav")
+            play_sound(sound_file_name)
 
     except Exception as e:
         eqa_settings.log(
@@ -275,24 +298,32 @@ def speak(configs, line, play, sound_file_path):
         )
 
 
-def alert(configs, line_type):
+def alert(configs, line_type, local_tts):
     """Play configured sounds"""
     try:
         if not configs.alerts.config["line"][line_type]["sound"] == False:
             phrase = configs.alerts.config["line"][line_type]["sound"]
             sound_file_path = configs.settings.config["settings"]["paths"]["sound"]
-            if not os.path.exists(sound_file_path + phrase + ".wav"):
-                # If local AI is disabled use gTTS
-                if not configs.settings.config["settings"]["speech"]["local_ai"]:
+            sound_file_name = sound_file_path + phrase + ".wav"
+            if not os.path.exists(sound_file_name):
+                # If local TTS is disabled use gTTS
+                if (
+                    not configs.settings.config["settings"]["speech"]["local_tts"][
+                        "enabled"
+                    ]
+                    or local_tts is None
+                ):
                     gtts_tld = configs.settings.config["settings"]["speech"]["gtts_tld"]
-                    gtts_lang = configs.settings.config["settings"]["speech"]["lang"]
-                    tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
-                    tts.save(sound_file_path + phrase + ".wav")
+                    gtts_lang = configs.settings.config["settings"]["speech"][
+                        "gtts_lang"
+                    ]
+                    google_tts = gtts.gTTS(text=phrase, lang=gtts_lang, tld=gtts_tld)
+                    google_tts.save(sound_file_path + phrase + ".wav")
                 # Otherwise use local TTS
                 else:
-                    # TODO: local TTS magic
-                    pass
-            play_sound(sound_file_path + phrase + ".wav")
+                    local_tts.tts_to_file(text=phrase, file_path=sound_file_name)
+
+            play_sound(sound_file_name)
 
     except Exception as e:
         eqa_settings.log(
