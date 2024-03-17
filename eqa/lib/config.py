@@ -14510,7 +14510,7 @@ def build_config(base_path, version):
       "gtts_lang": "en",
       "local_tts": {
         "enabled": false,
-        "model": "tts_models/en/ljspeech/glow-tts"
+        "model": "tts_models/en/ljspeech/tacotron2-DDC_ph"
       }
     },
     "timers": {
