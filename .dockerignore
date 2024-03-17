@@ -4,5 +4,6 @@ MANIFEST
 build/
 *.pyc
 .git
+.github/
 .gitignore
 .venv/
