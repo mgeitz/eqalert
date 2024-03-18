@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: Dockerfile
     command:
-    - eqalert
+    - poetry run eqalert
     devices:
     - "/dev/snd:/dev/snd"
     environment:
