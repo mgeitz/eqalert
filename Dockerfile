@@ -7,10 +7,15 @@ RUN groupadd -g 1000 eqalert \
     && useradd -r -u 1000 -g eqalert eqalert \
     && usermod -a -G audio eqalert
 
+RUN mkdir -p /home/eqalert \
+    && chown eqalert:eqalert /home/eqalert
+
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y \
+        espeak-ng \
         gcc \
+        g++ \
         gir1.2-gtk-3.0 \
         gstreamer1.0-alsa \
         gstreamer1.0-dev \
@@ -34,24 +39,30 @@ RUN apt-get update \
         libgstreamer1.0-dev \
         libgstreamer-plugins-bad1.0-dev \
         libgstreamer-plugins-base1.0-dev \
+        make \
         pkg-config \
         pulseaudio \
+        python3 \
         python3-dev \
-        python3-poetry \
+        python3-pip \
+        python3-venv \
+        python3-wheel \
+        python3-cairo \
+        python3-gi \
     && apt-get clean
 
 USER eqalert
 
 WORKDIR /usr/src/eqalert
 
+ENV PATH "$PATH:/home/eqalert/.local/bin"
+
+RUN pip install --upgrade pip --break-system-packages \
+    && pip install --upgrade wheel --break-system-packages \
+    && pip install playsound --break-system-packages
+
 COPY . .
 
-RUN poetry run pip install --upgrade pip \
-    && poetry run pip install --upgrade wheel \
-    && poetry run pip install playsound
+RUN python3 -m pip install -e . --break-system-packages
 
-RUN poetry install --without dev
-
-RUN poetry build
-
-CMD poetry run eqalert
+CMD eqalert
