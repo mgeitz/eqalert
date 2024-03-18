@@ -24,3 +24,8 @@ eqalert = 'eqa.eqalert:main'
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.coverage.run]
+omit = [ "__init__.py", ]
+branch = true
+source = ["./eqa", ]
