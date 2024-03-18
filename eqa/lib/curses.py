@@ -694,7 +694,7 @@ def draw_events_default_lower(stdscr):
             "Right click to lock UI elements",
             "Use 'alt + o' to view in-game options",
             "There are 11 different tradeskills",
-            "Pending Lore for 24 years now",
+            "Pending Lore for 25 years now",
             "Check out aLovingRobot on youtube",
             "Thanks for using EQAlert",
             "When in doubt, `/q` out",

@@ -1,18 +1,21 @@
-FROM python:3.11-slim-bookworm
+FROM debian:bookworm
 
 LABEL maintainer="mgeitz" \
       description="A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface for Linux"
 
-RUN groupadd -g 1000 eqalert && \
-    useradd -r -u 1000 -g eqalert eqalert && \
-    usermod -a -G audio eqalert
+RUN groupadd -g 1000 eqalert \
+    && useradd -r -u 1000 -g eqalert eqalert \
+    && usermod -a -G audio eqalert
 
-WORKDIR /usr/src/eqalert
+RUN mkdir -p /home/eqalert \
+    && chown eqalert:eqalert /home/eqalert
 
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y \
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y \
+        espeak-ng \
         gcc \
+        g++ \
         gir1.2-gtk-3.0 \
         gstreamer1.0-alsa \
         gstreamer1.0-dev \
@@ -29,7 +32,6 @@ RUN apt-get update && \
         gstreamer1.0-x \
         libasound2 \
         libasound2-plugins \
-        libcairo2-dev \
         libpulse0 \
         libsndfile1-dev \
         libgirepository1.0-dev \
@@ -37,20 +39,30 @@ RUN apt-get update && \
         libgstreamer1.0-dev \
         libgstreamer-plugins-bad1.0-dev \
         libgstreamer-plugins-base1.0-dev \
+        make \
         pkg-config \
         pulseaudio \
+        python3 \
         python3-dev \
-        python3-pip && \
-    apt-get clean && \
-    python3 -m pip install --upgrade pip
+        python3-pip \
+        python3-venv \
+        python3-wheel \
+        python3-cairo \
+        python3-gi \
+    && apt-get clean
 
-RUN python3 -m pip install pycairo && \
-    python3 -m pip install pygobject
+USER eqalert
+
+WORKDIR /usr/src/eqalert
+
+ENV PATH "$PATH:/home/eqalert/.local/bin"
+
+RUN pip install --upgrade pip --break-system-packages \
+    && pip install --upgrade wheel --break-system-packages \
+    && pip install playsound --break-system-packages
 
 COPY . .
 
-RUN python3 -m pip install -e .
-
-USER eqalert
+RUN python3 -m pip install -e . --break-system-packages
 
 CMD eqalert
