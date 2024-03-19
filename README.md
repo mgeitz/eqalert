@@ -73,11 +73,13 @@ $HOME/.eqa
           ⎿ line-alerts/
         ⎿ data/
           ⎿ timers/
-        ⎿ encounters/
+          ⎿ encounters/
         ⎿ log/
           ⎿ debug/
         ⎿ sound/
 ```
+
+> Note: `data/encounters/` is only created after an encounter report is saved
 
 Spot check these default paths generated in `config/settings.json`
 ```
