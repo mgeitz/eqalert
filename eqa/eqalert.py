@@ -77,7 +77,6 @@ def startup(base_path, version):
         configs = eqa_config.read_config(base_path)
         log_path = configs.settings.config["settings"]["paths"]["eqalert_log"]
         data_path = configs.settings.config["settings"]["paths"]["data"]
-        encounter_path = configs.settings.config["settings"]["paths"]["encounter"]
         sound_path = configs.settings.config["settings"]["paths"]["sound"]
         tmp_sound_path = configs.settings.config["settings"]["paths"]["tmp_sound"]
         char_log_path = configs.settings.config["settings"]["paths"]["everquest_logs"]
@@ -155,11 +154,6 @@ def startup(base_path, version):
             eqa_config.generate_players_file(player_data_file, version)
         else:
             eqa_config.validate_players_file(player_data_file, version)
-
-        # Make the encounter directory
-        if not os.path.exists(encounter_path):
-            print("    - creating encounter directory")
-            os.makedirs(encounter_path)
 
         # Update config char_logs
         eqa_config.update_logs(configs, version)

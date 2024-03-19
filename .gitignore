@@ -1,17 +1,17 @@
 # IDE junk
 .vscode
 
-# build/package
+# Build
 .venv/*
 build/*
 dist/*
 eqalert.egg-info/*
 *.pyc
 
-# coverage
+# Coverage
 coverage/*
 .coverage
 
+# Misc Util
 util/spells_us.txt
 util/spells_us.json
-MANIFEST
