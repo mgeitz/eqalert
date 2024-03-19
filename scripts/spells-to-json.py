@@ -2,7 +2,7 @@
 
 """
    Program:   EQ Alert
-   File Name: util/spell-to-json.py
+   File Name: scripts/spell-to-json.py
    Copyright (C) 2024 M Geitz
 
    This program is free software; you can redistribute it and/or modify
