@@ -25,10 +25,7 @@ jobs:
             key: venv-dev-${{ hashFiles('poetry.lock') }}
 
         - name: Install Playsound
-          run: |
-              poetry run pip install --upgrade pip
-              poetry run pip install --upgrade wheel
-              poetry run pip install playsound
+          run: scripts/install-playsound.sh
 
         - name: Dependencies
           run: poetry install
