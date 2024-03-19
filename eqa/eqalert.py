@@ -109,10 +109,10 @@ def startup(base_path, version):
             os.makedirs(sound_path)
         if not os.path.exists(sound_path + "tock.wav"):
             tock_path = pkg_resources.resource_filename("eqa", "sound/tock.wav")
-            shutil.move(tock_path, sound_path + "tock.wav")
+            shutil.copy(tock_path, sound_path + "tock.wav")
         if not os.path.exists(sound_path + "tick.wav"):
             tick_path = pkg_resources.resource_filename("eqa", "sound/tick.wav")
-            shutil.move(tick_path, sound_path + "tick.wav")
+            shutil.copy(tick_path, sound_path + "tick.wav")
 
         # Make the tmp sound directory
         if not os.path.exists(tmp_sound_path):
