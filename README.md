@@ -42,9 +42,7 @@ $ git clone https://github.com/mgeitz/eqalert.git
 $ cd eqalert
 
 # Install playsound
-$ poetry run pip install --upgrade pip
-$ poetry run pip install --upgrade wheel
-$ poetry run pip install playsound
+$ scripts/install-playsound.sh
 
 # Retrieve dependencies
 $ poetry update

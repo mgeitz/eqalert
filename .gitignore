@@ -7,6 +7,7 @@ build/*
 dist/*
 eqalert.egg-info/*
 *.pyc
+Pipfile
 
 # Coverage
 coverage/*
