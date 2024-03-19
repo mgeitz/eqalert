@@ -34,14 +34,12 @@ $ docker compose run eqalert
 
 #### Local Development
 ```sh
+# Install poetry
+$ pipx install poetry==1.7.1
+
 # Clone the repository
 $ git clone https://github.com/mgeitz/eqalert.git
 $ cd eqalert
-
-# Install poetry
-$ pipx install poetry
-# or
-#$ sudo apt-get install python3-poetry
 
 # Install playsound
 $ poetry run pip install --upgrade pip
@@ -89,7 +87,6 @@ Spot check these default paths generated in `config/settings.json`
     "paths": {
       "eqalert_log": "[$HOME/.eqa/]log/",
       "data": "[$HOME/.eqa/]data/",
-      "encounter": "[$HOME/.eqa/]encounters/",
       "everquest_logs": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
       "everquest_files": "[$HOME]/.wine/drive_c/Program Files/Sony/EverQuest/",
       "sound": "[$HOME/.eqa/]sound/",

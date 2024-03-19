@@ -12958,7 +12958,6 @@ def build_config(base_path, version):
     "paths": {
       "eqalert_log": "%slog/",
       "data": "%sdata/",
-      "encounter": "%sencounters/",
       "everquest_logs": "%s/.wine/drive_c/Program Files/Sony/EverQuest/Logs/",
       "everquest_files": "%s/.wine/drive_c/Program Files/Sony/EverQuest/",
       "sound": "%ssound/",
@@ -25079,7 +25078,7 @@ def write_config(base_path, config_name, version, new_config):
             if config_name == "settings":
                 f.write(
                     new_config
-                    % (base_path, base_path, base_path, home, home, base_path, version)
+                    % (base_path, base_path, home, home, base_path, version)
                 )
             else:
                 f.write(new_config % (version))
@@ -25129,7 +25128,6 @@ def write_config(base_path, config_name, version, new_config):
                     f.write(
                         new_config
                         % (
-                            base_path,
                             base_path,
                             base_path,
                             home,
