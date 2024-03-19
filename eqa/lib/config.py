@@ -30,7 +30,7 @@ import eqa.lib.settings as eqa_settings
 import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
 
-from eqa.lib.consts import VALID_SPELLS
+from eqa.lib.const.validspells import VALID_SPELLS
 
 
 @dataclass
