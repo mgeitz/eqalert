@@ -13,6 +13,6 @@ Pipfile
 coverage/*
 .coverage
 
-# Misc Util
-util/spells_us.txt
-util/spells_us.json
+# Misc Script
+scripts/spells_us.txt
+scripts/spells_us.json
