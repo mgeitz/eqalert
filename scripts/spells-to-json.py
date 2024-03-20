@@ -1590,7 +1590,6 @@ for line in raw_spell_file_lines:
     # Check if spell is a valid spell with a duration
     line_type_spell_name = re.sub(r"[^a-z\s]", "", spell_name.lower()).replace(" ", "_")
     if line_type_spell_name in valid_spells and spell_buffdurationformula != "0":
-
         ## Add relevant spell data to json
         spell_data["spells"].update(
             {
