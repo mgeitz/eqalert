@@ -30,7 +30,8 @@ import eqa.lib.settings as eqa_settings
 import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
 
-from eqa.lib.const.validspells import VALID_SPELLS
+from eqa.const.validspells import VALID_SPELLS
+from eqa.const.config_newline import NEW_LINE_OTHER_CONFIG
 
 
 @dataclass
@@ -24867,24 +24868,6 @@ def build_config(base_path, version):
 }
 """
 
-    new_line_other_config = """
-{
-  "line": {
-    "all": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    },
-    "undetermined": {
-      "alert": {},
-      "reaction": false,
-      "sound": false
-    }
-  },
-  "version": "%s"
-}
-"""
-
     try:
         home = os.path.expanduser("~")
         generated = False
@@ -25053,7 +25036,7 @@ def build_config(base_path, version):
 
         ### Other
         generated_other = write_config(
-            base_path, "line-alerts/other", version, new_line_other_config
+            base_path, "line-alerts/other", version, NEW_LINE_OTHER_CONFIG
         )
         if generated_other:
             generated = True
