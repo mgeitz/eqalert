@@ -27,7 +27,6 @@ import os
 
 import eqa.lib.config as eqa_config
 import eqa.lib.settings as eqa_settings
-import eqa.lib.sound as eqa_sound
 import eqa.lib.struct as eqa_struct
 
 

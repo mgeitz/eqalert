@@ -17,12 +17,14 @@
    with this program; if not, write to the Free Software Foundation, Inc.,
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-   Parse and react to eqemu logs
+   Consume `spells_us.txt` in the same directory and produce `spells_us.json` with the selected fields
 """
 
 import json
-import os
 import re
+
+input_file = "./spells_us.txt"
+output_file = "./spells_us.json"
 
 # Valid Spells
 valid_spells = [
@@ -1507,16 +1509,16 @@ valid_spells = [
 ]
 
 # Spell file to convert
-raw_spell_file_location = "./spells_us.txt"
+raw_spell_file_location = input_file
 
 raw_spell_file = open(raw_spell_file_location, "r")
 raw_spell_file_lines = raw_spell_file.readlines()
 
 
 # Prep JSON Target
-spell_json_file = "./spells_us.json"
+spell_json_file = output_file
 
-## Empty Slate
+# Empty Slate
 spell_json = {"spells": {}}
 
 with open(spell_json_file, "w") as f:
@@ -1530,6 +1532,7 @@ json_data.close()
 for line in raw_spell_file_lines:
     modified_line = line.split("^")
 
+    ## Map spell_us.txt field to name
     spell_id = modified_line[0]
     spell_name = modified_line[1]
     spell_player = modified_line[2]
@@ -1584,9 +1587,10 @@ for line in raw_spell_file_lines:
     spell_effectdescnum = modified_line[51]
     spell_spacing5 = modified_line[52]
 
+    # Check if spell is a valid spell with a duration
     line_type_spell_name = re.sub(r"[^a-z\s]", "", spell_name.lower()).replace(" ", "_")
-
     if line_type_spell_name in valid_spells and spell_buffdurationformula != "0":
+        ## Add relevant spell data to json
         spell_data["spells"].update(
             {
                 line_type_spell_name: {
