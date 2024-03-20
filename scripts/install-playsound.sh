@@ -15,9 +15,11 @@ NC='\e[0m'
 echo -e "  ${CYAN}Running '${PURPLE}poetry run pip install --upgrade pip${CYAN}'${NC} ..."
 poetry run pip install --upgrade pip
 echo -e "  ${YELLOW}DONE${NC}\n"
+
 echo -e "  ${CYAN}Running '${PURPLE}poetry run pip install --upgrade wheel${CYAN}'${NC} ..."
 poetry run pip install --upgrade wheel
 echo -e "  ${YELLOW}DONE${NC}\n"
+
 echo -e "  ${CYAN}Running '${PURPLE}poetry run pip install playsound${CYAN}'${NC} ..."
 poetry run pip install playsound
 echo -e "  ${LIGHT_GREEN}Playsound Installed!${NC}\n"
