@@ -42,7 +42,7 @@ $ git clone https://github.com/mgeitz/eqalert.git
 $ cd eqalert
 
 # Install playsound
-$ scripts/install-playsound.sh
+$ ./scripts/install-playsound.sh
 
 # Retrieve dependencies
 $ poetry update
