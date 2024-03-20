@@ -17,6 +17,7 @@ tts = "~0.22.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.2"
+black = {version = "^23.9.1", python = ">=3.9.0"}
 
 [tool.poetry.scripts]
 eqalert = 'eqa.eqalert:main'

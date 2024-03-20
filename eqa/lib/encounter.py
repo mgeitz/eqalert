@@ -1504,7 +1504,9 @@ def encounter_report(
         encounter_parse_time = datetime.now().strftime("%H-%M-%s")
         encounter_parse_date = datetime.now().strftime("%Y-%m-%d")
 
-        encounter_path = configs.settings.config["settings"]["paths"]["data"] + "encounters/"
+        encounter_path = (
+            configs.settings.config["settings"]["paths"]["data"] + "encounters/"
+        )
         if not os.path.exists(encounter_path):
             os.makedirs(encounter_path)
         encounter_zone_path = (

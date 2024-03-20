@@ -12427,7 +12427,9 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
         spells_hash = file_hash.hexdigest()
 
         # Parse EQ spells file into Spell Timer JSON
-        spell_timer_json = generate_spell_timer_json(spells_hash, eq_spells_file_lines, VALID_SPELLS, version)
+        spell_timer_json = generate_spell_timer_json(
+            spells_hash, eq_spells_file_lines, VALID_SPELLS, version
+        )
 
         # Write to disk
         spell_timer_json_dump = asdict(spell_timer_json)
@@ -12443,7 +12445,10 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
             + str(e)
         )
 
-def generate_spell_timer_json(spells_hash, eq_spells_file_lines, VALID_SPELLS, version) -> SpellTimerJSON:
+
+def generate_spell_timer_json(
+    spells_hash, eq_spells_file_lines, VALID_SPELLS, version
+) -> SpellTimerJSON:
     spell_timer_json = SpellTimerJSON(spells_hash, version)
 
     # Read spells_us.txt line
@@ -12461,18 +12466,19 @@ def generate_spell_timer_json(spells_hash, eq_spells_file_lines, VALID_SPELLS, v
             continue
 
         ## Clean spell name
-        line_type_spell_name = re.sub(
-            r"[^a-z\s]", "", spell_name.lower()
-        ).replace(" ", "_")
+        line_type_spell_name = re.sub(r"[^a-z\s]", "", spell_name.lower()).replace(
+            " ", "_"
+        )
 
         if line_type_spell_name in VALID_SPELLS:
-            spell_timer_data = SpellTimer(spell_cast_time, 
-                                          spell_buff_duration, 
-                                          spell_buffdurationformula)
+            spell_timer_data = SpellTimer(
+                spell_cast_time, spell_buff_duration, spell_buffdurationformula
+            )
             spell_timer_json.spells[line_type_spell_name] = spell_timer_data
 
     return spell_timer_json
-    
+
+
 def set_last_state(state, configs):
     """Save state to config"""
 
@@ -25077,8 +25083,7 @@ def write_config(base_path, config_name, version, new_config):
             f = open(line_json_path, "w", encoding="utf-8")
             if config_name == "settings":
                 f.write(
-                    new_config
-                    % (base_path, base_path, home, home, base_path, version)
+                    new_config % (base_path, base_path, home, home, base_path, version)
                 )
             else:
                 f.write(new_config % (version))
