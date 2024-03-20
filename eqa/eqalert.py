@@ -40,7 +40,6 @@ import eqa.lib.log as eqa_log
 import eqa.lib.parser as eqa_parser
 import eqa.lib.settings as eqa_settings
 import eqa.lib.sound as eqa_sound
-import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
 import eqa.lib.timer as eqa_timer
 import eqa.lib.watch as eqa_watch

@@ -22,7 +22,6 @@ from collections import namedtuple
 import datetime
 import logging
 import sys
-import time
 
 
 def usage():
