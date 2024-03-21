@@ -448,6 +448,6 @@ Whether or not this zone is considered indoors.  Currently does nothing.
 - `true`: If enabled, auto-enable raid mode in this zone
 
 #### timer
-- `#`: The value in seconds to associate to a default timer in a given zone
+- `#`: The value in seconds to set a timer for after defeating a mob
 
 > Note: No support for zones with multiple default timers, stick with the manual timer command for those for now.  For zones with tiered default timers, the shortest timer was set as the default.  You can change this value to be any number in seconds you prefer.
