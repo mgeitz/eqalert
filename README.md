@@ -70,16 +70,42 @@ You should now see `~/.eqa/` with the following structure
 ```
 $HOME/.eqa
         ⎿ config/
+          characters.json
           ⎿ line-alerts/
+            ability-output.json
+            chat-received.json
+            chat-received-npc.json
+            chat-sent.json
+            combat.json
+            command-output.json
+            emotes.json
+            group-system-messages.json
+            loot-trade.json
+            other.json
+            pets.json
+            spell-general.json
+            spell-specific.json
+            system-messages.json
+            who.json
+          settings.json
+          zones.json
         ⎿ data/
-          ⎿ timers/
           ⎿ encounters/
+          players.json
+          spell-casters.json
+          spell-items.json
+          spell-lines.json
+          spell-timers.json
+          ⎿ timers/
         ⎿ log/
           ⎿ debug/
+          eqalert.log
         ⎿ sound/
+          tick.wav
+          tock.wav
 ```
 
-> Note: `data/encounters/` is only created after an encounter report is saved
+> Note: Some folders or files may only be created after enabling certain settings
 
 Spot check these default paths generated in `config/settings.json`
 ```
