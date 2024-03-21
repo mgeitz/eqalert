@@ -11,6 +11,7 @@ A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface
 ## Install
 
 #### PyPI
+[![Publish](https://github.com/mgeitz/eqalert/actions/workflows/pypi-publish.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/pypi-publish.yml)
 ```sh
 # Download
 $ pipx install eqalert
@@ -20,6 +21,7 @@ $ eqalert
 ```
 
 #### Docker
+[![Docker Build](https://github.com/mgeitz/eqalert/actions/workflows/docker-build.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/docker-build.yml)
 ```sh
 # Clone the repository
 $ git clone https://github.com/mgeitz/eqalert.git
@@ -33,6 +35,7 @@ $ docker compose run eqalert
 ```
 
 #### Local Development
+[![Poetry Build](https://github.com/mgeitz/eqalert/actions/workflows/poetry-build.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/poetry-build.yml)
 ```sh
 # Install poetry
 $ pipx install poetry==1.7.1
