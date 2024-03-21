@@ -70,16 +70,42 @@ You should now see `~/.eqa/` with the following structure
 ```
 $HOME/.eqa
         ⎿ config/
+          characters.json
           ⎿ line-alerts/
+            ability-output.json
+            chat-received.json
+            chat-received-npc.json
+            chat-sent.json
+            combat.json
+            command-output.json
+            emotes.json
+            group-system-messages.json
+            loot-trade.json
+            other.json
+            pets.json
+            spell-general.json
+            spell-specific.json
+            system-messages.json
+            who.json
+          settings.json
+          zones.json
         ⎿ data/
-          ⎿ timers/
           ⎿ encounters/
+          players.json
+          spell-casters.json
+          spell-items.json
+          spell-lines.json
+          spell-timers.json
+          ⎿ timers/
         ⎿ log/
           ⎿ debug/
+          eqalert.log
         ⎿ sound/
+          tick.wav
+          tock.wav
 ```
 
-> Note: `data/encounters/` is only created after an encounter report is saved
+> Note: Some folders or files may only be created after enabling certain settings
 
 Spot check these default paths generated in `config/settings.json`
 ```
@@ -192,8 +218,8 @@ Settings and options can be modified in `config/settings.json`
 - `speech expand lingo`: When speaking a line, replace common EQ abbreviations with complete words
 - `speech gtts lang`: The language (IETF language tag) to read the text in - [gTTS documentation reference](https://gtts.readthedocs.io/en/latest/module.html)
 - `speech gtts tld`: Top-level domain for the Google Translate host - [gTTS documentation reference](https://gtts.readthedocs.io/en/latest/module.html)
-- `speech local tts enabled`: If enabled, use the local TTS model to generate all speech. When disabled, use Google TTS. Enabling this requires a restart to take effect.
-- `speech local tts model`: Coqui TTS model to use. A few good ones can be [found here](https://github.com/coqui-ai/TTS/discussions/1891), otherwise check the full [documentation](https://docs.coqui.ai/en/latest/index.html). Changing this requires a restart to take effect.
+- `speech local tts enabled`: If enabled, use the local TTS model to generate all speech. When disabled, use Google TTS - enabling this requires a restart to take effect
+- `speech local tts model`: Coqui TTS model to use. A few good ones can be [found here](https://github.com/coqui-ai/TTS/discussions/1891), otherwise check the full [documentation](https://docs.coqui.ai/en/latest/index.html) - changing this requires a restart to take effect
 - `spell timer consolidate`: When a spell timer expires consolidate timers for the same spell in the next 3 seconds to one alert
 - `spell timer delay`: Set a delay for all spell timer notifications n seconds before the actual event
 - `spell timer filter by list`: If enabled only create spell timers for spells in filter list
@@ -422,6 +448,6 @@ Whether or not this zone is considered indoors.  Currently does nothing.
 - `true`: If enabled, auto-enable raid mode in this zone
 
 #### timer
-- `#`: The value in seconds to associate to a default timer in a given zone
+- `#`: The value in seconds to set a timer for after defeating a mob
 
 > Note: No support for zones with multiple default timers, stick with the manual timer command for those for now.  For zones with tiered default timers, the shortest timer was set as the default.  You can change this value to be any number in seconds you prefer.
