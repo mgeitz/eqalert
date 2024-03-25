@@ -1103,7 +1103,7 @@ def build_config(base_path, version):
         # fmt: on
 
         for config in configs:
-            generated = generated or write_config(base_path, version, *config)
+            generated = write_config(base_path, version, *config) or generated
 
         return generated
 
