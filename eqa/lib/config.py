@@ -1231,63 +1231,29 @@ def build_config(base_path, version):
             generated = True
 
         ## Settings
+
         configs = [
-            (base_path, "settings", version, NEW_SETTINGS_CONFIG),
-            (base_path, "zones", version, NEW_ZONES_CONFIG),
-            (base_path, "line-alerts/combat", version, NEW_LINE_COMBAT_CONFIG),
-            (
-                base_path,
-                "line-alerts/spell-general",
-                version,
-                NEW_LINE_SPELL_GENERAL_CONFIG,
-            ),
-            (
-                base_path,
-                "line-alerts/spell-specific",
-                version,
-                NEW_LINE_SPELL_SPECIFIC_CONFIG,
-            ),
-            (base_path, "line-alerts/pets", version, NEW_LINE_PETS_CONFIG),
-            (
-                base_path,
-                "line-alerts/chat-received-npc",
-                version,
-                NEW_LINE_CHAT_NPC_CONFIG,
-            ),
-            (
-                base_path,
-                "line-alerts/chat-received",
-                version,
-                NEW_LINE_CHAT_RECEIVED_CONFIG,
-            ),
-            (base_path, "line-alerts/chat-sent", version, NEW_LINE_CHAT_SENT_CONFIG),
-            (base_path, "line-alerts/ability-output", version, NEW_LINE_ABILITY_CONFIG),
-            (
-                base_path,
-                "line-alerts/command-output",
-                version,
-                NEW_LINE_COMMAND_OUTPUT_CONFIG,
-            ),
-            (
-                base_path,
-                "line-alerts/system-messages",
-                version,
-                NEW_LINE_SYSTEM_MESSAGES_CONFIG,
-            ),
-            (
-                base_path,
-                "line-alerts/group-system-messages",
-                version,
-                NEW_LINE_GROUP_SYSTEM_MESSAGES_CONFIG,
-            ),
-            (base_path, "line-alerts/loot-trade", version, NEW_LINE_LOOT_TRADE_CONFIG),
-            (base_path, "line-alerts/emotes", version, NEW_LINE_EMOTES_CONFIG),
-            (base_path, "line-alerts/who", version, NEW_LINE_WHO_CONFIG),
-            (base_path, "line-alerts/other", version, NEW_LINE_OTHER_CONFIG),
+            ("settings", NEW_SETTINGS_CONFIG),
+            ("zones", NEW_ZONES_CONFIG),
+            ("line-alerts/combat", NEW_LINE_COMBAT_CONFIG),
+            ("line-alerts/spell-general", NEW_LINE_SPELL_GENERAL_CONFIG),
+            ("line-alerts/spell-specific", NEW_LINE_SPELL_SPECIFIC_CONFIG),
+            ("line-alerts/pets", NEW_LINE_PETS_CONFIG),
+            ("line-alerts/chat-received-npc", NEW_LINE_CHAT_NPC_CONFIG),
+            ("line-alerts/chat-received", NEW_LINE_CHAT_RECEIVED_CONFIG,),
+            ("line-alerts/chat-sent", NEW_LINE_CHAT_SENT_CONFIG),
+            ("line-alerts/ability-output", NEW_LINE_ABILITY_CONFIG),
+            ("line-alerts/command-output", NEW_LINE_COMMAND_OUTPUT_CONFIG),
+            ("line-alerts/system-messages", NEW_LINE_SYSTEM_MESSAGES_CONFIG),
+            ("line-alerts/group-system-messages", NEW_LINE_GROUP_SYSTEM_MESSAGES_CONFIG),
+            ("line-alerts/loot-trade", NEW_LINE_LOOT_TRADE_CONFIG),
+            ("line-alerts/emotes", NEW_LINE_EMOTES_CONFIG),
+            ("line-alerts/who", NEW_LINE_WHO_CONFIG),
+            ("line-alerts/other", NEW_LINE_OTHER_CONFIG),
         ]
 
         for config in configs:
-            generated = generated or write_config(*config)
+            generated = generated or write_config(base_path, version, *config)
 
         return generated
 
@@ -1300,7 +1266,7 @@ def build_config(base_path, version):
         )
 
 
-def write_config(base_path, config_name, version, new_config):
+def write_config(base_path, version, config_name, new_config):
     """Create any missing config files"""
     try:
         # Determine Config Path
