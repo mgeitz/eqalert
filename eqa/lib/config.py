@@ -1231,146 +1231,63 @@ def build_config(base_path, version):
             generated = True
 
         ## Settings
-        generated_settings = write_config(
-            base_path, "settings", version, NEW_SETTINGS_CONFIG
-        )
-        if generated_settings:
-            generated = True
+        configs = [
+            (base_path, "settings", version, NEW_SETTINGS_CONFIG),
+            (base_path, "zones", version, NEW_ZONES_CONFIG),
+            (base_path, "line-alerts/combat", version, NEW_LINE_COMBAT_CONFIG),
+            (
+                base_path,
+                "line-alerts/spell-general",
+                version,
+                NEW_LINE_SPELL_GENERAL_CONFIG,
+            ),
+            (
+                base_path,
+                "line-alerts/spell-specific",
+                version,
+                NEW_LINE_SPELL_SPECIFIC_CONFIG,
+            ),
+            (base_path, "line-alerts/pets", version, NEW_LINE_PETS_CONFIG),
+            (
+                base_path,
+                "line-alerts/chat-received-npc",
+                version,
+                NEW_LINE_CHAT_NPC_CONFIG,
+            ),
+            (
+                base_path,
+                "line-alerts/chat-received",
+                version,
+                NEW_LINE_CHAT_RECEIVED_CONFIG,
+            ),
+            (base_path, "line-alerts/chat-sent", version, NEW_LINE_CHAT_SENT_CONFIG),
+            (base_path, "line-alerts/ability-output", version, NEW_LINE_ABILITY_CONFIG),
+            (
+                base_path,
+                "line-alerts/command-output",
+                version,
+                NEW_LINE_COMMAND_OUTPUT_CONFIG,
+            ),
+            (
+                base_path,
+                "line-alerts/system-messages",
+                version,
+                NEW_LINE_SYSTEM_MESSAGES_CONFIG,
+            ),
+            (
+                base_path,
+                "line-alerts/group-system-messages",
+                version,
+                NEW_LINE_GROUP_SYSTEM_MESSAGES_CONFIG,
+            ),
+            (base_path, "line-alerts/loot-trade", version, NEW_LINE_LOOT_TRADE_CONFIG),
+            (base_path, "line-alerts/emotes", version, NEW_LINE_EMOTES_CONFIG),
+            (base_path, "line-alerts/who", version, NEW_LINE_WHO_CONFIG),
+            (base_path, "line-alerts/other", version, NEW_LINE_OTHER_CONFIG),
+        ]
 
-        ## Zones
-        generated_zones = write_config(base_path, "zones", version, NEW_ZONES_CONFIG)
-        if generated_zones:
-            generated = True
-
-        ## Line Alerts
-        ### Combat
-        generated_combat = write_config(
-            base_path, "line-alerts/combat", version, NEW_LINE_COMBAT_CONFIG
-        )
-        if generated_combat:
-            generated = True
-
-        ### Spell General
-        generated_spells = write_config(
-            base_path,
-            "line-alerts/spell-general",
-            version,
-            NEW_LINE_SPELL_GENERAL_CONFIG,
-        )
-        if generated_spells:
-            generated = True
-
-        ### Spell Specific
-        generated_spell = write_config(
-            base_path,
-            "line-alerts/spell-specific",
-            version,
-            NEW_LINE_SPELL_SPECIFIC_CONFIG,
-        )
-        if generated_spell:
-            generated = True
-
-        ### Pets
-        generated_pets = write_config(
-            base_path, "line-alerts/pets", version, NEW_LINE_PETS_CONFIG
-        )
-        if generated_pets:
-            generated = True
-
-        ### Chat Received NPC
-        generated_received_npc = write_config(
-            base_path,
-            "line-alerts/chat-received-npc",
-            version,
-            NEW_LINE_CHAT_NPC_CONFIG,
-        )
-        if generated_received_npc:
-            generated = True
-
-        ### Chat Received
-        generated_received = write_config(
-            base_path,
-            "line-alerts/chat-received",
-            version,
-            NEW_LINE_CHAT_RECEIVED_CONFIG,
-        )
-        if generated_received:
-            generated = True
-
-        ### Chat Sent
-        generated_sent = write_config(
-            base_path, "line-alerts/chat-sent", version, NEW_LINE_CHAT_SENT_CONFIG
-        )
-        if generated_sent:
-            generated = True
-
-        ### Ability Output
-        generated_ability = write_config(
-            base_path,
-            "line-alerts/ability-output",
-            version,
-            NEW_LINE_ABILITY_CONFIG,
-        )
-        if generated_ability:
-            generated = True
-
-        ### Command Output
-        generated_command = write_config(
-            base_path,
-            "line-alerts/command-output",
-            version,
-            NEW_LINE_COMMAND_OUTPUT_CONFIG,
-        )
-        if generated_command:
-            generated = True
-
-        ### System Messages
-        generated_system = write_config(
-            base_path,
-            "line-alerts/system-messages",
-            version,
-            NEW_LINE_SYSTEM_MESSAGES_CONFIG,
-        )
-        if generated_system:
-            generated = True
-
-        ### Group System Messages
-        generated_group_system = write_config(
-            base_path,
-            "line-alerts/group-system-messages",
-            version,
-            NEW_LINE_GROUP_SYSTEM_MESSAGES_CONFIG,
-        )
-        if generated_group_system:
-            generated = True
-
-        ### Loot Trade
-        generated_loot_trade = write_config(
-            base_path, "line-alerts/loot-trade", version, NEW_LINE_LOOT_TRADE_CONFIG
-        )
-        if generated_loot_trade:
-            generated = True
-
-        ### Emotes
-        generated_emotes = write_config(
-            base_path, "line-alerts/emotes", version, NEW_LINE_EMOTES_CONFIG
-        )
-        if generated_emotes:
-            generated = True
-
-        ### Who
-        generated_who = write_config(
-            base_path, "line-alerts/who", version, NEW_LINE_WHO_CONFIG
-        )
-        if generated_who:
-            generated = True
-
-        ### Other
-        generated_other = write_config(
-            base_path, "line-alerts/other", version, NEW_LINE_OTHER_CONFIG
-        )
-        if generated_other:
-            generated = True
+        for config in configs:
+            generated = generated or write_config(*config)
 
         return generated
 
