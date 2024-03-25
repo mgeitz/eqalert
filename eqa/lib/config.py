@@ -89,150 +89,154 @@ def read_config(base_path):
 
         # Characters
         config_path_char = base_path + "config/characters.json"
-        json_data = open(config_path_char, "r", encoding="utf-8")
-        config_file_characters = json.load(json_data)
-        json_data.close()
+        with open(config_path_char, "r", encoding="utf-8") as json_data:
+            config_file_characters = json.load(json_data)
+
         config_characters = eqa_struct.config_file(
             "characters", config_path_char, config_file_characters
         )
 
         # Settings
         config_path_settings = base_path + "config/settings.json"
-        json_data = open(config_path_settings, "r", encoding="utf-8")
-        config_file_settings = json.load(json_data)
-        json_data.close()
+        with open(config_path_settings, "r", encoding="utf-8") as json_data:
+            config_file_settings = json.load(json_data)
+
         config_settings = eqa_struct.config_file(
             "settings", config_path_settings, config_file_settings
         )
 
         # Zones
         config_path_zones = base_path + "config/zones.json"
-        json_data = open(config_path_zones, "r", encoding="utf-8")
-        config_file_zones = json.load(json_data)
-        json_data.close()
+        with open(config_path_zones, "r", encoding="utf-8") as json_data:
+            config_file_zones = json.load(json_data)
+
         config_zones = eqa_struct.config_file(
             "zones", config_path_zones, config_file_zones
         )
 
         ## Combat
         config_path_line_combat = base_path + "config/line-alerts/combat.json"
-        json_data = open(config_path_line_combat, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_combat, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts.update(config_file_line_alerts)
 
         ## Spell General
         config_path_line_spell_general = (
             base_path + "config/line-alerts/spell-general.json"
         )
-        json_data = open(config_path_line_spell_general, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_spell_general, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Spell Specific
         config_path_line_spell_specific = (
             base_path + "config/line-alerts/spell-specific.json"
         )
-        json_data = open(config_path_line_spell_specific, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_spell_specific, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Pets
         config_path_line_pets = base_path + "config/line-alerts/pets.json"
-        json_data = open(config_path_line_pets, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_pets, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Chat Received NPC
         config_path_line_chat_received_npc = (
             base_path + "config/line-alerts/chat-received-npc.json"
         )
-        json_data = open(config_path_line_chat_received_npc, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(
+            config_path_line_chat_received_npc, "r", encoding="utf-8"
+        ) as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Chat Received
         config_path_line_chat_received = (
             base_path + "config/line-alerts/chat-received.json"
         )
-        json_data = open(config_path_line_chat_received, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_chat_received, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Chat Sent
         config_path_line_chat_sent = base_path + "config/line-alerts/chat-sent.json"
-        json_data = open(config_path_line_chat_sent, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_chat_sent, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Ability Output
         config_path_line_ability_output = (
             base_path + "config/line-alerts/ability-output.json"
         )
-        json_data = open(config_path_line_ability_output, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_ability_output, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Command Output
         config_path_line_command_output = (
             base_path + "config/line-alerts/command-output.json"
         )
-        json_data = open(config_path_line_command_output, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_command_output, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## System Messages
         config_path_line_system_messages = (
             base_path + "config/line-alerts/system-messages.json"
         )
-        json_data = open(config_path_line_system_messages, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_system_messages, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Group System Messages
         config_path_line_group_system_messages = (
             base_path + "config/line-alerts/group-system-messages.json"
         )
-        json_data = open(config_path_line_group_system_messages, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(
+            config_path_line_group_system_messages, "r", encoding="utf-8"
+        ) as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Loot Trade Messages
         config_path_line_loot_trade = base_path + "config/line-alerts/loot-trade.json"
-        json_data = open(config_path_line_loot_trade, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_loot_trade, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Emotes
         config_path_line_emotes = base_path + "config/line-alerts/emotes.json"
-        json_data = open(config_path_line_emotes, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_emotes, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Who
         config_path_line_who = base_path + "config/line-alerts/who.json"
-        json_data = open(config_path_line_who, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_who, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         ## Other
         config_path_line_other = base_path + "config/line-alerts/other.json"
-        json_data = open(config_path_line_other, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
+        with open(config_path_line_other, "r", encoding="utf-8") as json_data:
+            config_file_line_alerts = json.load(json_data)
+
         line_alerts["line"].update(config_file_line_alerts["line"])
 
         config_line_alerts = eqa_struct.config_file("line-alerts", None, line_alerts)
@@ -306,9 +310,8 @@ def add_char_log(char, server, configs):
                 }
             }
         )
-        json_data = open(configs.characters.path, "w", encoding="utf-8")
-        json.dump(configs.characters.config, json_data, sort_keys=True, indent=2)
-        json_data.close()
+        with open(configs.characters.path, "w", encoding="utf-8") as json_data:
+            json.dump(configs.characters.config, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
         handleException(e, "add char", e_print=True, e_log=True)
@@ -318,9 +321,8 @@ def validate_char_log(configs, version):
     """Validate characters.json"""
 
     try:
-        json_data = open(configs.characters.path, "r", encoding="utf-8")
-        characters_json_data = json.load(json_data)
-        json_data.close()
+        with open(configs.characters.path, "r", encoding="utf-8") as json_data:
+            characters_json_data = json.load(json_data)
 
         if "version" in characters_json_data.keys():
             # For any future needed changes
@@ -405,9 +407,8 @@ def validate_char_log(configs, version):
 
             characters_json_data["version"] = version
 
-            json_data = open(configs.characters.path, "w", encoding="utf-8")
-            json.dump(characters_json_data, json_data, sort_keys=True, indent=2)
-            json_data.close()
+            with open(configs.characters.path, "w", encoding="utf-8") as json_data:
+                json.dump(characters_json_data, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
         handleException(e, "validate char log", e_print=False, e_log=True)
@@ -428,9 +429,8 @@ def bootstrap_state(configs, char, server):
                 "raid": False,
             }
         )
-        json_data = open(configs.settings.path, "w", encoding="utf-8")
-        json.dump(data, json_data, sort_keys=True, indent=2)
-        json_data.close()
+        with open(configs.settings.path, "w", encoding="utf-8") as json_data:
+            json.dump(data, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
         handleException(e, "bootstrap state", e_print=False, e_log=True)
@@ -455,9 +455,8 @@ def get_spell_timers(data_path):
 
     try:
         spell_timers_file = data_path + "spell-timers.json"
-        json_data = open(spell_timers_file, "r", encoding="utf-8")
-        spell_timers = json.load(json_data)
-        json_data.close()
+        with open(spell_timers_file, "r", encoding="utf-8") as json_data:
+            spell_timers = json.load(json_data)
 
         return spell_timers
 
@@ -470,9 +469,8 @@ def get_spell_casters(data_path):
 
     try:
         spell_casters_file = data_path + "spell-casters.json"
-        json_data = open(spell_casters_file, "r", encoding="utf-8")
-        spell_casters = json.load(json_data)
-        json_data.close()
+        with open(spell_casters_file, "r", encoding="utf-8") as json_data:
+            spell_casters = json.load(json_data)
 
         return spell_casters
 
@@ -485,9 +483,8 @@ def get_spell_items(data_path):
 
     try:
         spell_items_file = data_path + "spell-items.json"
-        json_data = open(spell_items_file, "r", encoding="utf-8")
-        spell_items = json.load(json_data)
-        json_data.close()
+        with open(spell_items_file, "r", encoding="utf-8") as json_data:
+            spell_items = json.load(json_data)
 
         return spell_items
 
@@ -503,18 +500,16 @@ def update_spell_casters(data_path, version):
         generate = True
 
         if os.path.isfile(spell_casters_path):
-            json_data = open(spell_casters_path, "r", encoding="utf-8")
-            spell_casters = json.load(json_data)
-            json_data.close()
+            with open(spell_casters_path, "r", encoding="utf-8") as json_data:
+                spell_casters = json.load(json_data)
 
             if spell_casters["version"] == version:
                 generate = False
 
         if generate:
             print("    - generating spell-casters.json")
-            f = open(spell_casters_path, "w", encoding="utf-8")
-            f.write(NEW_SPELL_CASTER_DATA % (version))
-            f.close()
+            with open(spell_casters_path, "w", encoding="utf-8") as f:
+                f.write(NEW_SPELL_CASTER_DATA % (version))
 
     except Exception as e:
         handleException(e, "update spell casters", e_print=False, e_log=True)
@@ -528,18 +523,16 @@ def update_spell_items(data_path, version):
         generate = True
 
         if os.path.isfile(spell_items_path):
-            json_data = open(spell_items_path, "r", encoding="utf-8")
-            spell_items = json.load(json_data)
-            json_data.close()
+            with open(spell_items_path, "r", encoding="utf-8") as json_data:
+                spell_items = json.load(json_data)
 
             if spell_items["version"] == version:
                 generate = False
 
         if generate:
             print("    - generating spell-items.json")
-            f = open(spell_items_path, "w", encoding="utf-8")
-            f.write(NEW_SPELL_ITEMS_DATA % (version))
-            f.close()
+            with open(spell_items_path, "w", encoding="utf-8") as f:
+                f.write(NEW_SPELL_ITEMS_DATA % (version))
 
     except Exception as e:
         handleException(e, "update spell items", e_print=False, e_log=True)
@@ -553,18 +546,16 @@ def update_spell_lines(data_path, version):
         generate = True
 
         if os.path.isfile(spell_lines_path):
-            json_data = open(spell_lines_path, "r", encoding="utf-8")
-            spell_lines = json.load(json_data)
-            json_data.close()
+            with open(spell_lines_path, "r", encoding="utf-8") as json_data:
+                spell_lines = json.load(json_data)
 
             if spell_lines["version"] == version:
                 generate = False
 
         if generate:
             print("    - generating spell-lines.json")
-            f = open(spell_lines_path, "w", encoding="utf-8")
-            f.write(NEW_SPELL_LINES_DATA % (version))
-            f.close()
+            with open(spell_lines_path, "w", encoding="utf-8") as f:
+                f.write(NEW_SPELL_LINES_DATA % (version))
 
     except Exception as e:
         handleException(e, "update spell lines", e_print=False, e_log=True)
@@ -575,9 +566,8 @@ def get_spell_lines(data_path):
 
     try:
         spell_lines_path = data_path + "spell-lines.json"
-        json_data = open(spell_lines_path, "r", encoding="utf-8")
-        spell_lines = json.load(json_data)
-        json_data.close()
+        with open(spell_lines_path, "r", encoding="utf-8") as json_data:
+            spell_lines = json.load(json_data)
 
         return spell_lines
 
@@ -752,24 +742,23 @@ def set_last_state(state, configs):
                 },
             }
         )
-        json_data = open(configs.settings.path, "w", encoding="utf-8")
-        json.dump(
-            configs.settings.config,
-            json_data,
-            sort_keys=True,
-            ensure_ascii=False,
-            indent=2,
-        )
-        json_data.close()
-        json_data = open(configs.characters.path, "w", encoding="utf-8")
-        json.dump(
-            configs.characters.config,
-            json_data,
-            sort_keys=True,
-            ensure_ascii=False,
-            indent=2,
-        )
-        json_data.close()
+        with open(configs.settings.path, "w", encoding="utf-8") as json_data:
+            json.dump(
+                configs.settings.config,
+                json_data,
+                sort_keys=True,
+                ensure_ascii=False,
+                indent=2,
+            )
+
+        with open(configs.characters.path, "w", encoding="utf-8") as json_data:
+            json.dump(
+                configs.characters.config,
+                json_data,
+                sort_keys=True,
+                ensure_ascii=False,
+                indent=2,
+            )
 
     except Exception as e:
         handleException(e, "set last state", e_print=False, e_log=True)
@@ -907,19 +896,19 @@ def add_type(line_type, base_path):
     """Adds default setting values for new line_type"""
 
     try:
-        json_data = open(
+        with open(
             base_path + "config/line-alerts/other.json", "r", encoding="utf-8"
-        )
-        data = json.load(json_data)
-        json_data.close()
+        ) as json_data:
+            data = json.load(json_data)
+
         data["line"].update(
             {line_type: {"sound": False, "reaction": False, "alert": {}}}
         )
-        json_data = open(
+
+        with open(
             base_path + "config/line-alerts/other.json", "w", encoding="utf-8"
-        )
-        json.dump(data, json_data, sort_keys=True, indent=2)
-        json_data.close()
+        ) as json_data:
+            json.dump(data, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
         handleException(e, "add type", e_print=False, e_log=True)
@@ -929,15 +918,14 @@ def add_zone(zone, base_path):
     """Adds default setting values for new zones"""
 
     try:
-        json_data = open(base_path + "config/zones.json", "r", encoding="utf-8")
-        data = json.load(json_data)
-        json_data.close()
+        with open(base_path + "config/zones.json", "r", encoding="utf-8") as json_data:
+            data = json.load(json_data)
+
         data["zones"].update(
             {str(zone): {"indoors": False, "raid_mode": False, "timer": 0}}
         )
-        json_data = open(base_path + "config/zones.json", "w", encoding="utf-8")
-        json.dump(data, json_data, sort_keys=True, indent=2)
-        json_data.close()
+        with open(base_path + "config/zones.json", "w", encoding="utf-8") as json_data:
+            json.dump(data, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
         handleException(e, "add zone", e_print=False, e_log=True)
@@ -948,9 +936,8 @@ def get_players_file(player_data_path, server):
 
     try:
         player_data_file = player_data_path + "players.json"
-        json_data = open(player_data_file, "r", encoding="utf-8")
-        player_json_data = json.load(json_data)
-        json_data.close()
+        with open(player_data_file, "r", encoding="utf-8") as json_data:
+            player_json_data = json.load(json_data)
 
         player_list = player_json_data["server"][server]["players"]
 
@@ -965,18 +952,16 @@ def update_players_file(player_data_path, server, player_list):
 
     try:
         player_data_file = player_data_path + "players.json"
-        json_data = open(player_data_file, "r", encoding="utf-8")
-        player_json_data = json.load(json_data)
-        json_data.close
+        with open(player_data_file, "r", encoding="utf-8") as json_data:
+            player_json_data = json.load(json_data)
 
         if server not in player_json_data["server"].keys():
             player_json_data["servers"][server] = {"players": {}}
 
         player_json_data["server"][server]["players"].update(player_list)
 
-        json_data = open(player_data_file, "w", encoding="utf-8")
-        json.dump(player_json_data, json_data, sort_keys=True, indent=2)
-        json_data.close()
+        with open(player_data_file, "w", encoding="utf-8") as json_data:
+            json.dump(player_json_data, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
         handleException(e, "update players file", e_print=False, e_log=True)
@@ -1001,9 +986,8 @@ def generate_players_file(player_data_file, version):
 
     try:
         print("    - generating players.json")
-        f = open(player_data_file, "w", encoding="utf-8")
-        f.write(new_players_data % (version))
-        f.close()
+        with open(player_data_file, "w", encoding="utf-8") as f:
+            f.write(new_players_data % (version))
 
     except Exception as e:
         handleException(e, "generate players file", e_print=False, e_log=True)
@@ -1013,9 +997,8 @@ def validate_players_file(player_data_file, version):
     """Validate Player Data File"""
 
     try:
-        json_data = open(player_data_file, "r", encoding="utf-8")
-        player_json_data = json.load(json_data)
-        json_data.close()
+        with open(player_data_file, "r", encoding="utf-8") as json_data:
+            player_json_data = json.load(json_data)
 
         if "version" in player_json_data.keys():
             # For any future needed changes
@@ -1054,9 +1037,8 @@ def validate_players_file(player_data_file, version):
                         "level": char_level,
                     }
 
-            json_data = open(player_data_file, "w", encoding="utf-8")
-            json.dump(updated_player_list, json_data, sort_keys=True, indent=2)
-            json_data.close()
+            with open(player_data_file, "w", encoding="utf-8") as json_data:
+                json.dump(updated_player_list, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
         handleException(e, "validate players file", e_print=False, e_log=True)
@@ -1072,9 +1054,9 @@ def build_config(base_path, version):
         # Check for old config.yml
         legacy_config_json_path = base_path + "config.json"
         if os.path.isfile(legacy_config_json_path):
-            json_data = open(legacy_config_json_path, "r", encoding="utf-8")
-            legacy_config_json = json.load(json_data)
-            json_data.close()
+            with open(legacy_config_json_path, "r", encoding="utf-8") as json_data:
+                legacy_config_json = json.load(json_data)
+
             old_version = str(legacy_config_json["settings"]["version"]).replace(
                 ".", "-"
             )
@@ -1091,9 +1073,9 @@ def build_config(base_path, version):
         ## Characters File
         characters_json_path = base_path + "config/characters.json"
         if not os.path.isfile(characters_json_path):
-            f = open(characters_json_path, "w", encoding="utf-8")
-            f.write(NEW_CHAR_CONFIG % (version))
-            f.close()
+            with open(characters_json_path, "w", encoding="utf-8") as f:
+                f.write(NEW_CHAR_CONFIG % (version))
+
             generated = True
 
         ## Settings
@@ -1140,14 +1122,15 @@ def write_config(base_path, version, config_name, new_config) -> bool:
 
         ## If the config does not exist
         if not os.path.isfile(line_json_path):
-            f = open(line_json_path, "w", encoding="utf-8")
-            if config_name == "settings":
-                f.write(
-                    new_config % (base_path, base_path, home, home, base_path, version)
-                )
-            else:
-                f.write(new_config % (version))
-            f.close()
+            with open(line_json_path, "w", encoding="utf-8") as f:
+                if config_name == "settings":
+                    f.write(
+                        new_config
+                        % (base_path, base_path, home, home, base_path, version)
+                    )
+                else:
+                    f.write(new_config % (version))
+
             generated = True
         ## If the config exists
         elif os.path.isfile(line_json_path):
@@ -1158,9 +1141,8 @@ def write_config(base_path, version, config_name, new_config) -> bool:
             # we'll determine that by checking the version in the existing config
             generate_config = False
             try:
-                json_data = open(line_json_path, "r", encoding="utf-8")
-                line_json = json.load(json_data)
-                json_data.close()
+                with open(line_json_path, "r", encoding="utf-8") as json_data:
+                    line_json = json.load(json_data)
                 old_version = str(line_json["version"]).replace(".", "-")
 
                 if not line_json["version"] == version:
@@ -1190,22 +1172,22 @@ def write_config(base_path, version, config_name, new_config) -> bool:
                     + ".json"
                 )
                 os.rename(line_json_path, archive_config)
-                f = open(line_json_path, "w", encoding="utf-8")
-                if config_name == "settings":
-                    f.write(
-                        new_config
-                        % (
-                            base_path,
-                            base_path,
-                            home,
-                            home,
-                            base_path,
-                            version,
+
+                with open(line_json_path, "w", encoding="utf-8") as f:
+                    if config_name == "settings":
+                        f.write(
+                            new_config
+                            % (
+                                base_path,
+                                base_path,
+                                home,
+                                home,
+                                base_path,
+                                version,
+                            )
                         )
-                    )
-                else:
-                    f.write(new_config % (version))
-                f.close()
+                    else:
+                        f.write(new_config % (version))
                 generated = True
 
         return generated
