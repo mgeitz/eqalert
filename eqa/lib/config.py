@@ -1129,12 +1129,12 @@ def build_config(base_path, version):
         handleException(e, "build config")
 
 
-def write_config(base_path, version, config_name, new_config):
+def write_config(base_path, version, config_name, new_config) -> bool:
     """Create any missing config files"""
     try:
         # Determine Config Path
         generated = False
-        generate_config = False
+
         line_json_path = base_path + "config/" + config_name + ".json"
         home = os.path.expanduser("~")
 
@@ -1154,6 +1154,8 @@ def write_config(base_path, version, config_name, new_config):
             ### Validate file is readable
 
             old_version = "unknown"
+            # do we still need to generate a new config?
+            # we'll determine that by checking the version in the existing config
             generate_config = False
             try:
                 json_data = open(line_json_path, "r", encoding="utf-8")
@@ -1210,3 +1212,4 @@ def write_config(base_path, version, config_name, new_config):
 
     except Exception as e:
         handleException(e, "write config line alert", e_print=True, e_log=False)
+        return generated
