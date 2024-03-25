@@ -21,12 +21,10 @@
 from dataclasses import asdict, dataclass, field
 import json
 import os
-import sys
 from typing import Dict
 import re
 import hashlib
 
-import eqa.lib.settings as eqa_settings
 import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
 
@@ -52,6 +50,7 @@ from eqa.const.data_spell_casters import NEW_SPELL_CASTER_DATA
 from eqa.const.data_spell_items import NEW_SPELL_ITEMS_DATA
 from eqa.const.data_spell_lines import NEW_SPELL_LINES_DATA
 from eqa.const.validspells import VALID_SPELLS
+from eqa.lib.util import handleException
 
 
 @dataclass
@@ -80,12 +79,7 @@ def init(base_path, version):
             exit(0)
 
     except Exception as e:
-        eqa_settings.log(
-            "config init: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "config init", e_print=False, e_log=True)
 
 
 def read_config(base_path):
@@ -250,18 +244,7 @@ def read_config(base_path):
         return configs
 
     except Exception as e:
-        print(
-            "config read: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-        eqa_settings.log(
-            "config read: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "config read", e_print=True, e_log=True)
 
 
 def update_logs(configs, version):
@@ -294,18 +277,7 @@ def update_logs(configs, version):
         validate_char_log(configs, version)
 
     except Exception as e:
-        print(
-            "set config chars: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-        eqa_settings.log(
-            "set config chars: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "config chars", e_print=True, e_log=True)
 
 
 def add_char_log(char, server, configs):
@@ -339,18 +311,7 @@ def add_char_log(char, server, configs):
         json_data.close()
 
     except Exception as e:
-        print(
-            "add char: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-        eqa_settings.log(
-            "add char: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "add char", e_print=True, e_log=True)
 
 
 def validate_char_log(configs, version):
@@ -449,12 +410,7 @@ def validate_char_log(configs, version):
             json_data.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "validate char log: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "validate char log", e_print=False, e_log=True)
 
 
 def bootstrap_state(configs, char, server):
@@ -477,12 +433,7 @@ def bootstrap_state(configs, char, server):
         json_data.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "bootstrap state: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "bootstrap state", e_print=False, e_log=True)
 
 
 def get_config_chars(configs):
@@ -496,12 +447,7 @@ def get_config_chars(configs):
         return chars
 
     except Exception as e:
-        eqa_settings.log(
-            "get config chars: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get config chars", e_print=False, e_log=True)
 
 
 def get_spell_timers(data_path):
@@ -516,12 +462,7 @@ def get_spell_timers(data_path):
         return spell_timers
 
     except Exception as e:
-        eqa_settings.log(
-            "get spell timers: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "cget spell timers", e_print=False, e_log=True)
 
 
 def get_spell_casters(data_path):
@@ -536,12 +477,7 @@ def get_spell_casters(data_path):
         return spell_casters
 
     except Exception as e:
-        eqa_settings.log(
-            "get spell casters: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get spell casters", e_print=False, e_log=True)
 
 
 def get_spell_items(data_path):
@@ -556,12 +492,7 @@ def get_spell_items(data_path):
         return spell_items
 
     except Exception as e:
-        eqa_settings.log(
-            "get spell items: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get spell items", e_print=False, e_log=True)
 
 
 def update_spell_casters(data_path, version):
@@ -586,12 +517,7 @@ def update_spell_casters(data_path, version):
             f.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "update spell casters: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "update spell casters", e_print=False, e_log=True)
 
 
 def update_spell_items(data_path, version):
@@ -616,12 +542,7 @@ def update_spell_items(data_path, version):
             f.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "update spell items: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "update spell items", e_print=False, e_log=True)
 
 
 def update_spell_lines(data_path, version):
@@ -646,12 +567,7 @@ def update_spell_lines(data_path, version):
             f.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "update spell lines: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "update spell lines", e_print=False, e_log=True)
 
 
 def get_spell_lines(data_path):
@@ -666,12 +582,7 @@ def get_spell_lines(data_path):
         return spell_lines
 
     except Exception as e:
-        eqa_settings.log(
-            "get spell lines: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get spell lines", e_print=False, e_log=True)
 
 
 def update_spell_timers(data_path, eq_spells_file_path, version):
@@ -707,12 +618,7 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
             json.dump(spell_timer_json_dump, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
-        eqa_settings.log(
-            "update spell timers: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "update spell timers", e_print=False, e_log=True)
 
 
 def generate_spell_timer_json(
@@ -866,12 +772,7 @@ def set_last_state(state, configs):
         json_data.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "set last state: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "set last state", e_print=False, e_log=True)
 
 
 def get_last_state(configs, char_name, char_server):
@@ -999,12 +900,7 @@ def get_last_state(configs, char_name, char_server):
         return state
 
     except Exception as e:
-        eqa_settings.log(
-            "get last state: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get last state", e_print=False, e_log=True)
 
 
 def add_type(line_type, base_path):
@@ -1026,12 +922,7 @@ def add_type(line_type, base_path):
         json_data.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "add type: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "add type", e_print=False, e_log=True)
 
 
 def add_zone(zone, base_path):
@@ -1049,12 +940,7 @@ def add_zone(zone, base_path):
         json_data.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "add zone: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "add zone", e_print=False, e_log=True)
 
 
 def get_players_file(player_data_path, server):
@@ -1071,12 +957,7 @@ def get_players_file(player_data_path, server):
         return player_list
 
     except Exception as e:
-        eqa_settings.log(
-            "get players file: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get players file", e_print=False, e_log=True)
 
 
 def update_players_file(player_data_path, server, player_list):
@@ -1098,12 +979,7 @@ def update_players_file(player_data_path, server, player_list):
         json_data.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "update players file: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "update players file", e_print=False, e_log=True)
 
 
 def generate_players_file(player_data_file, version):
@@ -1130,12 +1006,7 @@ def generate_players_file(player_data_file, version):
         f.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "generate players file: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "generate players file", e_print=False, e_log=True)
 
 
 def validate_players_file(player_data_file, version):
@@ -1188,12 +1059,7 @@ def validate_players_file(player_data_file, version):
             json_data.close()
 
     except Exception as e:
-        eqa_settings.log(
-            "validate players file: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "validate players file", e_print=False, e_log=True)
 
 
 def build_config(base_path, version):
@@ -1260,12 +1126,7 @@ def build_config(base_path, version):
         return generated
 
     except Exception as e:
-        print(
-            "build config: Error on line"
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "build config")
 
 
 def write_config(base_path, version, config_name, new_config):
@@ -1348,13 +1209,4 @@ def write_config(base_path, version, config_name, new_config):
         return generated
 
     except Exception as e:
-        print(
-            "write config line alert: Error on line"
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-
-
-if __name__ == "__main__":
-    print("Test Here")
+        handleException(e, "write config line alert", e_print=True, e_log=False)
