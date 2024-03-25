@@ -1232,6 +1232,7 @@ def build_config(base_path, version):
 
         ## Settings
 
+        # fmt: off
         configs = [
             ("settings", NEW_SETTINGS_CONFIG),
             ("zones", NEW_ZONES_CONFIG),
@@ -1240,17 +1241,18 @@ def build_config(base_path, version):
             ("line-alerts/spell-specific", NEW_LINE_SPELL_SPECIFIC_CONFIG),
             ("line-alerts/pets", NEW_LINE_PETS_CONFIG),
             ("line-alerts/chat-received-npc", NEW_LINE_CHAT_NPC_CONFIG),
-            ("line-alerts/chat-received", NEW_LINE_CHAT_RECEIVED_CONFIG,),
+            ("line-alerts/chat-received", NEW_LINE_CHAT_RECEIVED_CONFIG),
             ("line-alerts/chat-sent", NEW_LINE_CHAT_SENT_CONFIG),
             ("line-alerts/ability-output", NEW_LINE_ABILITY_CONFIG),
             ("line-alerts/command-output", NEW_LINE_COMMAND_OUTPUT_CONFIG),
             ("line-alerts/system-messages", NEW_LINE_SYSTEM_MESSAGES_CONFIG),
-            ("line-alerts/group-system-messages", NEW_LINE_GROUP_SYSTEM_MESSAGES_CONFIG),
+            ("line-alerts/group-system-messages",NEW_LINE_GROUP_SYSTEM_MESSAGES_CONFIG),
             ("line-alerts/loot-trade", NEW_LINE_LOOT_TRADE_CONFIG),
             ("line-alerts/emotes", NEW_LINE_EMOTES_CONFIG),
             ("line-alerts/who", NEW_LINE_WHO_CONFIG),
             ("line-alerts/other", NEW_LINE_OTHER_CONFIG),
         ]
+        # fmt: on
 
         for config in configs:
             generated = generated or write_config(base_path, version, *config)
