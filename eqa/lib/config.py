@@ -105,161 +105,166 @@ def read_config(base_path):
                 config_file, config_full_filepath, config_file_data
             )
 
-        # config_path_char = base_path + "config/characters.json"
-        # with open(config_path_char, "r", encoding="utf-8") as json_data:
-        #     config_file_characters = json.load(json_data)
-
-        # config_characters = eqa_struct.config_file(
-        #     "characters", config_path_char, config_file_characters
-        # )
-
-        # # Settings
-        # config_path_settings = base_path + "config/settings.json"
-        # with open(config_path_settings, "r", encoding="utf-8") as json_data:
-        #     config_file_settings = json.load(json_data)
-
-        # config_settings = eqa_struct.config_file(
-        #     "settings", config_path_settings, config_file_settings
-        # )
-
-        # # Zones
-        # config_path_zones = base_path + "config/zones.json"
-        # with open(config_path_zones, "r", encoding="utf-8") as json_data:
-        #     config_file_zones = json.load(json_data)
-
-        # config_zones = eqa_struct.config_file(
-        #     "zones", config_path_zones, config_file_zones
-        # )
-
-        line_alerts = {}
         # Read "line_alert" files
         # like {base_path}/{config_dir}/{line-alerts}/{config_file}.json
         line_alert_dir = os.path.join(config_dir, "line-alerts")
+        line_alert_files = [
+            "combat",
+            "spell-general",
+            "spell-specific",
+            "pets",
+            "chat-received-npc",
+            "chat-received",
+            "chat-sent",
+            "ability-output",
+            "command-output",
+            "system-messages",
+            "group-system-messages",
+            "loot-trade",
+            "emotes",
+            "who",
+            "other",
+        ]
 
-        ## Combat
-        config_path_line_combat = base_path + "config/line-alerts/combat.json"
-        with open(config_path_line_combat, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        line_alerts = {}
 
-        line_alerts.update(config_file_line_alerts)
+        for line_alert in line_alert_files:
+            line_alert_full_filepath = os.path.join(
+                line_alert_dir, f"{line_alert}{config_filetype_ext}"
+            )
 
-        ## Spell General
-        config_path_line_spell_general = (
-            base_path + "config/line-alerts/spell-general.json"
-        )
-        with open(config_path_line_spell_general, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+            with open(line_alert_full_filepath, "r", encoding="utf-8") as json_data:
+                line_alert_data = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+            if line_alert == "combat":
+                line_alerts.update(line_alert_data)
+            else:
+                line_alerts["line"].update(line_alert_data)
 
-        ## Spell Specific
-        config_path_line_spell_specific = (
-            base_path + "config/line-alerts/spell-specific.json"
-        )
-        with open(config_path_line_spell_specific, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Combat
+        # config_path_line_combat = base_path + "config/line-alerts/combat.json"
+        # with open(config_path_line_combat, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts.update(config_file_line_alerts)
 
-        ## Pets
-        config_path_line_pets = base_path + "config/line-alerts/pets.json"
-        with open(config_path_line_pets, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Spell General
+        # config_path_line_spell_general = (
+        #     base_path + "config/line-alerts/spell-general.json"
+        # )
+        # with open(config_path_line_spell_general, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Chat Received NPC
-        config_path_line_chat_received_npc = (
-            base_path + "config/line-alerts/chat-received-npc.json"
-        )
-        with open(
-            config_path_line_chat_received_npc, "r", encoding="utf-8"
-        ) as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Spell Specific
+        # config_path_line_spell_specific = (
+        #     base_path + "config/line-alerts/spell-specific.json"
+        # )
+        # with open(config_path_line_spell_specific, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Chat Received
-        config_path_line_chat_received = (
-            base_path + "config/line-alerts/chat-received.json"
-        )
-        with open(config_path_line_chat_received, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Pets
+        # config_path_line_pets = base_path + "config/line-alerts/pets.json"
+        # with open(config_path_line_pets, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Chat Sent
-        config_path_line_chat_sent = base_path + "config/line-alerts/chat-sent.json"
-        with open(config_path_line_chat_sent, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Chat Received NPC
+        # config_path_line_chat_received_npc = (
+        #     base_path + "config/line-alerts/chat-received-npc.json"
+        # )
+        # with open(
+        #     config_path_line_chat_received_npc, "r", encoding="utf-8"
+        # ) as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Ability Output
-        config_path_line_ability_output = (
-            base_path + "config/line-alerts/ability-output.json"
-        )
-        with open(config_path_line_ability_output, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Chat Received
+        # config_path_line_chat_received = (
+        #     base_path + "config/line-alerts/chat-received.json"
+        # )
+        # with open(config_path_line_chat_received, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Command Output
-        config_path_line_command_output = (
-            base_path + "config/line-alerts/command-output.json"
-        )
-        with open(config_path_line_command_output, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Chat Sent
+        # config_path_line_chat_sent = base_path + "config/line-alerts/chat-sent.json"
+        # with open(config_path_line_chat_sent, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## System Messages
-        config_path_line_system_messages = (
-            base_path + "config/line-alerts/system-messages.json"
-        )
-        with open(config_path_line_system_messages, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Ability Output
+        # config_path_line_ability_output = (
+        #     base_path + "config/line-alerts/ability-output.json"
+        # )
+        # with open(config_path_line_ability_output, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Group System Messages
-        config_path_line_group_system_messages = (
-            base_path + "config/line-alerts/group-system-messages.json"
-        )
-        with open(
-            config_path_line_group_system_messages, "r", encoding="utf-8"
-        ) as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Command Output
+        # config_path_line_command_output = (
+        #     base_path + "config/line-alerts/command-output.json"
+        # )
+        # with open(config_path_line_command_output, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Loot Trade Messages
-        config_path_line_loot_trade = base_path + "config/line-alerts/loot-trade.json"
-        with open(config_path_line_loot_trade, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## System Messages
+        # config_path_line_system_messages = (
+        #     base_path + "config/line-alerts/system-messages.json"
+        # )
+        # with open(config_path_line_system_messages, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Emotes
-        config_path_line_emotes = base_path + "config/line-alerts/emotes.json"
-        with open(config_path_line_emotes, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Group System Messages
+        # config_path_line_group_system_messages = (
+        #     base_path + "config/line-alerts/group-system-messages.json"
+        # )
+        # with open(
+        #     config_path_line_group_system_messages, "r", encoding="utf-8"
+        # ) as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Who
-        config_path_line_who = base_path + "config/line-alerts/who.json"
-        with open(config_path_line_who, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Loot Trade Messages
+        # config_path_line_loot_trade = base_path + "config/line-alerts/loot-trade.json"
+        # with open(config_path_line_loot_trade, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
-        ## Other
-        config_path_line_other = base_path + "config/line-alerts/other.json"
-        with open(config_path_line_other, "r", encoding="utf-8") as json_data:
-            config_file_line_alerts = json.load(json_data)
+        # ## Emotes
+        # config_path_line_emotes = base_path + "config/line-alerts/emotes.json"
+        # with open(config_path_line_emotes, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
 
-        line_alerts["line"].update(config_file_line_alerts["line"])
+        # line_alerts["line"].update(config_file_line_alerts["line"])
+
+        # ## Who
+        # config_path_line_who = base_path + "config/line-alerts/who.json"
+        # with open(config_path_line_who, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
+
+        # line_alerts["line"].update(config_file_line_alerts["line"])
+
+        # ## Other
+        # config_path_line_other = base_path + "config/line-alerts/other.json"
+        # with open(config_path_line_other, "r", encoding="utf-8") as json_data:
+        #     config_file_line_alerts = json.load(json_data)
+
+        # line_alerts["line"].update(config_file_line_alerts["line"])
 
         config_line_alerts = eqa_struct.config_file("line-alerts", None, line_alerts)
 
