@@ -1900,14 +1900,14 @@ def encounter_report(
                     )
                 total_damage = 0
                 if participant in target_melee_damage_done.keys():
-                    encounter_report["participants"][l_part][
-                        "melee_damage_taken"
-                    ] = str(target_melee_damage_done[participant])
+                    encounter_report["participants"][l_part]["melee_damage_taken"] = (
+                        str(target_melee_damage_done[participant])
+                    )
                     total_damage += int(target_melee_damage_done[participant])
                 if participant in target_spell_damage_done.keys():
-                    encounter_report["participants"][l_part][
-                        "spell_damage_taken"
-                    ] = str(target_spell_damage_done[participant])
+                    encounter_report["participants"][l_part]["spell_damage_taken"] = (
+                        str(target_spell_damage_done[participant])
+                    )
                     total_damage += int(target_spell_damage_done[participant])
                 if total_damage > 0 and int(encounter_duration) > 0:
                     encounter_report["participants"][l_part]["melee_dps_taken"] = str(
