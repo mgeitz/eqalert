@@ -85,34 +85,56 @@ def init(base_path, version):
 def read_config(base_path):
     """All the config"""
     try:
+        # Read config files
+        # like {base_path}/{config_dir}/{config_file}.json
+        config_dir = os.path.join(base_path, "config")
+        config_files = ["characters", "settings", "zones"]
+        config_filetype_ext = ".json"
+
+        configs = {}
+
+        for config_file in config_files:
+            config_full_filepath = os.path.join(
+                config_dir, f"{config_file}{config_filetype_ext}"
+            )
+
+            with open(config_full_filepath, "r", encoding="utf-8") as json_data:
+                config_file_data = json.load(json_data)
+
+            configs[config_file] = eqa_struct.config_file(
+                config_file, config_full_filepath, config_file_data
+            )
+
+        # config_path_char = base_path + "config/characters.json"
+        # with open(config_path_char, "r", encoding="utf-8") as json_data:
+        #     config_file_characters = json.load(json_data)
+
+        # config_characters = eqa_struct.config_file(
+        #     "characters", config_path_char, config_file_characters
+        # )
+
+        # # Settings
+        # config_path_settings = base_path + "config/settings.json"
+        # with open(config_path_settings, "r", encoding="utf-8") as json_data:
+        #     config_file_settings = json.load(json_data)
+
+        # config_settings = eqa_struct.config_file(
+        #     "settings", config_path_settings, config_file_settings
+        # )
+
+        # # Zones
+        # config_path_zones = base_path + "config/zones.json"
+        # with open(config_path_zones, "r", encoding="utf-8") as json_data:
+        #     config_file_zones = json.load(json_data)
+
+        # config_zones = eqa_struct.config_file(
+        #     "zones", config_path_zones, config_file_zones
+        # )
+
         line_alerts = {}
-
-        # Characters
-        config_path_char = base_path + "config/characters.json"
-        with open(config_path_char, "r", encoding="utf-8") as json_data:
-            config_file_characters = json.load(json_data)
-
-        config_characters = eqa_struct.config_file(
-            "characters", config_path_char, config_file_characters
-        )
-
-        # Settings
-        config_path_settings = base_path + "config/settings.json"
-        with open(config_path_settings, "r", encoding="utf-8") as json_data:
-            config_file_settings = json.load(json_data)
-
-        config_settings = eqa_struct.config_file(
-            "settings", config_path_settings, config_file_settings
-        )
-
-        # Zones
-        config_path_zones = base_path + "config/zones.json"
-        with open(config_path_zones, "r", encoding="utf-8") as json_data:
-            config_file_zones = json.load(json_data)
-
-        config_zones = eqa_struct.config_file(
-            "zones", config_path_zones, config_file_zones
-        )
+        # Read "line_alert" files
+        # like {base_path}/{config_dir}/{line-alerts}/{config_file}.json
+        line_alert_dir = os.path.join(config_dir, "line-alerts")
 
         ## Combat
         config_path_line_combat = base_path + "config/line-alerts/combat.json"
@@ -242,7 +264,10 @@ def read_config(base_path):
         config_line_alerts = eqa_struct.config_file("line-alerts", None, line_alerts)
 
         configs = eqa_struct.configs(
-            config_characters, config_settings, config_zones, config_line_alerts
+            configs["characters"],
+            configs["settings"],
+            configs["zones"],
+            config_line_alerts,
         )
 
         return configs
