@@ -126,7 +126,7 @@ def read_config(base_path):
             "other",
         ]
 
-        line_alerts = {}
+        line_alerts = {"line": {}, "version": ""}
 
         for line_alert in line_alert_files:
             line_alert_full_filepath = os.path.join(
@@ -136,10 +136,8 @@ def read_config(base_path):
             with open(line_alert_full_filepath, "r", encoding="utf-8") as json_data:
                 line_alert_data = json.load(json_data)
 
-            if line_alert == "combat":
-                line_alerts.update(line_alert_data)
-            else:
-                line_alerts["line"].update(line_alert_data)
+            line_alerts["line"].update(line_alert_data["line"])
+            line_alerts["version"] = line_alert_data.get("version")
 
         config_line_alerts = eqa_struct.config_file("line-alerts", None, line_alerts)
 
