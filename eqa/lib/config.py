@@ -21,12 +21,10 @@
 from dataclasses import asdict, dataclass, field
 import json
 import os
-import sys
 from typing import Dict
 import re
 import hashlib
 
-import eqa.lib.settings as eqa_settings
 import eqa.lib.state as eqa_state
 import eqa.lib.struct as eqa_struct
 
@@ -52,6 +50,7 @@ from eqa.const.data_spell_casters import NEW_SPELL_CASTER_DATA
 from eqa.const.data_spell_items import NEW_SPELL_ITEMS_DATA
 from eqa.const.data_spell_lines import NEW_SPELL_LINES_DATA
 from eqa.const.validspells import VALID_SPELLS
+from eqa.lib.util import handleException
 
 
 @dataclass
@@ -80,188 +79,81 @@ def init(base_path, version):
             exit(0)
 
     except Exception as e:
-        eqa_settings.log(
-            "config init: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "config init", e_print=False, e_log=True)
 
 
 def read_config(base_path):
     """All the config"""
     try:
+        # Read "config" files
+        # like {base_path}/{config_dir}/{config_file}.json
+        config_dir = os.path.join(base_path, "config")
+        config_files = ["characters", "settings", "zones"]
+        config_filetype_ext = ".json"
+
+        configs = {}
+
+        for config_file in config_files:
+            config_full_filepath = os.path.join(
+                config_dir, f"{config_file}{config_filetype_ext}"
+            )
+
+            with open(config_full_filepath, "r", encoding="utf-8") as json_data:
+                config_file_data = json.load(json_data)
+
+            configs[config_file] = eqa_struct.config_file(
+                config_file, config_full_filepath, config_file_data
+            )
+
+        # Read "line_alert" files
+        # like {base_path}/{config_dir}/{line-alerts}/{config_file}.json
+        line_alert_dir = os.path.join(config_dir, "line-alerts")
+        line_alert_files = [
+            "combat",
+            "spell-general",
+            "spell-specific",
+            "pets",
+            "chat-received-npc",
+            "chat-received",
+            "chat-sent",
+            "ability-output",
+            "command-output",
+            "system-messages",
+            "group-system-messages",
+            "loot-trade",
+            "emotes",
+            "who",
+            "other",
+        ]
+
         line_alerts = {}
 
-        # Characters
-        config_path_char = base_path + "config/characters.json"
-        json_data = open(config_path_char, "r", encoding="utf-8")
-        config_file_characters = json.load(json_data)
-        json_data.close()
-        config_characters = eqa_struct.config_file(
-            "characters", config_path_char, config_file_characters
-        )
+        for line_alert in line_alert_files:
+            line_alert_full_filepath = os.path.join(
+                line_alert_dir, f"{line_alert}{config_filetype_ext}"
+            )
 
-        # Settings
-        config_path_settings = base_path + "config/settings.json"
-        json_data = open(config_path_settings, "r", encoding="utf-8")
-        config_file_settings = json.load(json_data)
-        json_data.close()
-        config_settings = eqa_struct.config_file(
-            "settings", config_path_settings, config_file_settings
-        )
+            with open(line_alert_full_filepath, "r", encoding="utf-8") as json_data:
+                line_alert_data = json.load(json_data)
 
-        # Zones
-        config_path_zones = base_path + "config/zones.json"
-        json_data = open(config_path_zones, "r", encoding="utf-8")
-        config_file_zones = json.load(json_data)
-        json_data.close()
-        config_zones = eqa_struct.config_file(
-            "zones", config_path_zones, config_file_zones
-        )
-
-        ## Combat
-        config_path_line_combat = base_path + "config/line-alerts/combat.json"
-        json_data = open(config_path_line_combat, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts.update(config_file_line_alerts)
-
-        ## Spell General
-        config_path_line_spell_general = (
-            base_path + "config/line-alerts/spell-general.json"
-        )
-        json_data = open(config_path_line_spell_general, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Spell Specific
-        config_path_line_spell_specific = (
-            base_path + "config/line-alerts/spell-specific.json"
-        )
-        json_data = open(config_path_line_spell_specific, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Pets
-        config_path_line_pets = base_path + "config/line-alerts/pets.json"
-        json_data = open(config_path_line_pets, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Chat Received NPC
-        config_path_line_chat_received_npc = (
-            base_path + "config/line-alerts/chat-received-npc.json"
-        )
-        json_data = open(config_path_line_chat_received_npc, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Chat Received
-        config_path_line_chat_received = (
-            base_path + "config/line-alerts/chat-received.json"
-        )
-        json_data = open(config_path_line_chat_received, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Chat Sent
-        config_path_line_chat_sent = base_path + "config/line-alerts/chat-sent.json"
-        json_data = open(config_path_line_chat_sent, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Ability Output
-        config_path_line_ability_output = (
-            base_path + "config/line-alerts/ability-output.json"
-        )
-        json_data = open(config_path_line_ability_output, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Command Output
-        config_path_line_command_output = (
-            base_path + "config/line-alerts/command-output.json"
-        )
-        json_data = open(config_path_line_command_output, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## System Messages
-        config_path_line_system_messages = (
-            base_path + "config/line-alerts/system-messages.json"
-        )
-        json_data = open(config_path_line_system_messages, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Group System Messages
-        config_path_line_group_system_messages = (
-            base_path + "config/line-alerts/group-system-messages.json"
-        )
-        json_data = open(config_path_line_group_system_messages, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Loot Trade Messages
-        config_path_line_loot_trade = base_path + "config/line-alerts/loot-trade.json"
-        json_data = open(config_path_line_loot_trade, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Emotes
-        config_path_line_emotes = base_path + "config/line-alerts/emotes.json"
-        json_data = open(config_path_line_emotes, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Who
-        config_path_line_who = base_path + "config/line-alerts/who.json"
-        json_data = open(config_path_line_who, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
-
-        ## Other
-        config_path_line_other = base_path + "config/line-alerts/other.json"
-        json_data = open(config_path_line_other, "r", encoding="utf-8")
-        config_file_line_alerts = json.load(json_data)
-        json_data.close()
-        line_alerts["line"].update(config_file_line_alerts["line"])
+            if line_alert == "combat":
+                line_alerts.update(line_alert_data)
+            else:
+                line_alerts["line"].update(line_alert_data)
 
         config_line_alerts = eqa_struct.config_file("line-alerts", None, line_alerts)
 
         configs = eqa_struct.configs(
-            config_characters, config_settings, config_zones, config_line_alerts
+            configs["characters"],
+            configs["settings"],
+            configs["zones"],
+            config_line_alerts,
         )
 
         return configs
 
     except Exception as e:
-        print(
-            "config read: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-        eqa_settings.log(
-            "config read: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "config read", e_print=True, e_log=True)
 
 
 def update_logs(configs, version):
@@ -294,18 +186,7 @@ def update_logs(configs, version):
         validate_char_log(configs, version)
 
     except Exception as e:
-        print(
-            "set config chars: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-        eqa_settings.log(
-            "set config chars: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "config chars", e_print=True, e_log=True)
 
 
 def add_char_log(char, server, configs):
@@ -334,32 +215,19 @@ def add_char_log(char, server, configs):
                 }
             }
         )
-        json_data = open(configs.characters.path, "w", encoding="utf-8")
-        json.dump(configs.characters.config, json_data, sort_keys=True, indent=2)
-        json_data.close()
+        with open(configs.characters.path, "w", encoding="utf-8") as json_data:
+            json.dump(configs.characters.config, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
-        print(
-            "add char: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-        eqa_settings.log(
-            "add char: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "add char", e_print=True, e_log=True)
 
 
 def validate_char_log(configs, version):
     """Validate characters.json"""
 
     try:
-        json_data = open(configs.characters.path, "r", encoding="utf-8")
-        characters_json_data = json.load(json_data)
-        json_data.close()
+        with open(configs.characters.path, "r", encoding="utf-8") as json_data:
+            characters_json_data = json.load(json_data)
 
         if "version" in characters_json_data.keys():
             # For any future needed changes
@@ -444,17 +312,11 @@ def validate_char_log(configs, version):
 
             characters_json_data["version"] = version
 
-            json_data = open(configs.characters.path, "w", encoding="utf-8")
-            json.dump(characters_json_data, json_data, sort_keys=True, indent=2)
-            json_data.close()
+            with open(configs.characters.path, "w", encoding="utf-8") as json_data:
+                json.dump(characters_json_data, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
-        eqa_settings.log(
-            "validate char log: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "validate char log", e_print=False, e_log=True)
 
 
 def bootstrap_state(configs, char, server):
@@ -472,17 +334,11 @@ def bootstrap_state(configs, char, server):
                 "raid": False,
             }
         )
-        json_data = open(configs.settings.path, "w", encoding="utf-8")
-        json.dump(data, json_data, sort_keys=True, indent=2)
-        json_data.close()
+        with open(configs.settings.path, "w", encoding="utf-8") as json_data:
+            json.dump(data, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
-        eqa_settings.log(
-            "bootstrap state: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "bootstrap state", e_print=False, e_log=True)
 
 
 def get_config_chars(configs):
@@ -496,12 +352,7 @@ def get_config_chars(configs):
         return chars
 
     except Exception as e:
-        eqa_settings.log(
-            "get config chars: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get config chars", e_print=False, e_log=True)
 
 
 def get_spell_timers(data_path):
@@ -509,19 +360,13 @@ def get_spell_timers(data_path):
 
     try:
         spell_timers_file = data_path + "spell-timers.json"
-        json_data = open(spell_timers_file, "r", encoding="utf-8")
-        spell_timers = json.load(json_data)
-        json_data.close()
+        with open(spell_timers_file, "r", encoding="utf-8") as json_data:
+            spell_timers = json.load(json_data)
 
         return spell_timers
 
     except Exception as e:
-        eqa_settings.log(
-            "get spell timers: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "cget spell timers", e_print=False, e_log=True)
 
 
 def get_spell_casters(data_path):
@@ -529,19 +374,13 @@ def get_spell_casters(data_path):
 
     try:
         spell_casters_file = data_path + "spell-casters.json"
-        json_data = open(spell_casters_file, "r", encoding="utf-8")
-        spell_casters = json.load(json_data)
-        json_data.close()
+        with open(spell_casters_file, "r", encoding="utf-8") as json_data:
+            spell_casters = json.load(json_data)
 
         return spell_casters
 
     except Exception as e:
-        eqa_settings.log(
-            "get spell casters: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get spell casters", e_print=False, e_log=True)
 
 
 def get_spell_items(data_path):
@@ -549,19 +388,13 @@ def get_spell_items(data_path):
 
     try:
         spell_items_file = data_path + "spell-items.json"
-        json_data = open(spell_items_file, "r", encoding="utf-8")
-        spell_items = json.load(json_data)
-        json_data.close()
+        with open(spell_items_file, "r", encoding="utf-8") as json_data:
+            spell_items = json.load(json_data)
 
         return spell_items
 
     except Exception as e:
-        eqa_settings.log(
-            "get spell items: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get spell items", e_print=False, e_log=True)
 
 
 def update_spell_casters(data_path, version):
@@ -572,26 +405,19 @@ def update_spell_casters(data_path, version):
         generate = True
 
         if os.path.isfile(spell_casters_path):
-            json_data = open(spell_casters_path, "r", encoding="utf-8")
-            spell_casters = json.load(json_data)
-            json_data.close()
+            with open(spell_casters_path, "r", encoding="utf-8") as json_data:
+                spell_casters = json.load(json_data)
 
             if spell_casters["version"] == version:
                 generate = False
 
         if generate:
             print("    - generating spell-casters.json")
-            f = open(spell_casters_path, "w", encoding="utf-8")
-            f.write(NEW_SPELL_CASTER_DATA % (version))
-            f.close()
+            with open(spell_casters_path, "w", encoding="utf-8") as f:
+                f.write(NEW_SPELL_CASTER_DATA % (version))
 
     except Exception as e:
-        eqa_settings.log(
-            "update spell casters: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "update spell casters", e_print=False, e_log=True)
 
 
 def update_spell_items(data_path, version):
@@ -602,26 +428,19 @@ def update_spell_items(data_path, version):
         generate = True
 
         if os.path.isfile(spell_items_path):
-            json_data = open(spell_items_path, "r", encoding="utf-8")
-            spell_items = json.load(json_data)
-            json_data.close()
+            with open(spell_items_path, "r", encoding="utf-8") as json_data:
+                spell_items = json.load(json_data)
 
             if spell_items["version"] == version:
                 generate = False
 
         if generate:
             print("    - generating spell-items.json")
-            f = open(spell_items_path, "w", encoding="utf-8")
-            f.write(NEW_SPELL_ITEMS_DATA % (version))
-            f.close()
+            with open(spell_items_path, "w", encoding="utf-8") as f:
+                f.write(NEW_SPELL_ITEMS_DATA % (version))
 
     except Exception as e:
-        eqa_settings.log(
-            "update spell items: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "update spell items", e_print=False, e_log=True)
 
 
 def update_spell_lines(data_path, version):
@@ -632,26 +451,19 @@ def update_spell_lines(data_path, version):
         generate = True
 
         if os.path.isfile(spell_lines_path):
-            json_data = open(spell_lines_path, "r", encoding="utf-8")
-            spell_lines = json.load(json_data)
-            json_data.close()
+            with open(spell_lines_path, "r", encoding="utf-8") as json_data:
+                spell_lines = json.load(json_data)
 
             if spell_lines["version"] == version:
                 generate = False
 
         if generate:
             print("    - generating spell-lines.json")
-            f = open(spell_lines_path, "w", encoding="utf-8")
-            f.write(NEW_SPELL_LINES_DATA % (version))
-            f.close()
+            with open(spell_lines_path, "w", encoding="utf-8") as f:
+                f.write(NEW_SPELL_LINES_DATA % (version))
 
     except Exception as e:
-        eqa_settings.log(
-            "update spell lines: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "update spell lines", e_print=False, e_log=True)
 
 
 def get_spell_lines(data_path):
@@ -659,19 +471,13 @@ def get_spell_lines(data_path):
 
     try:
         spell_lines_path = data_path + "spell-lines.json"
-        json_data = open(spell_lines_path, "r", encoding="utf-8")
-        spell_lines = json.load(json_data)
-        json_data.close()
+        with open(spell_lines_path, "r", encoding="utf-8") as json_data:
+            spell_lines = json.load(json_data)
 
         return spell_lines
 
     except Exception as e:
-        eqa_settings.log(
-            "get spell lines: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get spell lines", e_print=False, e_log=True)
 
 
 def update_spell_timers(data_path, eq_spells_file_path, version):
@@ -707,12 +513,7 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
             json.dump(spell_timer_json_dump, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
-        eqa_settings.log(
-            "update spell timers: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "update spell timers", e_print=False, e_log=True)
 
 
 def generate_spell_timer_json(
@@ -846,32 +647,26 @@ def set_last_state(state, configs):
                 },
             }
         )
-        json_data = open(configs.settings.path, "w", encoding="utf-8")
-        json.dump(
-            configs.settings.config,
-            json_data,
-            sort_keys=True,
-            ensure_ascii=False,
-            indent=2,
-        )
-        json_data.close()
-        json_data = open(configs.characters.path, "w", encoding="utf-8")
-        json.dump(
-            configs.characters.config,
-            json_data,
-            sort_keys=True,
-            ensure_ascii=False,
-            indent=2,
-        )
-        json_data.close()
+        with open(configs.settings.path, "w", encoding="utf-8") as json_data:
+            json.dump(
+                configs.settings.config,
+                json_data,
+                sort_keys=True,
+                ensure_ascii=False,
+                indent=2,
+            )
+
+        with open(configs.characters.path, "w", encoding="utf-8") as json_data:
+            json.dump(
+                configs.characters.config,
+                json_data,
+                sort_keys=True,
+                ensure_ascii=False,
+                indent=2,
+            )
 
     except Exception as e:
-        eqa_settings.log(
-            "set last state: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "set last state", e_print=False, e_log=True)
 
 
 def get_last_state(configs, char_name, char_server):
@@ -999,62 +794,46 @@ def get_last_state(configs, char_name, char_server):
         return state
 
     except Exception as e:
-        eqa_settings.log(
-            "get last state: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get last state", e_print=False, e_log=True)
 
 
 def add_type(line_type, base_path):
     """Adds default setting values for new line_type"""
 
     try:
-        json_data = open(
+        with open(
             base_path + "config/line-alerts/other.json", "r", encoding="utf-8"
-        )
-        data = json.load(json_data)
-        json_data.close()
+        ) as json_data:
+            data = json.load(json_data)
+
         data["line"].update(
             {line_type: {"sound": False, "reaction": False, "alert": {}}}
         )
-        json_data = open(
+
+        with open(
             base_path + "config/line-alerts/other.json", "w", encoding="utf-8"
-        )
-        json.dump(data, json_data, sort_keys=True, indent=2)
-        json_data.close()
+        ) as json_data:
+            json.dump(data, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
-        eqa_settings.log(
-            "add type: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "add type", e_print=False, e_log=True)
 
 
 def add_zone(zone, base_path):
     """Adds default setting values for new zones"""
 
     try:
-        json_data = open(base_path + "config/zones.json", "r", encoding="utf-8")
-        data = json.load(json_data)
-        json_data.close()
+        with open(base_path + "config/zones.json", "r", encoding="utf-8") as json_data:
+            data = json.load(json_data)
+
         data["zones"].update(
             {str(zone): {"indoors": False, "raid_mode": False, "timer": 0}}
         )
-        json_data = open(base_path + "config/zones.json", "w", encoding="utf-8")
-        json.dump(data, json_data, sort_keys=True, indent=2)
-        json_data.close()
+        with open(base_path + "config/zones.json", "w", encoding="utf-8") as json_data:
+            json.dump(data, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
-        eqa_settings.log(
-            "add zone: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "add zone", e_print=False, e_log=True)
 
 
 def get_players_file(player_data_path, server):
@@ -1062,21 +841,15 @@ def get_players_file(player_data_path, server):
 
     try:
         player_data_file = player_data_path + "players.json"
-        json_data = open(player_data_file, "r", encoding="utf-8")
-        player_json_data = json.load(json_data)
-        json_data.close()
+        with open(player_data_file, "r", encoding="utf-8") as json_data:
+            player_json_data = json.load(json_data)
 
         player_list = player_json_data["server"][server]["players"]
 
         return player_list
 
     except Exception as e:
-        eqa_settings.log(
-            "get players file: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "get players file", e_print=False, e_log=True)
 
 
 def update_players_file(player_data_path, server, player_list):
@@ -1084,26 +857,19 @@ def update_players_file(player_data_path, server, player_list):
 
     try:
         player_data_file = player_data_path + "players.json"
-        json_data = open(player_data_file, "r", encoding="utf-8")
-        player_json_data = json.load(json_data)
-        json_data.close
+        with open(player_data_file, "r", encoding="utf-8") as json_data:
+            player_json_data = json.load(json_data)
 
         if server not in player_json_data["server"].keys():
             player_json_data["servers"][server] = {"players": {}}
 
         player_json_data["server"][server]["players"].update(player_list)
 
-        json_data = open(player_data_file, "w", encoding="utf-8")
-        json.dump(player_json_data, json_data, sort_keys=True, indent=2)
-        json_data.close()
+        with open(player_data_file, "w", encoding="utf-8") as json_data:
+            json.dump(player_json_data, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
-        eqa_settings.log(
-            "update players file: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "update players file", e_print=False, e_log=True)
 
 
 def generate_players_file(player_data_file, version):
@@ -1125,26 +891,19 @@ def generate_players_file(player_data_file, version):
 
     try:
         print("    - generating players.json")
-        f = open(player_data_file, "w", encoding="utf-8")
-        f.write(new_players_data % (version))
-        f.close()
+        with open(player_data_file, "w", encoding="utf-8") as f:
+            f.write(new_players_data % (version))
 
     except Exception as e:
-        eqa_settings.log(
-            "generate players file: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "generate players file", e_print=False, e_log=True)
 
 
 def validate_players_file(player_data_file, version):
     """Validate Player Data File"""
 
     try:
-        json_data = open(player_data_file, "r", encoding="utf-8")
-        player_json_data = json.load(json_data)
-        json_data.close()
+        with open(player_data_file, "r", encoding="utf-8") as json_data:
+            player_json_data = json.load(json_data)
 
         if "version" in player_json_data.keys():
             # For any future needed changes
@@ -1183,17 +942,11 @@ def validate_players_file(player_data_file, version):
                         "level": char_level,
                     }
 
-            json_data = open(player_data_file, "w", encoding="utf-8")
-            json.dump(updated_player_list, json_data, sort_keys=True, indent=2)
-            json_data.close()
+            with open(player_data_file, "w", encoding="utf-8") as json_data:
+                json.dump(updated_player_list, json_data, sort_keys=True, indent=2)
 
     except Exception as e:
-        eqa_settings.log(
-            "validate players file: Error on line "
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "validate players file", e_print=False, e_log=True)
 
 
 def build_config(base_path, version):
@@ -1206,9 +959,9 @@ def build_config(base_path, version):
         # Check for old config.yml
         legacy_config_json_path = base_path + "config.json"
         if os.path.isfile(legacy_config_json_path):
-            json_data = open(legacy_config_json_path, "r", encoding="utf-8")
-            legacy_config_json = json.load(json_data)
-            json_data.close()
+            with open(legacy_config_json_path, "r", encoding="utf-8") as json_data:
+                legacy_config_json = json.load(json_data)
+
             old_version = str(legacy_config_json["settings"]["version"]).replace(
                 ".", "-"
             )
@@ -1225,194 +978,76 @@ def build_config(base_path, version):
         ## Characters File
         characters_json_path = base_path + "config/characters.json"
         if not os.path.isfile(characters_json_path):
-            f = open(characters_json_path, "w", encoding="utf-8")
-            f.write(NEW_CHAR_CONFIG % (version))
-            f.close()
+            with open(characters_json_path, "w", encoding="utf-8") as f:
+                f.write(NEW_CHAR_CONFIG % (version))
+
             generated = True
 
         ## Settings
-        generated_settings = write_config(
-            base_path, "settings", version, NEW_SETTINGS_CONFIG
-        )
-        if generated_settings:
-            generated = True
 
-        ## Zones
-        generated_zones = write_config(base_path, "zones", version, NEW_ZONES_CONFIG)
-        if generated_zones:
-            generated = True
+        # fmt: off
+        configs = [
+            ("settings", NEW_SETTINGS_CONFIG),
+            ("zones", NEW_ZONES_CONFIG),
+            ("line-alerts/combat", NEW_LINE_COMBAT_CONFIG),
+            ("line-alerts/spell-general", NEW_LINE_SPELL_GENERAL_CONFIG),
+            ("line-alerts/spell-specific", NEW_LINE_SPELL_SPECIFIC_CONFIG),
+            ("line-alerts/pets", NEW_LINE_PETS_CONFIG),
+            ("line-alerts/chat-received-npc", NEW_LINE_CHAT_NPC_CONFIG),
+            ("line-alerts/chat-received", NEW_LINE_CHAT_RECEIVED_CONFIG),
+            ("line-alerts/chat-sent", NEW_LINE_CHAT_SENT_CONFIG),
+            ("line-alerts/ability-output", NEW_LINE_ABILITY_CONFIG),
+            ("line-alerts/command-output", NEW_LINE_COMMAND_OUTPUT_CONFIG),
+            ("line-alerts/system-messages", NEW_LINE_SYSTEM_MESSAGES_CONFIG),
+            ("line-alerts/group-system-messages",NEW_LINE_GROUP_SYSTEM_MESSAGES_CONFIG),
+            ("line-alerts/loot-trade", NEW_LINE_LOOT_TRADE_CONFIG),
+            ("line-alerts/emotes", NEW_LINE_EMOTES_CONFIG),
+            ("line-alerts/who", NEW_LINE_WHO_CONFIG),
+            ("line-alerts/other", NEW_LINE_OTHER_CONFIG),
+        ]
+        # fmt: on
 
-        ## Line Alerts
-        ### Combat
-        generated_combat = write_config(
-            base_path, "line-alerts/combat", version, NEW_LINE_COMBAT_CONFIG
-        )
-        if generated_combat:
-            generated = True
-
-        ### Spell General
-        generated_spells = write_config(
-            base_path,
-            "line-alerts/spell-general",
-            version,
-            NEW_LINE_SPELL_GENERAL_CONFIG,
-        )
-        if generated_spells:
-            generated = True
-
-        ### Spell Specific
-        generated_spell = write_config(
-            base_path,
-            "line-alerts/spell-specific",
-            version,
-            NEW_LINE_SPELL_SPECIFIC_CONFIG,
-        )
-        if generated_spell:
-            generated = True
-
-        ### Pets
-        generated_pets = write_config(
-            base_path, "line-alerts/pets", version, NEW_LINE_PETS_CONFIG
-        )
-        if generated_pets:
-            generated = True
-
-        ### Chat Received NPC
-        generated_received_npc = write_config(
-            base_path,
-            "line-alerts/chat-received-npc",
-            version,
-            NEW_LINE_CHAT_NPC_CONFIG,
-        )
-        if generated_received_npc:
-            generated = True
-
-        ### Chat Received
-        generated_received = write_config(
-            base_path,
-            "line-alerts/chat-received",
-            version,
-            NEW_LINE_CHAT_RECEIVED_CONFIG,
-        )
-        if generated_received:
-            generated = True
-
-        ### Chat Sent
-        generated_sent = write_config(
-            base_path, "line-alerts/chat-sent", version, NEW_LINE_CHAT_SENT_CONFIG
-        )
-        if generated_sent:
-            generated = True
-
-        ### Ability Output
-        generated_ability = write_config(
-            base_path,
-            "line-alerts/ability-output",
-            version,
-            NEW_LINE_ABILITY_CONFIG,
-        )
-        if generated_ability:
-            generated = True
-
-        ### Command Output
-        generated_command = write_config(
-            base_path,
-            "line-alerts/command-output",
-            version,
-            NEW_LINE_COMMAND_OUTPUT_CONFIG,
-        )
-        if generated_command:
-            generated = True
-
-        ### System Messages
-        generated_system = write_config(
-            base_path,
-            "line-alerts/system-messages",
-            version,
-            NEW_LINE_SYSTEM_MESSAGES_CONFIG,
-        )
-        if generated_system:
-            generated = True
-
-        ### Group System Messages
-        generated_group_system = write_config(
-            base_path,
-            "line-alerts/group-system-messages",
-            version,
-            NEW_LINE_GROUP_SYSTEM_MESSAGES_CONFIG,
-        )
-        if generated_group_system:
-            generated = True
-
-        ### Loot Trade
-        generated_loot_trade = write_config(
-            base_path, "line-alerts/loot-trade", version, NEW_LINE_LOOT_TRADE_CONFIG
-        )
-        if generated_loot_trade:
-            generated = True
-
-        ### Emotes
-        generated_emotes = write_config(
-            base_path, "line-alerts/emotes", version, NEW_LINE_EMOTES_CONFIG
-        )
-        if generated_emotes:
-            generated = True
-
-        ### Who
-        generated_who = write_config(
-            base_path, "line-alerts/who", version, NEW_LINE_WHO_CONFIG
-        )
-        if generated_who:
-            generated = True
-
-        ### Other
-        generated_other = write_config(
-            base_path, "line-alerts/other", version, NEW_LINE_OTHER_CONFIG
-        )
-        if generated_other:
-            generated = True
+        for config in configs:
+            generated = write_config(base_path, version, *config) or generated
 
         return generated
 
     except Exception as e:
-        print(
-            "build config: Error on line"
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
+        handleException(e, "build config")
 
 
-def write_config(base_path, config_name, version, new_config):
+def write_config(base_path, version, config_name, new_config) -> bool:
     """Create any missing config files"""
     try:
         # Determine Config Path
         generated = False
-        generate_config = False
+
         line_json_path = base_path + "config/" + config_name + ".json"
         home = os.path.expanduser("~")
 
         ## If the config does not exist
         if not os.path.isfile(line_json_path):
-            f = open(line_json_path, "w", encoding="utf-8")
-            if config_name == "settings":
-                f.write(
-                    new_config % (base_path, base_path, home, home, base_path, version)
-                )
-            else:
-                f.write(new_config % (version))
-            f.close()
+            with open(line_json_path, "w", encoding="utf-8") as f:
+                if config_name == "settings":
+                    f.write(
+                        new_config
+                        % (base_path, base_path, home, home, base_path, version)
+                    )
+                else:
+                    f.write(new_config % (version))
+
             generated = True
         ## If the config exists
         elif os.path.isfile(line_json_path):
             ### Validate file is readable
 
             old_version = "unknown"
+            # do we still need to generate a new config?
+            # we'll determine that by checking the version in the existing config
             generate_config = False
             try:
-                json_data = open(line_json_path, "r", encoding="utf-8")
-                line_json = json.load(json_data)
-                json_data.close()
+                with open(line_json_path, "r", encoding="utf-8") as json_data:
+                    line_json = json.load(json_data)
                 old_version = str(line_json["version"]).replace(".", "-")
 
                 if not line_json["version"] == version:
@@ -1442,34 +1077,26 @@ def write_config(base_path, config_name, version, new_config):
                     + ".json"
                 )
                 os.rename(line_json_path, archive_config)
-                f = open(line_json_path, "w", encoding="utf-8")
-                if config_name == "settings":
-                    f.write(
-                        new_config
-                        % (
-                            base_path,
-                            base_path,
-                            home,
-                            home,
-                            base_path,
-                            version,
+
+                with open(line_json_path, "w", encoding="utf-8") as f:
+                    if config_name == "settings":
+                        f.write(
+                            new_config
+                            % (
+                                base_path,
+                                base_path,
+                                home,
+                                home,
+                                base_path,
+                                version,
+                            )
                         )
-                    )
-                else:
-                    f.write(new_config % (version))
-                f.close()
+                    else:
+                        f.write(new_config % (version))
                 generated = True
 
         return generated
 
     except Exception as e:
-        print(
-            "write config line alert: Error on line"
-            + str(sys.exc_info()[-1].tb_lineno)
-            + ": "
-            + str(e)
-        )
-
-
-if __name__ == "__main__":
-    print("Test Here")
+        handleException(e, "write config line alert", e_print=True, e_log=False)
+        return generated
