@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "eqalert"
-version = "3.7.1"
+version = "3.7.2"
 description = "Configurable and Context Driven Project 1999 Log Parser"
 authors = ["M Geitz <git@geitz.xyz>"]
 license = "GPL2"

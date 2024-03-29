@@ -57,7 +57,7 @@ from eqa.lib.util import handleException
 class SpellTimer:
     cast_time: str
     duration: str
-    forumla: str
+    formula: str
 
 
 @dataclass
