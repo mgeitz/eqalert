@@ -50,7 +50,7 @@ from eqa.const.data_spell_casters import NEW_SPELL_CASTER_DATA
 from eqa.const.data_spell_items import NEW_SPELL_ITEMS_DATA
 from eqa.const.data_spell_lines import NEW_SPELL_LINES_DATA
 from eqa.const.validspells import VALID_SPELLS
-from eqa.lib.util import handleException
+from eqa.lib.util import handleException, JSONFileHandler
 
 
 @dataclass
@@ -98,8 +98,8 @@ def read_config(base_path):
                 config_dir, f"{config_file}{config_filetype_ext}"
             )
 
-            with open(config_full_filepath, "r", encoding="utf-8") as json_data:
-                config_file_data = json.load(json_data)
+            file_handler = JSONFileHandler(config_full_filepath)
+            config_file_data = file_handler.read()
 
             configs[config_file] = eqa_struct.config_file(
                 config_file, config_full_filepath, config_file_data
@@ -133,10 +133,10 @@ def read_config(base_path):
                 line_alert_dir, f"{line_alert}{config_filetype_ext}"
             )
 
-            with open(line_alert_full_filepath, "r", encoding="utf-8") as json_data:
-                line_alert_data = json.load(json_data)
+            file_handler = JSONFileHandler(line_alert_full_filepath)
+            line_alert_data = file_handler.read()
 
-            line_alerts["line"].update(line_alert_data["line"])
+            line_alerts["line"].update(line_alert_data.get("line"))
             line_alerts["version"] = line_alert_data.get("version")
 
         config_line_alerts = eqa_struct.config_file("line-alerts", None, line_alerts)

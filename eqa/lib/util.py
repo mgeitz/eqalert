@@ -23,7 +23,7 @@ def handleException(e: Exception, e_desc: str, e_print=True, e_log=False):
 
 
 class SerializedFileHandler(ABC):
-    def __init__(self, filename) -> None:
+    def __init__(self, filename: str) -> None:
         self.filename = filename
 
     @abstractmethod
@@ -38,9 +38,9 @@ class SerializedFileHandler(ABC):
         with open(self.filename, "w", encoding="utf-8") as file:
             file.write(self.serialize(data) or "")
 
-    def read(self, data):
+    def read(self) -> dict:
         with open(self.filename, "r", encoding="utf-8") as file:
-            return self.deserialize(data)
+            return self.deserialize(file.read()) or {}
 
 
 class JSONFileHandler(SerializedFileHandler):
