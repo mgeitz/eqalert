@@ -1,3 +1,6 @@
+from abc import ABC, abstractmethod
+from json import dumps as json_dumps
+from json import loads as json_loads
 import sys
 
 import eqa.lib.settings as eqa_settings
@@ -17,3 +20,32 @@ def handleException(e: Exception, e_desc: str, e_print=True, e_log=False):
         print(error_string)
     if e_log:
         eqa_settings.log(error_string)
+
+
+class SerializedFileHandler(ABC):
+    def __init__(self, filename) -> None:
+        self.filename = filename
+
+    @abstractmethod
+    def serialize(self, data):
+        pass
+
+    @abstractmethod
+    def deserialize(self, data):
+        pass
+
+    def write(self, data):
+        with open(self.filename, "w", encoding="utf-8") as file:
+            file.write(self.serialize(data) or "")
+
+    def read(self, data):
+        with open(self.filename, "r", encoding="utf-8") as file:
+            return self.deserialize(data)
+
+
+class JSONFileHandler(SerializedFileHandler):
+    def serialize(self, data):
+        return json_dumps(data).encode("utf-8")
+
+    def deserialize(self, data):
+        return json_loads(data.decode("utf-8"))
