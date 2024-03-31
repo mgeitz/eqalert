@@ -1,9 +1,12 @@
 from pathlib import Path
+
+import pytest
 from eqa.lib.config import (
     generate_spell_timer_json,
     SpellTimerJSON,
     SpellTimer,
     read_config_files,
+    read_line_alert_files,
 )
 from eqa.lib.struct import config_file
 from eqa.lib.util import JSONFileHandler
@@ -62,5 +65,35 @@ def test_read_config_files():
         )
     }
     actual = read_config_files(test_file_path, test_config_files, TestJSONFileHandler)
+
+    assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "file_handler_result, expected",
+    [
+        (
+            '{ "line": {"foo": { "bar": "baz" }}}',
+            {"line": {"foo": {"bar": "baz"}}, "version": None},
+        ),
+        (
+            '{ "line": {"foo": { "bar": "baz" }}, "version": "1.2.3"}',
+            {"line": {"foo": {"bar": "baz"}}, "version": "1.2.3"},
+        ),
+    ],
+)
+def test_read_line_alert_files(file_handler_result, expected):
+
+    class TestJSONFileHandler(JSONFileHandler):
+        def read(self):
+            # Short circuiting the file read operation
+            return self.deserialize(file_handler_result)
+
+    test_file_path = Path("whatever")
+    test_config_files = ["test_valid"]
+
+    actual = read_line_alert_files(
+        test_file_path, test_config_files, TestJSONFileHandler
+    )
 
     assert actual == expected
