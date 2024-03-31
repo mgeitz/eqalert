@@ -1,0 +1,33 @@
+name: "CodeQL"
+
+on: push
+
+permissions:
+    contents: read
+
+jobs:
+  analyze:
+    name: Analyze EQAlert
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 480
+    permissions:
+      security-events: write
+    strategy:
+      fail-fast: false
+
+    steps:
+    # Checkout:w    
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Initialize
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: python
+
+    # Analyze
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:python"
