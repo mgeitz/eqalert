@@ -518,8 +518,11 @@ def draw_events_status_bar(stdscr, state):
             if current_leader == "you":
                 group_leader = "Your"
                 leader_len = 4 + len(group_type)
-            else:
+            elif current_leader != False:
                 group_leader = current_leader.title() + "'s"
+                leader_len = len(group_leader) + len(group_type)
+            else:
+                group_leader = "Unknown's"
                 leader_len = len(group_leader) + len(group_type)
 
             stdscr.addstr(
