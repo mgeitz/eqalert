@@ -1,4 +1,12 @@
-from eqa.lib.config import generate_spell_timer_json, SpellTimerJSON, SpellTimer
+from pathlib import Path
+from eqa.lib.config import (
+    generate_spell_timer_json,
+    SpellTimerJSON,
+    SpellTimer,
+    read_config_files,
+)
+from eqa.lib.struct import config_file
+from eqa.lib.util import JSONFileHandler
 from eqa.const.validspells import VALID_SPELLS
 
 sample_spell_lines = [
@@ -34,3 +42,25 @@ def test_generate_spell_timer_json():
 
     # Compare that all the expected spells are present
     assert sorted(expected.spells.keys()) == sorted(actual.spells.keys())
+
+
+def test_read_config_files():
+
+    read_result = '{ "foo": { "bar": "baz" }}'
+
+    class TestJSONFileHandler(JSONFileHandler):
+        def read(self):
+            # Short circuiting the file read operation
+            return self.deserialize(read_result)
+
+    test_file_path = Path("whatever")
+    test_config_files = ["test_valid"]
+
+    expected = {
+        "test_valid": config_file(
+            test_config_files[0], "whatever/test_valid.json", {"foo": {"bar": "baz"}}
+        )
+    }
+    actual = read_config_files(test_file_path, test_config_files, TestJSONFileHandler)
+
+    assert actual == expected

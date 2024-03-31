@@ -83,29 +83,61 @@ def init(base_path, version):
         handleException(e, "config init", e_print=False, e_log=True)
 
 
+def read_config_files(config_dir: Path, config_files, file_handler=JSONFileHandler):
+    config_filetype_ext = ".json"
+
+    configs = {}
+
+    for config_file in config_files:
+        config_full_filepath = config_dir / f"{config_file}{config_filetype_ext}"
+
+        config_file_handler = file_handler(config_full_filepath)
+        config_file_data = config_file_handler.read()
+
+        configs[config_file] = eqa_struct.config_file(
+            config_file, str(config_full_filepath), config_file_data
+        )
+
+    return configs
+
+
+def read_line_alert_files(
+    line_alert_dir, line_alert_files, file_handler=JSONFileHandler
+):
+    line_alert_filetype_ext = ".json"
+
+    line_alerts = {"line": {}, "version": ""}
+
+    for line_alert in line_alert_files:
+        line_alert_full_filepath = (
+            line_alert_dir / f"{line_alert}{line_alert_filetype_ext}"
+        )
+
+        line_alert_file_handler = file_handler(line_alert_full_filepath)
+        line_alert_data = line_alert_file_handler.read()
+
+        line_alerts["line"].update(line_alert_data.get("line"))
+        line_alerts["version"] = line_alert_data.get("version")
+
+    return line_alerts
+
+
+def combine_config_files(configs, line_alerts):
+    config_line_alerts = eqa_struct.config_file("line-alerts", None, line_alerts)
+    return eqa_struct.configs(
+        configs["characters"],
+        configs["settings"],
+        configs["zones"],
+        config_line_alerts,
+    )
+
+
 def read_config(base_path, file_handler=JSONFileHandler):
-    """All the config"""
     try:
-        # Read "config" files
-        # like {base_path}/{config_dir}/{config_file}.json
         config_dir = Path(base_path) / "config"
         config_files = ["characters", "settings", "zones"]
-        config_filetype_ext = ".json"
+        config_data = read_config_files(config_dir, config_files, file_handler)
 
-        configs = {}
-
-        for config_file in config_files:
-            config_full_filepath = config_dir / f"{config_file}{config_filetype_ext}"
-
-            config_file_handler = file_handler(config_full_filepath)
-            config_file_data = config_file_handler.read()
-
-            configs[config_file] = eqa_struct.config_file(
-                config_file, config_full_filepath, config_file_data
-            )
-
-        # Read "line_alert" files
-        # like {base_path}/{config_dir}/{line-alerts}/{config_file}.json
         line_alert_dir = config_dir / "line-alerts"
         line_alert_files = [
             "combat",
@@ -124,30 +156,11 @@ def read_config(base_path, file_handler=JSONFileHandler):
             "who",
             "other",
         ]
-
-        line_alerts = {"line": {}, "version": ""}
-
-        for line_alert in line_alert_files:
-            line_alert_full_filepath = (
-                line_alert_dir / f"{line_alert}{config_filetype_ext}"
-            )
-
-            line_alert_file_handler = file_handler(line_alert_full_filepath)
-            line_alert_data = line_alert_file_handler.read()
-
-            line_alerts["line"].update(line_alert_data.get("line"))
-            line_alerts["version"] = line_alert_data.get("version")
-
-        config_line_alerts = eqa_struct.config_file("line-alerts", None, line_alerts)
-
-        configs = eqa_struct.configs(
-            configs["characters"],
-            configs["settings"],
-            configs["zones"],
-            config_line_alerts,
+        line_alert_data = read_line_alert_files(
+            line_alert_dir, line_alert_files, file_handler
         )
 
-        return configs
+        return combine_config_files(config_data, line_alert_data)
 
     except Exception as e:
         handleException(e, "config read", e_print=True, e_log=True)
