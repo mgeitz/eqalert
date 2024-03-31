@@ -1,6 +1,11 @@
 name: "CodeQL"
 
-on: push
+on:
+  push:
+    branches:
+      - '*'
+  schedule:
+    - cron: '0 12 * * *'
 
 permissions:
     contents: read
