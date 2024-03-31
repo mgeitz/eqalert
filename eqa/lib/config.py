@@ -21,6 +21,7 @@
 from dataclasses import asdict, dataclass, field
 import json
 import os
+from pathlib import Path
 from typing import Dict
 import re
 import hashlib
@@ -82,24 +83,22 @@ def init(base_path, version):
         handleException(e, "config init", e_print=False, e_log=True)
 
 
-def read_config(base_path):
+def read_config(base_path, file_handler=JSONFileHandler):
     """All the config"""
     try:
         # Read "config" files
         # like {base_path}/{config_dir}/{config_file}.json
-        config_dir = os.path.join(base_path, "config")
+        config_dir = Path(base_path) / "config"
         config_files = ["characters", "settings", "zones"]
         config_filetype_ext = ".json"
 
         configs = {}
 
         for config_file in config_files:
-            config_full_filepath = os.path.join(
-                config_dir, f"{config_file}{config_filetype_ext}"
-            )
+            config_full_filepath = config_dir / f"{config_file}{config_filetype_ext}"
 
-            file_handler = JSONFileHandler(config_full_filepath)
-            config_file_data = file_handler.read()
+            config_file_handler = file_handler(config_full_filepath)
+            config_file_data = config_file_handler.read()
 
             configs[config_file] = eqa_struct.config_file(
                 config_file, config_full_filepath, config_file_data
@@ -107,7 +106,7 @@ def read_config(base_path):
 
         # Read "line_alert" files
         # like {base_path}/{config_dir}/{line-alerts}/{config_file}.json
-        line_alert_dir = os.path.join(config_dir, "line-alerts")
+        line_alert_dir = config_dir / "line-alerts"
         line_alert_files = [
             "combat",
             "spell-general",
@@ -129,12 +128,12 @@ def read_config(base_path):
         line_alerts = {"line": {}, "version": ""}
 
         for line_alert in line_alert_files:
-            line_alert_full_filepath = os.path.join(
-                line_alert_dir, f"{line_alert}{config_filetype_ext}"
+            line_alert_full_filepath = (
+                line_alert_dir / f"{line_alert}{config_filetype_ext}"
             )
 
-            file_handler = JSONFileHandler(line_alert_full_filepath)
-            line_alert_data = file_handler.read()
+            line_alert_file_handler = file_handler(line_alert_full_filepath)
+            line_alert_data = line_alert_file_handler.read()
 
             line_alerts["line"].update(line_alert_data.get("line"))
             line_alerts["version"] = line_alert_data.get("version")

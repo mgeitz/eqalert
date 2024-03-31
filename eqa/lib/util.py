@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from json import dumps as json_dumps
 from json import loads as json_loads
+from pathlib import Path
 import sys
 
 import eqa.lib.settings as eqa_settings
@@ -23,7 +24,7 @@ def handleException(e: Exception, e_desc: str, e_print=True, e_log=False):
 
 
 class SerializedFileHandler(ABC):
-    def __init__(self, filename: str) -> None:
+    def __init__(self, filename: str | Path) -> None:
         self.filename = filename
 
     @abstractmethod
@@ -48,4 +49,4 @@ class JSONFileHandler(SerializedFileHandler):
         return json_dumps(data).encode("utf-8")
 
     def deserialize(self, data):
-        return json_loads(data.decode("utf-8"))
+        return json_loads(data)
