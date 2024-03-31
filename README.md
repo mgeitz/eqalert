@@ -163,7 +163,7 @@ If the active character is changed or EQ Alert is stopped, all active timers are
 
 ## Encounters
 
-When encounter parse saving is enabled, complete encounter reports are saved under `encounters/[zone_name]/[date]/` as the time stamp of the encounter and the encounter target.
+When encounter parse saving is enabled, complete encounter reports are saved under `data/encounters/[zone_name]/[date]/` as the time stamp of the encounter and the encounter target.
 
 
 
