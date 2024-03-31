@@ -16,17 +16,14 @@ jobs:
       fail-fast: false
 
     steps:
-    # Checkout:w    
-    - name: Checkout repository
+    - name: Checkout Code
       uses: actions/checkout@v4
 
-    # Initialize
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: python
 
-    # Analyze
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
       with:
