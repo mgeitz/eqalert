@@ -2,13 +2,14 @@ from pathlib import Path
 
 import pytest
 from eqa.lib.config import (
+    combine_config_files,
     generate_spell_timer_json,
     SpellTimerJSON,
     SpellTimer,
     read_config_files,
     read_line_alert_files,
 )
-from eqa.lib.struct import config_file
+from eqa.lib.struct import config_file, configs
 from eqa.lib.util import JSONFileHandler
 from eqa.const.validspells import VALID_SPELLS
 
@@ -61,7 +62,7 @@ def test_read_config_files():
 
     expected = {
         "test_valid": config_file(
-            test_config_files[0], "whatever/test_valid.json", {"foo": {"bar": "baz"}}
+            "test_valid", "whatever/test_valid.json", {"foo": {"bar": "baz"}}
         )
     }
     actual = read_config_files(test_file_path, test_config_files, TestJSONFileHandler)
@@ -95,5 +96,39 @@ def test_read_line_alert_files(file_handler_result, expected):
     actual = read_line_alert_files(
         test_file_path, test_config_files, TestJSONFileHandler
     )
+
+    assert actual == expected
+
+
+def test_combine_config_files():
+
+    configs_data = {
+        "characters": config_file(
+            "characters", "whatever/characters.json", {"foo": {"bar": "baz"}}
+        ),
+        "settings": config_file(
+            "settings", "whatever/characters.json", {"foo": {"bar": "baz"}}
+        ),
+        "zones": config_file(
+            "zones", "whatever/characters.json", {"foo": {"bar": "baz"}}
+        ),
+    }
+
+    line_alerts = {"line": {"foo": {"bar": "baz"}}, "version": "1.2.3"}
+
+    expected = {
+        configs(
+            configs_data["characters"],
+            configs_data["settings"],
+            configs_data["zones"],
+            config_file(
+                "line-alerts",
+                None,
+                line_alerts,
+            ),
+        )
+    }
+
+    actual = combine_config_files(configs_data, line_alerts)
 
     assert actual == expected
