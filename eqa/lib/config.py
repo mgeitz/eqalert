@@ -112,9 +112,6 @@ def read_line_alert_files(
 def combine_config_files(configs, line_alerts):
     config_line_alerts = eqa_struct.config_file("line-alerts", None, line_alerts)
 
-    with open("/home/isaac/temp2.dump", "w", encoding="utf-8") as f:
-        json.dump(config_line_alerts, f, sort_keys=True, indent=2)
-
     return eqa_struct.configs(
         configs["characters"],
         configs["settings"],
