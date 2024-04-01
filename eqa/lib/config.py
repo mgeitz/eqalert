@@ -52,20 +52,7 @@ from eqa.const.data_spell_items import NEW_SPELL_ITEMS_DATA
 from eqa.const.data_spell_lines import NEW_SPELL_LINES_DATA
 from eqa.const.validspells import VALID_SPELLS
 from eqa.lib.util import handleException, JSONFileHandler
-
-
-@dataclass
-class SpellTimer:
-    cast_time: str
-    duration: str
-    formula: str
-
-
-@dataclass
-class SpellTimerJSON:
-    hash: str
-    version: str
-    spells: Dict[str, SpellTimer] = field(default_factory=lambda: {}, compare=False)
+from eqa.models.data import SpellTimer, SpellTimerJSON
 
 
 def init(base_path, version):
