@@ -115,19 +115,18 @@ def test_combine_config_files():
     }
 
     line_alerts = {"line": {"foo": {"bar": "baz"}}, "version": "1.2.3"}
+    line_alerts_config = config_file(
+        "line-alerts",
+        None,
+        line_alerts,
+    )
 
-    expected = {
-        configs(
-            configs_data["characters"],
-            configs_data["settings"],
-            configs_data["zones"],
-            config_file(
-                "line-alerts",
-                None,
-                line_alerts,
-            ),
-        )
-    }
+    expected = configs(
+        configs_data["characters"],
+        configs_data["settings"],
+        configs_data["zones"],
+        line_alerts_config,
+    )
 
     actual = combine_config_files(configs_data, line_alerts)
 
