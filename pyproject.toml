@@ -27,6 +27,9 @@ eqalert = 'eqa.eqalert:main'
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.pytest.ini_options]
+addopts = "--cov=eqa --cov-report html:coverage/html --cov-report lcov:coverage/coverage.lcov"
+
 [tool.coverage.run]
 omit = [ "__init__.py", ]
 branch = true

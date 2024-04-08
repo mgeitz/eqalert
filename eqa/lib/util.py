@@ -24,7 +24,7 @@ def handleException(e: Exception, e_desc: str, e_print=True, e_log=False):
 
 
 class SerializedFileHandler(ABC):
-    def __init__(self, filename: str | Path) -> None:
+    def __init__(self, filename: Path) -> None:
         self.filename = filename
 
     @abstractmethod
