@@ -8,6 +8,7 @@ A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface
 
 
 
+
 ## Install
 
 #### PyPI
