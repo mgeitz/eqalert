@@ -23,9 +23,9 @@ Enhancement suggestions are tracked as [GitHub issues](https://guides.github.com
 * **Fork** the repo
 * **Clone** the repo locally
 * **Checkout** a new branch - `feature/my-branch-name`
-* **Commit** your change [accordingly](https://github.com/torvalds/subsurface-for-dirk/blob/master/README#L92)
-* **Rebase** your branch against master
+* **Commit** your final set of changes using `git commit -v` with a title case first line and a list of changes beginning on the third line
+* **Rebase** your branch against the master branch, and/or `git commit rebase -i master` to squash and merge locally
 * **Push** your change to your remote fork
 * **Create** a well titled pull-request
-  * **Link** a gif that succinctly describes your change
+  * **Link** a [gif](https://giphy.com/) that succinctly describes your change, like [this](https://github.com/mgeitz/eqalert/pull/44)
   * **Describe** your change accordingly

@@ -11,8 +11,9 @@ RUN mkdir -p /home/eqalert \
     && chown eqalert:eqalert /home/eqalert
 
 RUN apt-get update \
-    && apt-get upgrade -y \
-    && apt-get install -y \
+    && apt-get upgrade -y
+
+RUN apt-get install -y \
         espeak-ng \
         gcc \
         g++ \
@@ -42,6 +43,9 @@ RUN apt-get update \
         make \
         pkg-config \
         pulseaudio \
+    && apt-get clean
+ 
+RUN apt-get install -y \
         python3 \
         python3-dev \
         python3-pip \
