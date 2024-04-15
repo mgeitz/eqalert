@@ -3,6 +3,8 @@ FROM debian:bookworm
 LABEL maintainer="mgeitz" \
       description="A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface for Linux"
 
+WORKDIR /usr/src/eqalert
+
 RUN groupadd -g 1000 eqalert \
     && useradd -r -u 1000 -g eqalert eqalert \
     && usermod -a -G audio eqalert
@@ -11,9 +13,8 @@ RUN mkdir -p /home/eqalert \
     && chown eqalert:eqalert /home/eqalert
 
 RUN apt-get update \
-    && apt-get upgrade -y
-
-RUN apt-get install -y \
+    && apt-get upgrade -y \
+    && apt-get install -y \
         espeak-ng \
         gcc \
         g++ \
@@ -43,9 +44,6 @@ RUN apt-get install -y \
         make \
         pkg-config \
         pulseaudio \
-    && apt-get clean
- 
-RUN apt-get install -y \
         python3 \
         python3-dev \
         python3-pip \
@@ -57,15 +55,11 @@ RUN apt-get install -y \
 
 USER eqalert
 
-WORKDIR /usr/src/eqalert
-
 ENV PATH "$PATH:/home/eqalert/.local/bin"
 
-RUN pip install --upgrade pip --break-system-packages \
-    && pip install --upgrade wheel --break-system-packages \
-    && pip install playsound --break-system-packages
-
 COPY . .
+
+RUN ./scripts/install-playsound.sh
 
 RUN python3 -m pip install -e . --break-system-packages
 
