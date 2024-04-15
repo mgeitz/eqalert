@@ -59,7 +59,7 @@ ENV PATH "$PATH:/home/eqalert/.local/bin"
 
 COPY . .
 
-RUN ./scripts/install-playsound.sh
+RUN scripts/install-playsound.sh
 
 RUN python3 -m pip install -e . --break-system-packages
 
