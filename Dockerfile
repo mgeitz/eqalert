@@ -55,11 +55,14 @@ RUN apt-get update \
 
 USER eqalert
 
+RUN pip install --upgrade pip --break-system-packages \
+    && pip install --upgrade wheel --break-system-packages \
+    && pip install playsound --break-system-packages
+
 ENV PATH "$PATH:/home/eqalert/.local/bin"
 
 COPY . .
 
-RUN scripts/install-playsound.sh
 
 RUN python3 -m pip install -e . --break-system-packages
 
