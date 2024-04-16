@@ -3,6 +3,8 @@ FROM debian:bookworm
 LABEL maintainer="mgeitz" \
       description="A Configurable and Context Driven Project 1999 Log Parser with NCurses Interface for Linux"
 
+WORKDIR /usr/src/eqalert
+
 RUN groupadd -g 1000 eqalert \
     && useradd -r -u 1000 -g eqalert eqalert \
     && usermod -a -G audio eqalert
@@ -53,15 +55,14 @@ RUN apt-get update \
 
 USER eqalert
 
-WORKDIR /usr/src/eqalert
-
-ENV PATH "$PATH:/home/eqalert/.local/bin"
-
 RUN pip install --upgrade pip --break-system-packages \
     && pip install --upgrade wheel --break-system-packages \
     && pip install playsound --break-system-packages
 
+ENV PATH "$PATH:/home/eqalert/.local/bin"
+
 COPY . .
+
 
 RUN python3 -m pip install -e . --break-system-packages
 
