@@ -18,11 +18,11 @@
    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 
-from dataclasses import asdict, dataclass, field
+import dataclasses
 import json
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Any
 import re
 import hashlib
 
@@ -52,6 +52,7 @@ from eqa.const.data_spell_items import NEW_SPELL_ITEMS_DATA
 from eqa.const.data_spell_lines import NEW_SPELL_LINES_DATA
 from eqa.const.validspells import VALID_SPELLS
 from eqa.lib.util import handleException, JSONFileHandler
+from eqa.models.config import CharacterLog, CharacterState
 from eqa.models.data import SpellTimer, SpellTimerJSON
 
 
@@ -175,9 +176,13 @@ def update_logs(configs, version):
                 emu, middle, end = logs.split("_")
                 server_name = end.split(".")[0]
                 char_name = middle
-                char_server = char_name + "_" + server_name
-                if char_server not in configs.characters.config["char_logs"].keys():
-                    add_char_log(char_name, server_name, configs)
+
+                new_char_config = add_char_log(char_name, server_name, configs)
+                if new_char_config:
+                    filehandler = JSONFileHandler(Path(configs.characters.path))
+                    # write out entire legacy character config to disk
+                    filehandler.write(configs.characters.config)
+
                 if len(configs.settings.config["last_state"].keys()) == 0:
                     bootstrap_state(configs, char_name, server_name)
 
@@ -187,37 +192,57 @@ def update_logs(configs, version):
         handleException(e, "config chars", e_print=True, e_log=True)
 
 
-def add_char_log(char, server, configs):
-    """Adds a new character to the config"""
-    try:
-        char_server = char + "_" + server
-        char_log = "eqlog_" + char.title() + "_" + server + ".txt"
+def create_character_config(char: str, server: str) -> CharacterLog:
+    """
+    Creates a new CharacterLog instance
+    """
 
-        configs.characters.config["char_logs"].update(
-            {
-                char_server: {
-                    "character": char,
-                    "server": server,
-                    "file_name": char_log,
-                    "disabled": False,
-                    "char_state": {
-                        "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
-                        "direction": None,
-                        "zone": None,
-                        "encumbered": False,
-                        "bind": None,
-                        "level": None,
-                        "class": None,
-                        "guild": None,
-                    },
-                }
-            }
-        )
-        with open(configs.characters.path, "w", encoding="utf-8") as json_data:
-            json.dump(configs.characters.config, json_data, sort_keys=True, indent=2)
+    char_log = f"eqlog_{char.title()}_{server}.txt"
 
-    except Exception as e:
-        handleException(e, "add char", e_print=True, e_log=True)
+    char_state_config = CharacterState()
+    char_log_config = CharacterLog(
+        char_state=char_state_config,
+        character=char,
+        file_name=char_log,
+        server=server,
+    )
+    return char_log_config
+
+
+def convert_character_config_to_legacy_config(
+    character_config: CharacterLog,
+) -> dict[str, Any]:
+    """
+    Transitional function to convert the CharacterLog model to a Python dictionary (legacy)
+
+    When the in-memory named-tuple/dictionary configs are deprecated in favor of typed classes, this function can also be deprecated
+    """
+    # legacy config is a dict, we'll convert it here
+    legacy_config = dataclasses.asdict(character_config)
+
+    # converting "char_class" key to reserved keyword "class" in legacy version
+    fixed_class_key = legacy_config["char_state"].pop("char_class")
+    legacy_config["char_state"]["class"] = fixed_class_key
+
+    return {f"{character_config.character}_{character_config.server}": legacy_config}
+
+
+def add_char_log(char: str, server: str, configs: eqa_struct.configs):
+    """Adds a new character to the in-memory config if it doesn't already exist"""
+    # only add a character log if it doesn't already exist
+    if f"{char}_{server}" in configs.characters.config["char_logs"].keys():
+        return
+
+    new_character_config = create_character_config(char, server)
+
+    new_character_legacy_config = convert_character_config_to_legacy_config(
+        new_character_config
+    )
+
+    # add new character to the in-memory config
+    configs.characters.config["char_logs"].update(new_character_legacy_config)
+
+    return new_character_config
 
 
 def validate_char_log(configs, version):
@@ -505,7 +530,7 @@ def update_spell_timers(data_path, eq_spells_file_path, version):
         )
 
         # Write to disk
-        spell_timer_json_dump = asdict(spell_timer_json)
+        spell_timer_json_dump = dataclasses.asdict(spell_timer_json)
 
         with open(spell_timer_file, "w") as json_data:
             json.dump(spell_timer_json_dump, json_data, sort_keys=True, indent=2)

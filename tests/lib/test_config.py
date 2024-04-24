@@ -2,7 +2,10 @@ from pathlib import Path
 
 import pytest
 from eqa.lib.config import (
+    add_char_log,
     combine_config_files,
+    convert_character_config_to_legacy_config,
+    create_character_config,
     generate_spell_timer_json,
     SpellTimerJSON,
     SpellTimer,
@@ -12,6 +15,7 @@ from eqa.lib.config import (
 from eqa.lib.struct import config_file, configs
 from eqa.lib.util import JSONFileHandler
 from eqa.const.validspells import VALID_SPELLS
+from eqa.models.config import CharacterLog, CharacterState
 
 sample_spell_lines = [
     "0^^BLUE_TRAIL^^^^^^^0^0^0^0^0^0^0^7^65^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^-1^-1^-1^-1^1^1^1^1^-1^-1^-1^-1^100^100^100^100^100^100^100^100^100^100^100^100^0^0^0^0^254^254^254^254^254^254^254^254^254^254^254^254^2^0^52^-1^0^0^255^255^255^255^255^255^255^255^255^255^255^255^255^255^255^255^44^13^0^-1^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^100^0^161^0^0^-150^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^100^0^0^0^0^0^0^0^0^0^0^0^0^0^-150^100^-150^-99^7^65^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^0^1^0^0^0^0^0^0^-1^0^0^0^1^0^0^1^1^^0",
@@ -50,12 +54,12 @@ def test_generate_spell_timer_json():
 
 def test_read_config_files():
 
-    read_result = '{ "foo": { "bar": "baz" }}'
+    read_result = {"foo": {"bar": "baz"}}
 
     class TestJSONFileHandler(JSONFileHandler):
         def read(self):
             # Short circuiting the file read operation
-            return self.deserialize(read_result)
+            return read_result
 
     test_file_path = Path("whatever")
     test_config_files = ["test_valid"]
@@ -74,11 +78,11 @@ def test_read_config_files():
     "file_handler_result, expected",
     [
         (
-            '{ "line": {"foo": { "bar": "baz" }}}',
+            {"line": {"foo": {"bar": "baz"}}},
             {"line": {"foo": {"bar": "baz"}}, "version": None},
         ),
         (
-            '{ "line": {"foo": { "bar": "baz" }}, "version": "1.2.3"}',
+            {"line": {"foo": {"bar": "baz"}}, "version": "1.2.3"},
             {"line": {"foo": {"bar": "baz"}}, "version": "1.2.3"},
         ),
     ],
@@ -88,7 +92,7 @@ def test_read_line_alert_files(file_handler_result, expected):
     class TestJSONFileHandler(JSONFileHandler):
         def read(self):
             # Short circuiting the file read operation
-            return self.deserialize(file_handler_result)
+            return file_handler_result
 
     test_file_path = Path("whatever")
     test_config_files = ["test_valid"]
@@ -129,5 +133,181 @@ def test_combine_config_files():
     )
 
     actual = combine_config_files(configs_data, line_alerts)
+
+    assert actual == expected
+
+
+sample_character = {
+    "WTF_P1999Green": {
+        "character": "WTF",
+        "server": "P1999Green",
+        "file_name": "eqlog_Wtf_P1999Green.txt",
+        "disabled": False,
+        "char_state": {
+            "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
+            "direction": None,
+            "zone": None,
+            "encumbered": False,
+            "bind": None,
+            "level": None,
+            "class": None,
+            "guild": None,
+        },
+    }
+}
+
+
+@pytest.mark.parametrize(
+    "existing_character",
+    [
+        {},
+        sample_character,
+    ],
+)
+def test_add_char_log(existing_character):
+    char = "test_char"
+    server = "test_server"
+
+    config_characters = config_file(
+        name="test_char_config",
+        path="whatever",
+        config={"char_logs": existing_character},
+    )
+
+    config = configs(characters=config_characters, settings={}, zones={}, alerts={})
+    char_log = add_char_log(char, server, config)
+    assert type(char_log) is CharacterLog
+
+    actual = config.characters.config
+
+    expected = {
+        "char_logs": {
+            "test_char_test_server": {
+                "character": "test_char",
+                "server": "test_server",
+                "file_name": "eqlog_Test_Char_test_server.txt",
+                "disabled": False,
+                "char_state": {
+                    "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
+                    "direction": None,
+                    "zone": None,
+                    "encumbered": False,
+                    "bind": None,
+                    "level": None,
+                    "class": None,
+                    "guild": None,
+                },
+            },
+        }
+    }
+
+    expected["char_logs"].update(existing_character)
+
+    assert actual == expected
+
+
+def test_add_char_log_does_not_create_if_character_exists():
+    char = "test_char"
+    server = "test_server"
+
+    # Note: disabled is set to non-default "True"
+    # If the config is somwhow overwritten with new character, this test will fail
+    existing_character = {
+        "test_char_test_server": {
+            "character": "test_char",
+            "server": "test_server",
+            "file_name": "eqlog_Test_Char_test_server.txt",
+            "disabled": True,
+            "char_state": {
+                "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
+                "direction": None,
+                "zone": None,
+                "encumbered": False,
+                "bind": None,
+                "level": None,
+                "class": None,
+                "guild": None,
+            },
+        },
+    }
+
+    config_characters = config_file(
+        name="test_char_config",
+        path="whatever",
+        config={"char_logs": existing_character},
+    )
+
+    config = configs(characters=config_characters, settings={}, zones={}, alerts={})
+    char_log = add_char_log(char, server, config)
+    assert char_log is None
+
+    actual = config.characters.config
+
+    expected = {
+        "char_logs": {
+            "test_char_test_server": {
+                "character": "test_char",
+                "server": "test_server",
+                "file_name": "eqlog_Test_Char_test_server.txt",
+                "disabled": True,
+                "char_state": {
+                    "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
+                    "direction": None,
+                    "zone": None,
+                    "encumbered": False,
+                    "bind": None,
+                    "level": None,
+                    "class": None,
+                    "guild": None,
+                },
+            },
+        }
+    }
+
+    assert actual == expected
+
+
+def test_create_character_config():
+    character = "test_char"
+    server = "test_server"
+
+    expected = CharacterLog(
+        char_state=CharacterState(),
+        character=character,
+        file_name="eqlog_" + character.title() + "_" + server + ".txt",
+        server=server,
+    )
+
+    actual = create_character_config(char=character, server=server)
+
+    assert actual == expected
+
+
+def test_convert_character_dataclass_to_legacy_config():
+    character = "test_char"
+    server = "test_server"
+
+    character_config = create_character_config(char=character, server=server)
+
+    actual = convert_character_config_to_legacy_config(character_config)
+
+    expected = {
+        f"{character}_{server}": {
+            "character": character,
+            "server": server,
+            "file_name": f"eqlog_{character.title()}_{server}.txt",
+            "disabled": False,
+            "char_state": {
+                "location": {"x": "0.00", "y": "0.00", "z": "0.00"},
+                "direction": None,
+                "zone": None,
+                "encumbered": False,
+                "bind": None,
+                "level": None,
+                "class": None,
+                "guild": None,
+            },
+        }
+    }
 
     assert actual == expected
