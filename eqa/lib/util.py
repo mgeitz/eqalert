@@ -36,12 +36,10 @@ class SerializedFileHandler(ABC):
         pass
 
     def write(self, data):
-        with open(self.filename, "w", encoding="utf-8") as file:
-            file.write(self.serialize(data) or "")
+        self.filename.write_bytes(self.serialize(data) or "")
 
     def read(self) -> dict:
-        with open(self.filename, "r", encoding="utf-8") as file:
-            return self.deserialize(file.read()) or {}
+        return self.deserialize(self.filename.read_text() or {})
 
 
 class JSONFileHandler(SerializedFileHandler):

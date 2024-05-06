@@ -1,35 +1,38 @@
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Union
 
 from eqa.models.util import BaseFlag, Location
 
 
 @dataclass
 class CharacterState:
-    bind: str | None
-    char_class: str | None
-    direction: str | None
-    encumbered: bool
-    guild: str | None
-    level: int | None
-    location: Location
-    zone: str | None
+    # Python 3.9 syntax
+    # If upgraded to min version Python 3.12 this becomes:
+    # bind: str | None = None
+
+    bind: Union[str, None] = None
+    char_class: Union[str, None] = None
+    direction: Union[str, None] = None
+    encumbered: bool = False
+    guild: Union[str, None] = None
+    level: Union[int, None] = None
+    location: Location = field(default_factory=lambda: Location())
+    zone: Union[str, None] = None
 
 
 @dataclass
 class CharacterLog:
-    char: str
     char_state: CharacterState
     character: str
-    disabled: bool
-    filename: str
+    file_name: str
     server: str
+    disabled: bool = False
 
 
 @dataclass
-class Character:
-    character_logs: Dict[str, CharacterLog] = field(
+class Characters:
+    char_logs: Dict[str, CharacterLog] = field(
         default_factory=lambda: {}, compare=False
     )
 
@@ -52,12 +55,12 @@ class EncounterParsing(BaseFlag):
 
 @dataclass
 class SystemPaths:
-    data: str | Path
-    eqalert_log: str | Path
-    everquest_files: str | Path
-    everquest_logs: str | Path
-    sound: str | Path
-    tmp_sound: str | Path
+    data: Union[str, Path]
+    eqalert_log: Union[str, Path]
+    everquest_files: Union[str, Path]
+    everquest_logs: Union[str, Path]
+    sound: Union[str, Path]
+    tmp_sound: Union[str, Path]
 
 
 @dataclass
@@ -169,7 +172,7 @@ class LineAlertFile:
 
 @dataclass
 class Config:
-    characters: Character
+    characters: Characters
     settings: Setting
     zones: Zones
     line_alerts: Dict[str, LineAlertFile] = field(

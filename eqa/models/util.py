@@ -4,9 +4,9 @@ from typing import Dict
 
 @dataclass
 class Location:
-    x: float
-    y: float
-    z: float
+    x: str = "0.00"
+    y: str = "0.00"
+    z: str = "0.00"
 
 
 @dataclass
