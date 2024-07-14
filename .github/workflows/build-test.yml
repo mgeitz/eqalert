@@ -14,7 +14,7 @@ permissions:
     contents: read
 
 jobs:
-    poetry-build:
+    poetry-build-test:
       strategy:
         fail-fast: false
       runs-on: [ubuntu-latest]
@@ -45,6 +45,9 @@ jobs:
         - name: Build EQAlert
           run: poetry build -vvv | grep -vi ignoring
 
+        - name: Tests
+          run: poetry run pytest
+
         - name: Store Build Artifact
           uses: actions/upload-artifact@v4
           with:
@@ -74,7 +77,7 @@ jobs:
             push: false
 
     analyze:
-      name: Analyze EQAlert
+      name: codeql
       runs-on: 'ubuntu-latest'
       timeout-minutes: 480
       permissions:
@@ -95,31 +98,3 @@ jobs:
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:python"
-
-    test:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout Code
-          uses: actions/checkout@v4
-
-        - uses: actions/setup-python@v5
-          with:
-            python-version: "3.11.2"
-
-        - name: Install Poetry
-          run: pipx install poetry=="1.7.1"
-
-        - name: Cache
-          uses: actions/cache@v4
-          with:
-            path: ./.venv
-            key: venv-dev-${{ hashFiles('poetry.lock') }}
-
-        - name: Install Playsound
-          run: scripts/install-playsound.sh
-
-        - name: Dependencies
-          run: poetry install
-
-        - name: Tests
-          run: poetry run pytest
