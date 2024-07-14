@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
     - name: Set-up Python
       uses: actions/setup-python@v5
@@ -30,10 +31,7 @@ jobs:
         key: venv-${{ hashFiles('poetry.lock') }}
 
     - name: Install Playsound
-      run: |
-          poetry run pip install --upgrade pip
-          poetry run pip install --upgrade wheel
-          poetry run pip install playsound
+      run: scripts/install-playsound.sh 
 
     - name: Install Dependencies
       run: poetry install --without dev

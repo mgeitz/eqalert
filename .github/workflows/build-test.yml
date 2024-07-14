@@ -1,0 +1,100 @@
+name: Build & Test
+
+on: 
+  push:
+    branches:
+      - 'master'
+      - '*feature/*'
+      - 'dependabot/*'
+
+  pull_request:
+    types: [opened, reopened]
+
+permissions:
+    contents: read
+
+jobs:
+    poetry-build-test:
+      strategy:
+        fail-fast: false
+      runs-on: [ubuntu-latest]
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        - name: Setup Python
+          uses: actions/setup-python@v5
+          with:
+            python-version: "3.11.2"
+
+        - name: Install Poetry
+          run: pipx install poetry=="1.7.1"
+
+        - name: Cache
+          uses: actions/cache@v4
+          with:
+            path: ./.venv
+            key: venv-${{ hashFiles('poetry.lock') }}
+
+        - name: Install Playsound
+          run: scripts/install-playsound.sh 
+
+        - name: Dependencies
+          run: poetry install --without dev
+
+        - name: Build EQAlert
+          run: poetry build -vvv | grep -vi ignoring
+
+        - name: Tests
+          run: poetry run pytest
+
+        - name: Store Build Artifact
+          uses: actions/upload-artifact@v4
+          with:
+            name: eqalert-bin
+            path: |
+              dist/eqalert-*.tar.gz
+              dist/eqalert-*.whl
+            retention-days: 1
+
+    docker-build:
+      strategy:
+        fail-fast: false
+      runs-on: [ubuntu-latest]
+
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v4
+
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3.2.0
+
+        - name: Build Docker image
+          uses: docker/build-push-action@v5.3.0
+          with:
+            context: .
+            pull: true
+            push: false
+
+    analyze:
+      name: codeql
+      runs-on: 'ubuntu-latest'
+      timeout-minutes: 480
+      permissions:
+        security-events: write
+      strategy:
+        fail-fast: false
+      
+      steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: python
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:python"
