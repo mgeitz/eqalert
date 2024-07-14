@@ -21,7 +21,7 @@ $ eqalert
 ```
 
 #### Docker
-[![Docker Build](https://github.com/mgeitz/eqalert/actions/workflows/docker-build.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/docker-build.yml)
+[![CodeQL](https://github.com/mgeitz/eqalert/actions/workflows/codeql.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/codeql.yml)
 ```sh
 # Clone the repository
 $ git clone https://github.com/mgeitz/eqalert.git
@@ -35,7 +35,7 @@ $ docker compose run eqalert
 ```
 
 #### Local Development
-[![Poetry Build](https://github.com/mgeitz/eqalert/actions/workflows/poetry-build.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/poetry-build.yml)
+[![Build & Test](https://github.com/mgeitz/eqalert/actions/workflows/build-test.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/build-test.yml)
 ```sh
 # Install poetry
 $ pipx install poetry==1.7.1
@@ -125,6 +125,15 @@ Spot check these default paths generated in `config/settings.json`
 ```
 > Press `0` to reload your configs or restart the program if any changes were made.  Though generally, it's a good idea to stop eqalert before manually editing your config files.
 
+
+### If you Run Into Start-up Issues
+
+- Please first review the README documentation and try a few trouble shooting steps:
+    * Delete settings and regenerate them
+    * Try manual configuration changes
+    * Worst case, try generating a config in an earlier eqalert version
+- For direct support:
+    * Create a thread in [discussions](https://github.com/mgeitz/eqalert/discussions) - this way your issue can be tagged and tracked accordingly!
 
 
 ## Data
