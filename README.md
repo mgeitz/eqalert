@@ -133,8 +133,7 @@ Spot check these default paths generated in `config/settings.json`
     * Try manual configuration changes
     * Worst case, try generating a config in an earlier eqalert version
 - For direct support:
-    * Create a thread in [Discussions](https://github.com/mgeitz/eqalert/discussions)
-    * This way your issue can be tagged and tracked accordingly!
+    * Create a thread in [discussions](https://github.com/mgeitz/eqalert/discussions) - this way your issue can be tagged and tracked accordingly!
 
 
 ## Data
