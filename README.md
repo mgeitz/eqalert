@@ -126,6 +126,16 @@ Spot check these default paths generated in `config/settings.json`
 > Press `0` to reload your configs or restart the program if any changes were made.  Though generally, it's a good idea to stop eqalert before manually editing your config files.
 
 
+### If you Run Into Start-up Issues
+
+- Please first review the README documentation and try a few trouble shooting steps:
+    * Delete settings and regenerate them
+    * Try manual configuration changes
+    * Worst case, try generating a config in an earlier eqalert version
+- For direct support:
+    * Create a thread in [Discussions](https://github.com/mgeitz/eqalert/discussions)
+    * This way your issue can be tagged and tracked accordingly!
+
 
 ## Data
 
