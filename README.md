@@ -21,7 +21,7 @@ $ eqalert
 ```
 
 #### Docker
-[![Docker Build](https://github.com/mgeitz/eqalert/actions/workflows/docker-build.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/docker-build.yml)
+[![CodeQL Scan](https://github.com/mgeitz/eqalert/actions/workflows/docker-build.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/codeql.yml)
 ```sh
 # Clone the repository
 $ git clone https://github.com/mgeitz/eqalert.git
@@ -35,7 +35,7 @@ $ docker compose run eqalert
 ```
 
 #### Local Development
-[![Poetry Build](https://github.com/mgeitz/eqalert/actions/workflows/poetry-build.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/poetry-build.yml)
+[![Build Test](https://github.com/mgeitz/eqalert/actions/workflows/poetry-build.yml/badge.svg)](https://github.com/mgeitz/eqalert/actions/workflows/build-test.yml)
 ```sh
 # Install poetry
 $ pipx install poetry==1.7.1
